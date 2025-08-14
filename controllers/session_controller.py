@@ -45,18 +45,34 @@ def build_session_preview_dto(
     return {"blocks": blocks_out}
 
 
-def generate_session_preview(params: Dict[str, Any]) -> Tuple[Any, Dict[str, Any]]:
+def generate_session_preview(
+    params: Dict[str, Any], mode: str = "collectif"
+) -> Tuple[Any, Dict[str, Any]]:
     """Generate a session and its preview DTO."""
-    session = generate_collectif(params)
-    ids = [it.exercise_id for b in session.blocks for it in b.items]
-    repo = ExerciseRepository()
-    meta = repo.get_meta_by_ids(ids)
-    dto = build_session_preview_dto(session.blocks, meta)
-    dto["meta"] = {
-        "title": session.label,
-        "duration": f"{session.duration_sec // 60} min",
-    }
-    return session, dto
+    if mode == "collectif":
+        session = generate_collectif(params)
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        repo = ExerciseRepository()
+        meta = repo.get_meta_by_ids(ids)
+        dto = build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "duration": f"{session.duration_sec // 60} min",
+        }
+        return session, dto
+    elif mode == "individuel":
+        session = {"client": params.get("client"), "goal": params.get("goal")}
+        dto = {
+            "meta": {
+                "title": f"Séance pour {session['client']}",
+                "goal": session["goal"],
+                "duration": "45 min",
+            },
+            "blocks": [],
+        }
+        return session, dto
+    else:
+        raise ValueError(f"Unknown mode: {mode}")
 
 
 __all__ = ["build_session_preview_dto", "generate_session_preview"]

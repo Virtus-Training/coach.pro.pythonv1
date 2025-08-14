@@ -83,7 +83,7 @@ class SessionPage(ctk.CTkFrame):
     def on_generate_collectif(self):
         """Génère une séance collective et met à jour l'aperçu."""
         params = self.form_collectif.get_params()
-        self._last_session, dto = generate_session_preview(params)
+        self._last_session, dto = generate_session_preview(params, mode="collectif")
         self._last_dto = dto
         self._current_cols = render_preview(self.right_col, dto)
 
@@ -93,13 +93,7 @@ class SessionPage(ctk.CTkFrame):
     def on_generate_individuel(self):
         """Génère un aperçu de séance individuelle."""
         params = self.form_individuel.get_params()
-        dto = {
-            "meta": {
-                "title": f"Aperçu pour {params['client']} - Objectif : {params['goal']}",
-            },
-            "blocks": [],
-        }
-        self._last_session = None
+        self._last_session, dto = generate_session_preview(params, mode="individuel")
         self._last_dto = dto
         self._current_cols = render_preview(self.right_col, dto)
 
