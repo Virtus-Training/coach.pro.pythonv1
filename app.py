@@ -11,6 +11,7 @@ from ui.pages.database_page import DatabasePage
 from ui.pages.progress_page import ProgressPage
 from ui.pages.pdf_page import PdfPage
 from ui.pages.clients_page import ClientsPage
+from ui.pages.client_detail_page import ClientDetailPage
 from ui.pages.messaging_page import MessagingPage
 from ui.pages.billing_page import BillingPage
 from ui.layout.header import Header
@@ -41,6 +42,8 @@ class CoachApp(ctk.CTk):
         self.main_frame.pack(side="left", fill="both", expand=True)
 
         self.current_page = None
+        self.clients_page = None
+        self.client_detail_page = None
         self.switch_page("dashboard")  # Page par défaut
 
     def switch_page(self, page_name):
@@ -69,7 +72,8 @@ class CoachApp(ctk.CTk):
             case "pdf":
                 self.current_page = PdfPage(self.main_frame)
             case "clients":
-                self.current_page = ClientsPage(self.main_frame)
+                self.clients_page = ClientsPage(self.main_frame)
+                self.current_page = self.clients_page
             case "messaging":
                 self.current_page = MessagingPage(self.main_frame)
             case "billing":
@@ -78,6 +82,24 @@ class CoachApp(ctk.CTk):
                 self.current_page = DashboardPage(self.main_frame)
 
         self.current_page.pack(fill="both", expand=True)
+
+    def show_client_detail(self, client_id: int) -> None:
+        """Affiche la page de détail d'un client."""
+        if self.clients_page:
+            self.clients_page.pack_forget()
+        self.client_detail_page = ClientDetailPage(self.main_frame, client_id)
+        self.client_detail_page.pack(fill="both", expand=True)
+        self.current_page = self.client_detail_page
+
+    def show_clients_page(self) -> None:
+        """Revient à la page de liste des clients."""
+        if self.client_detail_page:
+            self.client_detail_page.pack_forget()
+            self.client_detail_page.destroy()
+            self.client_detail_page = None
+        if self.clients_page:
+            self.clients_page.pack(fill="both", expand=True)
+            self.current_page = self.clients_page
 
 def launch_app():
     ctk.set_appearance_mode("dark")
