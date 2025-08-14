@@ -8,7 +8,7 @@ EQUIPMENTS = ["Haltères","Barre","Kettlebell","Poids du corps","Machine",
 FORMATS = ["EMOM","AMRAP","For Time","Tabata"]
 INTENSITIES = ["Low","Medium","High"]
 
-class SessionForm(ctk.CTkScrollableFrame):
+class SessionForm(ctk.CTkFrame):
     """
     A form for inputting session generation parameters.
     It encapsulates all the input fields and action buttons.
