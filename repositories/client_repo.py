@@ -26,3 +26,21 @@ class ClientRepository:
             )
             for row in rows
         ]
+
+    def add(self, client: Client) -> None:
+        """Insère un nouveau client dans la base de données."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT INTO clients (nom, prenom, email, date_naissance) VALUES (?, ?, ?, ?)",
+                (client.nom, client.prenom, client.email, client.date_naissance),
+            )
+            conn.commit()
+
+    def update(self, client: Client) -> None:
+        """Met à jour un client existant basé sur son identifiant."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "UPDATE clients SET nom = ?, prenom = ?, email = ?, date_naissance = ? WHERE id = ?",
+                (client.nom, client.prenom, client.email, client.date_naissance, client.id),
+            )
+            conn.commit()
