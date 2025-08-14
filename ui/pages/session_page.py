@@ -2,8 +2,10 @@ import customtkinter as ctk
 from ui.theme.fonts import get_section_font
 from ui.components.layout import two_columns
 from ui.pages.session_preview_panel import render_preview
-from .session_page_components.session_form import SessionForm
+from .session_page_components.form_collectif import FormCollectif
+from .session_page_components.form_individuel import FormIndividuel
 from controllers.session_controller import generate_session_preview
+
 
 class SessionPage(ctk.CTkFrame):
     """
@@ -11,6 +13,7 @@ class SessionPage(ctk.CTkFrame):
     This class acts as a controller, initializing the form and preview components
     and managing the communication between them.
     """
+
     def __init__(self, parent):
         super().__init__(parent, fg_color="#1b1b1b")
         self._full_preview_win = None
@@ -25,7 +28,7 @@ class SessionPage(ctk.CTkFrame):
 
         ctk.CTkLabel(
             self,
-            text="Générateur de séances – Collectifs (V1)",
+            text="Générateur de Séances",
             font=get_section_font(),
         ).grid(row=0, column=0, sticky="w", padx=16, pady=(16, 8))
 
@@ -38,13 +41,27 @@ class SessionPage(ctk.CTkFrame):
         self.left_col.grid(row=0, column=0, sticky="nsew", padx=(16, 8), pady=8)
         self.right_col.grid(row=0, column=1, sticky="nsew", padx=(8, 16), pady=8)
 
-        self.form = SessionForm(
-            parent=self.left_col,
-            generate_callback=self.on_generate,
+        self.tabview = ctk.CTkTabview(self.left_col)
+        self.tabview.pack(fill="both", expand=True, padx=8, pady=8)
+
+        collectif_tab = self.tabview.add("Cours Collectif")
+        individuel_tab = self.tabview.add("Coaching Individuel")
+
+        self.form_collectif = FormCollectif(
+            parent=collectif_tab,
+            generate_callback=self.on_generate_collectif,
             open_preview_callback=self.open_full_preview,
             toggle_form_callback=self.toggle_form,
         )
-        self.form.pack(fill="both", expand=True, padx=8, pady=8)
+        self.form_collectif.pack(fill="both", expand=True)
+
+        self.form_individuel = FormIndividuel(
+            parent=individuel_tab,
+            generate_callback=self.on_generate_individuel,
+            open_preview_callback=self.open_full_preview,
+            toggle_form_callback=self.toggle_form,
+        )
+        self.form_individuel.pack(fill="both", expand=True)
 
         ctk.CTkLabel(
             self.right_col,
@@ -63,13 +80,26 @@ class SessionPage(ctk.CTkFrame):
             self.left_col.grid(row=0, column=0, sticky="nsew", padx=(16, 8), pady=8)
             self._form_hidden = False
 
-    def on_generate(self):
-        """
-        Called when the 'Generate' button is clicked.
-        Gets parameters from the form, generates a session, and tells the preview to render it.
-        """
-        params = self.form.get_params()
+    def on_generate_collectif(self):
+        """Génère une séance collective et met à jour l'aperçu."""
+        params = self.form_collectif.get_params()
         self._last_session, dto = generate_session_preview(params)
+        self._last_dto = dto
+        self._current_cols = render_preview(self.right_col, dto)
+
+        if self._full_preview_win and self._full_preview_win.winfo_exists():
+            render_preview(self._full_preview_container, dto)
+
+    def on_generate_individuel(self):
+        """Génère un aperçu de séance individuelle."""
+        params = self.form_individuel.get_params()
+        dto = {
+            "meta": {
+                "title": f"Aperçu pour {params['client']} - Objectif : {params['goal']}",
+            },
+            "blocks": [],
+        }
+        self._last_session = None
         self._last_dto = dto
         self._current_cols = render_preview(self.right_col, dto)
 
