@@ -9,3 +9,5 @@ class Client:
     prenom: str
     email: Optional[str] = None
     date_naissance: Optional[str] = None
+    objectifs: Optional[str] = None
+    antecedents_medicaux: Optional[str] = None

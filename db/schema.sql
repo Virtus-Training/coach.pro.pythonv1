@@ -18,7 +18,17 @@ CREATE TABLE clients (
     nom TEXT NOT NULL,
     prenom TEXT NOT NULL,
     email TEXT UNIQUE,
-    date_naissance DATE
+    date_naissance DATE,
+    objectifs TEXT,
+    antecedents_medicaux TEXT
+);
+
+CREATE TABLE client_exercice_exclusions (
+    client_id INTEGER NOT NULL,
+    exercice_id INTEGER NOT NULL,
+    PRIMARY KEY (client_id, exercice_id),
+    FOREIGN KEY(client_id) REFERENCES clients(id),
+    FOREIGN KEY(exercice_id) REFERENCES exercices(id)
 );
 
 CREATE TABLE seances (
