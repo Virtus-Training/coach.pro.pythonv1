@@ -83,3 +83,29 @@ class ExerciseRepository:
                 "equipment": _split_csv(r["equipment"]),
             }
         return out
+
+    def get_meta_by_ids(self, ids: list[str]) -> dict[str, Dict[str, Any]]:
+        """Return basic metadata for each exercise id.
+
+        The mapping includes the name, primary muscle group and equipment
+        list. Missing IDs are simply omitted from the result.
+        """
+        if not ids:
+            return {}
+        unique_ids = list(dict.fromkeys(ids))
+        placeholders = ",".join(["?"] * len(unique_ids))
+        q = (
+            "SELECT exercise_id, name, primary_muscle, equipment "
+            f"FROM exercises WHERE exercise_id IN ({placeholders})"
+        )
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(q, unique_ids).fetchall()
+        out: dict[str, Dict[str, Any]] = {}
+        for r in rows:
+            out[r["exercise_id"]] = {
+                "name": r["name"],
+                "primary_muscle": r["primary_muscle"],
+                "equipment": _split_csv(r["equipment"]),
+            }
+        return out
