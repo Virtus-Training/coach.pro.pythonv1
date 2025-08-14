@@ -51,8 +51,11 @@ class ClientsPage(ctk.CTkFrame):
         info.pack(side="left", padx=10, pady=10)
 
         full_name = f"{client.prenom} {client.nom}"
-        ctk.CTkLabel(info, text=full_name, font=get_text_font(), text_color=TEXT).pack(anchor="w")
-        ctk.CTkLabel(info, text=client.email or "", font=get_small_font(), text_color=TEXT_SECONDARY).pack(anchor="w")
+        name_label = ctk.CTkLabel(info, text=full_name, font=get_text_font(), text_color=TEXT)
+        name_label.pack(anchor="w")
+        email = client.email or "Non renseigné"
+        email_label = ctk.CTkLabel(info, text=email, font=get_small_font(), text_color=TEXT_SECONDARY)
+        email_label.pack(anchor="w")
 
         ctk.CTkButton(
             card,
@@ -60,6 +63,14 @@ class ClientsPage(ctk.CTkFrame):
             command=lambda c=client: self._open_edit_modal(c),
             width=100,
         ).pack(side="right", padx=10, pady=10)
+
+        # Rendre la carte cliquable
+        widgets_to_bind = [card, info, name_label, email_label]
+        for widget in widgets_to_bind:
+            widget.bind("<Button-1>", lambda e, cid=client.id: self.on_client_selected(cid))
+
+    def on_client_selected(self, client_id: int) -> None:
+        self.master.master.show_client_detail(client_id)
 
     # -- Modal handlers ---------------------------------------------------
     def _open_add_modal(self) -> None:

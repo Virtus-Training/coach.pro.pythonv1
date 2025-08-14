@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List
+from typing import List, Optional
 
 from models.client import Client
 
@@ -44,3 +44,21 @@ class ClientRepository:
                 (client.nom, client.prenom, client.email, client.date_naissance, client.id),
             )
             conn.commit()
+
+    def find_by_id(self, client_id: int) -> Optional[Client]:
+        """Récupère un client par son identifiant."""
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            row = conn.execute(
+                "SELECT * FROM clients WHERE id = ?",
+                (client_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return Client(
+            id=row["id"],
+            nom=row["nom"],
+            prenom=row["prenom"],
+            email=row["email"],
+            date_naissance=row["date_naissance"],
+        )
