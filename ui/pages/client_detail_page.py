@@ -1,8 +1,9 @@
 import customtkinter as ctk
 
 from repositories.client_repo import ClientRepository
-from ui.theme.fonts import get_title_font, get_text_font
+from ui.theme.fonts import get_title_font
 from ui.theme.colors import DARK_BG, TEXT
+from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 
 
 class ClientDetailPage(ctk.CTkFrame):
@@ -23,12 +24,8 @@ class ClientDetailPage(ctk.CTkFrame):
 
         if client:
             title = f"{client.prenom} {client.nom}"
-            email = client.email or "Non renseigné"
-            birth = client.date_naissance or "Non renseigné"
         else:
             title = "Client introuvable"
-            email = "Non renseigné"
-            birth = "Non renseigné"
 
         ctk.CTkLabel(
             self,
@@ -37,17 +34,9 @@ class ClientDetailPage(ctk.CTkFrame):
             text_color=TEXT,
         ).pack(anchor="w", padx=20, pady=(0, 20))
 
-        ctk.CTkLabel(
-            self,
-            text=f"Email : {email}",
-            font=get_text_font(),
-            text_color=TEXT,
-        ).pack(anchor="w", padx=20, pady=(0, 5))
-
-        ctk.CTkLabel(
-            self,
-            text=f"Date de naissance : {birth}",
-            font=get_text_font(),
-            text_color=TEXT,
-        ).pack(anchor="w", padx=20)
+        tabview = ctk.CTkTabview(self)
+        tabview.pack(fill="both", expand=True, padx=20, pady=20)
+        anam_tab = tabview.add("Anamnèse")
+        if client:
+            AnamneseTab(anam_tab, client).pack(fill="both", expand=True, padx=10, pady=10)
 
