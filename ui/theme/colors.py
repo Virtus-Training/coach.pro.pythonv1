@@ -14,6 +14,12 @@ TEXT = "#f9f9f9"            # Texte principal (anciennement #f5f5f5)
 TEXT_SECONDARY = "#bbbbbb"  # Texte secondaire
 TEXT_MUTED = "#999999"     # Texte atténué
 
+# Couleur pour le texte sur un fond de couleur primaire (ex: boutons)
+TEXT_ON_PRIMARY = "#FFFFFF"
+
+# Couleur subtile pour les bordures des cartes et panneaux
+BORDER_COLOR = "#333A4D"
+
 # Accent
 SUCCESS = "#22c55e"
 WARNING = "#f59e0b"
