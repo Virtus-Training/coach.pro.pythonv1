@@ -108,3 +108,14 @@ class ClientRepository:
             )
         conn.commit()
         conn.close()
+
+    def get_exclusions(self, client_id: int) -> List[int]:
+        conn = self._get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT exercice_id FROM client_exercice_exclusions WHERE client_id = ?",
+            (client_id,),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+        return [row["exercice_id"] for row in rows]
