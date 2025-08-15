@@ -5,6 +5,7 @@ from ui.theme.fonts import get_title_font
 from ui.theme.colors import DARK_BG, TEXT
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
+from ui.pages.client_detail_page_components.stats_tab import StatsTab
 
 
 class ClientDetailPage(ctk.CTkFrame):
@@ -42,4 +43,6 @@ class ClientDetailPage(ctk.CTkFrame):
             AnamneseTab(anam_tab, client).pack(fill="both", expand=True, padx=10, pady=10)
         suivi_tab = tabview.add("Suivi & Séances")
         SuiviTab(suivi_tab, self.client_id).pack(fill="both", expand=True, padx=10, pady=10)
+        stats_tab = tabview.add("Progression & Stats")
+        StatsTab(stats_tab, self.client_id).pack(fill="both", expand=True, padx=10, pady=10)
 

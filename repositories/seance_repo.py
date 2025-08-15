@@ -1,5 +1,6 @@
 import sqlite3
-from typing import List
+from datetime import datetime
+from typing import Dict, List
 
 from models.seance import Seance
 from models.resultat_exercice import ResultatExercice
@@ -78,5 +79,34 @@ class SeanceRepository:
                         r.charge_utilisee,
                         r.feedback_client,
                     ),
-                )
+            )
             conn.commit()
+
+    def get_exercice_history(self, client_id: int, exercice_id: int) -> List[Dict]:
+        """Return max load per session for a given client and exercise.
+
+        Dates are returned as ``datetime`` objects and results are ordered from
+        oldest to newest session.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                """
+                SELECT s.date_creation AS date, MAX(r.charge_utilisee) AS max_charge
+                FROM seances s
+                JOIN resultats_exercices r ON s.id = r.seance_id
+                WHERE s.client_id = ? AND r.exercice_id = ?
+                GROUP BY s.date_creation
+                ORDER BY s.date_creation ASC
+                """,
+                (client_id, exercice_id),
+            ).fetchall()
+        history: List[Dict] = []
+        for r in rows:
+            history.append(
+                {
+                    "date": datetime.strptime(r["date"], "%Y-%m-%d"),
+                    "max_charge": r["max_charge"],
+                }
+            )
+        return history
