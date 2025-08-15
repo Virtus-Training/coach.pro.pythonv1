@@ -2,6 +2,7 @@ import sqlite3
 from typing import List
 
 from models.aliment import Aliment
+from models.portion import Portion
 
 DB_PATH = "coach.db"
 
@@ -30,6 +31,23 @@ class AlimentRepository:
                 unite_base=row["unite_base"],
                 indice_healthy=row["indice_healthy"],
                 indice_commun=row["indice_commun"],
+            )
+            for row in rows
+        ]
+
+    def get_portions_for_aliment(self, aliment_id: int) -> List[Portion]:
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT * FROM portions WHERE aliment_id = ? ORDER BY id",
+                (aliment_id,),
+            ).fetchall()
+        return [
+            Portion(
+                id=row["id"],
+                aliment_id=row["aliment_id"],
+                description=row["description"],
+                grammes_equivalents=row["grammes_equivalents"],
             )
             for row in rows
         ]
