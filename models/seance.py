@@ -6,6 +6,8 @@ from .resultat_exercice import ResultatExercice
 
 @dataclass
 class Seance:
+    """Représente une séance d'entraînement ainsi que ses résultats."""
+
     id: int
     client_id: Optional[int]
     type_seance: str
