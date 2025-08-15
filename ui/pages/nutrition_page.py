@@ -6,6 +6,7 @@ import customtkinter as ctk
 from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.aliment_repo import AlimentRepository
+from ui.theme.colors import PRIMARY
 
 DB_PATH = "coach.db"
 
@@ -145,7 +146,7 @@ class NutritionPage(ctk.CTkFrame):
         self.active_repas_id = repas_id
         for child in self.meals_frame.winfo_children():
             child.configure(border_color=self.meals_frame.cget("fg_color"))
-        frame.configure(border_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"]["normal"])  # primary color
+        frame.configure(border_color=PRIMARY)
 
     def _add_meal(self) -> None:
         if not self.selected_plan:
