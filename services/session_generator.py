@@ -92,7 +92,7 @@ def build_block(slot: Dict[str, Any], pool: List[Exercise], rng: random.Random, 
             presc = {"work_sec": block.work_sec, "rest_sec": block.rest_sec}
         else:
             presc = {}
-        block.items.append(BlockItem(exercise_id=ex.exercise_id, prescription=presc))
+        block.items.append(BlockItem(exercise_id=ex.id, prescription=presc))
         last_pattern = ex.movement_pattern
     return block
 
