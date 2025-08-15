@@ -2,6 +2,8 @@ DROP TABLE IF EXISTS resultats_exercices;
 DROP TABLE IF EXISTS seances;
 DROP TABLE IF EXISTS clients;
 DROP TABLE IF EXISTS exercices;
+DROP TABLE IF EXISTS portions;
+DROP TABLE IF EXISTS aliments;
 
 CREATE TABLE exercices (
     id INTEGER PRIMARY KEY,
@@ -51,5 +53,28 @@ CREATE TABLE resultats_exercices (
     feedback_client TEXT,
     FOREIGN KEY(seance_id) REFERENCES seances(id),
     FOREIGN KEY(exercice_id) REFERENCES exercices(id)
+);
+
+CREATE TABLE aliments (
+    id INTEGER PRIMARY KEY,
+    nom TEXT NOT NULL UNIQUE,
+    categorie TEXT,
+    type_alimentation TEXT,
+    kcal_100g REAL NOT NULL,
+    proteines_100g REAL NOT NULL,
+    glucides_100g REAL NOT NULL,
+    lipides_100g REAL NOT NULL,
+    fibres_100g REAL,
+    unite_base TEXT DEFAULT 'g',
+    indice_healthy INTEGER,
+    indice_commun INTEGER
+);
+
+CREATE TABLE portions (
+    id INTEGER PRIMARY KEY,
+    aliment_id INTEGER NOT NULL,
+    description TEXT NOT NULL,
+    grammes_equivalents REAL NOT NULL,
+    FOREIGN KEY(aliment_id) REFERENCES aliments(id)
 );
 
