@@ -15,3 +15,8 @@ def get_small_font():
 
 def get_mono_font():
     return CTkFont(family="Consolas", size=13)
+
+
+def get_button_font():
+    """Retourne la police standard pour les boutons."""
+    return ("Roboto", 14, "bold")
