@@ -26,15 +26,15 @@ class ClientsPage(ctk.CTkFrame):
         actions.pack(fill="x", padx=20)
 
         ctk.CTkButton(actions, text="Ajouter un client", command=self._open_add_modal).pack(side="left", padx=(0, 10))
-        ctk.CTkButton(actions, text="Rafraîchir", command=self.load_clients).pack(side="left")
+        ctk.CTkButton(actions, text="Rafraîchir", command=self._load_clients).pack(side="left")
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self.load_clients()
+        self._load_clients()
 
     # -- Data loading -----------------------------------------------------
-    def load_clients(self) -> None:
+    def _load_clients(self) -> None:
         """Charge et affiche les clients dans le scroll frame."""
         for widget in self.scroll.winfo_children():
             widget.destroy()
@@ -77,10 +77,10 @@ class ClientsPage(ctk.CTkFrame):
         modal = ClientFormModal(self)
         modal.grab_set()
         self.wait_window(modal)
-        self.load_clients()
+        self._load_clients()
 
     def _open_edit_modal(self, client: Client) -> None:
         modal = ClientFormModal(self, client)
         modal.grab_set()
         self.wait_window(modal)
-        self.load_clients()
+        self._load_clients()
