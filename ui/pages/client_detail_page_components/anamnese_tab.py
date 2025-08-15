@@ -4,6 +4,7 @@ from models.client import Client
 from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
 from ui.components.exclusion_selector import ExclusionSelector
+from ui.components.design_system import Card, CardTitle, PrimaryButton
 
 
 class AnamneseTab(ctk.CTkFrame):
@@ -13,31 +14,35 @@ class AnamneseTab(ctk.CTkFrame):
         self.client_repo = ClientRepository()
         self.exercice_repo = ExerciseRepository()
 
-        info_frame = ctk.CTkFrame(self, fg_color="transparent")
-        info_frame.pack(fill="x", padx=10, pady=10)
+        info_card = Card(self)
+        info_card.pack(fill="x", padx=20, pady=(20, 10))
 
-        ctk.CTkLabel(info_frame, text="Objectifs du client").pack(anchor="w")
-        self.objectifs_txt = ctk.CTkTextbox(info_frame, height=80)
-        self.objectifs_txt.pack(fill="x", pady=(0,10))
+        CardTitle(info_card, text="Informations Clés").pack(anchor="w", padx=20, pady=(20, 10))
+
+        ctk.CTkLabel(info_card, text="Objectifs du client").pack(anchor="w", padx=20)
+        self.objectifs_txt = ctk.CTkTextbox(info_card, height=80)
+        self.objectifs_txt.pack(fill="x", padx=20, pady=(0, 10))
         if client.objectifs:
             self.objectifs_txt.insert("1.0", client.objectifs)
 
-        ctk.CTkLabel(info_frame, text="Antécédents & Notes").pack(anchor="w")
-        self.antecedents_txt = ctk.CTkTextbox(info_frame, height=80)
-        self.antecedents_txt.pack(fill="x")
+        ctk.CTkLabel(info_card, text="Antécédents & Notes").pack(anchor="w", padx=20)
+        self.antecedents_txt = ctk.CTkTextbox(info_card, height=80)
+        self.antecedents_txt.pack(fill="x", padx=20, pady=(0, 20))
         if client.antecedents_medicaux:
             self.antecedents_txt.insert("1.0", client.antecedents_medicaux)
 
-        excl_frame = ctk.CTkFrame(self, fg_color="transparent")
-        excl_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        excl_card = Card(self)
+        excl_card.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+
+        CardTitle(excl_card, text="Exercices à Exclure").pack(anchor="w", padx=20, pady=(20, 10))
 
         all_exercices = self.exercice_repo.list_all_exercices()
         excluded_ids = self.client_repo.get_exclusions(client.id)
 
-        self.selector = ExclusionSelector(excl_frame, all_exercices, excluded_ids)
-        self.selector.pack(fill="both", expand=True)
+        self.selector = ExclusionSelector(excl_card, all_exercices, excluded_ids)
+        self.selector.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
-        ctk.CTkButton(self, text="Enregistrer les modifications", command=self._save).pack(pady=10)
+        PrimaryButton(self, text="Enregistrer les modifications", command=self._save).pack(anchor="e", padx=20, pady=(0, 20))
 
     def _save(self):
         objectifs = self.objectifs_txt.get("1.0", "end").strip()

@@ -1,8 +1,8 @@
 import customtkinter as ctk
 
 from repositories.client_repo import ClientRepository
-from ui.theme.fonts import get_title_font
-from ui.theme.colors import DARK_BG, TEXT
+from ui.theme.colors import DARK_BG
+from ui.components.design_system import PageTitle, SecondaryButton
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
 from ui.pages.client_detail_page_components.stats_tab import StatsTab
@@ -20,27 +20,25 @@ class ClientDetailPage(ctk.CTkFrame):
         repo = ClientRepository()
         client = repo.find_by_id(client_id)
 
-        ctk.CTkButton(
-            self,
+        header = ctk.CTkFrame(self, fg_color="transparent")
+        header.pack(fill="x", padx=20, pady=20)
+
+        SecondaryButton(
+            header,
             text="< Retour",
             command=self.master.master.show_clients_page,
             width=100,
-        ).pack(anchor="w", padx=20, pady=(20, 10))
+        ).pack(side="left")
 
         if client:
             title = f"{client.prenom} {client.nom}"
         else:
             title = "Client introuvable"
 
-        ctk.CTkLabel(
-            self,
-            text=title,
-            font=get_title_font(),
-            text_color=TEXT,
-        ).pack(anchor="w", padx=20, pady=(0, 20))
+        PageTitle(header, text=title).pack(side="left", padx=20)
 
         tabview = ctk.CTkTabview(self)
-        tabview.pack(fill="both", expand=True, padx=20, pady=20)
+        tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         anam_tab = tabview.add("Anamnèse")
         if client:
             AnamneseTab(anam_tab, client).pack(fill="both", expand=True, padx=10, pady=10)
