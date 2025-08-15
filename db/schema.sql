@@ -78,3 +78,29 @@ CREATE TABLE portions (
     FOREIGN KEY(aliment_id) REFERENCES aliments(id)
 );
 
+CREATE TABLE plans_alimentaires (
+    id INTEGER PRIMARY KEY,
+    nom TEXT NOT NULL,
+    description TEXT,
+    tags TEXT
+);
+
+CREATE TABLE repas (
+    id INTEGER PRIMARY KEY,
+    plan_id INTEGER NOT NULL,
+    nom TEXT NOT NULL,
+    ordre INTEGER DEFAULT 0,
+    FOREIGN KEY(plan_id) REFERENCES plans_alimentaires(id)
+);
+
+CREATE TABLE repas_items (
+    id INTEGER PRIMARY KEY,
+    repas_id INTEGER NOT NULL,
+    aliment_id INTEGER NOT NULL,
+    portion_id INTEGER NOT NULL,
+    quantite REAL DEFAULT 1.0,
+    FOREIGN KEY(repas_id) REFERENCES repas(id),
+    FOREIGN KEY(aliment_id) REFERENCES aliments(id),
+    FOREIGN KEY(portion_id) REFERENCES portions(id)
+);
+

@@ -18,7 +18,7 @@ class Sidebar(ctk.CTkFrame):
             ("sessions", "Séances", "clock.png"),
             ("progress", "Progression", "chart.png"),
             ("pdf", "PDF", "pdf.png"),
-            ("nutrition", "Nutrition", "apple.png"),
+            ("nutrition", "Nutrition", "meal-plan.png"),
             ("database", "Base de données", "database.png"),
             ("clients", "Clients", "users.png"),
             ("messaging", "Messagerie", "chat.png"),

@@ -65,6 +65,7 @@ class CoachApp(ctk.CTk):
                 self.current_page = CalendarPage(self.main_frame)
             case "nutrition":
                 self.current_page = NutritionPage(self.main_frame)
+                self.header.update_title("Nutrition")
             case "database":
                 self.current_page = DatabasePage(self.main_frame)
             case "progress":
