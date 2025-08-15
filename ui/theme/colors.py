@@ -12,6 +12,7 @@ DARK_SOFT = "#2a2a2d"       # Bloc secondaire ou éléments passifs
 # Texte
 TEXT = "#f9f9f9"            # Texte principal (anciennement #f5f5f5)
 TEXT_SECONDARY = "#bbbbbb"  # Texte secondaire
+TEXT_MUTED = "#999999"     # Texte atténué
 
 # Accent
 SUCCESS = "#22c55e"

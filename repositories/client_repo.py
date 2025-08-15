@@ -31,6 +31,10 @@ class ClientRepository:
                     date_naissance=row["date_naissance"],
                     objectifs=row["objectifs"],
                     antecedents_medicaux=row["antecedents_medicaux"],
+                    sexe=row["sexe"],
+                    poids_kg=row["poids_kg"],
+                    taille_cm=row["taille_cm"],
+                    niveau_activite=row["niveau_activite"],
                 )
             )
         return clients
@@ -51,6 +55,10 @@ class ClientRepository:
                 date_naissance=row["date_naissance"],
                 objectifs=row["objectifs"],
                 antecedents_medicaux=row["antecedents_medicaux"],
+                sexe=row["sexe"],
+                poids_kg=row["poids_kg"],
+                taille_cm=row["taille_cm"],
+                niveau_activite=row["niveau_activite"],
             )
         return None
 

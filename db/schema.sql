@@ -24,7 +24,11 @@ CREATE TABLE clients (
     email TEXT UNIQUE,
     date_naissance DATE,
     objectifs TEXT,
-    antecedents_medicaux TEXT
+    antecedents_medicaux TEXT,
+    sexe TEXT,
+    poids_kg REAL,
+    taille_cm REAL,
+    niveau_activite TEXT
 );
 
 CREATE TABLE client_exercice_exclusions (
@@ -103,5 +107,21 @@ CREATE TABLE repas_items (
     FOREIGN KEY(repas_id) REFERENCES repas(id),
     FOREIGN KEY(aliment_id) REFERENCES aliments(id),
     FOREIGN KEY(portion_id) REFERENCES portions(id)
+);
+
+CREATE TABLE fiches_nutrition (
+    id INTEGER PRIMARY KEY,
+    client_id INTEGER NOT NULL,
+    date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    poids_kg_mesure REAL NOT NULL,
+    objectif TEXT NOT NULL,
+    proteines_cible_g_par_kg REAL NOT NULL,
+    ratio_glucides_lipides_cible REAL NOT NULL,
+    maintenance_kcal INTEGER NOT NULL,
+    objectif_kcal INTEGER NOT NULL,
+    proteines_g INTEGER NOT NULL,
+    glucides_g INTEGER NOT NULL,
+    lipides_g INTEGER NOT NULL,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 

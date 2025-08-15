@@ -6,6 +6,9 @@ from ui.theme.colors import DARK_BG, TEXT
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
 from ui.pages.client_detail_page_components.stats_tab import StatsTab
+from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
+    FicheNutritionTab,
+)
 
 
 class ClientDetailPage(ctk.CTkFrame):
@@ -45,4 +48,6 @@ class ClientDetailPage(ctk.CTkFrame):
         SuiviTab(suivi_tab, self.client_id).pack(fill="both", expand=True, padx=10, pady=10)
         stats_tab = tabview.add("Progression & Stats")
         StatsTab(stats_tab, self.client_id).pack(fill="both", expand=True, padx=10, pady=10)
+        fiche_tab = tabview.add("Fiche Nutrition")
+        FicheNutritionTab(fiche_tab, self.client_id).pack(fill="both", expand=True, padx=10, pady=10)
 
