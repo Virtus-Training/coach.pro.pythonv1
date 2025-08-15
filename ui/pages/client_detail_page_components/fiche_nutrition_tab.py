@@ -14,7 +14,7 @@ from services.nutrition_service import (
 from services.pdf_generator import generate_nutrition_sheet_pdf
 from models.fiche_nutrition import FicheNutrition
 from ui.theme.colors import DARK_PANEL, TEXT
-from ui.theme.fonts import get_title_font
+from ui.theme.fonts import get_title_font, get_text_font
 
 
 class FicheNutritionTab(ctk.CTkFrame):
@@ -30,9 +30,17 @@ class FicheNutritionTab(ctk.CTkFrame):
         self.display.pack(fill="both", expand=True, padx=10, pady=10)
 
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(pady=10)
-        ctk.CTkButton(btn_frame, text="Générer / Mettre à jour", command=self.open_modal).pack(side="left", padx=5)
-        self.export_btn = ctk.CTkButton(btn_frame, text="Exporter en PDF", command=self.export_pdf)
+        btn_frame.pack(side="bottom", pady=10)
+        ctk.CTkButton(
+            btn_frame,
+            text="Générer / Mettre à jour la fiche",
+            command=self.open_modal,
+        ).pack(side="left", padx=5)
+        self.export_btn = ctk.CTkButton(
+            btn_frame,
+            text="Exporter en PDF",
+            command=self.export_pdf,
+        )
         self.export_btn.pack(side="left", padx=5)
 
         self.refresh()
@@ -41,21 +49,53 @@ class FicheNutritionTab(ctk.CTkFrame):
         for w in self.display.winfo_children():
             w.destroy()
         if not self.fiche:
-            ctk.CTkLabel(self.display, text="Aucune fiche nutrition", text_color=TEXT).pack(expand=True)
+            message = (
+                "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
+            )
+            ctk.CTkLabel(
+                self.display,
+                text=message,
+                text_color=TEXT,
+                font=get_text_font(),
+            ).pack(expand=True, fill="both")
             self.export_btn.configure(state="disabled")
         else:
             self.export_btn.configure(state="normal")
-            ctk.CTkLabel(self.display, text="Dernière fiche", font=get_title_font(), text_color=TEXT).pack(anchor="w", padx=10, pady=(10, 20))
-            info = (
-                f"Date : {self.fiche.date_creation}\n"
-                f"Objectif : {self.fiche.objectif}\n"
-                f"Maintenance : {self.fiche.maintenance_kcal} kcal\n"
-                f"Objectif : {self.fiche.objectif_kcal} kcal\n"
-                f"Protéines : {self.fiche.proteines_g} g\n"
-                f"Glucides : {self.fiche.glucides_g} g\n"
-                f"Lipides : {self.fiche.lipides_g} g"
-            )
-            ctk.CTkLabel(self.display, text=info, text_color=TEXT, justify="left").pack(anchor="w", padx=10, pady=(0, 10))
+            ctk.CTkLabel(
+                self.display,
+                text="Dernière Fiche Nutritionnelle",
+                font=get_title_font(),
+                text_color=TEXT,
+            ).pack(anchor="w", padx=10, pady=(10, 20))
+
+            info_frame = ctk.CTkFrame(self.display, fg_color="transparent")
+            info_frame.pack(fill="x", padx=10)
+            info_frame.grid_columnconfigure(0, weight=1)
+            info_frame.grid_columnconfigure(1, weight=1)
+
+            fields = [
+                ("Date", str(self.fiche.date_creation)),
+                ("Objectif", self.fiche.objectif),
+                ("Maintenance", f"{self.fiche.maintenance_kcal} kcal"),
+                ("Objectif (kcal)", f"{self.fiche.objectif_kcal} kcal"),
+                ("Protéines", f"{self.fiche.proteines_g} g"),
+                ("Glucides", f"{self.fiche.glucides_g} g"),
+                ("Lipides", f"{self.fiche.lipides_g} g"),
+            ]
+
+            for row, (label, value) in enumerate(fields):
+                ctk.CTkLabel(
+                    info_frame,
+                    text=label,
+                    text_color=TEXT,
+                    font=get_text_font(),
+                ).grid(row=row, column=0, sticky="w", pady=2)
+                ctk.CTkLabel(
+                    info_frame,
+                    text=value,
+                    text_color=TEXT,
+                    font=get_text_font(),
+                ).grid(row=row, column=1, sticky="e", pady=2)
 
     # Modal
     def open_modal(self):
