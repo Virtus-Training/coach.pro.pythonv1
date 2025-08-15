@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from models.exercices import Exercise
 
@@ -26,6 +26,7 @@ class ExerciseRepository:
                 nom=row["nom"],
                 groupe_musculaire_principal=row["groupe_musculaire_principal"],
                 equipement=row["equipement"],
+                tags=row["tags"],
                 type_effort=row["type_effort"],
                 coefficient_volume=row["coefficient_volume"],
                 est_chargeable=bool(row["est_chargeable"]),
@@ -84,3 +85,49 @@ class ExerciseRepository:
                 "equipment": _split_csv(r["equipement"]),
             }
         return out
+
+    def filter(
+        self,
+        equipment: Optional[List[str]] = None,
+        tags: Optional[List[str]] = None,
+    ) -> List[Exercise]:
+        """Return exercises filtered by equipment and/or tags."""
+        query = "SELECT * FROM exercices"
+        conditions: List[str] = []
+        params: List[str] = []
+
+        if equipment:
+            equipment_conditions = []
+            for eq in equipment:
+                equipment_conditions.append("equipement LIKE ?")
+                params.append(f"%{eq}%")
+            conditions.append("(" + " OR ".join(equipment_conditions) + ")")
+
+        if tags:
+            tag_conditions = []
+            for tag in tags:
+                tag_conditions.append("tags LIKE ?")
+                params.append(f"%{tag}%")
+            conditions.append("(" + " OR ".join(tag_conditions) + ")")
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY nom"
+
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(query, params).fetchall()
+
+        return [
+            Exercise(
+                id=row["id"],
+                nom=row["nom"],
+                groupe_musculaire_principal=row["groupe_musculaire_principal"],
+                equipement=row["equipement"],
+                tags=row["tags"],
+                type_effort=row["type_effort"],
+                coefficient_volume=row["coefficient_volume"],
+                est_chargeable=bool(row["est_chargeable"]),
+            )
+            for row in rows
+        ]

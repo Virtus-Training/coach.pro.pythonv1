@@ -8,6 +8,7 @@ CREATE TABLE exercices (
     nom TEXT NOT NULL UNIQUE,
     groupe_musculaire_principal TEXT NOT NULL,
     equipement TEXT,
+    tags TEXT,
     type_effort TEXT NOT NULL,
     coefficient_volume REAL DEFAULT 1.0,
     est_chargeable BOOLEAN NOT NULL
