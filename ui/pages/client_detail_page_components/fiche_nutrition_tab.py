@@ -13,8 +13,9 @@ from services.nutrition_service import (
 )
 from services.pdf_generator import generate_nutrition_sheet_pdf
 from models.fiche_nutrition import FicheNutrition
-from ui.theme.colors import DARK_PANEL, TEXT
-from ui.theme.fonts import get_title_font, get_text_font
+from ui.theme.colors import TEXT
+from ui.theme.fonts import get_text_font
+from ui.components.design_system import Card, CardTitle, PrimaryButton
 
 
 class FicheNutritionTab(ctk.CTkFrame):
@@ -26,17 +27,17 @@ class FicheNutritionTab(ctk.CTkFrame):
         self.client = self.client_repo.find_by_id(client_id)
         self.fiche = self.repo.get_last_for_client(client_id)
 
-        self.display = ctk.CTkFrame(self, fg_color=DARK_PANEL)
-        self.display.pack(fill="both", expand=True, padx=10, pady=10)
+        self.display = Card(self)
+        self.display.pack(fill="both", expand=True, padx=20, pady=20)
 
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(side="bottom", pady=10)
-        ctk.CTkButton(
+        btn_frame.pack(side="bottom", pady=20)
+        PrimaryButton(
             btn_frame,
             text="Générer / Mettre à jour la fiche",
             command=self.open_modal,
         ).pack(side="left", padx=5)
-        self.export_btn = ctk.CTkButton(
+        self.export_btn = PrimaryButton(
             btn_frame,
             text="Exporter en PDF",
             command=self.export_pdf,
@@ -61,15 +62,11 @@ class FicheNutritionTab(ctk.CTkFrame):
             self.export_btn.configure(state="disabled")
         else:
             self.export_btn.configure(state="normal")
-            ctk.CTkLabel(
-                self.display,
-                text="Dernière Fiche Nutritionnelle",
-                font=get_title_font(),
-                text_color=TEXT,
-            ).pack(anchor="w", padx=10, pady=(10, 20))
-
+            CardTitle(self.display, text="Dernière Fiche Nutritionnelle").pack(
+                anchor="w", padx=20, pady=(20, 20)
+            )
             info_frame = ctk.CTkFrame(self.display, fg_color="transparent")
-            info_frame.pack(fill="x", padx=10)
+            info_frame.pack(fill="x", padx=20)
             info_frame.grid_columnconfigure(0, weight=1)
             info_frame.grid_columnconfigure(1, weight=1)
 
