@@ -1,7 +1,9 @@
 import customtkinter as ctk
 from typing import Optional
+from tkinter import messagebox
 
 from models.client import Client
+from repositories.client_repo import ClientRepository
 from ui.theme.fonts import get_title_font, get_text_font
 from ui.theme.colors import DARK_BG, TEXT
 
@@ -60,11 +62,31 @@ class ClientFormModal(ctk.CTkToplevel):
         ctk.CTkButton(btn_frame, text="Annuler", command=self.destroy).pack(side="left", padx=5)
 
     def _on_save(self) -> None:
-        data = {
-            "prenom": self.prenom_var.get(),
-            "nom": self.nom_var.get(),
-            "email": self.email_var.get(),
-            "date_naissance": self.date_var.get(),
-        }
-        print("Enregistrer client:", data)
+        prenom = self.prenom_var.get().strip()
+        nom = self.nom_var.get().strip()
+        email = self.email_var.get().strip() or None
+        date_naissance = self.date_var.get().strip() or None
+
+        if not prenom or not nom:
+            messagebox.showerror("Erreur", "Le nom et le prénom sont obligatoires.")
+            return
+
+        repo = ClientRepository()
+
+        if self.client:
+            self.client.prenom = prenom
+            self.client.nom = nom
+            self.client.email = email
+            self.client.date_naissance = date_naissance
+            repo.update(self.client)
+        else:
+            nouveau_client = Client(
+                id=None,
+                prenom=prenom,
+                nom=nom,
+                email=email,
+                date_naissance=date_naissance,
+            )
+            repo.add(nouveau_client)
+
         self.destroy()
