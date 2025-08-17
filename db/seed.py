@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from db.database_manager import db_manager
+
 SCHEMA_PATH = "db/schema.sql"
 CSV_PATH = Path("data/base_aliments_enrichie_bloc4.csv")
 

@@ -1,9 +1,9 @@
-# ui/components/design_system/buttons.py
+"""Button components for the design system."""
 
 import customtkinter as ctk
 
-from ui.theme.colors import DARK_SOFT, PRIMARY, SECONDARY, TEXT_ON_PRIMARY
-from ui.theme.fonts import get_button_font
+from ui.theme.colors import NEUTRAL_100, NEUTRAL_700, PRIMARY
+from ui.theme.fonts import H3_NORMAL
 
 
 class PrimaryButton(ctk.CTkButton):
@@ -13,9 +13,9 @@ class PrimaryButton(ctk.CTkButton):
         super().__init__(
             master,
             fg_color=PRIMARY,
-            hover_color=SECONDARY,
-            text_color=TEXT_ON_PRIMARY,
-            font=get_button_font(),
+            hover_color="#007BBE",
+            text_color=NEUTRAL_100,
+            font=H3_NORMAL,
             corner_radius=8,
             height=40,
             **kwargs,
@@ -29,11 +29,11 @@ class SecondaryButton(ctk.CTkButton):
         super().__init__(
             master,
             fg_color="transparent",
-            hover_color=DARK_SOFT,
+            hover_color=NEUTRAL_700,
             text_color=PRIMARY,
-            border_width=1,
+            border_width=2,
             border_color=PRIMARY,
-            font=get_button_font(),
+            font=H3_NORMAL,
             corner_radius=8,
             height=40,
             **kwargs,
