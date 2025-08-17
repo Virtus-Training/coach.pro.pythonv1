@@ -2,7 +2,6 @@
 
 import customtkinter as ctk
 
-from repositories.client_repo import ClientRepository
 from services.client_service import ClientService
 from ui.components.design_system.buttons import PrimaryButton
 from ui.components.design_system.cards import Card
@@ -12,7 +11,7 @@ from ui.components.design_system.typography import CardTitle
 class FormIndividuel(Card):
     """Formulaire pour la génération de séances individuelles."""
 
-    def __init__(self, parent, generate_callback=None):
+    def __init__(self, parent, client_service: ClientService, generate_callback=None):
         super().__init__(parent)
         self.grid_columnconfigure(0, weight=1)
 
@@ -28,7 +27,7 @@ class FormIndividuel(Card):
         ctk.CTkLabel(client_row, text="Client").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
         )
-        self.client_service = ClientService(ClientRepository())
+        self.client_service = client_service
         clients = self.client_service.get_all_clients()
         client_names = [f"{c.prenom} {c.nom}" for c in clients]
         self.client_var = ctk.StringVar(value=client_names[0] if client_names else "")

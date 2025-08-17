@@ -52,7 +52,13 @@ def generate_session_preview(
 ) -> Tuple[Any, Dict[str, Any]]:
     """Generate a session and its preview DTO."""
     if mode == "collectif":
-        session = generate_collectif(params)
+        svc_params = {
+            "course_type": params.get("course_type"),
+            "duration": int(params.get("duration", 0)),
+            "intensity": params.get("intensity"),
+            "equipment": params.get("equipment", []),
+        }
+        session = generate_collectif(svc_params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
         repo = ExerciseRepository()
         meta = repo.get_meta_by_ids(ids)
