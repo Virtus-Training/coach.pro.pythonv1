@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
 
 OBJECTIFS = ["Volume", "Force", "Endurance", "Technique"]
 
@@ -26,8 +27,8 @@ class FormIndividuel(ctk.CTkFrame):
         ctk.CTkLabel(row1, text="Sélectionner un client").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
         )
-        repo = ClientRepository()
-        clients = repo.list_all()
+        self.client_service = ClientService(ClientRepository())
+        clients = self.client_service.get_all_clients()
         client_names = [f"{c.prenom} {c.nom}" for c in clients]
         self.client_var = ctk.StringVar(value=client_names[0] if client_names else "")
         ctk.CTkOptionMenu(row1, variable=self.client_var, values=client_names).grid(
