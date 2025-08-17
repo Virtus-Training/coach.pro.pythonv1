@@ -5,6 +5,7 @@ from __future__ import annotations
 import customtkinter as ctk
 
 from ui.components.design_system import Card, CardTitle, PrimaryButton
+from ui.components.workout_block import WorkoutBlock
 
 
 class SessionPreview(ctk.CTkFrame):
@@ -19,6 +20,8 @@ class SessionPreview(ctk.CTkFrame):
         self._content.grid(row=0, column=0, sticky="nsew", padx=8, pady=8)
 
         self._last_dto: dict | None = None
+        self._grid: ctk.CTkFrame | None = None
+        self._blocks: list[WorkoutBlock] = []
         self.show_empty_state()
 
     def show_empty_state(self) -> None:
@@ -37,6 +40,9 @@ class SessionPreview(ctk.CTkFrame):
         for w in self._content.winfo_children():
             w.destroy()
 
+        self._blocks = []
+        self._grid = None
+
         meta = session_dto.get("meta", {})
         if meta:
             header = Card(self._content)
@@ -49,34 +55,57 @@ class SessionPreview(ctk.CTkFrame):
                     side="left", padx=12, pady=8
                 )
 
+        self._grid = ctk.CTkFrame(self._content, fg_color="transparent")
+        self._grid.pack(fill="both", expand=True)
+
         for block in session_dto.get("blocks", []):
-            card = Card(self._content)
-            card.pack(fill="x", padx=8, pady=8)
-            CardTitle(card, text=block.get("title", "")).pack(
-                anchor="w", padx=12, pady=(12, 8)
+            wb = WorkoutBlock(
+                self._grid,
+                title=block.get("title", ""),
+                fmt=block.get("format", ""),
+                duration=block.get("duration", ""),
             )
+            self._blocks.append(wb)
             for ex in block.get("exercises", []):
-                line = f"• {ex.get('nom', '')}"
-                details: list[str] = []
-                reps = ex.get("reps")
-                if reps:
-                    details.append(reps)
-                rest = ex.get("repos_s")
-                if rest:
-                    details.append(f"repos {rest}s")
-                if details:
-                    line += " – " + " | ".join(details)
-                ctk.CTkLabel(card, text=line, anchor="w", justify="left").pack(
-                    fill="x", padx=20, pady=2
+                wb.add_exercise(
+                    ex.get("nom", ""),
+                    ex.get("reps"),
+                    ex.get("repos_s"),
+                    ex.get("muscle", ""),
+                    ex.get("equip", ""),
                 )
+
+        self.after(10, self._arrange_blocks)
+        self._grid.bind("<Configure>", lambda e: self._arrange_blocks())
 
         PrimaryButton(
             self._content, text="Enregistrer la séance", command=self._on_save
         ).pack(padx=8, pady=12, anchor="e")
+
+    def _arrange_blocks(self) -> None:
+        """Place workout blocks in a responsive grid."""
+        if not self._grid:
+            return
+        width = self._grid.winfo_width()
+        cols = 2 if width >= 480 else 1
+
+        for blk in self._blocks:
+            blk.grid_forget()
+
+        for i, blk in enumerate(self._blocks):
+            blk.grid(
+                row=i // cols,
+                column=i % cols,
+                sticky="nsew",
+                padx=8,
+                pady=8,
+            )
+
+        for c in range(cols):
+            self._grid.grid_columnconfigure(c, weight=1)
 
     def _on_save(self) -> None:  # pragma: no cover - placeholder
         pass
 
 
 __all__ = ["SessionPreview"]
-
