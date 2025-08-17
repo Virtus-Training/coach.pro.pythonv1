@@ -5,6 +5,7 @@ import customtkinter as ctk
 
 from models.client import Client
 from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
 from ui.theme.colors import DARK_BG, TEXT
 from ui.theme.fonts import get_text_font, get_title_font
 
@@ -15,6 +16,7 @@ class ClientFormModal(ctk.CTkToplevel):
     def __init__(self, parent, client_a_modifier: Optional[Client] = None):
         super().__init__(parent)
         self.client = client_a_modifier
+        self.client_service = ClientService(ClientRepository())
         self.title("Ajouter/Modifier un client")
         self.geometry("400x340")
         self.configure(fg_color=DARK_BG)
@@ -90,22 +92,16 @@ class ClientFormModal(ctk.CTkToplevel):
             messagebox.showerror("Erreur", "Le nom et le prénom sont obligatoires.")
             return
 
-        repo = ClientRepository()
+        client_data = {
+            "prenom": prenom,
+            "nom": nom,
+            "email": email,
+            "date_naissance": date_naissance,
+        }
 
         if self.client:
-            self.client.prenom = prenom
-            self.client.nom = nom
-            self.client.email = email
-            self.client.date_naissance = date_naissance
-            repo.update(self.client)
+            self.client_service.update_client(self.client, client_data)
         else:
-            nouveau_client = Client(
-                id=None,
-                prenom=prenom,
-                nom=nom,
-                email=email,
-                date_naissance=date_naissance,
-            )
-            repo.add(nouveau_client)
+            self.client_service.add_client(client_data)
 
         self.destroy()

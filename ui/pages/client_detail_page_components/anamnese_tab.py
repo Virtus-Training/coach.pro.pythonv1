@@ -3,6 +3,7 @@ import customtkinter as ctk
 from models.client import Client
 from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
+from services.client_service import ClientService
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.components.exclusion_selector import ExclusionSelector
 
@@ -11,7 +12,7 @@ class AnamneseTab(ctk.CTkFrame):
     def __init__(self, master, client: Client):
         super().__init__(master, fg_color="transparent")
         self.client = client
-        self.client_repo = ClientRepository()
+        self.client_service = ClientService(ClientRepository())
         self.exercice_repo = ExerciseRepository()
 
         info_card = Card(self)
@@ -41,7 +42,7 @@ class AnamneseTab(ctk.CTkFrame):
         )
 
         all_exercices = self.exercice_repo.list_all_exercices()
-        excluded_ids = self.client_repo.get_exclusions(client.id)
+        excluded_ids = self.client_service.get_client_exclusions(client.id)
 
         self.selector = ExclusionSelector(excl_card, all_exercices, excluded_ids)
         self.selector.pack(fill="both", expand=True, padx=20, pady=(0, 20))
@@ -54,5 +55,7 @@ class AnamneseTab(ctk.CTkFrame):
         objectifs = self.objectifs_txt.get("1.0", "end").strip()
         antecedents = self.antecedents_txt.get("1.0", "end").strip()
         excluded_ids = self.selector.get_excluded_ids()
-        self.client_repo.update_anamnese(self.client.id, objectifs, antecedents)
-        self.client_repo.update_exclusions(self.client.id, excluded_ids)
+        self.client_service.update_client_anamnese(
+            self.client.id, objectifs, antecedents
+        )
+        self.client_service.update_client_exclusions(self.client.id, excluded_ids)

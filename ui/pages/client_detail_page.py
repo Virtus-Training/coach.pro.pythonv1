@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
 from ui.components.design_system import PageTitle, SecondaryButton
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
@@ -17,8 +18,8 @@ class ClientDetailPage(ctk.CTkFrame):
     def __init__(self, master, client_id: int):
         super().__init__(master, fg_color=DARK_BG)
         self.client_id = client_id
-        repo = ClientRepository()
-        client = repo.find_by_id(client_id)
+        self.client_service = ClientService(ClientRepository())
+        client = self.client_service.get_client_by_id(client_id)
 
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", padx=20, pady=20)

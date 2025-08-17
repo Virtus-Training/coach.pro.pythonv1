@@ -2,6 +2,7 @@ import customtkinter as ctk
 
 from models.client import Client
 from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
 from ui.modals.client_form_modal import ClientFormModal
 from ui.theme.colors import DARK_BG, DARK_PANEL, TEXT, TEXT_SECONDARY
 from ui.theme.fonts import get_small_font, get_text_font, get_title_font
@@ -14,7 +15,7 @@ class ClientsPage(ctk.CTkFrame):
         super().__init__(parent)
         self.configure(fg_color=DARK_BG)
 
-        self.repo = ClientRepository()
+        self.client_service = ClientService(ClientRepository())
 
         ctk.CTkLabel(
             self,
@@ -44,7 +45,7 @@ class ClientsPage(ctk.CTkFrame):
         for widget in self.scroll.winfo_children():
             widget.destroy()
 
-        clients = self.repo.list_all()
+        clients = self.client_service.get_all_clients()
         for client in clients:
             self._create_client_card(client)
 
