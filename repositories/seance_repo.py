@@ -9,7 +9,7 @@ from models.seance import Seance
 class SeanceRepository:
     def get_by_client_id(self, client_id: int) -> List[Seance]:
         """Return all sessions for a client ordered from most recent to oldest."""
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             seance_rows = conn.execute(
                 "SELECT * FROM seances WHERE client_id = ? ORDER BY date_creation DESC",
                 (client_id,),
@@ -46,7 +46,7 @@ class SeanceRepository:
 
     def add_seance(self, seance: Seance, resultats: List[ResultatExercice]) -> None:
         """Insert a new session and all its exercise results in a single transaction."""
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO seances (client_id, type_seance, titre, date_creation) VALUES (?, ?, ?, ?)",
@@ -82,7 +82,7 @@ class SeanceRepository:
         Dates are returned as ``datetime`` objects and results are ordered from
         oldest to newest session.
         """
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(
                 """
                 SELECT s.date_creation AS date, MAX(r.charge_utilisee) AS max_charge

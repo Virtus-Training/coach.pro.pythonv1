@@ -11,7 +11,7 @@ def _split_csv(s: str | None) -> List[str]:
 class ExerciseRepository:
 
     def list_all_exercices(self) -> List[Exercise]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute("SELECT * FROM exercices ORDER BY nom").fetchall()
         return [
             Exercise(
@@ -33,7 +33,7 @@ class ExerciseRepository:
         unique_ids = list(dict.fromkeys(ids))
         placeholders = ",".join(["?"] * len(unique_ids))
         q = f"SELECT id, nom FROM exercices WHERE id IN ({placeholders})"
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(q, unique_ids).fetchall()
         return {r["id"]: r["nom"] for r in rows}
 
@@ -43,7 +43,7 @@ class ExerciseRepository:
         unique_ids = list(dict.fromkeys(ids))
         placeholders = ",".join(["?"] * len(unique_ids))
         q = f"SELECT id, nom, equipement FROM exercices WHERE id IN ({placeholders})"
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(q, unique_ids).fetchall()
         out: Dict[int, Dict[str, Any]] = {}
         for r in rows:
@@ -62,7 +62,7 @@ class ExerciseRepository:
             "SELECT id, nom, groupe_musculaire_principal, equipement "
             f"FROM exercices WHERE id IN ({placeholders})"
         )
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(q, unique_ids).fetchall()
         out: Dict[int, Dict[str, Any]] = {}
         for r in rows:
@@ -101,7 +101,7 @@ class ExerciseRepository:
             query += " WHERE " + " AND ".join(conditions)
         query += " ORDER BY nom"
 
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(query, params).fetchall()
 
         return [

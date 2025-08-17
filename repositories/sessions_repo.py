@@ -6,7 +6,7 @@ from models.session import Session
 
 class SessionsRepository:
     def save(self, s: Session) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO sessions(session_id, mode, label, duration_sec) VALUES (?,?,?,?)",
                 (s.session_id, s.mode, s.label, s.duration_sec),

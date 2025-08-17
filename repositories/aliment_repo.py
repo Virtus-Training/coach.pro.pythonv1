@@ -8,7 +8,7 @@ from models.portion import Portion
 class AlimentRepository:
 
     def list_all(self) -> List[Aliment]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute("SELECT * FROM aliments ORDER BY nom").fetchall()
         return [
             Aliment(
@@ -29,7 +29,7 @@ class AlimentRepository:
         ]
 
     def get_portions_for_aliment(self, aliment_id: int) -> List[Portion]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(
                 "SELECT * FROM portions WHERE aliment_id = ? ORDER BY id",
                 (aliment_id,),
@@ -45,7 +45,7 @@ class AlimentRepository:
         ]
 
     def get_portion_by_id(self, portion_id: int) -> Optional[Portion]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             row = conn.execute(
                 "SELECT * FROM portions WHERE id = ?", (portion_id,)
             ).fetchone()

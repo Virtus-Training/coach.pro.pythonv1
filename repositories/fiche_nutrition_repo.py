@@ -7,7 +7,7 @@ from models.fiche_nutrition import FicheNutrition
 class FicheNutritionRepository:
 
     def add(self, fiche: FicheNutrition) -> int:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 """
@@ -35,7 +35,7 @@ class FicheNutritionRepository:
             return cur.lastrowid
 
     def get_last_for_client(self, client_id: int) -> Optional[FicheNutrition]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             row = conn.execute(
                 "SELECT * FROM fiches_nutrition WHERE client_id = ? ORDER BY date_creation DESC LIMIT 1",
                 (client_id,),

@@ -10,8 +10,7 @@ def initialize_database() -> None:
         return
 
     print("INFO: Base de données non trouvée. Initialisation en cours...")
-    with db_manager._get_connection() as conn:
-        create_schema(conn)
-        seed_data(conn)
+    create_schema()
+    seed_data()
     print("INFO: Base de données initialisée avec succès.")
 
