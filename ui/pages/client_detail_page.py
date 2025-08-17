@@ -9,14 +9,14 @@ from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
 )
 from ui.pages.client_detail_page_components.stats_tab import StatsTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
-from ui.theme.colors import DARK_BG
+from ui.theme.colors import NEUTRAL_900
 
 
 class ClientDetailPage(ctk.CTkFrame):
     """Page affichant les détails d'un client."""
 
     def __init__(self, master, client_id: int):
-        super().__init__(master, fg_color=DARK_BG)
+        super().__init__(master, fg_color=NEUTRAL_900)
         self.client_id = client_id
         self.client_service = ClientService(ClientRepository())
         client = self.client_service.get_client_by_id(client_id)

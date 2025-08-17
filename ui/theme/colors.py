@@ -1,27 +1,47 @@
 # ui/theme/colors.py
 
-# Couleurs principales
-PRIMARY = "#3b82f6"  # Bleu vif
-SECONDARY = "#60a5fa"  # Bleu clair (hover)
+"""Design tokens for application colors.
 
-# Fond
-DARK_BG = "#121212"  # Fond global (anciennement #0f0f0f)
-DARK_PANEL = "#1c1c1e"  # Fond de panel, cartes, boutons (anciennement #1f1f1f)
-DARK_SOFT = "#2a2a2d"  # Bloc secondaire ou éléments passifs
+These constants mirror the values defined in the SRS V1 (section 4.1).
+Legacy color names are kept as aliases for backwards compatibility.
+"""
 
-# Texte
-TEXT = "#f9f9f9"  # Texte principal (anciennement #f5f5f5)
-TEXT_SECONDARY = "#bbbbbb"  # Texte secondaire
-TEXT_MUTED = "#999999"  # Texte atténué
+# --- Palette Principale ---
+PRIMARY = "#00A3FF"  # Bleu vif pour les actions principales
+SUCCESS = "#2ECC71"  # Vert pour les confirmations
+DANGER = "#E74C3C"   # Rouge pour les erreurs ou actions destructrices
+WARNING = "#F1C40F"  # Jaune/Orange pour les avertissements
 
-# Couleur pour le texte sur un fond de couleur primaire (ex: boutons)
-TEXT_ON_PRIMARY = "#FFFFFF"
+# --- Niveaux de Gris (Neutres) ---
+NEUTRAL_900 = "#121212"  # Fond principal de l'application
+NEUTRAL_800 = "#1E1E1E"  # Fond des cartes et éléments en surélévation
+NEUTRAL_700 = "#333333"  # Bordures, séparateurs
+NEUTRAL_100 = "#FFFFFF"  # Texte principal (fort contraste)
+NEUTRAL_300 = "#B3B3B3"  # Texte secondaire (moins de contraste)
 
-# Couleur subtile pour les bordures des cartes et panneaux
-BORDER_COLOR = "#333A4D"
 
-# Accent
-SUCCESS = "#22c55e"
-WARNING = "#f59e0b"
-DANGER = "#ef4444"
-INFO = "#3b82f6"
+# --- Aliases for legacy names -------------------------------------------------
+# These aliases allow existing code to continue functioning while the
+# application gradually adopts the new design tokens.
+DARK_BG = NEUTRAL_900
+DARK_PANEL = NEUTRAL_800
+DARK_SOFT = NEUTRAL_700
+TEXT = NEUTRAL_100
+TEXT_SECONDARY = NEUTRAL_300
+TEXT_MUTED = NEUTRAL_300
+TEXT_ON_PRIMARY = NEUTRAL_100
+BORDER_COLOR = NEUTRAL_700
+INFO = PRIMARY
+
+__all__ = [
+    "PRIMARY",
+    "SUCCESS",
+    "DANGER",
+    "WARNING",
+    "NEUTRAL_900",
+    "NEUTRAL_800",
+    "NEUTRAL_700",
+    "NEUTRAL_100",
+    "NEUTRAL_300",
+]
+
