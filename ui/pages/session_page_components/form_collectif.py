@@ -6,7 +6,6 @@ from ui.components.design_system.buttons import PrimaryButton
 from ui.components.design_system.cards import Card
 from ui.components.design_system.typography import CardTitle
 
-
 # Constants defining the form options
 COURSE_TYPES = ["CAF", "Core & Glutes", "Cross-Training", "Hyrox"]
 DURATIONS = ["45", "60"]
