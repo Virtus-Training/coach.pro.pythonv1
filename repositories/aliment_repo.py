@@ -1,19 +1,14 @@
-import sqlite3
-from typing import List
+from typing import List, Optional
 
+from db.database_manager import db_manager
 from models.aliment import Aliment
 from models.portion import Portion
 
-DB_PATH = "coach.db"
-
 
 class AlimentRepository:
-    def __init__(self, db_path: str = DB_PATH):
-        self.db_path = db_path
 
     def list_all(self) -> List[Aliment]:
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+        with db_manager._get_connection() as conn:
             rows = conn.execute("SELECT * FROM aliments ORDER BY nom").fetchall()
         return [
             Aliment(
@@ -34,8 +29,7 @@ class AlimentRepository:
         ]
 
     def get_portions_for_aliment(self, aliment_id: int) -> List[Portion]:
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+        with db_manager._get_connection() as conn:
             rows = conn.execute(
                 "SELECT * FROM portions WHERE aliment_id = ? ORDER BY id",
                 (aliment_id,),
@@ -49,3 +43,17 @@ class AlimentRepository:
             )
             for row in rows
         ]
+
+    def get_portion_by_id(self, portion_id: int) -> Optional[Portion]:
+        with db_manager._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM portions WHERE id = ?", (portion_id,)
+            ).fetchone()
+        if not row:
+            return None
+        return Portion(
+            id=row["id"],
+            aliment_id=row["aliment_id"],
+            description=row["description"],
+            grammes_equivalents=row["grammes_equivalents"],
+        )
