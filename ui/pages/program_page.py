@@ -1,6 +1,6 @@
 import customtkinter as ctk
-from ui.theme.fonts import get_section_font
 
+from ui.theme.fonts import get_section_font
 
 
 class ProgramPage(ctk.CTkFrame):

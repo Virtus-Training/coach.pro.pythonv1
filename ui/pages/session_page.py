@@ -1,10 +1,12 @@
 import customtkinter as ctk
-from ui.theme.fonts import get_section_font
+
+from controllers.session_controller import generate_session_preview
 from ui.components.layout import two_columns
 from ui.pages.session_preview_panel import render_preview
+from ui.theme.fonts import get_section_font
+
 from .session_page_components.form_collectif import FormCollectif
 from .session_page_components.form_individuel import FormIndividuel
-from controllers.session_controller import generate_session_preview
 
 
 class SessionPage(ctk.CTkFrame):

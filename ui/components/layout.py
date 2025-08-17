@@ -20,4 +20,3 @@ def two_columns(parent, left_width: int = 360):
 
 
 __all__ = ["two_columns"]
-

@@ -1,8 +1,10 @@
 # ui/layout/sidebar.py
 
+import os
+
 import customtkinter as ctk
 from PIL import Image
-import os
+
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, switch_page_callback, active_module="dashboard"):
@@ -29,8 +31,12 @@ class Sidebar(ctk.CTkFrame):
         self.create_sidebar()
 
     def create_sidebar(self):
-        title = ctk.CTkLabel(self, text="CoachPro", text_color="#3b82f6",
-                             font=ctk.CTkFont(size=20, weight="bold"))
+        title = ctk.CTkLabel(
+            self,
+            text="CoachPro",
+            text_color="#3b82f6",
+            font=ctk.CTkFont(size=20, weight="bold"),
+        )
         title.pack(pady=(20, 10))
 
         for item_id, item_name, icon_file in self.menu_items:
@@ -51,7 +57,7 @@ class Sidebar(ctk.CTkFrame):
             hover_color="#333333",
             corner_radius=0,
             font=ctk.CTkFont(size=14),
-            height=40
+            height=40,
         )
         button.pack(fill="x", padx=10, pady=2)
 
@@ -61,4 +67,3 @@ class Sidebar(ctk.CTkFrame):
         for widget in self.winfo_children():
             widget.destroy()
         self.create_sidebar()
-

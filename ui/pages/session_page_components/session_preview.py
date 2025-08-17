@@ -1,14 +1,18 @@
 import customtkinter as ctk
+
 from repositories.exercices_repo import ExerciseRepository
 from repositories.sessions_repo import SessionsRepository
+
 from .block_card import BlockCard
 from .ui_helpers import create_icon_label
+
 
 class SessionPreview(ctk.CTkFrame):
     """
     A widget to display the full details of a generated session.
     It handles the empty state and the rendering of the session's header, blocks, and footer.
     """
+
     def __init__(self, parent):
         super().__init__(parent, fg_color="#171717", corner_radius=10)
         self.grid_rowconfigure(0, weight=1)
@@ -24,10 +28,15 @@ class SessionPreview(ctk.CTkFrame):
     def show_empty_state(self):
         """Displays a message when no session has been generated yet."""
         self.clear_preview()
-        self._empty_frame = ctk.CTkFrame(self.preview_scroll_area, fg_color="#0f0f0f", corner_radius=12)
+        self._empty_frame = ctk.CTkFrame(
+            self.preview_scroll_area, fg_color="#0f0f0f", corner_radius=12
+        )
         self._empty_frame.pack(fill="both", expand=True, padx=16, pady=16)
-        ctk.CTkLabel(self._empty_frame, text="Aucune séance générée.\nChoisis tes critères à gauche puis clique « Générer ».",
-                     justify="center").pack(padx=24, pady=32)
+        ctk.CTkLabel(
+            self._empty_frame,
+            text="Aucune séance générée.\nChoisis tes critères à gauche puis clique « Générer ».",
+            justify="center",
+        ).pack(padx=24, pady=32)
 
     def clear_preview(self):
         """Removes all widgets from the preview area."""
@@ -45,12 +54,18 @@ class SessionPreview(ctk.CTkFrame):
         self.preview_scroll_area._parent_canvas.yview_moveto(0.0)
 
         # --- Résumé (en-tête)
-        header = ctk.CTkFrame(self.preview_scroll_area, fg_color="#1d2228", corner_radius=12)
-        header.pack(fill="x", padx=12, pady=(12,6))
+        header = ctk.CTkFrame(
+            self.preview_scroll_area, fg_color="#1d2228", corner_radius=12
+        )
+        header.pack(fill="x", padx=12, pady=(12, 6))
         left = ctk.CTkFrame(header, fg_color="transparent")
         left.pack(side="left", padx=12, pady=10)
-        create_icon_label(left, "assets/icons/dumbbell.png", session.label).pack(side="left", padx=(0,16))
-        create_icon_label(left, "assets/icons/clock.png", f"{session.duration_sec//60} min").pack(side="left")
+        create_icon_label(left, "assets/icons/dumbbell.png", session.label).pack(
+            side="left", padx=(0, 16)
+        )
+        create_icon_label(
+            left, "assets/icons/clock.png", f"{session.duration_sec // 60} min"
+        ).pack(side="left")
 
         # --- Grille responsive pour les cartes de bloc
         grid = ctk.CTkFrame(self.preview_scroll_area, fg_color="transparent")
@@ -77,9 +92,13 @@ class SessionPreview(ctk.CTkFrame):
             grid.grid_rowconfigure(row, weight=1)
 
         # --- Footer
-        footer = ctk.CTkFrame(self.preview_scroll_area, fg_color="#1d2228", corner_radius=12)
-        footer.pack(fill="x", padx=12, pady=(6,12))
-        ctk.CTkButton(footer, text="Enregistrer", command=self._save_session).pack(side="right", padx=10, pady=10)
+        footer = ctk.CTkFrame(
+            self.preview_scroll_area, fg_color="#1d2228", corner_radius=12
+        )
+        footer.pack(fill="x", padx=12, pady=(6, 12))
+        ctk.CTkButton(footer, text="Enregistrer", command=self._save_session).pack(
+            side="right", padx=10, pady=10
+        )
 
     def _save_session(self):
         if self._last_session:

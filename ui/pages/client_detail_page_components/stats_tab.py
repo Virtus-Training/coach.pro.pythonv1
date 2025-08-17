@@ -2,8 +2,8 @@ import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from repositories.seance_repo import SeanceRepository
 from repositories.exercices_repo import ExerciseRepository
+from repositories.seance_repo import SeanceRepository
 from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, TEXT
 
 
@@ -54,9 +54,7 @@ class StatsTab(ctk.CTkFrame):
 
     def _show_message(self, message: str) -> None:
         self._clear_graph()
-        ctk.CTkLabel(
-            self.graph_frame, text=message, text_color=TEXT
-        ).pack(expand=True)
+        ctk.CTkLabel(self.graph_frame, text=message, text_color=TEXT).pack(expand=True)
 
     def _on_select(self, choice: str) -> None:
         ex_id = self.ex_options.get(choice)

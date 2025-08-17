@@ -1,4 +1,5 @@
 import customtkinter as ctk
+
 from repositories.client_repo import ClientRepository
 
 OBJECTIFS = ["Volume", "Force", "Endurance", "Technique"]
@@ -51,15 +52,15 @@ class FormIndividuel(ctk.CTkFrame):
         for c in range(2):
             btns.grid_columnconfigure(c, weight=1)
 
-        ctk.CTkButton(btns, text="Générer la séance individuelle", command=generate_callback).grid(
-            row=0, column=0, columnspan=2, sticky="ew", padx=4, pady=4
-        )
-        ctk.CTkButton(btns, text="Agrandir l’aperçu", command=open_preview_callback).grid(
-            row=1, column=0, sticky="ew", padx=4, pady=4
-        )
-        ctk.CTkButton(btns, text="Masquer le formulaire", command=toggle_form_callback).grid(
-            row=1, column=1, sticky="ew", padx=4, pady=4
-        )
+        ctk.CTkButton(
+            btns, text="Générer la séance individuelle", command=generate_callback
+        ).grid(row=0, column=0, columnspan=2, sticky="ew", padx=4, pady=4)
+        ctk.CTkButton(
+            btns, text="Agrandir l’aperçu", command=open_preview_callback
+        ).grid(row=1, column=0, sticky="ew", padx=4, pady=4)
+        ctk.CTkButton(
+            btns, text="Masquer le formulaire", command=toggle_form_callback
+        ).grid(row=1, column=1, sticky="ew", padx=4, pady=4)
 
     def get_params(self) -> dict:
         """Retourne les paramètres sélectionnés."""

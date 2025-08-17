@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Union
+from typing import Dict, List, Optional, Union
 
 Number = Union[int, float]
+
 
 @dataclass
 class BlockItem:
@@ -9,10 +10,11 @@ class BlockItem:
     prescription: Dict[str, Number | str]  # reps|time|distance|calories|load
     notes: Optional[str] = None
 
+
 @dataclass
 class Block:
     block_id: str
-    type: str                 # EMOM/AMRAP/FORTIME/TABATA/SETSxREPS
+    type: str  # EMOM/AMRAP/FORTIME/TABATA/SETSxREPS
     duration_sec: int = 0
     rounds: int = 0
     work_sec: int = 0
@@ -21,10 +23,11 @@ class Block:
     title: Optional[str] = None
     locked: bool = False
 
+
 @dataclass
 class Session:
     session_id: str
-    mode: str                 # COLLECTIF / INDIVIDUEL
+    mode: str  # COLLECTIF / INDIVIDUEL
     label: str
     duration_sec: int
     blocks: List[Block] = field(default_factory=list)

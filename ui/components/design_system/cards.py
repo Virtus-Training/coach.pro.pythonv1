@@ -2,7 +2,7 @@
 
 import customtkinter as ctk
 
-from ui.theme.colors import DARK_PANEL, BORDER_COLOR
+from ui.theme.colors import BORDER_COLOR, DARK_PANEL
 
 
 class Card(ctk.CTkFrame):
@@ -17,4 +17,3 @@ class Card(ctk.CTkFrame):
             border_color=BORDER_COLOR,
             **kwargs,
         )
-

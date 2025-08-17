@@ -1,11 +1,11 @@
 import sqlite3
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 import customtkinter as ctk
 
 from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
-from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.aliment_repo import AlimentRepository
+from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from ui.theme.colors import PRIMARY
 
 DB_PATH = "coach.db"
@@ -115,7 +115,9 @@ class NutritionPage(ctk.CTkFrame):
     def _create_meal_card(self, repas: Repas) -> None:
         frame = ctk.CTkFrame(self.meals_frame, border_width=2)
         frame.pack(fill="x", pady=5, padx=5)
-        frame.bind("<Button-1>", lambda e, rid=repas.id: self._set_active_meal(rid, frame))
+        frame.bind(
+            "<Button-1>", lambda e, rid=repas.id: self._set_active_meal(rid, frame)
+        )
 
         header = ctk.CTkFrame(frame, fg_color="transparent")
         header.pack(fill="x")
@@ -127,7 +129,12 @@ class NutritionPage(ctk.CTkFrame):
             text=f"{totals['kcal']:.0f} kcal P{totals['proteines']:.1f} G{totals['glucides']:.1f} L{totals['lipides']:.1f}",
         )
         totals_lbl.pack(side="left", padx=5)
-        add_btn = ctk.CTkButton(header, text="+", width=30, command=lambda rid=repas.id: self._set_active_meal(rid, frame))
+        add_btn = ctk.CTkButton(
+            header,
+            text="+",
+            width=30,
+            command=lambda rid=repas.id: self._set_active_meal(rid, frame),
+        )
         add_btn.pack(side="right", padx=5)
 
         items_frame = ctk.CTkFrame(frame, fg_color="transparent")
@@ -151,7 +158,12 @@ class NutritionPage(ctk.CTkFrame):
     def _add_meal(self) -> None:
         if not self.selected_plan:
             return
-        repas = Repas(id=0, plan_id=self.selected_plan.id, nom="Nouveau repas", ordre=len(self.selected_plan.repas))
+        repas = Repas(
+            id=0,
+            plan_id=self.selected_plan.id,
+            nom="Nouveau repas",
+            ordre=len(self.selected_plan.repas),
+        )
         self.plan_repo.add_repas(self.selected_plan.id, repas)
         self._load_plan(self.selected_plan.id)
 
@@ -162,9 +174,7 @@ class NutritionPage(ctk.CTkFrame):
         self.library_frame.columnconfigure(0, weight=1)
 
         self.search_var = ctk.StringVar()
-        search_entry = ctk.CTkEntry(
-            self.library_frame, textvariable=self.search_var
-        )
+        search_entry = ctk.CTkEntry(self.library_frame, textvariable=self.search_var)
         search_entry.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
         self.search_var.trace_add("write", lambda *args: self._update_library())
 
@@ -214,7 +224,13 @@ class NutritionPage(ctk.CTkFrame):
             except ValueError:
                 qty = 1.0
             portion = portions[portion_menu._current_index]
-            item = RepasItem(id=0, repas_id=self.active_repas_id, aliment_id=aliment.id, portion_id=portion.id, quantite=qty)
+            item = RepasItem(
+                id=0,
+                repas_id=self.active_repas_id,
+                aliment_id=aliment.id,
+                portion_id=portion.id,
+                quantite=qty,
+            )
             self.plan_repo.add_item(self.active_repas_id, item)
             self._load_plan(self.selected_plan.id)
             popup.destroy()
@@ -226,14 +242,20 @@ class NutritionPage(ctk.CTkFrame):
     def _get_portion(self, portion_id: int) -> sqlite3.Row:
         with sqlite3.connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
-            row = conn.execute("SELECT * FROM portions WHERE id = ?", (portion_id,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM portions WHERE id = ?", (portion_id,)
+            ).fetchone()
         return row
 
     def _compute_item_totals(self, item: RepasItem) -> Dict[str, float]:
         with sqlite3.connect(DB_PATH) as conn:
             conn.row_factory = sqlite3.Row
-            aliment = conn.execute("SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)).fetchone()
-            portion = conn.execute("SELECT * FROM portions WHERE id = ?", (item.portion_id,)).fetchone()
+            aliment = conn.execute(
+                "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
+            ).fetchone()
+            portion = conn.execute(
+                "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
+            ).fetchone()
         facteur = (portion["grammes_equivalents"] * item.quantite) / 100
         return {
             "kcal": aliment["kcal_100g"] * facteur,
@@ -267,4 +289,3 @@ class NutritionPage(ctk.CTkFrame):
                 f"L{totals['lipides']:.1f}"
             )
         )
-

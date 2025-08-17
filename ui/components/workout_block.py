@@ -2,7 +2,6 @@
 
 import customtkinter as ctk
 
-
 FORMAT_COLORS = {
     "EMOM": "#22D3EE",
     "AMRAP": "#F59E0B",
@@ -79,4 +78,3 @@ class WorkoutBlock(ctk.CTkFrame):
 
 
 __all__ = ["WorkoutBlock", "FORMAT_COLORS"]
-

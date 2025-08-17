@@ -25,9 +25,9 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
     if meta:
         header = ctk.CTkFrame(container, fg_color="#1d2228", corner_radius=8)
         header.pack(fill="x", padx=12, pady=(12, 6))
-        ctk.CTkLabel(
-            header, text=meta.get("title", ""), font=("", 13, "bold")
-        ).pack(side="left", padx=12, pady=8)
+        ctk.CTkLabel(header, text=meta.get("title", ""), font=("", 13, "bold")).pack(
+            side="left", padx=12, pady=8
+        )
         ctk.CTkLabel(
             header,
             text=meta.get("duration", ""),
@@ -59,4 +59,3 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
 
 
 __all__ = ["render_preview"]
-

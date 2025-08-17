@@ -1,8 +1,8 @@
 import customtkinter as ctk
 
 from ui.pages.database_page_tabs.aliments_tab import AlimentsTab
-from ui.theme.fonts import get_title_font, get_text_font
-from ui.theme.colors import PRIMARY, DARK_BG, DARK_PANEL, TEXT
+from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, TEXT
+from ui.theme.fonts import get_text_font, get_title_font
 
 
 class DatabasePage(ctk.CTkFrame):
@@ -16,8 +16,15 @@ class DatabasePage(ctk.CTkFrame):
 
         title_row = ctk.CTkFrame(header, fg_color="transparent")
         title_row.pack(anchor="w", padx=20, pady=(10, 0))
-        ctk.CTkLabel(title_row, text="🗃️", font=get_title_font()).pack(side="left", padx=(0, 10))
-        ctk.CTkLabel(title_row, text="Bases de Données", font=get_title_font(), text_color="white").pack(side="left")
+        ctk.CTkLabel(title_row, text="🗃️", font=get_title_font()).pack(
+            side="left", padx=(0, 10)
+        )
+        ctk.CTkLabel(
+            title_row,
+            text="Bases de Données",
+            font=get_title_font(),
+            text_color="white",
+        ).pack(side="left")
 
         ctk.CTkLabel(
             header,
@@ -43,4 +50,6 @@ class DatabasePage(ctk.CTkFrame):
         for i in range(10):
             row = ctk.CTkFrame(scroll, fg_color=DARK_PANEL, corner_radius=8)
             row.pack(fill="x", padx=10, pady=4)
-            ctk.CTkLabel(row, text=f"Exercice {i+1}", font=get_text_font(), text_color=TEXT).pack(side="left", padx=10)
+            ctk.CTkLabel(
+                row, text=f"Exercice {i + 1}", font=get_text_font(), text_color=TEXT
+            ).pack(side="left", padx=10)

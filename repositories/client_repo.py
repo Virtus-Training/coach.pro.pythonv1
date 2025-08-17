@@ -2,7 +2,9 @@
 
 import sqlite3
 from typing import List, Optional
+
 from models.client import Client
+
 
 class ClientRepository:
     def __init__(self, db_path="coach.db"):
@@ -86,9 +88,7 @@ class ClientRepository:
         conn.commit()
         conn.close()
 
-    def update_anamnese(
-        self, client_id: int, objectifs: str, antecedents: str
-    ) -> None:
+    def update_anamnese(self, client_id: int, objectifs: str, antecedents: str) -> None:
         conn = self._get_connection()
         cursor = conn.cursor()
         cursor.execute(

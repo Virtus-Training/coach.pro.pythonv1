@@ -14,9 +14,7 @@ class AlimentRepository:
     def list_all(self) -> List[Aliment]:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                "SELECT * FROM aliments ORDER BY nom"
-            ).fetchall()
+            rows = conn.execute("SELECT * FROM aliments ORDER BY nom").fetchall()
         return [
             Aliment(
                 id=row["id"],

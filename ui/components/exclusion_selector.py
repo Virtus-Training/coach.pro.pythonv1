@@ -1,6 +1,7 @@
 import tkinter as tk
-import customtkinter as ctk
 from typing import List
+
+import customtkinter as ctk
 
 from models.exercices import Exercise
 
@@ -15,25 +16,25 @@ class ExclusionSelector(ctk.CTkFrame):
         self.grid_columnconfigure(2, weight=1)
 
         left = ctk.CTkFrame(self)
-        left.grid(row=0, column=0, sticky="nsew", padx=(0,10))
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 10))
         ctk.CTkLabel(left, text="Exercices Disponibles").pack()
         self.search_left = ctk.CTkEntry(left)
-        self.search_left.pack(fill="x", padx=5, pady=(5,5))
+        self.search_left.pack(fill="x", padx=5, pady=(5, 5))
         self.list_left = tk.Listbox(left, selectmode=tk.SINGLE)
-        self.list_left.pack(fill="both", expand=True, padx=5, pady=(0,5))
+        self.list_left.pack(fill="both", expand=True, padx=5, pady=(0, 5))
 
         center = ctk.CTkFrame(self)
         center.grid(row=0, column=1, padx=5, pady=5, sticky="ns")
-        ctk.CTkButton(center, text=">", width=40, command=self.add).pack(pady=(40,5))
+        ctk.CTkButton(center, text=">", width=40, command=self.add).pack(pady=(40, 5))
         ctk.CTkButton(center, text="<", width=40, command=self.remove).pack()
 
         right = ctk.CTkFrame(self)
-        right.grid(row=0, column=2, sticky="nsew", padx=(10,0))
+        right.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
         ctk.CTkLabel(right, text="Exercices Exclus").pack()
         self.search_right = ctk.CTkEntry(right)
-        self.search_right.pack(fill="x", padx=5, pady=(5,5))
+        self.search_right.pack(fill="x", padx=5, pady=(5, 5))
         self.list_right = tk.Listbox(right, selectmode=tk.SINGLE)
-        self.list_right.pack(fill="both", expand=True, padx=5, pady=(0,5))
+        self.list_right.pack(fill="both", expand=True, padx=5, pady=(0, 5))
 
         self.search_left.bind("<KeyRelease>", lambda e: self._refresh())
         self.search_right.bind("<KeyRelease>", lambda e: self._refresh())

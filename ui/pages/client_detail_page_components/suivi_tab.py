@@ -1,10 +1,10 @@
 import customtkinter as ctk
 
 from repositories.seance_repo import SeanceRepository
-from ui.modals.session_log_modal import SessionLogModal
 from ui.components.design_system import Card, CardTitle, PrimaryButton
+from ui.modals.session_log_modal import SessionLogModal
 from ui.theme.colors import TEXT, TEXT_MUTED
-from ui.theme.fonts import get_text_font, get_small_font
+from ui.theme.fonts import get_small_font, get_text_font
 
 
 class SuiviTab(ctk.CTkFrame):

@@ -3,14 +3,16 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-
 DB_PATH = "coach.db"
 SCHEMA_PATH = "db/schema.sql"
 CSV_PATH = Path("data/base_aliments_enrichie_bloc4.csv")
 
 
 def recreate_database() -> None:
-    with sqlite3.connect(DB_PATH) as conn, open(SCHEMA_PATH, "r", encoding="utf-8") as f:
+    with (
+        sqlite3.connect(DB_PATH) as conn,
+        open(SCHEMA_PATH, "r", encoding="utf-8") as f,
+    ):
         conn.executescript(f.read())
 
 
@@ -108,7 +110,10 @@ def seed_aliments_from_csv() -> None:
         except Exception:
             return None
 
-    with sqlite3.connect(DB_PATH) as conn, open(CSV_PATH, newline="", encoding="utf-8") as f:
+    with (
+        sqlite3.connect(DB_PATH) as conn,
+        open(CSV_PATH, newline="", encoding="utf-8") as f,
+    ):
         reader = csv.DictReader(f)
         for row in reader:
             nom = row.get("Aliment", "").strip()
@@ -166,4 +171,3 @@ if __name__ == "__main__":
     print("Données d'exercices et de clients insérées.")
     seed_aliments_from_csv()
     print("Données d'aliments migrées.")
-

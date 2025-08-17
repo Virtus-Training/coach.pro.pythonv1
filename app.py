@@ -1,26 +1,21 @@
 # app.py
 
 import customtkinter as ctk
-from ui.layout.sidebar import Sidebar
-from ui.pages.dashboard_page import DashboardPage
-from ui.pages.program_page import ProgramPage
-from ui.pages.session_page import SessionPage
-from ui.pages.calendar_page import CalendarPage
-from ui.pages.nutrition_page import NutritionPage
-from ui.pages.database_page import DatabasePage
-from ui.pages.progress_page import ProgressPage
-from ui.pages.pdf_page import PdfPage
-from ui.pages.clients_page import ClientsPage
-from ui.pages.client_detail_page import ClientDetailPage
-from ui.pages.messaging_page import MessagingPage
-from ui.pages.billing_page import BillingPage
-from ui.layout.header import Header
-from ui.theme.theme import apply_theme
 
-def launch_app():
-    apply_theme()
-    app = CoachApp()
-    app.mainloop()
+from ui.layout.header import Header
+from ui.layout.sidebar import Sidebar
+from ui.pages.billing_page import BillingPage
+from ui.pages.calendar_page import CalendarPage
+from ui.pages.client_detail_page import ClientDetailPage
+from ui.pages.clients_page import ClientsPage
+from ui.pages.dashboard_page import DashboardPage
+from ui.pages.database_page import DatabasePage
+from ui.pages.messaging_page import MessagingPage
+from ui.pages.nutrition_page import NutritionPage
+from ui.pages.pdf_page import PdfPage
+from ui.pages.program_page import ProgramPage
+from ui.pages.progress_page import ProgressPage
+from ui.pages.session_page import SessionPage
 
 
 class CoachApp(ctk.CTk):
@@ -102,10 +97,10 @@ class CoachApp(ctk.CTk):
             self.clients_page.pack(fill="both", expand=True)
             self.current_page = self.clients_page
 
+
 def launch_app():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("dark-blue")
 
     app = CoachApp()
     app.mainloop()
-
