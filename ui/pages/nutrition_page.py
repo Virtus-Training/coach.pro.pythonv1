@@ -238,7 +238,6 @@ class NutritionPage(ctk.CTkFrame):
 
     # ----- Totals -----
 
-
     def _compute_meal_totals(self, repas: Repas) -> Dict[str, float]:
         totals = {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
         for item in repas.items:

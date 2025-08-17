@@ -7,7 +7,6 @@ from models.seance import Seance
 
 
 class SeanceRepository:
-
     def get_by_client_id(self, client_id: int) -> List[Seance]:
         """Return all sessions for a client ordered from most recent to oldest."""
         with db_manager._get_connection() as conn:

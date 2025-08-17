@@ -5,7 +5,6 @@ from models.session import Session
 
 
 class SessionsRepository:
-
     def save(self, s: Session) -> None:
         with db_manager._get_connection() as conn:
             conn.execute(
