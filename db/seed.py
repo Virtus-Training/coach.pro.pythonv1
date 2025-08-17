@@ -1,23 +1,22 @@
 import csv
-import sqlite3
 from pathlib import Path
 from typing import Optional
 
-DB_PATH = "coach.db"
+from db.database_manager import db_manager
 SCHEMA_PATH = "db/schema.sql"
 CSV_PATH = Path("data/base_aliments_enrichie_bloc4.csv")
 
 
 def recreate_database() -> None:
     with (
-        sqlite3.connect(DB_PATH) as conn,
+        db_manager._get_connection() as conn,
         open(SCHEMA_PATH, "r", encoding="utf-8") as f,
     ):
         conn.executescript(f.read())
 
 
 def seed_exercices_and_clients() -> None:
-    with sqlite3.connect(DB_PATH) as conn:
+    with db_manager._get_connection() as conn:
         exercices = [
             ("Squat", "Jambes", "Barre", "Force", 1.0, 1),
             ("Fente avant", "Jambes", "Haltères", "Hypertrophie", 0.8, 1),
@@ -111,7 +110,7 @@ def seed_aliments_from_csv() -> None:
             return None
 
     with (
-        sqlite3.connect(DB_PATH) as conn,
+        db_manager._get_connection() as conn,
         open(CSV_PATH, newline="", encoding="utf-8") as f,
     ):
         reader = csv.DictReader(f)

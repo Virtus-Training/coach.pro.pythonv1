@@ -1,28 +1,20 @@
 # repositories/client_repo.py (CORRIGÉ)
 
-import sqlite3
 from typing import List, Optional
 
+from db.database_manager import db_manager
 from models.client import Client
 
 
 class ClientRepository:
-    def __init__(self, db_path="coach.db"):
-        self.db_path = db_path
-
-    def _get_connection(self):
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row
-        return conn
 
     def list_all(self) -> List[Client]:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM clients ORDER BY nom, prenom")
-        rows = cursor.fetchall()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM clients ORDER BY nom, prenom")
+            rows = cursor.fetchall()
 
-        clients = []
+        clients: List[Client] = []
         for row in rows:
             clients.append(
                 Client(
@@ -42,11 +34,10 @@ class ClientRepository:
         return clients
 
     def find_by_id(self, client_id: int) -> Optional[Client]:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM clients WHERE id = ?", (client_id,))
-        row = cursor.fetchone()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM clients WHERE id = ?", (client_id,))
+            row = cursor.fetchone()
 
         if row:
             return Client(
@@ -65,65 +56,60 @@ class ClientRepository:
         return None
 
     def add(self, client: Client) -> None:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO clients (prenom, nom, email, date_naissance) VALUES (?, ?, ?, ?)",
-            (client.prenom, client.nom, client.email, client.date_naissance),
-        )
-        conn.commit()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "INSERT INTO clients (prenom, nom, email, date_naissance) VALUES (?, ?, ?, ?)",
+                (client.prenom, client.nom, client.email, client.date_naissance),
+            )
+            conn.commit()
 
     def update(self, client: Client) -> None:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            UPDATE clients
-            SET prenom = ?, nom = ?, email = ?, date_naissance = ?
-            WHERE id = ?
-            """,
-            (client.prenom, client.nom, client.email, client.date_naissance, client.id),
-        )
-        conn.commit()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                UPDATE clients
+                SET prenom = ?, nom = ?, email = ?, date_naissance = ?
+                WHERE id = ?
+                """,
+                (client.prenom, client.nom, client.email, client.date_naissance, client.id),
+            )
+            conn.commit()
 
     def update_anamnese(self, client_id: int, objectifs: str, antecedents: str) -> None:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            UPDATE clients
-            SET objectifs = ?, antecedents_medicaux = ?
-            WHERE id = ?
-            """,
-            (objectifs, antecedents, client_id),
-        )
-        conn.commit()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                UPDATE clients
+                SET objectifs = ?, antecedents_medicaux = ?
+                WHERE id = ?
+                """,
+                (objectifs, antecedents, client_id),
+            )
+            conn.commit()
 
     def update_exclusions(self, client_id: int, exercice_ids: List[int]) -> None:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "DELETE FROM client_exercice_exclusions WHERE client_id = ?", (client_id,)
-        )
-        if exercice_ids:
-            values = [(client_id, ex_id) for ex_id in exercice_ids]
-            cursor.executemany(
-                "INSERT INTO client_exercice_exclusions (client_id, exercice_id) VALUES (?, ?)",
-                values,
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "DELETE FROM client_exercice_exclusions WHERE client_id = ?", (client_id,)
             )
-        conn.commit()
-        conn.close()
+            if exercice_ids:
+                values = [(client_id, ex_id) for ex_id in exercice_ids]
+                cursor.executemany(
+                    "INSERT INTO client_exercice_exclusions (client_id, exercice_id) VALUES (?, ?)",
+                    values,
+                )
+            conn.commit()
 
     def get_exclusions(self, client_id: int) -> List[int]:
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT exercice_id FROM client_exercice_exclusions WHERE client_id = ?",
-            (client_id,),
-        )
-        rows = cursor.fetchall()
-        conn.close()
+        with db_manager._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT exercice_id FROM client_exercice_exclusions WHERE client_id = ?",
+                (client_id,),
+            )
+            rows = cursor.fetchall()
         return [row["exercice_id"] for row in rows]

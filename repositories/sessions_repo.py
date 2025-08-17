@@ -1,17 +1,13 @@
 import json
-import sqlite3
 
+from db.database_manager import db_manager
 from models.session import Session
-
-DB_PATH = "coach.db"
 
 
 class SessionsRepository:
-    def __init__(self, db_path: str = DB_PATH):
-        self.db_path = db_path
 
     def save(self, s: Session) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             conn.execute(
                 "INSERT OR REPLACE INTO sessions(session_id, mode, label, duration_sec) VALUES (?,?,?,?)",
                 (s.session_id, s.mode, s.label, s.duration_sec),

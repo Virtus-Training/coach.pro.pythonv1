@@ -1,4 +1,3 @@
-import sqlite3
 from typing import Dict, Optional
 
 import customtkinter as ctk
@@ -7,8 +6,6 @@ from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
 from repositories.aliment_repo import AlimentRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from ui.theme.colors import PRIMARY
-
-DB_PATH = "coach.db"
 
 
 class NutritionPage(ctk.CTkFrame):
@@ -141,10 +138,11 @@ class NutritionPage(ctk.CTkFrame):
         items_frame.pack(fill="x", padx=10, pady=5)
         for item in repas.items:
             aliment = self.aliments_by_id.get(item.aliment_id)
-            portion = self._get_portion(item.portion_id)
+            portion = self.aliment_repo.get_portion_by_id(item.portion_id)
+            desc = portion.description if portion else "?"
             item_lbl = ctk.CTkLabel(
                 items_frame,
-                text=f"{aliment.nom} - {portion['description']} x{item.quantite}",
+                text=f"{aliment.nom} - {desc} x{item.quantite}",
                 anchor="w",
             )
             item_lbl.pack(fill="x")
@@ -239,35 +237,12 @@ class NutritionPage(ctk.CTkFrame):
         add_btn.pack(pady=10)
 
     # ----- Totals -----
-    def _get_portion(self, portion_id: int) -> sqlite3.Row:
-        with sqlite3.connect(DB_PATH) as conn:
-            conn.row_factory = sqlite3.Row
-            row = conn.execute(
-                "SELECT * FROM portions WHERE id = ?", (portion_id,)
-            ).fetchone()
-        return row
 
-    def _compute_item_totals(self, item: RepasItem) -> Dict[str, float]:
-        with sqlite3.connect(DB_PATH) as conn:
-            conn.row_factory = sqlite3.Row
-            aliment = conn.execute(
-                "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
-            ).fetchone()
-            portion = conn.execute(
-                "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
-            ).fetchone()
-        facteur = (portion["grammes_equivalents"] * item.quantite) / 100
-        return {
-            "kcal": aliment["kcal_100g"] * facteur,
-            "proteines": aliment["proteines_100g"] * facteur,
-            "glucides": aliment["glucides_100g"] * facteur,
-            "lipides": aliment["lipides_100g"] * facteur,
-        }
 
     def _compute_meal_totals(self, repas: Repas) -> Dict[str, float]:
         totals = {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
         for item in repas.items:
-            it = self._compute_item_totals(item)
+            it = self.plan_repo.compute_item_totals(item)
             for k in totals:
                 totals[k] += it[k]
         return totals

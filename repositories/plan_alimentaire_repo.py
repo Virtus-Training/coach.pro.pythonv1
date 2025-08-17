@@ -1,19 +1,14 @@
-import sqlite3
-from typing import List
+from typing import Dict, List
 
+from db.database_manager import db_manager
 from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
-
-DB_PATH = "coach.db"
 
 
 class PlanAlimentaireRepository:
-    def __init__(self, db_path: str = DB_PATH):
-        self.db_path = db_path
 
     # Plans
     def list_plans(self) -> List[PlanAlimentaire]:
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+        with db_manager._get_connection() as conn:
             rows = conn.execute(
                 "SELECT * FROM plans_alimentaires ORDER BY nom"
             ).fetchall()
@@ -29,8 +24,7 @@ class PlanAlimentaireRepository:
         ]
 
     def get_plan(self, plan_id: int) -> PlanAlimentaire:
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
+        with db_manager._get_connection() as conn:
             plan_row = conn.execute(
                 "SELECT * FROM plans_alimentaires WHERE id = ?", (plan_id,)
             ).fetchone()
@@ -72,7 +66,7 @@ class PlanAlimentaireRepository:
             )
 
     def create_plan(self, plan: PlanAlimentaire) -> int:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO plans_alimentaires (nom, description, tags) VALUES (?, ?, ?)",
@@ -97,7 +91,7 @@ class PlanAlimentaireRepository:
             return plan_id
 
     def update_plan(self, plan: PlanAlimentaire) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE plans_alimentaires SET nom = ?, description = ?, tags = ? WHERE id = ?",
@@ -129,7 +123,7 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_plan(self, plan_id: int) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             repas_ids = [
                 r[0]
@@ -145,7 +139,7 @@ class PlanAlimentaireRepository:
 
     # Repas CRUD
     def add_repas(self, plan_id: int, repas: Repas) -> int:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO repas (plan_id, nom, ordre) VALUES (?, ?, ?)",
@@ -156,7 +150,7 @@ class PlanAlimentaireRepository:
             return repas_id
 
     def update_repas(self, repas: Repas) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE repas SET nom = ?, ordre = ? WHERE id = ?",
@@ -165,7 +159,7 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_repas(self, repas_id: int) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (repas_id,))
             cur.execute("DELETE FROM repas WHERE id = ?", (repas_id,))
@@ -173,7 +167,7 @@ class PlanAlimentaireRepository:
 
     # Items CRUD
     def add_item(self, repas_id: int, item: RepasItem) -> int:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 """
@@ -187,7 +181,7 @@ class PlanAlimentaireRepository:
             return item_id
 
     def update_item(self, item: RepasItem) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE repas_items SET aliment_id = ?, portion_id = ?, quantite = ? WHERE id = ?",
@@ -196,7 +190,26 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_item(self, item_id: int) -> None:
-        with sqlite3.connect(self.db_path) as conn:
+        with db_manager._get_connection() as conn:
             cur = conn.cursor()
             cur.execute("DELETE FROM repas_items WHERE id = ?", (item_id,))
             conn.commit()
+
+    # --- Calculations ---
+    def compute_item_totals(self, item: RepasItem) -> Dict[str, float]:
+        with db_manager._get_connection() as conn:
+            aliment = conn.execute(
+                "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
+            ).fetchone()
+            portion = conn.execute(
+                "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
+            ).fetchone()
+        if not aliment or not portion:
+            return {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
+        facteur = (portion["grammes_equivalents"] * item.quantite) / 100
+        return {
+            "kcal": aliment["kcal_100g"] * facteur,
+            "proteines": aliment["proteines_100g"] * facteur,
+            "glucides": aliment["glucides_100g"] * facteur,
+            "lipides": aliment["lipides_100g"] * facteur,
+        }
