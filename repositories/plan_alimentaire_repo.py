@@ -8,7 +8,7 @@ class PlanAlimentaireRepository:
 
     # Plans
     def list_plans(self) -> List[PlanAlimentaire]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             rows = conn.execute(
                 "SELECT * FROM plans_alimentaires ORDER BY nom"
             ).fetchall()
@@ -24,7 +24,7 @@ class PlanAlimentaireRepository:
         ]
 
     def get_plan(self, plan_id: int) -> PlanAlimentaire:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             plan_row = conn.execute(
                 "SELECT * FROM plans_alimentaires WHERE id = ?", (plan_id,)
             ).fetchone()
@@ -66,7 +66,7 @@ class PlanAlimentaireRepository:
             )
 
     def create_plan(self, plan: PlanAlimentaire) -> int:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO plans_alimentaires (nom, description, tags) VALUES (?, ?, ?)",
@@ -91,7 +91,7 @@ class PlanAlimentaireRepository:
             return plan_id
 
     def update_plan(self, plan: PlanAlimentaire) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE plans_alimentaires SET nom = ?, description = ?, tags = ? WHERE id = ?",
@@ -123,7 +123,7 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_plan(self, plan_id: int) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             repas_ids = [
                 r[0]
@@ -139,7 +139,7 @@ class PlanAlimentaireRepository:
 
     # Repas CRUD
     def add_repas(self, plan_id: int, repas: Repas) -> int:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO repas (plan_id, nom, ordre) VALUES (?, ?, ?)",
@@ -150,7 +150,7 @@ class PlanAlimentaireRepository:
             return repas_id
 
     def update_repas(self, repas: Repas) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE repas SET nom = ?, ordre = ? WHERE id = ?",
@@ -159,7 +159,7 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_repas(self, repas_id: int) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (repas_id,))
             cur.execute("DELETE FROM repas WHERE id = ?", (repas_id,))
@@ -167,7 +167,7 @@ class PlanAlimentaireRepository:
 
     # Items CRUD
     def add_item(self, repas_id: int, item: RepasItem) -> int:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 """
@@ -181,7 +181,7 @@ class PlanAlimentaireRepository:
             return item_id
 
     def update_item(self, item: RepasItem) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
                 "UPDATE repas_items SET aliment_id = ?, portion_id = ?, quantite = ? WHERE id = ?",
@@ -190,14 +190,14 @@ class PlanAlimentaireRepository:
             conn.commit()
 
     def delete_item(self, item_id: int) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute("DELETE FROM repas_items WHERE id = ?", (item_id,))
             conn.commit()
 
     # --- Calculations ---
     def compute_item_totals(self, item: RepasItem) -> Dict[str, float]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             aliment = conn.execute(
                 "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
             ).fetchone()

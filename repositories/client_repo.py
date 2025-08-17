@@ -9,7 +9,7 @@ from models.client import Client
 class ClientRepository:
 
     def list_all(self) -> List[Client]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM clients ORDER BY nom, prenom")
             rows = cursor.fetchall()
@@ -34,7 +34,7 @@ class ClientRepository:
         return clients
 
     def find_by_id(self, client_id: int) -> Optional[Client]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM clients WHERE id = ?", (client_id,))
             row = cursor.fetchone()
@@ -56,7 +56,7 @@ class ClientRepository:
         return None
 
     def add(self, client: Client) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "INSERT INTO clients (prenom, nom, email, date_naissance) VALUES (?, ?, ?, ?)",
@@ -65,7 +65,7 @@ class ClientRepository:
             conn.commit()
 
     def update(self, client: Client) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -78,7 +78,7 @@ class ClientRepository:
             conn.commit()
 
     def update_anamnese(self, client_id: int, objectifs: str, antecedents: str) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
@@ -91,7 +91,7 @@ class ClientRepository:
             conn.commit()
 
     def update_exclusions(self, client_id: int, exercice_ids: List[int]) -> None:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "DELETE FROM client_exercice_exclusions WHERE client_id = ?", (client_id,)
@@ -105,7 +105,7 @@ class ClientRepository:
             conn.commit()
 
     def get_exclusions(self, client_id: int) -> List[int]:
-        with db_manager._get_connection() as conn:
+        with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 "SELECT exercice_id FROM client_exercice_exclusions WHERE client_id = ?",
