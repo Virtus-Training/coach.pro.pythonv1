@@ -3,8 +3,8 @@ import customtkinter as ctk
 from models.client import Client
 from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
-from ui.components.exclusion_selector import ExclusionSelector
 from ui.components.design_system import Card, CardTitle, PrimaryButton
+from ui.components.exclusion_selector import ExclusionSelector
 
 
 class AnamneseTab(ctk.CTkFrame):
@@ -17,7 +17,9 @@ class AnamneseTab(ctk.CTkFrame):
         info_card = Card(self)
         info_card.pack(fill="x", padx=20, pady=(20, 10))
 
-        CardTitle(info_card, text="Informations Clés").pack(anchor="w", padx=20, pady=(20, 10))
+        CardTitle(info_card, text="Informations Clés").pack(
+            anchor="w", padx=20, pady=(20, 10)
+        )
 
         ctk.CTkLabel(info_card, text="Objectifs du client").pack(anchor="w", padx=20)
         self.objectifs_txt = ctk.CTkTextbox(info_card, height=80)
@@ -34,7 +36,9 @@ class AnamneseTab(ctk.CTkFrame):
         excl_card = Card(self)
         excl_card.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
-        CardTitle(excl_card, text="Exercices à Exclure").pack(anchor="w", padx=20, pady=(20, 10))
+        CardTitle(excl_card, text="Exercices à Exclure").pack(
+            anchor="w", padx=20, pady=(20, 10)
+        )
 
         all_exercices = self.exercice_repo.list_all_exercices()
         excluded_ids = self.client_repo.get_exclusions(client.id)
@@ -42,7 +46,9 @@ class AnamneseTab(ctk.CTkFrame):
         self.selector = ExclusionSelector(excl_card, all_exercices, excluded_ids)
         self.selector.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
-        PrimaryButton(self, text="Enregistrer les modifications", command=self._save).pack(anchor="e", padx=20, pady=(0, 20))
+        PrimaryButton(
+            self, text="Enregistrer les modifications", command=self._save
+        ).pack(anchor="e", padx=20, pady=(0, 20))
 
     def _save(self):
         objectifs = self.objectifs_txt.get("1.0", "end").strip()

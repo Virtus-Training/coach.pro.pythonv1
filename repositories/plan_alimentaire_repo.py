@@ -103,7 +103,12 @@ class PlanAlimentaireRepository:
                 "UPDATE plans_alimentaires SET nom = ?, description = ?, tags = ? WHERE id = ?",
                 (plan.nom, plan.description, plan.tags, plan.id),
             )
-            repas_ids = [r[0] for r in cur.execute("SELECT id FROM repas WHERE plan_id = ?", (plan.id,)).fetchall()]
+            repas_ids = [
+                r[0]
+                for r in cur.execute(
+                    "SELECT id FROM repas WHERE plan_id = ?", (plan.id,)
+                ).fetchall()
+            ]
             for rid in repas_ids:
                 cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (rid,))
             cur.execute("DELETE FROM repas WHERE plan_id = ?", (plan.id,))
@@ -126,7 +131,12 @@ class PlanAlimentaireRepository:
     def delete_plan(self, plan_id: int) -> None:
         with sqlite3.connect(self.db_path) as conn:
             cur = conn.cursor()
-            repas_ids = [r[0] for r in cur.execute("SELECT id FROM repas WHERE plan_id = ?", (plan_id,)).fetchall()]
+            repas_ids = [
+                r[0]
+                for r in cur.execute(
+                    "SELECT id FROM repas WHERE plan_id = ?", (plan_id,)
+                ).fetchall()
+            ]
             for rid in repas_ids:
                 cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (rid,))
             cur.execute("DELETE FROM repas WHERE plan_id = ?", (plan_id,))

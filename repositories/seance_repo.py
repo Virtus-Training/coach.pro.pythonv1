@@ -2,8 +2,8 @@ import sqlite3
 from datetime import datetime
 from typing import Dict, List
 
-from models.seance import Seance
 from models.resultat_exercice import ResultatExercice
+from models.seance import Seance
 
 DB_PATH = "coach.db"
 
@@ -79,7 +79,7 @@ class SeanceRepository:
                         r.charge_utilisee,
                         r.feedback_client,
                     ),
-            )
+                )
             conn.commit()
 
     def get_exercice_history(self, client_id: int, exercice_id: int) -> List[Dict]:

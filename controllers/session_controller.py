@@ -14,7 +14,9 @@ def build_session_preview_dto(
     """Map session blocks to a DTO consumable by the view."""
     blocks_out: list[Dict[str, Any]] = []
     for blk in blocks:
-        title = f"{blk.type} — {blk.duration_sec // 60}’" if blk.duration_sec else blk.type
+        title = (
+            f"{blk.type} — {blk.duration_sec // 60}’" if blk.duration_sec else blk.type
+        )
         block_dto = {
             "title": title,
             "format": blk.type,
@@ -76,4 +78,3 @@ def generate_session_preview(
 
 
 __all__ = ["build_session_preview_dto", "generate_session_preview"]
-

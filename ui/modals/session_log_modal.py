@@ -1,15 +1,18 @@
-import customtkinter as ctk
-from typing import Callable, List, Dict
+from typing import Callable, Dict, List
 
-from models.seance import Seance
+import customtkinter as ctk
+
 from models.resultat_exercice import ResultatExercice
-from repositories.seance_repo import SeanceRepository
+from models.seance import Seance
 from repositories.exercices_repo import ExerciseRepository
+from repositories.seance_repo import SeanceRepository
 from ui.theme.colors import DARK_BG
 
 
 class SessionLogModal(ctk.CTkToplevel):
-    def __init__(self, parent, client_id: int, on_saved: Callable[[], None] | None = None):
+    def __init__(
+        self, parent, client_id: int, on_saved: Callable[[], None] | None = None
+    ):
         super().__init__(parent)
         self.client_id = client_id
         self.on_saved = on_saved
@@ -50,9 +53,9 @@ class SessionLogModal(ctk.CTkToplevel):
         ctk.CTkOptionMenu(add_frame, variable=self.option_var, values=values).pack(
             side="left", padx=(0, 10)
         )
-        ctk.CTkButton(add_frame, text="Ajouter un exercice", command=self._add_exercise).pack(
-            side="left"
-        )
+        ctk.CTkButton(
+            add_frame, text="Ajouter un exercice", command=self._add_exercise
+        ).pack(side="left")
 
         self.ex_scroll = ctk.CTkScrollableFrame(ex_container, fg_color="transparent")
         self.ex_scroll.pack(fill="both", expand=True, pady=(10, 0))
@@ -62,7 +65,9 @@ class SessionLogModal(ctk.CTkToplevel):
         ctk.CTkButton(action, text="Enregistrer la séance", command=self._save).pack(
             side="left", padx=5
         )
-        ctk.CTkButton(action, text="Annuler", command=self.destroy).pack(side="left", padx=5)
+        ctk.CTkButton(action, text="Annuler", command=self.destroy).pack(
+            side="left", padx=5
+        )
 
     def _add_exercise(self):
         name = self.option_var.get()
@@ -76,15 +81,15 @@ class SessionLogModal(ctk.CTkToplevel):
         series_var = ctk.StringVar()
         reps_var = ctk.StringVar()
         charge_var = ctk.StringVar()
-        ctk.CTkEntry(frame, width=40, textvariable=series_var, placeholder_text="Séries").grid(
-            row=0, column=1, padx=5
-        )
-        ctk.CTkEntry(frame, width=40, textvariable=reps_var, placeholder_text="Reps").grid(
-            row=0, column=2, padx=5
-        )
-        ctk.CTkEntry(frame, width=60, textvariable=charge_var, placeholder_text="Charge").grid(
-            row=0, column=3, padx=5
-        )
+        ctk.CTkEntry(
+            frame, width=40, textvariable=series_var, placeholder_text="Séries"
+        ).grid(row=0, column=1, padx=5)
+        ctk.CTkEntry(
+            frame, width=40, textvariable=reps_var, placeholder_text="Reps"
+        ).grid(row=0, column=2, padx=5)
+        ctk.CTkEntry(
+            frame, width=60, textvariable=charge_var, placeholder_text="Charge"
+        ).grid(row=0, column=3, padx=5)
         ctk.CTkButton(
             frame, text="X", width=20, command=lambda: self._remove_exercise(frame)
         ).grid(row=0, column=4, padx=5)

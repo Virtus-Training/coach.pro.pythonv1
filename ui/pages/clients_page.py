@@ -1,9 +1,10 @@
 import customtkinter as ctk
-from ui.theme.fonts import get_title_font, get_text_font, get_small_font
-from ui.theme.colors import DARK_BG, DARK_PANEL, TEXT, TEXT_SECONDARY
-from repositories.client_repo import ClientRepository
+
 from models.client import Client
+from repositories.client_repo import ClientRepository
 from ui.modals.client_form_modal import ClientFormModal
+from ui.theme.colors import DARK_BG, DARK_PANEL, TEXT, TEXT_SECONDARY
+from ui.theme.fonts import get_small_font, get_text_font, get_title_font
 
 
 class ClientsPage(ctk.CTkFrame):
@@ -25,8 +26,12 @@ class ClientsPage(ctk.CTkFrame):
         actions = ctk.CTkFrame(self, fg_color="transparent")
         actions.pack(fill="x", padx=20)
 
-        ctk.CTkButton(actions, text="Ajouter un client", command=self._open_add_modal).pack(side="left", padx=(0, 10))
-        ctk.CTkButton(actions, text="Rafraîchir", command=self._load_clients).pack(side="left")
+        ctk.CTkButton(
+            actions, text="Ajouter un client", command=self._open_add_modal
+        ).pack(side="left", padx=(0, 10))
+        ctk.CTkButton(actions, text="Rafraîchir", command=self._load_clients).pack(
+            side="left"
+        )
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll.pack(fill="both", expand=True, padx=20, pady=20)
@@ -51,10 +56,14 @@ class ClientsPage(ctk.CTkFrame):
         info.pack(side="left", padx=10, pady=10)
 
         full_name = f"{client.prenom} {client.nom}"
-        name_label = ctk.CTkLabel(info, text=full_name, font=get_text_font(), text_color=TEXT)
+        name_label = ctk.CTkLabel(
+            info, text=full_name, font=get_text_font(), text_color=TEXT
+        )
         name_label.pack(anchor="w")
         email = client.email or "Non renseigné"
-        email_label = ctk.CTkLabel(info, text=email, font=get_small_font(), text_color=TEXT_SECONDARY)
+        email_label = ctk.CTkLabel(
+            info, text=email, font=get_small_font(), text_color=TEXT_SECONDARY
+        )
         email_label.pack(anchor="w")
 
         ctk.CTkButton(
@@ -67,7 +76,9 @@ class ClientsPage(ctk.CTkFrame):
         # Rendre la carte cliquable
         widgets_to_bind = [card, info, name_label, email_label]
         for widget in widgets_to_bind:
-            widget.bind("<Button-1>", lambda e, cid=client.id: self.on_client_selected(cid))
+            widget.bind(
+                "<Button-1>", lambda e, cid=client.id: self.on_client_selected(cid)
+            )
 
     def on_client_selected(self, client_id: int) -> None:
         self.master.master.show_client_detail(client_id)

@@ -1,8 +1,10 @@
 # ui/layout/header.py
 
+import os
+
 import customtkinter as ctk
 from PIL import Image
-import os
+
 
 class Header(ctk.CTkFrame):
     def __init__(self, parent, title="CoachPro"):
@@ -17,8 +19,12 @@ class Header(ctk.CTkFrame):
             logo_label.pack(side="left", padx=20)
 
         # Titre
-        self.title_label = ctk.CTkLabel(self, text="CoachPro", text_color="#3b82f6",
-                             font=ctk.CTkFont(size=20, weight="bold"))
+        self.title_label = ctk.CTkLabel(
+            self,
+            text="CoachPro",
+            text_color="#3b82f6",
+            font=ctk.CTkFont(size=20, weight="bold"),
+        )
         self.title_label.pack(side="left", padx=10)
 
         # Profil (optionnel)
@@ -27,4 +33,3 @@ class Header(ctk.CTkFrame):
 
     def update_title(self, new_title):
         self.title_label.configure(text=new_title)
-

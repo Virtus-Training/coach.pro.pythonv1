@@ -1,21 +1,21 @@
 import datetime
 from dataclasses import asdict
-
-import customtkinter as ctk
 from tkinter import filedialog
 
-from repositories.fiche_nutrition_repo import FicheNutritionRepository
+import customtkinter as ctk
+
+from models.fiche_nutrition import FicheNutrition
 from repositories.client_repo import ClientRepository
+from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from services.nutrition_service import (
-    calculate_nutrition_targets,
     ACTIVITY_FACTORS,
     OBJECTIVE_ADJUST,
+    calculate_nutrition_targets,
 )
 from services.pdf_generator import generate_nutrition_sheet_pdf
-from models.fiche_nutrition import FicheNutrition
+from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.theme.colors import TEXT
 from ui.theme.fonts import get_text_font
-from ui.components.design_system import Card, CardTitle, PrimaryButton
 
 
 class FicheNutritionTab(ctk.CTkFrame):
@@ -101,7 +101,9 @@ class FicheNutritionTab(ctk.CTkFrame):
     def export_pdf(self):
         if not self.fiche or not self.client:
             return
-        path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF", "*.pdf")])
+        path = filedialog.asksaveasfilename(
+            defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
+        )
         if path:
             generate_nutrition_sheet_pdf(asdict(self.fiche), self.client, path)
 
@@ -135,7 +137,9 @@ class GenerateFicheModal(ctk.CTkToplevel):
         add_entry("Date de naissance (AAAA-MM-JJ)", self.date_var)
 
         ctk.CTkLabel(frame, text="Sexe", text_color=TEXT).pack(anchor="w")
-        ctk.CTkOptionMenu(frame, variable=self.sexe_var, values=["Homme", "Femme"]).pack(fill="x", pady=(0, 10))
+        ctk.CTkOptionMenu(
+            frame, variable=self.sexe_var, values=["Homme", "Femme"]
+        ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(frame, text="Niveau d'activité", text_color=TEXT).pack(anchor="w")
         ctk.CTkOptionMenu(
@@ -152,10 +156,16 @@ class GenerateFicheModal(ctk.CTkToplevel):
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(frame, text="Protéines (g/kg)", text_color=TEXT).pack(anchor="w")
-        ctk.CTkSlider(frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var).pack(fill="x", pady=(0, 10))
+        ctk.CTkSlider(
+            frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var
+        ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Répartition G/L (%)", text_color=TEXT).pack(anchor="w")
-        ctk.CTkSlider(frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var).pack(fill="x", pady=(0, 10))
+        ctk.CTkLabel(frame, text="Répartition G/L (%)", text_color=TEXT).pack(
+            anchor="w"
+        )
+        ctk.CTkSlider(
+            frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var
+        ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkButton(self, text="Générer", command=self.generate).pack(pady=10)
 
@@ -180,7 +190,11 @@ class GenerateFicheModal(ctk.CTkToplevel):
         try:
             birth = datetime.date.fromisoformat(date_str)
             today = datetime.date.today()
-            return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
+            return (
+                today.year
+                - birth.year
+                - ((today.month, today.day) < (birth.month, birth.day))
+            )
         except Exception:
             return 0
 

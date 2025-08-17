@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Dict
 
-
 ACTIVITY_FACTORS = {
     "Sédentaire": 1.2,
     "Activité légère": 1.375,
@@ -60,7 +59,9 @@ def calculate_nutrition_targets(data: Dict) -> Dict:
         glucides_g = round(remaining / 4)
         carbs_cal = glucides_g * 4
         remaining_total = objectif_kcal - protein_cal
-        ratio_glucides = (carbs_cal / remaining_total * 100) if remaining_total > 0 else 0
+        ratio_glucides = (
+            (carbs_cal / remaining_total * 100) if remaining_total > 0 else 0
+        )
 
     return {
         "maintenance_kcal": round(maintenance),

@@ -1,21 +1,25 @@
 from io import BytesIO
 
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.lib.utils import ImageReader
 from matplotlib.figure import Figure
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
 
 from models.client import Client
-from ui.theme.colors import PRIMARY, SECONDARY, TEXT_MUTED, DARK_BG, DARK_PANEL, TEXT
+from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, SECONDARY, TEXT, TEXT_MUTED
 
 
-def generate_nutrition_sheet_pdf(fiche_data: dict, client_data: Client, file_path: str) -> None:
+def generate_nutrition_sheet_pdf(
+    fiche_data: dict, client_data: Client, file_path: str
+) -> None:
     c = canvas.Canvas(file_path, pagesize=A4)
     width, height = A4
 
     c.setTitle("Fiche Nutrition")
     c.setFont("Helvetica-Bold", 16)
-    c.drawString(30, height - 40, f"Fiche Nutrition - {client_data.prenom} {client_data.nom}")
+    c.drawString(
+        30, height - 40, f"Fiche Nutrition - {client_data.prenom} {client_data.nom}"
+    )
 
     c.setFont("Helvetica", 12)
     y = height - 80
@@ -38,10 +42,9 @@ def generate_nutrition_sheet_pdf(fiche_data: dict, client_data: Client, file_pat
     fig.patch.set_facecolor(DARK_PANEL)
     ax = fig.add_subplot(111)
     ax.set_facecolor(DARK_BG)
-    total = fiche_data['objectif_kcal']
-    protein_cal = fiche_data['proteines_g'] * 4
-    carbs_cal = fiche_data['glucides_g'] * 4
-    fats_cal = fiche_data['lipides_g'] * 9
+    protein_cal = fiche_data["proteines_g"] * 4
+    carbs_cal = fiche_data["glucides_g"] * 4
+    fats_cal = fiche_data["lipides_g"] * 9
     ax.pie(
         [protein_cal, carbs_cal, fats_cal],
         colors=[PRIMARY, SECONDARY, TEXT_MUTED],

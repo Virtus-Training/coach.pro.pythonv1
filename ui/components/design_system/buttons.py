@@ -2,7 +2,7 @@
 
 import customtkinter as ctk
 
-from ui.theme.colors import PRIMARY, SECONDARY, TEXT_ON_PRIMARY, DARK_SOFT
+from ui.theme.colors import DARK_SOFT, PRIMARY, SECONDARY, TEXT_ON_PRIMARY
 from ui.theme.fonts import get_button_font
 
 
@@ -38,4 +38,3 @@ class SecondaryButton(ctk.CTkButton):
             height=40,
             **kwargs,
         )
-

@@ -3,7 +3,7 @@
 import customtkinter as ctk
 
 from ui.theme.colors import TEXT
-from ui.theme.fonts import get_title_font, get_section_font
+from ui.theme.fonts import get_section_font, get_title_font
 
 
 class PageTitle(ctk.CTkLabel):

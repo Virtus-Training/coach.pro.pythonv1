@@ -1,5 +1,5 @@
 import sqlite3
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from models.exercices import Exercise
 
@@ -17,9 +17,7 @@ class ExerciseRepository:
     def list_all_exercices(self) -> List[Exercise]:
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                "SELECT * FROM exercices ORDER BY nom"
-            ).fetchall()
+            rows = conn.execute("SELECT * FROM exercices ORDER BY nom").fetchall()
         return [
             Exercise(
                 id=row["id"],
@@ -50,10 +48,7 @@ class ExerciseRepository:
             return {}
         unique_ids = list(dict.fromkeys(ids))
         placeholders = ",".join(["?"] * len(unique_ids))
-        q = (
-            "SELECT id, nom, equipement FROM exercices "
-            f"WHERE id IN ({placeholders})"
-        )
+        q = f"SELECT id, nom, equipement FROM exercices WHERE id IN ({placeholders})"
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute(q, unique_ids).fetchall()

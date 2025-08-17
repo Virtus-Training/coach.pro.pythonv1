@@ -38,22 +38,26 @@ class FormCollectif(ctk.CTkFrame):
         row1 = ctk.CTkFrame(self, fg_color="transparent")
         row1.grid(row=0, column=0, sticky="ew", padx=12, pady=8)
         row1.grid_columnconfigure((1, 3), weight=1)
-        ctk.CTkLabel(row1, text="Type de cours").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ctk.CTkLabel(row1, text="Type de cours").grid(
+            row=0, column=0, sticky="w", padx=(0, 8)
+        )
         self.course_var = ctk.StringVar(value=COURSE_TYPES[0])
         ctk.CTkOptionMenu(row1, variable=self.course_var, values=COURSE_TYPES).grid(
             row=0, column=1, sticky="ew", padx=(0, 12)
         )
         ctk.CTkLabel(row1, text="Durée").grid(row=0, column=2, sticky="w", padx=(4, 8))
         self.duration_var = ctk.StringVar(value=DURATIONS[0])
-        ctk.CTkOptionMenu(row1, variable=self.duration_var, values=DURATIONS, width=80).grid(
-            row=0, column=3, sticky="ew"
-        )
+        ctk.CTkOptionMenu(
+            row1, variable=self.duration_var, values=DURATIONS, width=80
+        ).grid(row=0, column=3, sticky="ew")
 
         # Ligne 2: Intensité
         row2 = ctk.CTkFrame(self, fg_color="transparent")
         row2.grid(row=1, column=0, sticky="ew", padx=12, pady=4)
         row2.grid_columnconfigure(1, weight=1)
-        ctk.CTkLabel(row2, text="Intensité").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ctk.CTkLabel(row2, text="Intensité").grid(
+            row=0, column=0, sticky="w", padx=(0, 8)
+        )
         self.intensity_var = ctk.StringVar(value=INTENSITIES[1])
         ctk.CTkOptionMenu(row2, variable=self.intensity_var, values=INTENSITIES).grid(
             row=0, column=1, sticky="ew", padx=(0, 12)
@@ -62,7 +66,9 @@ class FormCollectif(ctk.CTkFrame):
         # Sliders
         sliders = ctk.CTkFrame(self, fg_color="transparent")
         sliders.grid(row=2, column=0, sticky="ew", padx=12, pady=8)
-        ctk.CTkLabel(sliders, text="Variabilité").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ctk.CTkLabel(sliders, text="Variabilité").grid(
+            row=0, column=0, sticky="w", padx=(0, 8)
+        )
         self.variability = ctk.IntVar(value=50)
         ctk.CTkSlider(
             sliders,
@@ -144,12 +150,12 @@ class FormCollectif(ctk.CTkFrame):
         ctk.CTkButton(btns, text="Regénérer tout", command=generate_callback).grid(
             row=0, column=1, sticky="ew", padx=4, pady=4
         )
-        ctk.CTkButton(btns, text="Agrandir l’aperçu", command=open_preview_callback).grid(
-            row=1, column=0, sticky="ew", padx=4, pady=4
-        )
-        ctk.CTkButton(btns, text="Masquer le formulaire", command=toggle_form_callback).grid(
-            row=1, column=1, sticky="ew", padx=4, pady=4
-        )
+        ctk.CTkButton(
+            btns, text="Agrandir l’aperçu", command=open_preview_callback
+        ).grid(row=1, column=0, sticky="ew", padx=4, pady=4)
+        ctk.CTkButton(
+            btns, text="Masquer le formulaire", command=toggle_form_callback
+        ).grid(row=1, column=1, sticky="ew", padx=4, pady=4)
 
     def get_params(self) -> dict:
         """Returns a dictionary of the current form parameters."""
