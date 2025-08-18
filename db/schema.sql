@@ -85,9 +85,11 @@ CREATE TABLE portions (
 
 CREATE TABLE plans_alimentaires (
     id INTEGER PRIMARY KEY,
+    client_id INTEGER,
     nom TEXT NOT NULL,
     description TEXT,
-    tags TEXT
+    tags TEXT,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 
 CREATE TABLE repas (

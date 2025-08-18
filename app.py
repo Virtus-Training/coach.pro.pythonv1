@@ -59,7 +59,7 @@ class CoachApp(ctk.CTk):
             case "calendar":
                 self.current_page = CalendarPage(self.main_frame)
             case "nutrition":
-                self.current_page = NutritionPage(self.main_frame)
+                self.current_page = NutritionPage(self.main_frame, client_id=1)
                 self.header.update_title("Nutrition")
             case "database":
                 self.current_page = DatabasePage(self.main_frame)
