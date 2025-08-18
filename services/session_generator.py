@@ -154,6 +154,10 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
     tpl = T.pick_template(params["course_type"], params["duration_min"])
     repo = ExerciseRepository()
     pool = filter_pool(repo, params)
+    if not pool:
+        raise ValueError(
+            "Impossible de générer une séance : la base de données d'exercices est vide."
+        )
     rng = random.Random(params.get("seed") or int(time.time()))
     entropy = map_slider_to_entropy(params.get("variability", 50))
 
