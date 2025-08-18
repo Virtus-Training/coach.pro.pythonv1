@@ -3,7 +3,7 @@
 import customtkinter as ctk
 from PIL import Image
 
-from ui.components.button import ButtonPrimary
+from ui.components.design_system import PrimaryButton
 from ui.components.card import IconCard
 from ui.components.title import SectionTitle
 from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, TEXT, TEXT_SECONDARY
@@ -113,7 +113,7 @@ class DashboardPage(ctk.CTkFrame):
             card = IconCard(grid_frame, text=label, icon_path=f"assets/icons/{icon}")
             card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
-        ButtonPrimary(scroll, text="Créer un nouveau programme").pack(pady=30)
+        PrimaryButton(scroll, text="Créer un nouveau programme").pack(pady=30)
 
         # === SECTION 2 : Statistiques visuelles stylisées ===
 
