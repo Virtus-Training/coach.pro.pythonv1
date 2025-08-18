@@ -6,7 +6,22 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 from models.client import Client
-from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, SECONDARY, TEXT, TEXT_MUTED
+from ui.theme.colors import (
+    NEUTRAL_100,
+    NEUTRAL_300,
+    NEUTRAL_700,
+    NEUTRAL_800,
+    NEUTRAL_900,
+    PRIMARY,
+)
+
+# Mapping des anciennes couleurs vers le nouveau Design System
+DARK_BG = NEUTRAL_900
+DARK_PANEL = NEUTRAL_800
+TEXT = NEUTRAL_100
+TEXT_MUTED = NEUTRAL_300
+# On choisit une couleur neutre pour remplacer l'ancienne 'SECONDARY'
+SECONDARY = NEUTRAL_700
 
 
 def generate_nutrition_sheet_pdf(
