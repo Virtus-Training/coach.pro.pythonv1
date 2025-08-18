@@ -23,6 +23,7 @@ class Repas:
 @dataclass
 class PlanAlimentaire:
     id: int
+    client_id: Optional[int]
     nom: str
     description: Optional[str] = None
     tags: Optional[str] = None

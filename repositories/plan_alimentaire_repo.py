@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from db.database_manager import db_manager
 from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
@@ -15,6 +15,7 @@ class PlanAlimentaireRepository:
         return [
             PlanAlimentaire(
                 id=row["id"],
+                client_id=row["client_id"],
                 nom=row["nom"],
                 description=row["description"],
                 tags=row["tags"],
@@ -59,18 +60,29 @@ class PlanAlimentaireRepository:
                 )
             return PlanAlimentaire(
                 id=plan_row["id"],
+                client_id=plan_row["client_id"],
                 nom=plan_row["nom"],
                 description=plan_row["description"],
                 tags=plan_row["tags"],
                 repas=repas_list,
             )
 
+    def find_by_client_id(self, client_id: int) -> Optional[PlanAlimentaire]:
+        with db_manager.get_connection() as conn:
+            plan_row = conn.execute(
+                "SELECT * FROM plans_alimentaires WHERE client_id = ?",
+                (client_id,),
+            ).fetchone()
+            if not plan_row:
+                return None
+            return self.get_plan(plan_row["id"])
+
     def create_plan(self, plan: PlanAlimentaire) -> int:
         with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
-                "INSERT INTO plans_alimentaires (nom, description, tags) VALUES (?, ?, ?)",
-                (plan.nom, plan.description, plan.tags),
+                "INSERT INTO plans_alimentaires (client_id, nom, description, tags) VALUES (?, ?, ?, ?)",
+                (plan.client_id, plan.nom, plan.description, plan.tags),
             )
             plan_id = cur.lastrowid
             for repas in plan.repas:
@@ -94,8 +106,8 @@ class PlanAlimentaireRepository:
         with db_manager.get_connection() as conn:
             cur = conn.cursor()
             cur.execute(
-                "UPDATE plans_alimentaires SET nom = ?, description = ?, tags = ? WHERE id = ?",
-                (plan.nom, plan.description, plan.tags, plan.id),
+                "UPDATE plans_alimentaires SET client_id = ?, nom = ?, description = ?, tags = ? WHERE id = ?",
+                (plan.client_id, plan.nom, plan.description, plan.tags, plan.id),
             )
             repas_ids = [
                 r[0]

@@ -57,3 +57,27 @@ class AlimentRepository:
             description=row["description"],
             grammes_equivalents=row["grammes_equivalents"],
         )
+
+    def search_by_name(self, query: str) -> List[Aliment]:
+        with db_manager.get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM aliments WHERE nom LIKE ? ORDER BY nom",
+                (f"%{query}%",),
+            ).fetchall()
+        return [
+            Aliment(
+                id=row["id"],
+                nom=row["nom"],
+                categorie=row["categorie"],
+                type_alimentation=row["type_alimentation"],
+                kcal_100g=row["kcal_100g"],
+                proteines_100g=row["proteines_100g"],
+                glucides_100g=row["glucides_100g"],
+                lipides_100g=row["lipides_100g"],
+                fibres_100g=row["fibres_100g"],
+                unite_base=row["unite_base"],
+                indice_healthy=row["indice_healthy"],
+                indice_commun=row["indice_commun"],
+            )
+            for row in rows
+        ]
