@@ -1,0 +1,227 @@
+from typing import Dict, List, Optional
+
+from db.database_manager import db_manager
+from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
+
+
+class PlanAlimentaireRepository:
+
+    # Plans
+    def list_plans(self) -> List[PlanAlimentaire]:
+        with db_manager.get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM plans_alimentaires ORDER BY nom"
+            ).fetchall()
+        return [
+            PlanAlimentaire(
+                id=row["id"],
+                client_id=row["client_id"],
+                nom=row["nom"],
+                description=row["description"],
+                tags=row["tags"],
+                repas=[],
+            )
+            for row in rows
+        ]
+
+    def get_plan(self, plan_id: int) -> PlanAlimentaire:
+        with db_manager.get_connection() as conn:
+            plan_row = conn.execute(
+                "SELECT * FROM plans_alimentaires WHERE id = ?", (plan_id,)
+            ).fetchone()
+            if not plan_row:
+                raise ValueError("Plan introuvable")
+            repas_rows = conn.execute(
+                "SELECT * FROM repas WHERE plan_id = ? ORDER BY ordre", (plan_id,)
+            ).fetchall()
+            repas_list = []
+            for rr in repas_rows:
+                items_rows = conn.execute(
+                    "SELECT * FROM repas_items WHERE repas_id = ?", (rr["id"],)
+                ).fetchall()
+                items = [
+                    RepasItem(
+                        id=ir["id"],
+                        repas_id=ir["repas_id"],
+                        aliment_id=ir["aliment_id"],
+                        portion_id=ir["portion_id"],
+                        quantite=ir["quantite"],
+                    )
+                    for ir in items_rows
+                ]
+                repas_list.append(
+                    Repas(
+                        id=rr["id"],
+                        plan_id=rr["plan_id"],
+                        nom=rr["nom"],
+                        ordre=rr["ordre"],
+                        items=items,
+                    )
+                )
+            return PlanAlimentaire(
+                id=plan_row["id"],
+                client_id=plan_row["client_id"],
+                nom=plan_row["nom"],
+                description=plan_row["description"],
+                tags=plan_row["tags"],
+                repas=repas_list,
+            )
+
+    def find_by_client_id(self, client_id: int) -> Optional[PlanAlimentaire]:
+        with db_manager.get_connection() as conn:
+            plan_row = conn.execute(
+                "SELECT * FROM plans_alimentaires WHERE client_id = ?",
+                (client_id,),
+            ).fetchone()
+            if not plan_row:
+                return None
+            return self.get_plan(plan_row["id"])
+
+    def create_plan(self, plan: PlanAlimentaire) -> int:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO plans_alimentaires (client_id, nom, description, tags) VALUES (?, ?, ?, ?)",
+                (plan.client_id, plan.nom, plan.description, plan.tags),
+            )
+            plan_id = cur.lastrowid
+            for repas in plan.repas:
+                cur.execute(
+                    "INSERT INTO repas (plan_id, nom, ordre) VALUES (?, ?, ?)",
+                    (plan_id, repas.nom, repas.ordre),
+                )
+                repas_id = cur.lastrowid
+                for item in repas.items:
+                    cur.execute(
+                        """
+                        INSERT INTO repas_items (repas_id, aliment_id, portion_id, quantite)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (repas_id, item.aliment_id, item.portion_id, item.quantite),
+                    )
+            conn.commit()
+            return plan_id
+
+    def update_plan(self, plan: PlanAlimentaire) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE plans_alimentaires SET client_id = ?, nom = ?, description = ?, tags = ? WHERE id = ?",
+                (plan.client_id, plan.nom, plan.description, plan.tags, plan.id),
+            )
+            repas_ids = [
+                r[0]
+                for r in cur.execute(
+                    "SELECT id FROM repas WHERE plan_id = ?", (plan.id,)
+                ).fetchall()
+            ]
+            for rid in repas_ids:
+                cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (rid,))
+            cur.execute("DELETE FROM repas WHERE plan_id = ?", (plan.id,))
+            for repas in plan.repas:
+                cur.execute(
+                    "INSERT INTO repas (plan_id, nom, ordre) VALUES (?, ?, ?)",
+                    (plan.id, repas.nom, repas.ordre),
+                )
+                repas_id = cur.lastrowid
+                for item in repas.items:
+                    cur.execute(
+                        """
+                        INSERT INTO repas_items (repas_id, aliment_id, portion_id, quantite)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (repas_id, item.aliment_id, item.portion_id, item.quantite),
+                    )
+            conn.commit()
+
+    def delete_plan(self, plan_id: int) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            repas_ids = [
+                r[0]
+                for r in cur.execute(
+                    "SELECT id FROM repas WHERE plan_id = ?", (plan_id,)
+                ).fetchall()
+            ]
+            for rid in repas_ids:
+                cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (rid,))
+            cur.execute("DELETE FROM repas WHERE plan_id = ?", (plan_id,))
+            cur.execute("DELETE FROM plans_alimentaires WHERE id = ?", (plan_id,))
+            conn.commit()
+
+    # Repas CRUD
+    def add_repas(self, plan_id: int, repas: Repas) -> int:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "INSERT INTO repas (plan_id, nom, ordre) VALUES (?, ?, ?)",
+                (plan_id, repas.nom, repas.ordre),
+            )
+            repas_id = cur.lastrowid
+            conn.commit()
+            return repas_id
+
+    def update_repas(self, repas: Repas) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE repas SET nom = ?, ordre = ? WHERE id = ?",
+                (repas.nom, repas.ordre, repas.id),
+            )
+            conn.commit()
+
+    def delete_repas(self, repas_id: int) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM repas_items WHERE repas_id = ?", (repas_id,))
+            cur.execute("DELETE FROM repas WHERE id = ?", (repas_id,))
+            conn.commit()
+
+    # Items CRUD
+    def add_item(self, repas_id: int, item: RepasItem) -> int:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO repas_items (repas_id, aliment_id, portion_id, quantite)
+                VALUES (?, ?, ?, ?)
+                """,
+                (repas_id, item.aliment_id, item.portion_id, item.quantite),
+            )
+            item_id = cur.lastrowid
+            conn.commit()
+            return item_id
+
+    def update_item(self, item: RepasItem) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE repas_items SET aliment_id = ?, portion_id = ?, quantite = ? WHERE id = ?",
+                (item.aliment_id, item.portion_id, item.quantite, item.id),
+            )
+            conn.commit()
+
+    def delete_item(self, item_id: int) -> None:
+        with db_manager.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM repas_items WHERE id = ?", (item_id,))
+            conn.commit()
+
+    # --- Calculations ---
+    def compute_item_totals(self, item: RepasItem) -> Dict[str, float]:
+        with db_manager.get_connection() as conn:
+            aliment = conn.execute(
+                "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
+            ).fetchone()
+            portion = conn.execute(
+                "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
+            ).fetchone()
+        if not aliment or not portion:
+            return {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
+        facteur = (portion["grammes_equivalents"] * item.quantite) / 100
+        return {
+            "kcal": aliment["kcal_100g"] * facteur,
+            "proteines": aliment["proteines_100g"] * facteur,
+            "glucides": aliment["glucides_100g"] * facteur,
+            "lipides": aliment["lipides_100g"] * facteur,
+        }

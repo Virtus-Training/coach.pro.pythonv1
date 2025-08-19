@@ -1,0 +1,135 @@
+Date : 2025-08-17 20:17:21
+Directory : c:\Users\Eric\Desktop\coach.pro.python
+Total : 84 files,  3982 codes, 100 comments, 797 blanks, all 4879 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| Python           |         78 |      3,675 |        100 |        778 |      4,553 |
+| Markdown         |          3 |        128 |          0 |          3 |        131 |
+| MS SQL           |          1 |        115 |          0 |         13 |        128 |
+| pip requirements |          1 |         37 |          0 |          0 |         37 |
+| YAML             |          1 |         27 |          0 |          3 |         30 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                 | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                    |         84 |      3,982 |        100 |        797 |      4,879 |
+| . (Files)                                                                                            |          5 |        138 |          4 |         23 |        165 |
+| .github                                                                                              |          1 |         27 |          0 |          3 |         30 |
+| .github\workflows                                                                                    |          1 |         27 |          0 |          3 |         30 |
+| controllers                                                                                          |          2 |         71 |          0 |         11 |         82 |
+| db                                                                                                   |          4 |        278 |          0 |         49 |        327 |
+| models                                                                                               |         10 |        150 |          0 |         40 |        190 |
+| navigation                                                                                           |          1 |          0 |          0 |          2 |          2 |
+| repositories                                                                                         |          8 |        645 |          5 |         71 |        721 |
+| services                                                                                             |          5 |        317 |         15 |         72 |        404 |
+| tree-maker                                                                                           |          1 |        117 |          0 |          0 |        117 |
+| ui                                                                                                   |         46 |      2,239 |         76 |        524 |      2,839 |
+| ui\components                                                                                        |         11 |        293 |          8 |         95 |        396 |
+| ui\components (Files)                                                                                |          7 |        234 |          5 |         69 |        308 |
+| ui\components\design_system                                                                          |          4 |         59 |          3 |         26 |         88 |
+| ui\layout                                                                                            |          3 |         80 |          5 |         23 |        108 |
+| ui\modals                                                                                            |          3 |        217 |          4 |         42 |        263 |
+| ui\pages                                                                                             |         26 |      1,617 |         50 |        340 |      2,007 |
+| ui\pages (Files)                                                                                     |         13 |        768 |         23 |        184 |        975 |
+| ui\pages\client_detail_page_components                                                               |          5 |        365 |          1 |         69 |        435 |
+| ui\pages\database_page_tabs                                                                          |          2 |         49 |          0 |         13 |         62 |
+| ui\pages\session_page_components                                                                     |          6 |        435 |         26 |         74 |        535 |
+| ui\theme                                                                                             |          3 |         32 |          9 |         24 |         65 |
+| utils                                                                                                |          1 |          0 |          0 |          2 |          2 |
++------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                                             | language         | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| c:\Users\Eric\Desktop\coach.pro.python\.github\workflows\ci.yml                                      | YAML             |         27 |          0 |          3 |         30 |
+| c:\Users\Eric\Desktop\coach.pro.python\README.md                                                     | Markdown         |          2 |          0 |          1 |          3 |
+| c:\Users\Eric\Desktop\coach.pro.python\README_patch.md                                               | Markdown         |          9 |          0 |          2 |         11 |
+| c:\Users\Eric\Desktop\coach.pro.python\app.py                                                        | Python           |         85 |          4 |         18 |        107 |
+| c:\Users\Eric\Desktop\coach.pro.python\controllers\__init__.py                                       | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\controllers\session_controller.py                             | Python           |         71 |          0 |         10 |         81 |
+| c:\Users\Eric\Desktop\coach.pro.python\db\database_manager.py                                        | Python           |         10 |          0 |          7 |         17 |
+| c:\Users\Eric\Desktop\coach.pro.python\db\database_setup.py                                          | Python           |         12 |          0 |          6 |         18 |
+| c:\Users\Eric\Desktop\coach.pro.python\db\schema.sql                                                 | MS SQL           |        115 |          0 |         13 |        128 |
+| c:\Users\Eric\Desktop\coach.pro.python\db\seed.py                                                    | Python           |        141 |          0 |         23 |        164 |
+| c:\Users\Eric\Desktop\coach.pro.python\main.py                                                       | Python           |          5 |          0 |          2 |          7 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\__init__.py                                            | Python           |         10 |          0 |          2 |         12 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\aliment.py                                             | Python           |         16 |          0 |          3 |         19 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\client.py                                              | Python           |         15 |          0 |          3 |         18 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\exercices.py                                           | Python           |         13 |          0 |          3 |         16 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\fiche_nutrition.py                                     | Python           |         16 |          0 |          3 |         19 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\plan_alimentaire.py                                    | Python           |         23 |          0 |          7 |         30 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\portion.py                                             | Python           |          7 |          0 |          3 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\resultat_exercice.py                                   | Python           |         11 |          0 |          3 |         14 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\seance.py                                              | Python           |         12 |          0 |          5 |         17 |
+| c:\Users\Eric\Desktop\coach.pro.python\models\session.py                                             | Python           |         27 |          0 |          8 |         35 |
+| c:\Users\Eric\Desktop\coach.pro.python\navigation\router.py                                          | Python           |          0 |          0 |          2 |          2 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\__init__.py                                      | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\aliment_repo.py                                  | Python           |         53 |          0 |          7 |         60 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\client_repo.py                                   | Python           |        101 |          1 |         14 |        116 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\exercices_repo.py                                | Python           |        104 |          0 |         16 |        120 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\fiche_nutrition_repo.py                          | Python           |         53 |          0 |          6 |         59 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\plan_alimentaire_repo.py                         | Python           |        196 |          4 |         16 |        216 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\seance_repo.py                                   | Python           |         99 |          0 |          7 |        106 |
+| c:\Users\Eric\Desktop\coach.pro.python\repositories\sessions_repo.py                                 | Python           |         39 |          0 |          4 |         43 |
+| c:\Users\Eric\Desktop\coach.pro.python\requirements.txt                                              | pip requirements |         37 |          0 |          0 |         37 |
+| c:\Users\Eric\Desktop\coach.pro.python\services\__init__.py                                          | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\services\nutrition_service.py                                 | Python           |         61 |          1 |         13 |         75 |
+| c:\Users\Eric\Desktop\coach.pro.python\services\pdf_generator.py                                     | Python           |         51 |          1 |          9 |         61 |
+| c:\Users\Eric\Desktop\coach.pro.python\services\session_generator.py                                 | Python           |        157 |         12 |         38 |        207 |
+| c:\Users\Eric\Desktop\coach.pro.python\services\session_templates.py                                 | Python           |         48 |          1 |         11 |         60 |
+| c:\Users\Eric\Desktop\coach.pro.python\tree-maker\filetree.md                                        | Markdown         |        117 |          0 |          0 |        117 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\button.py                                       | Python           |         15 |          1 |          5 |         21 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\card.py                                         | Python           |         22 |          1 |          6 |         29 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\design_system\__init__.py                       | Python           |          4 |          0 |          2 |          6 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\design_system\buttons.py                        | Python           |         31 |          1 |          9 |         41 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\design_system\cards.py                          | Python           |         13 |          1 |          6 |         20 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\design_system\typography.py                     | Python           |         11 |          1 |          9 |         21 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\exclusion_selector.py                           | Python           |         63 |          0 |         16 |         79 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\layout.py                                       | Python           |         15 |          0 |          8 |         23 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\tabbar.py                                       | Python           |         50 |          1 |         12 |         63 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\title.py                                        | Python           |          6 |          1 |          5 |         12 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\components\workout_block.py                                | Python           |         63 |          1 |         17 |         81 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\layout\container.py                                        | Python           |          0 |          0 |          2 |          2 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\layout\header.py                                           | Python           |         23 |          4 |          9 |         36 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\layout\sidebar.py                                          | Python           |         57 |          1 |         12 |         70 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\modals\__init__.py                                         | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\modals\client_form_modal.py                                | Python           |         88 |          4 |         20 |        112 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\modals\session_log_modal.py                                | Python           |        129 |          0 |         21 |        150 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\billing_page.py                                      | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\calendar_page.py                                     | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page.py                                | Python           |         49 |          0 |         10 |         59 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page_components\__init__.py            | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page_components\anamnese_tab.py        | Python           |         45 |          0 |         14 |         59 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page_components\fiche_nutrition_tab.py | Python           |        203 |          1 |         28 |        232 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page_components\stats_tab.py           | Python           |         76 |          0 |         16 |         92 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\client_detail_page_components\suivi_tab.py           | Python           |         41 |          0 |         10 |         51 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\clients_page.py                                      | Python           |         74 |          3 |         21 |         98 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\dashboard_page.py                                    | Python           |        186 |         13 |         41 |        240 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\database_page.py                                     | Python           |         42 |          2 |         12 |         56 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\database_page_tabs\__init__.py                       | Python           |          0 |          0 |          1 |          1 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\database_page_tabs\aliments_tab.py                   | Python           |         49 |          0 |         12 |         61 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\messaging_page.py                                    | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\nutrition_page.py                                    | Python           |        226 |          4 |         36 |        266 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\pdf_page.py                                          | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\program_page.py                                      | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\progress_page.py                                     | Python           |          6 |          0 |          4 |         10 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page.py                                      | Python           |        107 |          1 |         26 |        134 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\__init__.py                  | Python           |          0 |          1 |          1 |          2 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\block_card.py                | Python           |         91 |          5 |         19 |        115 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\form_collectif.py            | Python           |        151 |          8 |         13 |        172 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\form_individuel.py           | Python           |         54 |          3 |         11 |         68 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\session_preview.py           | Python           |         86 |          6 |         18 |        110 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_page_components\ui_helpers.py                | Python           |         53 |          3 |         12 |         68 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\pages\session_preview_panel.py                             | Python           |         48 |          0 |         14 |         62 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\theme\colors.py                                            | Python           |         14 |          7 |          7 |         28 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\theme\fonts.py                                             | Python           |         14 |          1 |         13 |         28 |
+| c:\Users\Eric\Desktop\coach.pro.python\ui\theme\theme.py                                             | Python           |          4 |          1 |          4 |          9 |
+| c:\Users\Eric\Desktop\coach.pro.python\utils\icon_loader.py                                          | Python           |          0 |          0 |          2 |          2 |
+| Total                                                                                                |                  |      3,982 |        100 |        797 |      4,879 |
++------------------------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
