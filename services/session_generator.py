@@ -1,4 +1,5 @@
 import random
+import random
 import time
 import uuid
 from typing import Any, Dict, List
@@ -6,7 +7,9 @@ from typing import Any, Dict, List
 import services.session_templates as T
 from models.exercices import Exercise
 from models.session import Block, BlockItem, Session
+from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
+from services.client_service import ClientService
 
 
 def rest_from_density(density_1_10: int) -> int:
@@ -217,3 +220,52 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
     )
     # Pas d’ajustement fin ici (on est déjà ~au budget). On pourra peaufiner si besoin.
     return s
+
+
+def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Session:
+    """Generate a simple individual session for a client."""
+    client_service = ClientService(ClientRepository())
+    client, exclusions = client_service.get_client_with_exclusions(client_id)
+
+    repo = ExerciseRepository()
+    tag = objectif.lower()
+    pool = [
+        ex for ex in repo.filter(tags=[tag]) if ex.id not in set(exclusions)
+    ]
+    if len(pool) < 4:
+        raise ValueError("Pas assez d'exercices disponibles pour cet objectif")
+
+    rng = random.Random()
+    rng.shuffle(pool)
+
+    def make_block(name: str, exercises: list[Exercise], reps: int, duration: int) -> Block:
+        blk = Block(block_id=str(uuid.uuid4()), type=name, duration_sec=duration)
+        for ex in exercises:
+            blk.items.append(BlockItem(exercise_id=ex.id, prescription={"reps": reps}))
+        return blk
+
+    warmup = make_block("Échauffement", pool[:2], 10, 10 * 60)
+
+    main_count = min(len(pool), rng.randint(4, 6))
+    main = make_block(
+        "Corps de séance", pool[:main_count], 12, max(duree_minutes - 15, 0) * 60
+    )
+
+    cooldown_start = main_count
+    cooldown = make_block(
+        "Retour au calme",
+        pool[cooldown_start : cooldown_start + 2] or pool[:2],
+        8,
+        5 * 60,
+    )
+
+    session = Session(
+        session_id=str(uuid.uuid4()),
+        mode="INDIVIDUEL",
+        label=f"Séance pour {client.prenom} {client.nom}",
+        duration_sec=duree_minutes * 60,
+        client_id=client_id,
+        blocks=[warmup, main, cooldown],
+        meta={"goal": objectif},
+    )
+    return session

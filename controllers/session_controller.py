@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any, Dict, Tuple
 
 from repositories.exercices_repo import ExerciseRepository
-from services.session_generator import generate_collectif
+from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
 
 
@@ -54,37 +54,40 @@ class SessionController:
     def generate_session_preview(
         self, params: Dict[str, Any], mode: str = "collectif"
     ) -> Tuple[Any, Dict[str, Any]]:
-        """Generate a session and its preview DTO."""
-        if mode == "collectif":
-            svc_params = {
-                "course_type": params.get("course_type"),
-                "duration": int(params.get("duration", 0)),
-                "intensity": params.get("intensity"),
-                "equipment": params.get("equipment", []),
-            }
-            session = generate_collectif(svc_params)
-            ids = [it.exercise_id for b in session.blocks for it in b.items]
-            repo = ExerciseRepository()
-            meta = repo.get_meta_by_ids(ids)
-            dto = self.build_session_preview_dto(session.blocks, meta)
-            dto["meta"] = {
-                "title": session.label,
-                "duration": f"{session.duration_sec // 60} min",
-            }
-            return session, dto
-        elif mode == "individuel":
-            session = {"client": params.get("client"), "goal": params.get("goal")}
-            dto = {
-                "meta": {
-                    "title": f"Séance pour {session['client']}",
-                    "goal": session["goal"],
-                    "duration": "45 min",
-                },
-                "blocks": [],
-            }
-            return session, dto
-        else:
+        """Generate a collective session and its preview DTO."""
+        if mode != "collectif":
             raise ValueError(f"Unknown mode: {mode}")
+        svc_params = {
+            "course_type": params.get("course_type"),
+            "duration": int(params.get("duration", 0)),
+            "intensity": params.get("intensity"),
+            "equipment": params.get("equipment", []),
+        }
+        session = generate_collectif(svc_params)
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        repo = ExerciseRepository()
+        meta = repo.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "duration": f"{session.duration_sec // 60} min",
+        }
+        return session, dto
+
+    def generate_individual_session(
+        self, client_id: int, objectif: str, duree_minutes: int
+    ) -> Tuple[Any, Dict[str, Any]]:
+        session = generate_individuel(client_id, objectif, duree_minutes)
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        repo = ExerciseRepository()
+        meta = repo.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "goal": objectif,
+            "duration": f"{session.duration_sec // 60} min",
+        }
+        return session, dto
 
     def save_session(self, session_dto: Dict[str, Any], client_id: int | None) -> None:
         """Persist a generated session from its DTO representation."""
