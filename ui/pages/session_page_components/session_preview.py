@@ -13,9 +13,12 @@ from controllers.session_controller import SessionController
 class SessionPreview(ctk.CTkFrame):
     """Display area for generated session details."""
 
-    def __init__(self, parent, controller: SessionController) -> None:
+    def __init__(
+        self, parent, controller: SessionController, show_action_buttons: bool = True
+    ) -> None:
         super().__init__(parent)
         self.controller = controller
+        self.show_action_buttons = show_action_buttons
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
@@ -85,16 +88,17 @@ class SessionPreview(ctk.CTkFrame):
         self.after(10, self._arrange_blocks)
         self._grid.bind("<Configure>", lambda e: self._arrange_blocks())
 
-        btn_frame = ctk.CTkFrame(self._content, fg_color="transparent")
-        btn_frame.pack(padx=8, pady=12, anchor="e")
-        self._export_btn = PrimaryButton(
-            btn_frame, text="Exporter en PDF", command=self._on_export_pdf
-        )
-        self._export_btn.pack(side="right", padx=(8, 0))
-        self._save_btn = PrimaryButton(
-            btn_frame, text="Enregistrer la séance", command=self._on_save
-        )
-        self._save_btn.pack(side="right")
+        if self.show_action_buttons:
+            btn_frame = ctk.CTkFrame(self._content, fg_color="transparent")
+            btn_frame.pack(padx=8, pady=12, anchor="e")
+            self._export_btn = PrimaryButton(
+                btn_frame, text="Exporter en PDF", command=self._on_export_pdf
+            )
+            self._export_btn.pack(side="right", padx=(8, 0))
+            self._save_btn = PrimaryButton(
+                btn_frame, text="Enregistrer la séance", command=self._on_save
+            )
+            self._save_btn.pack(side="right")
 
     def _arrange_blocks(self) -> None:
         """Place workout blocks in a responsive grid."""

@@ -31,8 +31,10 @@ class CalendarView(ctk.CTkFrame):
         parent,
         on_previous_month: Callable[[], None],
         on_next_month: Callable[[], None],
+        on_session_click: Callable[[str], None] | None = None,
     ) -> None:
         super().__init__(parent)
+        self.on_session_click = on_session_click
 
         header = ctk.CTkFrame(self)
         header.pack(fill="x", pady=5)
@@ -80,6 +82,15 @@ class CalendarView(ctk.CTkFrame):
                     continue
                 ctk.CTkLabel(cell, text=str(day)).pack(anchor="ne", padx=2, pady=2)
                 for sess in data.get(day, []):
-                    ctk.CTkLabel(cell, text=sess.label, anchor="w").pack(
-                        anchor="w", padx=2
-                    )
+                    ctk.CTkButton(
+                        cell,
+                        text=sess.label,
+                        anchor="w",
+                        command=lambda sid=sess.session_id: self._handle_session_click(
+                            sid
+                        ),
+                    ).pack(anchor="w", padx=2)
+
+    def _handle_session_click(self, session_id: str) -> None:
+        if self.on_session_click:
+            self.on_session_click(session_id)

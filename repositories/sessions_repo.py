@@ -111,6 +111,56 @@ class SessionsRepository:
                 )
             return sessions
 
+    def get_by_id(self, session_id: str) -> Session | None:
+        with db_manager.get_connection() as conn:
+            s = conn.execute(
+                "SELECT * FROM sessions WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()
+            if not s:
+                return None
+            block_rows = conn.execute(
+                "SELECT * FROM session_blocks WHERE session_id = ?",
+                (session_id,),
+            ).fetchall()
+            blocks = []
+            for b in block_rows:
+                item_rows = conn.execute(
+                    "SELECT * FROM session_items WHERE block_id = ?",
+                    (b["block_id"],),
+                ).fetchall()
+                items = [
+                    BlockItem(
+                        exercise_id=r["exercise_id"],
+                        prescription=json.loads(r["prescription"]),
+                        notes=r["notes"],
+                    )
+                    for r in item_rows
+                ]
+                blocks.append(
+                    Block(
+                        block_id=b["block_id"],
+                        type=b["type"],
+                        duration_sec=b["duration_sec"],
+                        rounds=b["rounds"],
+                        work_sec=b["work_sec"],
+                        rest_sec=b["rest_sec"],
+                        items=items,
+                        title=b["title"],
+                        locked=bool(b["locked"]),
+                    )
+                )
+            return Session(
+                session_id=s["session_id"],
+                mode=s["mode"],
+                label=s["label"],
+                duration_sec=s["duration_sec"],
+                date_creation=s["date_creation"],
+                client_id=s["client_id"],
+                blocks=blocks,
+                meta={},
+            )
+
     def count_sessions_this_month(self) -> int:
         with db_manager.get_connection() as conn:
             cursor = conn.execute(

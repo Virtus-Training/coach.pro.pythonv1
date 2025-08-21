@@ -72,7 +72,9 @@ class CoachApp(ctk.CTk):
         )
 
         calendar_service = CalendarService(sessions_repo)
-        self.calendar_controller = CalendarController(calendar_service)
+        self.calendar_controller = CalendarController(
+            calendar_service, session_service
+        )
 
         self.page_titles = {
             "dashboard": "Tableau de bord",
@@ -108,7 +110,9 @@ class CoachApp(ctk.CTk):
                 )
             case "calendar":
                 self.current_page = CalendarPage(
-                    self.shell.content_area, self.calendar_controller
+                    self.shell.content_area,
+                    self.calendar_controller,
+                    self.session_controller,
                 )
             case "nutrition":
                 self.current_page = NutritionPage(
