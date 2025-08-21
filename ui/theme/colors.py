@@ -14,6 +14,11 @@ WARNING = "#F1C40F"  # Jaune/Orange pour les avertissements
 TAG_BACKGROUND = "#1E40AF"  # Fond des tags
 CARD_HOVER = "#1F2937"  # Couleur de survol des cartes
 
+# --- Couleurs des tableaux ---
+TABLE_HEADER_BG = "#374151"  # Gris froid pour l'en-tête
+TABLE_ROW_ODD_BG = "#1F2937"  # Lignes impaires
+TABLE_ROW_EVEN_BG = "#111827"  # Lignes paires
+
 # --- Niveaux de Gris (Neutres) ---
 NEUTRAL_900 = "#121212"  # Fond principal de l'application
 NEUTRAL_800 = "#1E1E1E"  # Fond des cartes et éléments en surélévation
@@ -42,6 +47,9 @@ __all__ = [
     "WARNING",
     "TAG_BACKGROUND",
     "CARD_HOVER",
+    "TABLE_HEADER_BG",
+    "TABLE_ROW_ODD_BG",
+    "TABLE_ROW_EVEN_BG",
     "NEUTRAL_900",
     "NEUTRAL_800",
     "NEUTRAL_700",
