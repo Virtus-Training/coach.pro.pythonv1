@@ -2,6 +2,7 @@
 
 import customtkinter as ctk
 
+from controllers.client_controller import ClientController
 from controllers.session_controller import SessionController
 from repositories.client_repo import ClientRepository
 from services.client_service import ClientService
@@ -37,8 +38,11 @@ class SessionPage(ctk.CTkFrame):
         )
         self.form_collectif.pack(fill="both", expand=True, padx=16, pady=16)
 
-        client_service = ClientService(ClientRepository())
-        self.form_individuel = FormIndividuel(individuel_tab, client_service)
+        client_controller = ClientController(ClientService(ClientRepository()))
+        clients = client_controller.get_all_clients_for_view()
+        self.form_individuel = FormIndividuel(
+            individuel_tab, clients, generate_callback=self.on_generate_individual
+        )
         self.form_individuel.pack(fill="both", expand=True, padx=16, pady=16)
 
         # Aperçu de la séance
@@ -51,3 +55,10 @@ class SessionPage(ctk.CTkFrame):
             params, mode="collectif"
         )
         self.preview_panel.render_session(dto, client_id=None)
+
+    def on_generate_individual(self) -> None:
+        params = self.form_individuel.get_params()
+        _, dto = self.session_controller.generate_individual_session(
+            params["client_id"], params["objectif"], params["duree_minutes"]
+        )
+        self.preview_panel.render_session(dto, client_id=params["client_id"])

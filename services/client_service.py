@@ -16,6 +16,14 @@ class ClientService:
     def get_client_by_id(self, client_id: int) -> Optional[Client]:
         return self.repo.find_by_id(client_id)
 
+    def get_client_with_exclusions(self, client_id: int) -> tuple[Client, List[int]]:
+        """Return a client and the list of excluded exercise IDs."""
+        client = self.get_client_by_id(client_id)
+        if not client:
+            raise ValueError("Client introuvable")
+        exclusions = self.get_client_exclusions(client_id)
+        return client, exclusions
+
     def validate_client_data(self, data: dict) -> None:
         errors: dict[str, str] = {}
         if not data.get("prenom"):
