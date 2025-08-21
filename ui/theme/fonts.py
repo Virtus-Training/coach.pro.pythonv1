@@ -16,6 +16,7 @@ H2_BOLD = (FONT_FAMILY, 24, "bold")
 H3_NORMAL = (FONT_FAMILY, 18, "normal")
 BODY_NORMAL = (FONT_FAMILY, 16, "normal")
 LABEL_NORMAL = (FONT_FAMILY, 14, "normal")
+LABEL_SMALL = (FONT_FAMILY, 11, "normal")
 CARD_TITLE = (FONT_FAMILY, 16, "bold")
 
 
@@ -45,7 +46,7 @@ def get_text_font():
 def get_small_font():
     """Return small label font."""
 
-    return LABEL_NORMAL
+    return LABEL_SMALL
 
 
 def get_button_font():
@@ -61,6 +62,7 @@ __all__ = [
     "H3_NORMAL",
     "BODY_NORMAL",
     "LABEL_NORMAL",
+    "LABEL_SMALL",
     "CARD_TITLE",
     "get_title_font",
     "get_section_font",

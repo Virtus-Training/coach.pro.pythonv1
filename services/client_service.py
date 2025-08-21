@@ -1,6 +1,7 @@
 import re
 from typing import List, Optional
 
+from exceptions.validation_error import ValidationError
 from models.client import Client
 from repositories.client_repo import ClientRepository
 
@@ -16,11 +17,16 @@ class ClientService:
         return self.repo.find_by_id(client_id)
 
     def validate_client_data(self, data: dict) -> None:
-        if not data.get("prenom") or not data.get("nom"):
-            raise ValueError("Le nom et le prénom sont obligatoires.")
+        errors: dict[str, str] = {}
+        if not data.get("prenom"):
+            errors["prenom"] = "Le prénom est obligatoire."
+        if not data.get("nom"):
+            errors["nom"] = "Le nom est obligatoire."
         email = data.get("email")
         if email and not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-            raise ValueError("L'email est invalide.")
+            errors["email"] = "L'email est invalide."
+        if errors:
+            raise ValidationError(errors)
 
     def add_client(self, client_data: dict) -> None:
         self.validate_client_data(client_data)
