@@ -1,9 +1,9 @@
 import random
-import random
 import time
 import uuid
 from typing import Any, Dict, List
 
+import logging
 import services.session_templates as T
 from models.exercices import Exercise
 from models.session import Block, BlockItem, Session
@@ -244,20 +244,29 @@ def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Se
             blk.items.append(BlockItem(exercise_id=ex.id, prescription={"reps": reps}))
         return blk
 
-    warmup = make_block("Échauffement", pool[:2], 10, 10 * 60)
+    warmup_ex = pool[:2]
+    warmup = make_block("Échauffement", warmup_ex, 10, 10 * 60)
 
-    main_count = min(len(pool), rng.randint(4, 6))
+    remaining = pool[2:]
+    main_count = min(len(remaining), rng.randint(4, 6))
+    main_ex = remaining[:main_count]
     main = make_block(
-        "Corps de séance", pool[:main_count], 12, max(duree_minutes - 15, 0) * 60
+        "Corps de séance", main_ex, 12, max(duree_minutes - 15, 0) * 60
     )
 
-    cooldown_start = main_count
-    cooldown = make_block(
-        "Retour au calme",
-        pool[cooldown_start : cooldown_start + 2] or pool[:2],
-        8,
-        5 * 60,
-    )
+    remaining = remaining[main_count:]
+    cooldown_ex = remaining[:2]
+    if len(cooldown_ex) < 2:
+        needed = 2 - len(cooldown_ex)
+        reuse_warm = warmup_ex[:needed]
+        cooldown_ex.extend(reuse_warm)
+        needed -= len(reuse_warm)
+        if needed > 0:
+            cooldown_ex.extend(main_ex[:needed])
+            logging.warning(
+                "Re-used main block exercises for cooldown due to limited pool"
+            )
+    cooldown = make_block("Retour au calme", cooldown_ex, 8, 5 * 60)
 
     session = Session(
         session_id=str(uuid.uuid4()),

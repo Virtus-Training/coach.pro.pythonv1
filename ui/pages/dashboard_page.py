@@ -84,8 +84,16 @@ class DashboardPage(ctk.CTkFrame):
                 text_color="white",
             )
 
-        shortcut_btn("Nouvelle séance", "➕").pack(side="left", padx=5)
-        shortcut_btn("Importer client", "📥").pack(side="left", padx=5)
+        btn_session = shortcut_btn("Nouvelle séance", "➕")
+        btn_session.configure(
+            command=lambda: self.winfo_toplevel().switch_page("sessions")
+        )
+        btn_session.pack(side="left", padx=5)
+        btn_client = shortcut_btn("Importer client", "📥")
+        btn_client.configure(
+            command=lambda: self.winfo_toplevel().switch_page("clients")
+        )
+        btn_client.pack(side="left", padx=5)
         shortcut_btn("Exporter PDF", "📤").pack(side="left", padx=5)
         shortcut_btn("Paramètres", "⚙️").pack(side="left", padx=5)
         shortcut_btn("Suivi progression", "📊").pack(side="left", padx=5)

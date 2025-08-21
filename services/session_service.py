@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 import uuid
 from typing import Any, Dict, Optional
@@ -63,10 +64,24 @@ class SessionService:
     def _parse_minutes(text: Optional[str]) -> int:
         if not text:
             return 0
-        digits = re.findall(r"\d+", text)
-        return int(digits[0]) if digits else 0
+        match = re.search(r"\d+", text)
+        if not match:
+            logging.warning("Unable to parse minutes from %r", text)
+            return 0
+        try:
+            return int(match.group(0))
+        except (ValueError, TypeError):
+            logging.warning("Invalid minutes value %r", text)
+            return 0
 
     @staticmethod
     def _parse_int(text: str) -> int:
-        digits = re.findall(r"\d+", text)
-        return int(digits[0]) if digits else 0
+        match = re.search(r"\d+", text)
+        if not match:
+            logging.warning("Unable to parse integer from %r", text)
+            return 0
+        try:
+            return int(match.group(0))
+        except (ValueError, TypeError):
+            logging.warning("Invalid integer value %r", text)
+            return 0

@@ -4,17 +4,23 @@ from __future__ import annotations
 
 from typing import Any, Dict, Tuple
 
-from repositories.exercices_repo import ExerciseRepository
 from services.client_service import ClientService
+from services.exercise_service import ExerciseService
 from services.pdf_generator import generate_session_pdf
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
 
 
 class SessionController:
-    def __init__(self, session_service: SessionService, client_service: ClientService) -> None:
+    def __init__(
+        self,
+        session_service: SessionService,
+        client_service: ClientService,
+        exercise_service: ExerciseService,
+    ) -> None:
         self.session_service = session_service
         self.client_service = client_service
+        self.exercise_service = exercise_service
 
     def build_session_preview_dto(
         self, blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
@@ -68,8 +74,7 @@ class SessionController:
         }
         session = generate_collectif(svc_params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
-        repo = ExerciseRepository()
-        meta = repo.get_meta_by_ids(ids)
+        meta = self.exercise_service.get_meta_by_ids(ids)
         dto = self.build_session_preview_dto(session.blocks, meta)
         dto["meta"] = {
             "title": session.label,
@@ -82,8 +87,7 @@ class SessionController:
     ) -> Tuple[Any, Dict[str, Any]]:
         session = generate_individuel(client_id, objectif, duree_minutes)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
-        repo = ExerciseRepository()
-        meta = repo.get_meta_by_ids(ids)
+        meta = self.exercise_service.get_meta_by_ids(ids)
         dto = self.build_session_preview_dto(session.blocks, meta)
         dto["meta"] = {
             "title": session.label,
