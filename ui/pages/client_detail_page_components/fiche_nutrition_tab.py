@@ -5,25 +5,27 @@ from tkinter import filedialog
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
-from repositories.fiche_nutrition_repo import FicheNutritionRepository
-from services.nutrition_service import (
-    ACTIVITY_FACTORS,
-    OBJECTIVE_ADJUST,
-    NutritionService,
-)
+from controllers.nutrition_controller import NutritionController
+from services.nutrition_service import ACTIVITY_FACTORS, OBJECTIVE_ADJUST
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.theme.colors import TEXT
 from ui.theme.fonts import get_text_font
 
 
 class FicheNutritionTab(ctk.CTkFrame):
-    def __init__(self, master, controller: ClientController, client_id: int):
+    def __init__(
+        self,
+        master,
+        controller: ClientController,
+        nutrition_controller: NutritionController,
+        client_id: int,
+    ):
         super().__init__(master, fg_color="transparent")
         self.client_id = client_id
         self.controller = controller
-        self.nutrition_service = NutritionService(FicheNutritionRepository())
+        self.nutrition_controller = nutrition_controller
         self.client = self.controller.get_client_by_id(client_id)
-        self.fiche = self.nutrition_service.get_last_sheet_for_client(client_id)
+        self.fiche = self.nutrition_controller.get_last_sheet_for_client(client_id)
 
         self.display = Card(self)
         self.display.pack(fill="both", expand=True, padx=20, pady=20)
@@ -103,7 +105,7 @@ class FicheNutritionTab(ctk.CTkFrame):
             defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
         )
         if path:
-            self.nutrition_service.export_sheet_to_pdf(
+            self.nutrition_controller.export_sheet_to_pdf(
                 asdict(self.fiche), self.client, path
             )
 
@@ -179,7 +181,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
                 "niveau_activite": self.parent.client.niveau_activite or "Sédentaire",
                 "objectif": "Maintenance",
             }
-            res = self.parent.nutrition_service.calculate_nutrition_targets(data)
+            res = self.parent.nutrition_controller.calculate_nutrition_targets(data)
             return res["ratio_glucides_lipides_cible"]
         except Exception:
             return 50.0
@@ -210,7 +212,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
             "proteines_g_par_kg": float(self.prot_var.get()),
             "ratio_glucides": float(self.ratio_var.get()),
         }
-        fiche = self.parent.nutrition_service.generate_nutrition_sheet(
+        fiche = self.parent.nutrition_controller.generate_nutrition_sheet(
             self.parent.client_id, data
         )
         self.parent.fiche = fiche

@@ -212,12 +212,17 @@ class PlanAlimentaireRepository:
             aliment = conn.execute(
                 "SELECT * FROM aliments WHERE id = ?", (item.aliment_id,)
             ).fetchone()
-            portion = conn.execute(
-                "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
-            ).fetchone()
-        if not aliment or not portion:
+            portion = None
+            if item.portion_id:
+                portion = conn.execute(
+                    "SELECT * FROM portions WHERE id = ?", (item.portion_id,)
+                ).fetchone()
+        if not aliment:
             return {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
-        facteur = (portion["grammes_equivalents"] * item.quantite) / 100
+        if portion:
+            facteur = (portion["grammes_equivalents"] * item.quantite) / 100
+        else:
+            facteur = item.quantite / 100
         return {
             "kcal": aliment["kcal_100g"] * facteur,
             "proteines": aliment["proteines_100g"] * facteur,

@@ -3,8 +3,14 @@
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
+from controllers.nutrition_controller import NutritionController
+from repositories.aliment_repo import AlimentRepository
 from repositories.client_repo import ClientRepository
+from repositories.fiche_nutrition_repo import FicheNutritionRepository
+from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from services.client_service import ClientService
+from services.nutrition_service import NutritionService
+from services.plan_alimentaire_service import PlanAlimentaireService
 from ui.layout.app_shell import AppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
@@ -33,9 +39,18 @@ class CoachApp(ctk.CTk):
 
         self.current_page = None
 
-        repo = ClientRepository()
-        service = ClientService(repo)
-        self.client_controller = ClientController(service)
+        client_repo = ClientRepository()
+        client_service = ClientService(client_repo)
+        self.client_controller = ClientController(client_service)
+
+        fiche_repo = FicheNutritionRepository()
+        aliment_repo = AlimentRepository()
+        plan_repo = PlanAlimentaireRepository()
+        nutrition_service = NutritionService(fiche_repo, aliment_repo)
+        plan_service = PlanAlimentaireService(plan_repo)
+        self.nutrition_controller = NutritionController(
+            nutrition_service, plan_service, client_service
+        )
 
         self.page_titles = {
             "dashboard": "Tableau de bord",
@@ -68,7 +83,9 @@ class CoachApp(ctk.CTk):
             case "calendar":
                 self.current_page = CalendarPage(self.shell.content_area)
             case "nutrition":
-                self.current_page = NutritionPage(self.shell.content_area, client_id=1)
+                self.current_page = NutritionPage(
+                    self.shell.content_area, self.nutrition_controller, client_id=1
+                )
             case "database":
                 self.current_page = DatabasePage(self.shell.content_area)
             case "progress":
@@ -89,7 +106,12 @@ class CoachApp(ctk.CTk):
         self.shell.sidebar.set_active(page_name)
 
     def show_client_detail(self, client_id: int) -> None:
-        page = ClientDetailPage(self.shell.content_area, self.client_controller, client_id)
+        page = ClientDetailPage(
+            self.shell.content_area,
+            self.client_controller,
+            self.nutrition_controller,
+            client_id,
+        )
         self.shell.set_content(page)
         self.current_page = page
         self.shell.header.update_title("Fiche Client")
