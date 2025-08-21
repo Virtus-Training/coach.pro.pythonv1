@@ -1,11 +1,11 @@
 from typing import Dict
 
 import customtkinter as ctk
+from tkinter import filedialog
 
 from controllers.nutrition_controller import NutritionController
-from dtos.nutrition_dtos import PlanAlimentaireDTO
-from ui.components.design_system.cards import Card
-from ui.components.design_system.typography import CardTitle
+from dtos.nutrition_dtos import NutritionPageDTO, PlanAlimentaireDTO
+from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.components.food_search_bar import FoodSearchBar
 from ui.components.meal_card import MealCard
 
@@ -22,10 +22,13 @@ class NutritionPage(ctk.CTkFrame):
         self.plan: PlanAlimentaireDTO = data.plan
         self.active_repas_id = self.plan.repas[0].id if self.plan.repas else None
 
+        self.rowconfigure(0, weight=0)
+        self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
 
+        self._create_top_bar()
         self._create_left_panel()
         self._create_center_panel()
         self._create_right_panel()
@@ -34,7 +37,7 @@ class NutritionPage(ctk.CTkFrame):
     # Left panel
     def _create_left_panel(self) -> None:
         self.left_card = Card(self)
-        self.left_card.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.left_card.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
         name = f"{self.client.prenom} {self.client.nom}" if self.client else "Client"
         CardTitle(self.left_card, text=name).pack(padx=10, pady=(10, 5))
         self.cal_lbl = ctk.CTkLabel(self.left_card, text="Calories: 0 / 0")
@@ -47,7 +50,7 @@ class NutritionPage(ctk.CTkFrame):
     # Center panel
     def _create_center_panel(self) -> None:
         self.center_frame = ctk.CTkFrame(self)
-        self.center_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.center_frame.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
         self.center_frame.columnconfigure(0, weight=1)
         self.meal_cards: Dict[int, MealCard] = {}
         for repas in self.plan.repas:
@@ -65,7 +68,14 @@ class NutritionPage(ctk.CTkFrame):
         self.search_bar = FoodSearchBar(
             self, self.controller, self._on_food_selected
         )
-        self.search_bar.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
+        self.search_bar.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
+
+    def _create_top_bar(self) -> None:
+        bar = ctk.CTkFrame(self, fg_color="transparent")
+        bar.grid(row=0, column=0, columnspan=3, sticky="e", padx=5, pady=5)
+        PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack(
+            anchor="e"
+        )
 
     # Callbacks
     def _set_active_meal(self, repas_id: int) -> None:
@@ -118,6 +128,14 @@ class NutritionPage(ctk.CTkFrame):
             popup.destroy()
 
         ctk.CTkButton(popup, text="Ajouter", command=add_action).pack(pady=10)
+
+    def _export_pdf(self) -> None:
+        path = filedialog.asksaveasfilename(
+            defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
+        )
+        if path:
+            dto = NutritionPageDTO(client=self.client, fiche=self.fiche, plan=self.plan)
+            self.controller.export_plan_to_pdf(dto, path)
 
     # Refresh UI
     def _refresh(self) -> None:
