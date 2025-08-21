@@ -8,11 +8,13 @@ from controllers.nutrition_controller import NutritionController
 from controllers.session_controller import SessionController
 from repositories.aliment_repo import AlimentRepository
 from repositories.client_repo import ClientRepository
+from repositories.exercices_repo import ExerciseRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.sessions_repo import SessionsRepository
 from services.client_service import ClientService
 from services.dashboard_service import DashboardService
+from services.exercise_service import ExerciseService
 from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
 from services.session_service import SessionService
@@ -62,7 +64,10 @@ class CoachApp(ctk.CTk):
         )
 
         session_service = SessionService(sessions_repo)
-        self.session_controller = SessionController(session_service, client_service)
+        exercise_service = ExerciseService(ExerciseRepository())
+        self.session_controller = SessionController(
+            session_service, client_service, exercise_service
+        )
 
         self.page_titles = {
             "dashboard": "Tableau de bord",

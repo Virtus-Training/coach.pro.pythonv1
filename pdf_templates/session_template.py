@@ -63,13 +63,38 @@ class SessionPDFTemplate:
         if title:
             elems.append(Paragraph(f"<b>{title}</b>", styles["Heading4"]))
             elems.append(Spacer(1, 6))
-        data = [["Exercice", "Séries", "Répétitions", "Repos"]]
-        for ex in block.get("exercises", []):
-            series, reps = self._split_series_reps(ex.get("reps"))
-            rest = ex.get("repos_s")
-            rest_str = f"{rest}s" if rest else ""
-            data.append([ex.get("nom", ""), series, reps, rest_str])
-        table = Table(data, colWidths=[250, 60, 120, 60])
+        fmt = (block.get("format", "") or "").upper().replace(" ", "")
+        data: list[list[str]]
+        col_widths: list[int]
+        if fmt == "TABATA":
+            data = [["Exercice", "Notes"]]
+            for ex in block.get("exercises", []):
+                note = ex.get("notes") or ex.get("reps", "")
+                data.append([ex.get("nom", ""), note])
+            col_widths = [310, 180]
+        elif fmt == "AMRAP":
+            data = [["Exercice", "Séries/Reps"]]
+            for ex in block.get("exercises", []):
+                series, reps = self._split_series_reps(ex.get("reps"))
+                combo = f"{series}x{reps}" if series and reps else series or reps
+                data.append([ex.get("nom", ""), combo])
+            col_widths = [250, 180]
+        elif fmt in {"EMOM", "FORTIME"}:
+            data = [["Exercice", "Répétitions"]]
+            for ex in block.get("exercises", []):
+                _, reps = self._split_series_reps(ex.get("reps"))
+                data.append([ex.get("nom", ""), reps])
+            col_widths = [250, 180]
+        else:
+            data = [["Exercice", "Séries", "Répétitions", "Repos"]]
+            for ex in block.get("exercises", []):
+                series, reps = self._split_series_reps(ex.get("reps"))
+                rest = ex.get("repos_s")
+                rest_str = f"{rest}s" if rest else ""
+                data.append([ex.get("nom", ""), series, reps, rest_str])
+            col_widths = [250, 60, 120, 60]
+
+        table = Table(data, colWidths=col_widths)
         style = [
             ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(TABLE_HEADER_BG)),
             ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor(TEXT)),
