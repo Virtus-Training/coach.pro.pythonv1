@@ -9,7 +9,7 @@ Legacy color names are kept as aliases for backwards compatibility.
 # --- Palette Principale ---
 PRIMARY = "#00A3FF"  # Bleu vif pour les actions principales
 SUCCESS = "#2ECC71"  # Vert pour les confirmations
-DANGER = "#E74C3C"   # Rouge pour les erreurs ou actions destructrices
+DANGER = "#E74C3C"  # Rouge pour les erreurs ou actions destructrices
 WARNING = "#F1C40F"  # Jaune/Orange pour les avertissements
 
 # --- Niveaux de Gris (Neutres) ---
@@ -44,4 +44,3 @@ __all__ = [
     "NEUTRAL_100",
     "NEUTRAL_300",
 ]
-

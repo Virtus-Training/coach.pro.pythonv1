@@ -6,7 +6,6 @@ from models.portion import Portion
 
 
 class AlimentRepository:
-
     def list_all(self) -> List[Aliment]:
         with db_manager.get_connection() as conn:
             rows = conn.execute("SELECT * FROM aliments ORDER BY nom").fetchall()

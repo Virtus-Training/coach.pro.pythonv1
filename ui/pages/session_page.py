@@ -46,8 +46,5 @@ class SessionPage(ctk.CTkFrame):
 
     def on_generate_collectif(self) -> None:
         params = self.form_collectif.get_params()
-        _, dto = session_controller.generate_session_preview(
-            params, mode="collectif"
-        )
+        _, dto = session_controller.generate_session_preview(params, mode="collectif")
         self.preview_panel.render_session(dto)
-

@@ -145,7 +145,9 @@ def adjust_to_time_budget(blocks: List[Block], duration_min: int) -> List[Block]
 
 def generate_collectif(params: Dict[str, Any]) -> Session:
     params = params.copy()
-    params["duration_min"] = int(params.get("duration") or params.get("duration_min", 0))
+    params["duration_min"] = int(
+        params.get("duration") or params.get("duration_min", 0)
+    )
     intensity_map = {"Faible": 4, "Moyenne": 6, "Haute": 8}
     intensity = params.get("intensity", "Moyenne")
     params["intensity"] = intensity

@@ -22,6 +22,7 @@ LABEL_NORMAL = (FONT_FAMILY, 14, "normal")
 # These functions mirror the previous API so that untouched modules continue to
 # operate while the codebase migrates to the new constants.
 
+
 def get_title_font():
     """Return font for page titles (H1)."""
 
@@ -65,4 +66,3 @@ __all__ = [
     "get_small_font",
     "get_button_font",
 ]
-

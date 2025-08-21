@@ -45,25 +45,25 @@ class FormCollectif(Card):
             row=1, column=0, sticky="w", padx=(0, 8), pady=(0, 8)
         )
         self.course_var = ctk.StringVar(value=COURSE_TYPES[0])
-        ctk.CTkOptionMenu(
-            params, variable=self.course_var, values=COURSE_TYPES
-        ).grid(row=1, column=1, sticky="ew", pady=(0, 8))
+        ctk.CTkOptionMenu(params, variable=self.course_var, values=COURSE_TYPES).grid(
+            row=1, column=1, sticky="ew", pady=(0, 8)
+        )
 
         ctk.CTkLabel(params, text="Durée (min)").grid(
             row=2, column=0, sticky="w", padx=(0, 8), pady=(0, 8)
         )
         self.duration_var = ctk.StringVar(value=DURATIONS[0])
-        ctk.CTkOptionMenu(
-            params, variable=self.duration_var, values=DURATIONS
-        ).grid(row=2, column=1, sticky="ew", pady=(0, 8))
+        ctk.CTkOptionMenu(params, variable=self.duration_var, values=DURATIONS).grid(
+            row=2, column=1, sticky="ew", pady=(0, 8)
+        )
 
         ctk.CTkLabel(params, text="Intensité").grid(
             row=3, column=0, sticky="w", padx=(0, 8)
         )
         self.intensity_var = ctk.StringVar(value=INTENSITIES[0])
-        ctk.CTkOptionMenu(
-            params, variable=self.intensity_var, values=INTENSITIES
-        ).grid(row=3, column=1, sticky="ew")
+        ctk.CTkOptionMenu(params, variable=self.intensity_var, values=INTENSITIES).grid(
+            row=3, column=1, sticky="ew"
+        )
 
         # Section: Matériel Disponible
         equip_section = ctk.CTkFrame(self, fg_color="transparent")
@@ -86,9 +86,9 @@ class FormCollectif(Card):
             self.equipment_vars[label] = var
 
         # Action button
-        PrimaryButton(
-            self, text="Générer la séance", command=generate_callback
-        ).grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 16))
+        PrimaryButton(self, text="Générer la séance", command=generate_callback).grid(
+            row=2, column=0, sticky="ew", padx=16, pady=(0, 16)
+        )
 
     def get_params(self) -> dict:
         """Retourne les paramètres du formulaire."""
@@ -98,4 +98,3 @@ class FormCollectif(Card):
             "intensity": self.intensity_var.get(),
             "equipment": [k for k, v in self.equipment_vars.items() if v.get()],
         }
-

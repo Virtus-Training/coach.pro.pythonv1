@@ -9,7 +9,6 @@ def _split_csv(s: str | None) -> List[str]:
 
 
 class ExerciseRepository:
-
     def list_all_exercices(self) -> List[Exercise]:
         with db_manager.get_connection() as conn:
             rows = conn.execute("SELECT * FROM exercices ORDER BY nom").fetchall()

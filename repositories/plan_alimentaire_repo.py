@@ -5,7 +5,6 @@ from models.plan_alimentaire import PlanAlimentaire, Repas, RepasItem
 
 
 class PlanAlimentaireRepository:
-
     # Plans
     def list_plans(self) -> List[PlanAlimentaire]:
         with db_manager.get_connection() as conn:

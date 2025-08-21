@@ -107,4 +107,3 @@ class NutritionService:
         self, fiche_data: Dict, client_data: Client, file_path: str
     ) -> None:
         generate_nutrition_sheet_pdf(fiche_data, client_data, file_path)
-

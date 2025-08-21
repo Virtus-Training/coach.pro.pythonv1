@@ -13,4 +13,3 @@ def initialize_database() -> None:
     create_schema()
     seed_data()
     print("INFO: Base de données initialisée avec succès.")
-

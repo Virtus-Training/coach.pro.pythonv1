@@ -7,7 +7,6 @@ from models.client import Client
 
 
 class ClientRepository:
-
     def list_all(self) -> List[Client]:
         with db_manager.get_connection() as conn:
             cursor = conn.cursor()
@@ -73,7 +72,13 @@ class ClientRepository:
                 SET prenom = ?, nom = ?, email = ?, date_naissance = ?
                 WHERE id = ?
                 """,
-                (client.prenom, client.nom, client.email, client.date_naissance, client.id),
+                (
+                    client.prenom,
+                    client.nom,
+                    client.email,
+                    client.date_naissance,
+                    client.id,
+                ),
             )
             conn.commit()
 
@@ -94,7 +99,8 @@ class ClientRepository:
         with db_manager.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
-                "DELETE FROM client_exercice_exclusions WHERE client_id = ?", (client_id,)
+                "DELETE FROM client_exercice_exclusions WHERE client_id = ?",
+                (client_id,),
             )
             if exercice_ids:
                 values = [(client_id, ex_id) for ex_id in exercice_ids]

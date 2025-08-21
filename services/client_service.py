@@ -31,7 +31,9 @@ class ClientService:
         client.date_naissance = client_data["date_naissance"]
         self.repo.update(client)
 
-    def update_client_anamnese(self, client_id: int, objectifs: str, antecedents: str) -> None:
+    def update_client_anamnese(
+        self, client_id: int, objectifs: str, antecedents: str
+    ) -> None:
         self.repo.update_anamnese(client_id, objectifs, antecedents)
 
     def get_client_exclusions(self, client_id: int) -> List[int]:

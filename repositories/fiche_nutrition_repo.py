@@ -5,7 +5,6 @@ from models.fiche_nutrition import FicheNutrition
 
 
 class FicheNutritionRepository:
-
     def add(self, fiche: FicheNutrition) -> int:
         with db_manager.get_connection() as conn:
             cur = conn.cursor()

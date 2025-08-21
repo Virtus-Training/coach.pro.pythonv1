@@ -7,9 +7,7 @@ from db.database_manager import db_manager
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCHEMA_PATH = os.path.join(BASE_DIR, "db", "schema.sql")
 EXERCISES_CSV = os.path.join(BASE_DIR, "data", "exercices_master.csv")
-ALIMENTS_CSV = os.path.join(
-    BASE_DIR, "data", "base_aliments_enrichie_bloc4.csv"
-)
+ALIMENTS_CSV = os.path.join(BASE_DIR, "data", "base_aliments_enrichie_bloc4.csv")
 
 
 def create_schema():
@@ -38,7 +36,9 @@ def seed_data():
                 )
                 movement_pattern = row.get("movement_pattern", "").strip() or None
                 type_effort = row.get("category", "").strip() or ""
-                est_chargeable = 0 if equip_list and equip_list == ["Poids du corps"] else 1
+                est_chargeable = (
+                    0 if equip_list and equip_list == ["Poids du corps"] else 1
+                )
                 exercices.append(
                     (
                         nom,
@@ -124,6 +124,7 @@ def seed_data():
                 return int(value)
             except Exception:
                 return None
+
         try:
             with open(ALIMENTS_CSV, newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)

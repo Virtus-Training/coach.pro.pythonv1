@@ -34,9 +34,9 @@ class ClientsPage(ctk.CTkFrame):
         PrimaryButton(
             actions, text="Ajouter un client", command=self._open_add_modal
         ).pack(side="left", padx=(0, 10))
-        SecondaryButton(
-            actions, text="Rafraîchir", command=self._load_clients
-        ).pack(side="left")
+        SecondaryButton(actions, text="Rafraîchir", command=self._load_clients).pack(
+            side="left"
+        )
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
         self.scroll.pack(fill="both", expand=True, padx=20, pady=20)

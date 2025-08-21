@@ -49,9 +49,9 @@ class FormIndividuel(Card):
         )
 
         # Action button
-        PrimaryButton(
-            self, text="Générer la séance", command=generate_callback
-        ).grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 16))
+        PrimaryButton(self, text="Générer la séance", command=generate_callback).grid(
+            row=3, column=0, sticky="ew", padx=16, pady=(0, 16)
+        )
 
     def get_params(self) -> dict:
         """Retourne les paramètres du formulaire."""
@@ -59,4 +59,3 @@ class FormIndividuel(Card):
             "client": self.client_var.get(),
             "goal": self.objective_var.get(),
         }
-

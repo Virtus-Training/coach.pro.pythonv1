@@ -124,7 +124,11 @@ class NutritionPage(ctk.CTkFrame):
                 grams = 0.0
             idx = portion_names.index(portion_var.get())
             portion = portions[idx]
-            quantite = grams / portion.grammes_equivalents if portion.grammes_equivalents else 1.0
+            quantite = (
+                grams / portion.grammes_equivalents
+                if portion.grammes_equivalents
+                else 1.0
+            )
             item = RepasItem(
                 id=0,
                 repas_id=self.active_repas_id,
@@ -147,10 +151,12 @@ class NutritionPage(ctk.CTkFrame):
                 aliment = self.aliments_by_id.get(item.aliment_id)
                 portion = self.aliment_repo.get_portion_by_id(item.portion_id)
                 grams = (portion.grammes_equivalents * item.quantite) if portion else 0
-                items.append({
-                    "id": item.id,
-                    "label": f"{aliment.nom} - {grams:.0f}g" if aliment else "?",
-                })
+                items.append(
+                    {
+                        "id": item.id,
+                        "label": f"{aliment.nom} - {grams:.0f}g" if aliment else "?",
+                    }
+                )
             totals = self._compute_meal_totals(repas)
             card = self.meal_cards.get(repas.id)
             if card:
@@ -177,6 +183,8 @@ class NutritionPage(ctk.CTkFrame):
         cible_g = self.fiche.glucides_g if self.fiche else 0
         cible_l = self.fiche.lipides_g if self.fiche else 0
         self.cal_lbl.configure(text=f"Calories: {totals['kcal']:.0f} / {cible_kcal}")
-        self.prot_lbl.configure(text=f"Protéines: {totals['proteines']:.1f} / {cible_p}")
+        self.prot_lbl.configure(
+            text=f"Protéines: {totals['proteines']:.1f} / {cible_p}"
+        )
         self.carb_lbl.configure(text=f"Glucides: {totals['glucides']:.1f} / {cible_g}")
         self.fat_lbl.configure(text=f"Lipides: {totals['lipides']:.1f} / {cible_l}")
