@@ -2,6 +2,9 @@
 
 import customtkinter as ctk
 
+from controllers.client_controller import ClientController
+from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
 from ui.layout.header import Header
 from ui.layout.sidebar import Sidebar
 from ui.pages.billing_page import BillingPage
@@ -16,10 +19,6 @@ from ui.pages.pdf_page import PdfPage
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
 from ui.pages.session_page import SessionPage
-
-from controllers.client_controller import ClientController
-from repositories.client_repo import ClientRepository
-from services.client_service import ClientService
 
 
 class CoachApp(ctk.CTk):

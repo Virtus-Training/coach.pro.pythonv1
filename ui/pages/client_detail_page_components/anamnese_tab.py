@@ -1,8 +1,8 @@
 import customtkinter as ctk
 
+from controllers.client_controller import ClientController
 from models.client import Client
 from repositories.exercices_repo import ExerciseRepository
-from controllers.client_controller import ClientController
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.components.exclusion_selector import ExclusionSelector
 
@@ -54,7 +54,5 @@ class AnamneseTab(ctk.CTkFrame):
         objectifs = self.objectifs_txt.get("1.0", "end").strip()
         antecedents = self.antecedents_txt.get("1.0", "end").strip()
         excluded_ids = self.selector.get_excluded_ids()
-        self.controller.update_client_anamnese(
-            self.client.id, objectifs, antecedents
-        )
+        self.controller.update_client_anamnese(self.client.id, objectifs, antecedents)
         self.controller.update_client_exclusions(self.client.id, excluded_ids)

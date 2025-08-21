@@ -3,8 +3,8 @@ from typing import Optional
 
 import customtkinter as ctk
 
-from models.client import Client
 from controllers.client_controller import ClientController
+from models.client import Client
 from ui.theme.colors import DARK_BG, TEXT
 from ui.theme.fonts import get_text_font, get_title_font
 
