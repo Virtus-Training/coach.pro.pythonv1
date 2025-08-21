@@ -7,11 +7,13 @@ from controllers.client_controller import ClientController
 from controllers.dashboard_controller import DashboardController
 from controllers.nutrition_controller import NutritionController
 from controllers.session_controller import SessionController
+from controllers.tracking_controller import TrackingController
 from repositories.aliment_repo import AlimentRepository
 from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
+from repositories.resultat_exercice_repo import ResultatExerciceRepository
 from repositories.sessions_repo import SessionsRepository
 from services.client_service import ClientService
 from services.calendar_service import CalendarService
@@ -20,6 +22,7 @@ from services.exercise_service import ExerciseService
 from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
 from services.session_service import SessionService
+from services.tracking_service import TrackingService
 from ui.layout.app_shell import AppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
@@ -71,6 +74,12 @@ class CoachApp(ctk.CTk):
             session_service, client_service, exercise_service
         )
 
+        result_repo = ResultatExerciceRepository()
+        tracking_service = TrackingService(result_repo)
+        self.tracking_controller = TrackingController(
+            tracking_service, session_service, ExerciseRepository()
+        )
+
         calendar_service = CalendarService(sessions_repo)
         self.calendar_controller = CalendarController(
             calendar_service, session_service
@@ -113,6 +122,7 @@ class CoachApp(ctk.CTk):
                     self.shell.content_area,
                     self.calendar_controller,
                     self.session_controller,
+                    self.tracking_controller,
                 )
             case "nutrition":
                 self.current_page = NutritionPage(

@@ -5,9 +5,11 @@ import customtkinter as ctk
 
 from controllers.calendar_controller import CalendarController
 from controllers.session_controller import SessionController
+from controllers.tracking_controller import TrackingController
 from ui.components.calendar_view import CalendarView
 from ui.components.draggable_list import DraggableList
 from ui.modals.session_detail_modal import SessionDetailModal
+from ui.modals.session_log_modal import SessionLogModal
 from ui.theme.fonts import get_section_font
 
 
@@ -17,10 +19,12 @@ class CalendarPage(ctk.CTkFrame):
         parent,
         controller: CalendarController,
         session_controller: SessionController,
+        tracking_controller: TrackingController,
     ):
         super().__init__(parent)
         self.controller = controller
         self.session_controller = session_controller
+        self.tracking_controller = tracking_controller
         today = datetime.date.today()
         self.year = today.year
         self.month = today.month
@@ -47,6 +51,7 @@ class CalendarPage(ctk.CTkFrame):
             self.on_session_click,
             self.get_dragged_session_id,
             self.on_session_drop,
+            self.on_log_session,
         )
         self.calendar.pack(fill="both", expand=True)
         self._refresh()
@@ -72,6 +77,9 @@ class CalendarPage(ctk.CTkFrame):
         session = self.controller.get_session_details(session_id)
         if session:
             SessionDetailModal(self, session, self.session_controller)
+
+    def on_log_session(self, session_id: str) -> None:
+        SessionLogModal(self, session_id, self.tracking_controller)
 
     def on_previous_month(self) -> None:
         if self.month == 1:
