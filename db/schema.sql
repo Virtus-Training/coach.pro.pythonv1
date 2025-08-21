@@ -50,14 +50,16 @@ CREATE TABLE seances (
 
 CREATE TABLE resultats_exercices (
     id INTEGER PRIMARY KEY,
-    seance_id INTEGER NOT NULL,
+    session_id TEXT NOT NULL,
     exercice_id INTEGER NOT NULL,
     series_effectuees INTEGER,
     reps_effectuees INTEGER,
     charge_utilisee REAL,
+    rpe INTEGER,
     feedback_client TEXT,
-    FOREIGN KEY(seance_id) REFERENCES seances(id),
-    FOREIGN KEY(exercice_id) REFERENCES exercices(id)
+    FOREIGN KEY(session_id) REFERENCES sessions(session_id),
+    FOREIGN KEY(exercice_id) REFERENCES exercices(id),
+    UNIQUE(session_id, exercice_id)
 );
 
 CREATE TABLE aliments (
