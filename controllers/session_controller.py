@@ -9,6 +9,7 @@ from services.exercise_service import ExerciseService
 from services.pdf_generator import generate_session_pdf
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
+from models.session import Session
 
 
 class SessionController:
@@ -95,6 +96,16 @@ class SessionController:
             "duration": f"{session.duration_sec // 60} min",
         }
         return session, dto
+
+    def build_preview_from_session(self, session: Session) -> Dict[str, Any]:
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        meta = self.exercise_service.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "duration": f"{session.duration_sec // 60} min",
+        }
+        return dto
 
     def save_session(self, session_dto: Dict[str, Any], client_id: int | None) -> None:
         """Persist a generated session from its DTO representation."""

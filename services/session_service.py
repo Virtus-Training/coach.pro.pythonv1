@@ -18,6 +18,9 @@ class SessionService:
         session = self._dto_to_session(session_dto, client_id)
         self.repo.save(session)
 
+    def get_session_by_id(self, session_id: str) -> Session | None:
+        return self.repo.get_by_id(session_id)
+
     def _dto_to_session(self, dto: Dict[str, Any], client_id: Optional[int]) -> Session:
         session_id = uuid.uuid4().hex
         meta = dto.get("meta", {})
