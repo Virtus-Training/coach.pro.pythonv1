@@ -3,6 +3,8 @@
 import customtkinter as ctk
 from PIL import Image
 
+from controllers.dashboard_controller import DashboardController
+
 from ui.components.card import IconCard
 from ui.components.design_system import PrimaryButton
 from ui.components.title import SectionTitle
@@ -16,9 +18,12 @@ from ui.theme.fonts import (
 
 
 class DashboardPage(ctk.CTkFrame):
-    def __init__(self, parent):
+    def __init__(self, parent, controller: DashboardController):
         super().__init__(parent)
+        self.controller = controller
         self.configure(fg_color=DARK_BG)
+
+        data = self.controller.get_dashboard_data()
 
         # Scrollable container
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -56,9 +61,12 @@ class DashboardPage(ctk.CTkFrame):
                 box, text=value, font=get_title_font(), text_color=PRIMARY
             ).pack(pady=(0, 10))
 
-        mini_kpi("Clients ce mois", "24")
-        mini_kpi("Séances complétées", "78%")
-        mini_kpi("Objectif nutrition", "1 900 kcal")
+        mini_kpi("Clients actifs", str(data.active_clients))
+        mini_kpi("Séances ce mois", str(data.sessions_this_month))
+        mini_kpi(
+            "Taux de complétion",
+            f"{int(data.average_session_completion_rate * 100)}%",
+        )
 
         # Boutons d’action rapide
         shortcuts = ctk.CTkFrame(scroll, fg_color="transparent")
@@ -205,9 +213,12 @@ class DashboardPage(ctk.CTkFrame):
                 box, text=value, font=get_section_font(), text_color=PRIMARY
             ).pack(pady=(0, 10))
 
-        kpi("Clients actifs", "32")
-        kpi("Séances ce mois", "104")
-        kpi("Progression moyenne", "+12%")
+        kpi("Clients actifs", str(data.active_clients))
+        kpi("Séances ce mois", str(data.sessions_this_month))
+        kpi(
+            "Taux de complétion",
+            f"{int(data.average_session_completion_rate * 100)}%",
+        )
 
         # === SECTION 3 : Clients récents ===
         SectionTitle(scroll, "Clients récents").pack(pady=(30, 10))

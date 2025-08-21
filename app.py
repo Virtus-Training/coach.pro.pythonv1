@@ -3,6 +3,7 @@
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
+from controllers.dashboard_controller import DashboardController
 from controllers.nutrition_controller import NutritionController
 from controllers.session_controller import SessionController
 from repositories.aliment_repo import AlimentRepository
@@ -11,6 +12,7 @@ from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.sessions_repo import SessionsRepository
 from services.client_service import ClientService
+from services.dashboard_service import DashboardService
 from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
 from services.session_service import SessionService
@@ -46,6 +48,10 @@ class CoachApp(ctk.CTk):
         client_service = ClientService(client_repo)
         self.client_controller = ClientController(client_service)
 
+        sessions_repo = SessionsRepository()
+        dashboard_service = DashboardService(client_repo, sessions_repo)
+        self.dashboard_controller = DashboardController(dashboard_service)
+
         fiche_repo = FicheNutritionRepository()
         aliment_repo = AlimentRepository()
         plan_repo = PlanAlimentaireRepository()
@@ -55,7 +61,6 @@ class CoachApp(ctk.CTk):
             nutrition_service, plan_service, client_service
         )
 
-        sessions_repo = SessionsRepository()
         session_service = SessionService(sessions_repo)
         self.session_controller = SessionController(session_service)
 
@@ -82,7 +87,9 @@ class CoachApp(ctk.CTk):
 
         match page_name:
             case "dashboard":
-                self.current_page = DashboardPage(self.shell.content_area)
+                self.current_page = DashboardPage(
+                    self.shell.content_area, self.dashboard_controller
+                )
             case "programs":
                 self.current_page = ProgramPage(self.shell.content_area)
             case "sessions":

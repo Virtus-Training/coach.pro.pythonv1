@@ -45,3 +45,15 @@ class SessionsRepository:
             except Exception:
                 conn.rollback()
                 raise
+
+    def count_sessions_this_month(self) -> int:
+        with db_manager.get_connection() as conn:
+            cursor = conn.execute(
+                """
+                SELECT COUNT(*)
+                FROM sessions
+                WHERE strftime('%Y-%m', date_creation) = strftime('%Y-%m', 'now')
+                """
+            )
+            (count,) = cursor.fetchone()
+        return count
