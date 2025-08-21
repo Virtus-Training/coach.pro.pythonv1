@@ -7,6 +7,12 @@ from models.client import Client
 
 
 class ClientRepository:
+    def count_all(self) -> int:
+        with db_manager.get_connection() as conn:
+            cursor = conn.execute("SELECT COUNT(*) FROM clients")
+            (count,) = cursor.fetchone()
+        return count
+
     def list_all(self) -> List[Client]:
         with db_manager.get_connection() as conn:
             cursor = conn.cursor()

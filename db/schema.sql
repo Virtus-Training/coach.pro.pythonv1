@@ -133,6 +133,7 @@ CREATE TABLE sessions (
     mode TEXT NOT NULL,
     label TEXT NOT NULL,
     duration_sec INTEGER NOT NULL,
+    date_creation TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 
