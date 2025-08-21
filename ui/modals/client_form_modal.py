@@ -4,8 +4,7 @@ from typing import Optional
 import customtkinter as ctk
 
 from models.client import Client
-from repositories.client_repo import ClientRepository
-from services.client_service import ClientService
+from controllers.client_controller import ClientController
 from ui.theme.colors import DARK_BG, TEXT
 from ui.theme.fonts import get_text_font, get_title_font
 
@@ -13,10 +12,15 @@ from ui.theme.fonts import get_text_font, get_title_font
 class ClientFormModal(ctk.CTkToplevel):
     """Fenêtre modale pour ajouter ou modifier un client."""
 
-    def __init__(self, parent, client_a_modifier: Optional[Client] = None):
+    def __init__(
+        self,
+        parent,
+        controller: ClientController,
+        client_a_modifier: Optional[Client] = None,
+    ):
         super().__init__(parent)
         self.client = client_a_modifier
-        self.client_service = ClientService(ClientRepository())
+        self.controller = controller
         self.title("Ajouter/Modifier un client")
         self.geometry("400x340")
         self.configure(fg_color=DARK_BG)
@@ -88,10 +92,6 @@ class ClientFormModal(ctk.CTkToplevel):
         email = self.email_var.get().strip() or None
         date_naissance = self.date_var.get().strip() or None
 
-        if not prenom or not nom:
-            messagebox.showerror("Erreur", "Le nom et le prénom sont obligatoires.")
-            return
-
         client_data = {
             "prenom": prenom,
             "nom": nom,
@@ -99,9 +99,11 @@ class ClientFormModal(ctk.CTkToplevel):
             "date_naissance": date_naissance,
         }
 
-        if self.client:
-            self.client_service.update_client(self.client, client_data)
-        else:
-            self.client_service.add_client(client_data)
-
-        self.destroy()
+        try:
+            if self.client:
+                self.controller.update_client(self.client.id, client_data)
+            else:
+                self.controller.add_client(client_data)
+            self.destroy()
+        except ValueError as e:
+            messagebox.showerror("Erreur", str(e))

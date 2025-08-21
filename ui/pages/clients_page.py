@@ -1,8 +1,7 @@
 import customtkinter as ctk
 
 from models.client import Client
-from repositories.client_repo import ClientRepository
-from services.client_service import ClientService
+from controllers.client_controller import ClientController
 from ui.components.design_system import (
     Card,
     CardTitle,
@@ -18,11 +17,11 @@ from ui.theme.fonts import LABEL_NORMAL
 class ClientsPage(ctk.CTkFrame):
     """Page de gestion des clients."""
 
-    def __init__(self, parent):
+    def __init__(self, parent, controller: ClientController):
         super().__init__(parent)
         self.configure(fg_color=NEUTRAL_900)
 
-        self.client_service = ClientService(ClientRepository())
+        self.controller = controller
 
         PageTitle(self, text="Gestion des Clients").pack(
             anchor="w", padx=20, pady=(20, 24)
@@ -49,7 +48,7 @@ class ClientsPage(ctk.CTkFrame):
         for widget in self.scroll.winfo_children():
             widget.destroy()
 
-        clients = self.client_service.get_all_clients()
+        clients = self.controller.get_all_clients_for_view()
         for client in clients:
             self._create_client_card(client)
 
@@ -88,13 +87,13 @@ class ClientsPage(ctk.CTkFrame):
 
     # -- Modal handlers ---------------------------------------------------
     def _open_add_modal(self) -> None:
-        modal = ClientFormModal(self)
+        modal = ClientFormModal(self, self.controller)
         modal.grab_set()
         self.wait_window(modal)
         self._load_clients()
 
     def _open_edit_modal(self, client: Client) -> None:
-        modal = ClientFormModal(self, client)
+        modal = ClientFormModal(self, self.controller, client)
         modal.grab_set()
         self.wait_window(modal)
         self._load_clients()
