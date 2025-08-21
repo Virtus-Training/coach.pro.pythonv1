@@ -11,6 +11,8 @@ PRIMARY = "#00A3FF"  # Bleu vif pour les actions principales
 SUCCESS = "#2ECC71"  # Vert pour les confirmations
 DANGER = "#E74C3C"  # Rouge pour les erreurs ou actions destructrices
 WARNING = "#F1C40F"  # Jaune/Orange pour les avertissements
+TAG_BACKGROUND = "#1E40AF"  # Fond des tags
+CARD_HOVER = "#1F2937"  # Couleur de survol des cartes
 
 # --- Niveaux de Gris (Neutres) ---
 NEUTRAL_900 = "#121212"  # Fond principal de l'application
@@ -38,6 +40,8 @@ __all__ = [
     "SUCCESS",
     "DANGER",
     "WARNING",
+    "TAG_BACKGROUND",
+    "CARD_HOVER",
     "NEUTRAL_900",
     "NEUTRAL_800",
     "NEUTRAL_700",

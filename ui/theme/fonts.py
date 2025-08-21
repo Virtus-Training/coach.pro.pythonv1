@@ -16,6 +16,7 @@ H2_BOLD = (FONT_FAMILY, 24, "bold")
 H3_NORMAL = (FONT_FAMILY, 18, "normal")
 BODY_NORMAL = (FONT_FAMILY, 16, "normal")
 LABEL_NORMAL = (FONT_FAMILY, 14, "normal")
+CARD_TITLE = (FONT_FAMILY, 16, "bold")
 
 
 # --- Legacy helper functions -----------------------------------------------
@@ -60,6 +61,7 @@ __all__ = [
     "H3_NORMAL",
     "BODY_NORMAL",
     "LABEL_NORMAL",
+    "CARD_TITLE",
     "get_title_font",
     "get_section_font",
     "get_text_font",
