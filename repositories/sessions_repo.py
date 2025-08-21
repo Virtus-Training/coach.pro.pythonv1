@@ -1,7 +1,7 @@
 import json
 
 from db.database_manager import db_manager
-from models.session import Session
+from models.session import Block, BlockItem, Session
 
 
 class SessionsRepository:
@@ -10,8 +10,15 @@ class SessionsRepository:
             try:
                 conn.execute("BEGIN")
                 conn.execute(
-                    "INSERT OR REPLACE INTO sessions(session_id, client_id, mode, label, duration_sec) VALUES (?,?,?,?,?)",
-                    (s.session_id, s.client_id, s.mode, s.label, s.duration_sec),
+                    "INSERT OR REPLACE INTO sessions(session_id, client_id, mode, label, duration_sec, date_creation) VALUES (?,?,?,?,?,?)",
+                    (
+                        s.session_id,
+                        s.client_id,
+                        s.mode,
+                        s.label,
+                        s.duration_sec,
+                        s.date_creation,
+                    ),
                 )
                 for b in s.blocks:
                     conn.execute(
@@ -45,6 +52,64 @@ class SessionsRepository:
             except Exception:
                 conn.rollback()
                 raise
+
+    def list_sessions_for_month(self, year: int, month: int) -> list[Session]:
+        with db_manager.get_connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM sessions
+                WHERE strftime('%Y', date_creation) = ?
+                  AND strftime('%m', date_creation) = ?
+                ORDER BY date_creation
+                """,
+                (str(year), f"{month:02d}"),
+            ).fetchall()
+            sessions: list[Session] = []
+            for s in rows:
+                block_rows = conn.execute(
+                    "SELECT * FROM session_blocks WHERE session_id = ?",
+                    (s["session_id"],),
+                ).fetchall()
+                blocks = []
+                for b in block_rows:
+                    item_rows = conn.execute(
+                        "SELECT * FROM session_items WHERE block_id = ?",
+                        (b["block_id"],),
+                    ).fetchall()
+                    items = [
+                        BlockItem(
+                            exercise_id=r["exercise_id"],
+                            prescription=json.loads(r["prescription"]),
+                            notes=r["notes"],
+                        )
+                        for r in item_rows
+                    ]
+                    blocks.append(
+                        Block(
+                            block_id=b["block_id"],
+                            type=b["type"],
+                            duration_sec=b["duration_sec"],
+                            rounds=b["rounds"],
+                            work_sec=b["work_sec"],
+                            rest_sec=b["rest_sec"],
+                            items=items,
+                            title=b["title"],
+                            locked=bool(b["locked"]),
+                        )
+                    )
+                sessions.append(
+                    Session(
+                        session_id=s["session_id"],
+                        mode=s["mode"],
+                        label=s["label"],
+                        duration_sec=s["duration_sec"],
+                        date_creation=s["date_creation"],
+                        client_id=s["client_id"],
+                        blocks=blocks,
+                        meta={},
+                    )
+                )
+            return sessions
 
     def count_sessions_this_month(self) -> int:
         with db_manager.get_connection() as conn:

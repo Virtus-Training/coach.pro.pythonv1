@@ -1,6 +1,7 @@
 import random
 import time
 import uuid
+from datetime import date
 from typing import Any, Dict, List
 
 import logging
@@ -215,6 +216,7 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
         mode="COLLECTIF",
         label=f"{params['course_type']} {params['duration_min']}'",
         duration_sec=params["duration_min"] * 60,
+        date_creation=date.today().isoformat(),
         blocks=blocks,
         meta={"intensity": params.get("intensity", "Medium")},
     )
@@ -273,6 +275,7 @@ def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Se
         mode="INDIVIDUEL",
         label=f"Séance pour {client.prenom} {client.nom}",
         duration_sec=duree_minutes * 60,
+        date_creation=date.today().isoformat(),
         client_id=client_id,
         blocks=[warmup, main, cooldown],
         meta={"goal": objectif},
