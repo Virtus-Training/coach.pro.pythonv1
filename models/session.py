@@ -30,5 +30,6 @@ class Session:
     mode: str  # COLLECTIF / INDIVIDUEL
     label: str
     duration_sec: int
+    client_id: Optional[int] = None
     blocks: List[Block] = field(default_factory=list)
     meta: Dict[str, Number | str] = field(default_factory=dict)

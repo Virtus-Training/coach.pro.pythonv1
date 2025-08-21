@@ -127,3 +127,34 @@ CREATE TABLE fiches_nutrition (
     FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 
+CREATE TABLE sessions (
+    session_id TEXT PRIMARY KEY,
+    client_id INTEGER,
+    mode TEXT NOT NULL,
+    label TEXT NOT NULL,
+    duration_sec INTEGER NOT NULL,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE session_blocks (
+    block_id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    duration_sec INTEGER,
+    rounds INTEGER,
+    work_sec INTEGER,
+    rest_sec INTEGER,
+    title TEXT,
+    locked INTEGER DEFAULT 0,
+    FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+);
+
+CREATE TABLE session_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    block_id TEXT NOT NULL,
+    exercise_id TEXT NOT NULL,
+    prescription TEXT NOT NULL,
+    notes TEXT,
+    FOREIGN KEY(block_id) REFERENCES session_blocks(block_id)
+);
+
