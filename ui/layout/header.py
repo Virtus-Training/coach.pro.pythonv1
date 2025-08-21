@@ -1,35 +1,36 @@
 # ui/layout/header.py
 
-import os
-
 import customtkinter as ctk
-from PIL import Image
+
+from utils.icon_loader import load_icon
+from ui.theme import colors, fonts
 
 
 class Header(ctk.CTkFrame):
-    def __init__(self, parent, title="CoachPro"):
-        super().__init__(parent, height=60, fg_color="#121212")
+    def __init__(self, parent, title: str = ""):
+        super().__init__(parent, height=60, fg_color=colors.NEUTRAL_800)
         self.pack_propagate(False)
+        self.grid_columnconfigure(0, weight=1)
 
-        # Logo (optionnel)
-        logo_path = os.path.join("assets", "logo.png")
-        if os.path.exists(logo_path):
-            logo_image = ctk.CTkImage(Image.open(logo_path), size=(64, 64))
-            logo_label = ctk.CTkLabel(self, image=logo_image, text="")
-            logo_label.pack(side="left", padx=20)
-
-        # Titre
         self.title_label = ctk.CTkLabel(
             self,
-            text="CoachPro",
-            text_color="#3b82f6",
-            font=ctk.CTkFont(size=20, weight="bold"),
+            text=title,
+            text_color=colors.TEXT,
+            font=fonts.get_title_font(),
         )
-        self.title_label.pack(side="left", padx=10)
+        self.title_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        # Profil (optionnel)
-        user_label = ctk.CTkLabel(self, text="👤 Virtus Training", text_color="#bbbbbb")
-        user_label.pack(side="right", padx=20)
+        user_frame = ctk.CTkFrame(self, fg_color="transparent")
+        user_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
+        user_icon = load_icon("user1.png", 24)
+        ctk.CTkLabel(
+            user_frame,
+            text="Coach",
+            image=user_icon,
+            compound="left",
+            text_color=colors.TEXT_SECONDARY,
+            font=fonts.get_text_font(),
+        ).pack()
 
-    def update_title(self, new_title):
+    def update_title(self, new_title: str) -> None:
         self.title_label.configure(text=new_title)

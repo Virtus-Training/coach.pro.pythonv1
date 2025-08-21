@@ -5,8 +5,7 @@ import customtkinter as ctk
 from controllers.client_controller import ClientController
 from repositories.client_repo import ClientRepository
 from services.client_service import ClientService
-from ui.layout.header import Header
-from ui.layout.sidebar import Sidebar
+from ui.layout.app_shell import AppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
 from ui.pages.client_detail_page import ClientDetailPage
@@ -29,83 +28,74 @@ class CoachApp(ctk.CTk):
         self.minsize(1000, 700)
         self.configure(fg_color="#0f0f0f")
 
-        # Layout de la fenêtre principale
-        self.sidebar = Sidebar(self, self.switch_page, active_module="dashboard")
-        self.sidebar.pack(side="left", fill="y")
-
-        self.header = Header(self)
-        self.header.pack(fill="x", side="top")
-
-        self.main_frame = ctk.CTkFrame(self, fg_color="#1f1f1f")
-        self.main_frame.pack(side="left", fill="both", expand=True)
+        self.shell = AppShell(self, self.switch_page, active_module="dashboard")
+        self.shell.pack(fill="both", expand=True)
 
         self.current_page = None
-        self.clients_page = None
-        self.client_detail_page = None
 
         repo = ClientRepository()
         service = ClientService(repo)
         self.client_controller = ClientController(service)
 
-        self.switch_page("dashboard")  # Page par défaut
+        self.page_titles = {
+            "dashboard": "Tableau de bord",
+            "programs": "Programmes",
+            "calendar": "Calendrier",
+            "sessions": "Séances",
+            "progress": "Progression",
+            "pdf": "PDF",
+            "nutrition": "Nutrition",
+            "database": "Base de données",
+            "clients": "Gestion des Clients",
+            "messaging": "Messagerie",
+            "billing": "Facturation",
+            "settings": "Paramètres",
+        }
 
-    def switch_page(self, page_name):
-        # Détruire la page précédente
+        self.switch_page("dashboard")
+
+    def switch_page(self, page_name: str, title: str | None = None):
         if self.current_page:
             self.current_page.destroy()
 
-        self.header.update_title("Nom de la page actuelle")
-
-        # Sélectionner et afficher la bonne page
         match page_name:
             case "dashboard":
-                self.current_page = DashboardPage(self.main_frame)
+                self.current_page = DashboardPage(self.shell.content_area)
             case "programs":
-                self.current_page = ProgramPage(self.main_frame)
+                self.current_page = ProgramPage(self.shell.content_area)
             case "sessions":
-                self.current_page = SessionPage(self.main_frame)
+                self.current_page = SessionPage(self.shell.content_area)
             case "calendar":
-                self.current_page = CalendarPage(self.main_frame)
+                self.current_page = CalendarPage(self.shell.content_area)
             case "nutrition":
-                self.current_page = NutritionPage(self.main_frame, client_id=1)
-                self.header.update_title("Nutrition")
+                self.current_page = NutritionPage(self.shell.content_area, client_id=1)
             case "database":
-                self.current_page = DatabasePage(self.main_frame)
+                self.current_page = DatabasePage(self.shell.content_area)
             case "progress":
-                self.current_page = ProgressPage(self.main_frame)
+                self.current_page = ProgressPage(self.shell.content_area)
             case "pdf":
-                self.current_page = PdfPage(self.main_frame)
+                self.current_page = PdfPage(self.shell.content_area)
             case "clients":
-                self.clients_page = ClientsPage(self.main_frame, self.client_controller)
-                self.current_page = self.clients_page
+                self.current_page = ClientsPage(self.shell.content_area, self.client_controller)
             case "messaging":
-                self.current_page = MessagingPage(self.main_frame)
+                self.current_page = MessagingPage(self.shell.content_area)
             case "billing":
-                self.current_page = BillingPage(self.main_frame)
+                self.current_page = BillingPage(self.shell.content_area)
             case _:
-                self.current_page = DashboardPage(self.main_frame)
+                self.current_page = DashboardPage(self.shell.content_area)
 
-        self.current_page.pack(fill="both", expand=True)
+        self.shell.set_content(self.current_page)
+        self.shell.header.update_title(title or self.page_titles.get(page_name, ""))
+        self.shell.sidebar.set_active(page_name)
 
     def show_client_detail(self, client_id: int) -> None:
-        """Affiche la page de détail d'un client."""
-        if self.clients_page:
-            self.clients_page.pack_forget()
-        self.client_detail_page = ClientDetailPage(
-            self.main_frame, self.client_controller, client_id
-        )
-        self.client_detail_page.pack(fill="both", expand=True)
-        self.current_page = self.client_detail_page
+        page = ClientDetailPage(self.shell.content_area, self.client_controller, client_id)
+        self.shell.set_content(page)
+        self.current_page = page
+        self.shell.header.update_title("Fiche Client")
 
     def show_clients_page(self) -> None:
-        """Revient à la page de liste des clients."""
-        if self.client_detail_page:
-            self.client_detail_page.pack_forget()
-            self.client_detail_page.destroy()
-            self.client_detail_page = None
-        if self.clients_page:
-            self.clients_page.pack(fill="both", expand=True)
-            self.current_page = self.clients_page
+        self.switch_page("clients")
 
 
 def launch_app():
