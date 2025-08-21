@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
+from controllers.nutrition_controller import NutritionController
 from ui.components.design_system import PageTitle, SecondaryButton
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
@@ -14,10 +15,17 @@ from ui.theme.colors import NEUTRAL_900
 class ClientDetailPage(ctk.CTkFrame):
     """Page affichant les détails d'un client."""
 
-    def __init__(self, master, controller: ClientController, client_id: int):
+    def __init__(
+        self,
+        master,
+        controller: ClientController,
+        nutrition_controller: NutritionController,
+        client_id: int,
+    ):
         super().__init__(master, fg_color=NEUTRAL_900)
         self.client_id = client_id
         self.controller = controller
+        self.nutrition_controller = nutrition_controller
         client = self.controller.get_client_by_id(client_id)
 
         header = ctk.CTkFrame(self, fg_color="transparent")
@@ -53,6 +61,9 @@ class ClientDetailPage(ctk.CTkFrame):
             fill="both", expand=True, padx=10, pady=10
         )
         fiche_tab = tabview.add("Fiche Nutrition")
-        FicheNutritionTab(fiche_tab, self.controller, self.client_id).pack(
-            fill="both", expand=True, padx=10, pady=10
-        )
+        FicheNutritionTab(
+            fiche_tab,
+            self.controller,
+            self.nutrition_controller,
+            self.client_id,
+        ).pack(fill="both", expand=True, padx=10, pady=10)

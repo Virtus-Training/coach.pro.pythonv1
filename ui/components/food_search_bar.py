@@ -1,13 +1,18 @@
 import customtkinter as ctk
 
-from repositories.aliment_repo import AlimentRepository
+from controllers.nutrition_controller import NutritionController
 
 
 class FoodSearchBar(ctk.CTkFrame):
-    def __init__(self, master, on_food_selected_callback):
+    def __init__(
+        self,
+        master,
+        controller: NutritionController,
+        on_food_selected_callback,
+    ):
         super().__init__(master)
         self.on_food_selected_callback = on_food_selected_callback
-        self.repo = AlimentRepository()
+        self.controller = controller
 
         self.search_var = ctk.StringVar()
         entry = ctk.CTkEntry(self, textvariable=self.search_var)
@@ -21,7 +26,7 @@ class FoodSearchBar(ctk.CTkFrame):
         query = self.search_var.get().strip()
         results = []
         if query:
-            results = self.repo.search_by_name(query)
+            results = self.controller.search_aliments(query)
         for widget in self.results_frame.winfo_children():
             widget.destroy()
         for aliment in results:

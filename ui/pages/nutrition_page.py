@@ -2,14 +2,8 @@ from typing import Dict
 
 import customtkinter as ctk
 
-from models.plan_alimentaire import Repas, RepasItem
-from repositories.aliment_repo import AlimentRepository
-from repositories.client_repo import ClientRepository
-from repositories.fiche_nutrition_repo import FicheNutritionRepository
-from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
-from services.client_service import ClientService
-from services.nutrition_service import NutritionService
-from services.plan_alimentaire_service import PlanAlimentaireService
+from controllers.nutrition_controller import NutritionController
+from dtos.nutrition_dtos import PlanAlimentaireDTO
 from ui.components.design_system.cards import Card
 from ui.components.design_system.typography import CardTitle
 from ui.components.food_search_bar import FoodSearchBar
@@ -17,23 +11,16 @@ from ui.components.meal_card import MealCard
 
 
 class NutritionPage(ctk.CTkFrame):
-    def __init__(self, parent, client_id: int):
+    def __init__(self, parent, controller: NutritionController, client_id: int):
         super().__init__(parent)
+        self.controller = controller
         self.client_id = client_id
 
-        self.plan_repo = PlanAlimentaireRepository()
-        self.plan_service = PlanAlimentaireService(self.plan_repo)
-        self.aliment_repo = AlimentRepository()
-        self.client_service = ClientService(ClientRepository())
-        self.nutrition_service = NutritionService(FicheNutritionRepository())
-
-        self.client = self.client_service.get_client_by_id(client_id)
-        self.fiche = self.nutrition_service.get_last_sheet_for_client(client_id)
-        self.plan = self.plan_service.get_or_create_plan_for_client(client_id)
+        data = self.controller.get_nutrition_page_data(client_id)
+        self.client = data.client
+        self.fiche = data.fiche
+        self.plan: PlanAlimentaireDTO = data.plan
         self.active_repas_id = self.plan.repas[0].id if self.plan.repas else None
-
-        self.aliments = self.aliment_repo.list_all()
-        self.aliments_by_id = {a.id: a for a in self.aliments}
 
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=2)
@@ -75,7 +62,9 @@ class NutritionPage(ctk.CTkFrame):
 
     # Right panel
     def _create_right_panel(self) -> None:
-        self.search_bar = FoodSearchBar(self, self._on_food_selected)
+        self.search_bar = FoodSearchBar(
+            self, self.controller, self._on_food_selected
+        )
         self.search_bar.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
 
     # Callbacks
@@ -90,13 +79,12 @@ class NutritionPage(ctk.CTkFrame):
         self._open_add_item_popup(aliment)
 
     def _delete_item(self, item_id: int) -> None:
-        self.plan_repo.delete_item(item_id)
-        self.plan = self.plan_repo.get_plan(self.plan.id)
+        self.plan = self.controller.delete_item_from_repas(item_id)
         self._refresh()
 
     # Add item popup
     def _open_add_item_popup(self, aliment) -> None:
-        portions = self.aliment_repo.get_portions_for_aliment(aliment.id)
+        portions = self.controller.get_portions_for_aliment(aliment.id)
         popup = ctk.CTkToplevel(self)
         popup.title(aliment.nom)
         popup.grab_set()
@@ -106,38 +94,26 @@ class NutritionPage(ctk.CTkFrame):
         gram_entry.pack(padx=10, pady=10)
 
         portion_names = [p.description for p in portions]
-        portion_var = ctk.StringVar(value=portion_names[0])
+        portion_var = ctk.StringVar(value=portion_names[0] if portion_names else "")
 
         def on_portion_change(choice):
             idx = portion_names.index(choice)
             gram_var.set(str(portions[idx].grammes_equivalents))
 
-        portion_menu = ctk.CTkOptionMenu(
-            popup, values=portion_names, variable=portion_var, command=on_portion_change
-        )
-        portion_menu.pack(padx=10, pady=10)
+        if portion_names:
+            portion_menu = ctk.CTkOptionMenu(
+                popup, values=portion_names, variable=portion_var, command=on_portion_change
+            )
+            portion_menu.pack(padx=10, pady=10)
 
         def add_action():
             try:
                 grams = float(gram_var.get())
             except ValueError:
                 grams = 0.0
-            idx = portion_names.index(portion_var.get())
-            portion = portions[idx]
-            quantite = (
-                grams / portion.grammes_equivalents
-                if portion.grammes_equivalents
-                else 1.0
+            self.plan = self.controller.add_aliment_to_repas(
+                self.active_repas_id, aliment.id, grams
             )
-            item = RepasItem(
-                id=0,
-                repas_id=self.active_repas_id,
-                aliment_id=aliment.id,
-                portion_id=portion.id,
-                quantite=quantite,
-            )
-            self.plan_repo.add_item(self.active_repas_id, item)
-            self.plan = self.plan_repo.get_plan(self.plan.id)
             self._refresh()
             popup.destroy()
 
@@ -146,38 +122,32 @@ class NutritionPage(ctk.CTkFrame):
     # Refresh UI
     def _refresh(self) -> None:
         for repas in self.plan.repas:
-            items = []
-            for item in repas.items:
-                aliment = self.aliments_by_id.get(item.aliment_id)
-                portion = self.aliment_repo.get_portion_by_id(item.portion_id)
-                grams = (portion.grammes_equivalents * item.quantite) if portion else 0
-                items.append(
-                    {
-                        "id": item.id,
-                        "label": f"{aliment.nom} - {grams:.0f}g" if aliment else "?",
-                    }
-                )
-            totals = self._compute_meal_totals(repas)
+            items = [
+                {
+                    "id": item.id,
+                    "label": f"{item.nom} - {item.quantite:.0f}{item.unite}",
+                }
+                for item in repas.items
+            ]
+            totals = {
+                "kcal": repas.totals_kcal,
+                "proteines": repas.totals_proteines,
+                "glucides": repas.totals_glucides,
+                "lipides": repas.totals_lipides,
+            }
             card = self.meal_cards.get(repas.id)
             if card:
                 card.update(items, totals)
                 card.set_active(repas.id == self.active_repas_id)
         self._update_totals()
 
-    def _compute_meal_totals(self, repas: Repas) -> Dict[str, float]:
-        totals = {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
-        for item in repas.items:
-            it = self.plan_repo.compute_item_totals(item)
-            for k in totals:
-                totals[k] += it[k]
-        return totals
-
     def _update_totals(self) -> None:
-        totals = {"kcal": 0.0, "proteines": 0.0, "glucides": 0.0, "lipides": 0.0}
-        for repas in self.plan.repas:
-            mt = self._compute_meal_totals(repas)
-            for k in totals:
-                totals[k] += mt[k]
+        totals = {
+            "kcal": self.plan.totals_kcal,
+            "proteines": self.plan.totals_proteines,
+            "glucides": self.plan.totals_glucides,
+            "lipides": self.plan.totals_lipides,
+        }
         cible_kcal = self.fiche.objectif_kcal if self.fiche else 0
         cible_p = self.fiche.proteines_g if self.fiche else 0
         cible_g = self.fiche.glucides_g if self.fiche else 0
@@ -186,5 +156,7 @@ class NutritionPage(ctk.CTkFrame):
         self.prot_lbl.configure(
             text=f"Protéines: {totals['proteines']:.1f} / {cible_p}"
         )
-        self.carb_lbl.configure(text=f"Glucides: {totals['glucides']:.1f} / {cible_g}")
+        self.carb_lbl.configure(
+            text=f"Glucides: {totals['glucides']:.1f} / {cible_g}"
+        )
         self.fat_lbl.configure(text=f"Lipides: {totals['lipides']:.1f} / {cible_l}")
