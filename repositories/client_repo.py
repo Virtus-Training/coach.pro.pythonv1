@@ -82,6 +82,12 @@ class ClientRepository:
             )
             conn.commit()
 
+    def delete(self, client_id: int) -> None:
+        with db_manager.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM clients WHERE id = ?", (client_id,))
+            conn.commit()
+
     def update_anamnese(self, client_id: int, objectifs: str, antecedents: str) -> None:
         with db_manager.get_connection() as conn:
             cursor = conn.cursor()

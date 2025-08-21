@@ -17,6 +17,10 @@ from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
 from ui.pages.session_page import SessionPage
 
+from controllers.client_controller import ClientController
+from repositories.client_repo import ClientRepository
+from services.client_service import ClientService
+
 
 class CoachApp(ctk.CTk):
     def __init__(self):
@@ -39,6 +43,11 @@ class CoachApp(ctk.CTk):
         self.current_page = None
         self.clients_page = None
         self.client_detail_page = None
+
+        repo = ClientRepository()
+        service = ClientService(repo)
+        self.client_controller = ClientController(service)
+
         self.switch_page("dashboard")  # Page par défaut
 
     def switch_page(self, page_name):
@@ -68,7 +77,7 @@ class CoachApp(ctk.CTk):
             case "pdf":
                 self.current_page = PdfPage(self.main_frame)
             case "clients":
-                self.clients_page = ClientsPage(self.main_frame)
+                self.clients_page = ClientsPage(self.main_frame, self.client_controller)
                 self.current_page = self.clients_page
             case "messaging":
                 self.current_page = MessagingPage(self.main_frame)
@@ -83,7 +92,9 @@ class CoachApp(ctk.CTk):
         """Affiche la page de détail d'un client."""
         if self.clients_page:
             self.clients_page.pack_forget()
-        self.client_detail_page = ClientDetailPage(self.main_frame, client_id)
+        self.client_detail_page = ClientDetailPage(
+            self.main_frame, self.client_controller, client_id
+        )
         self.client_detail_page.pack(fill="both", expand=True)
         self.current_page = self.client_detail_page
 

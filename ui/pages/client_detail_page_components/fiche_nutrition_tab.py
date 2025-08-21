@@ -4,25 +4,25 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 
-from repositories.client_repo import ClientRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from services.nutrition_service import (
     ACTIVITY_FACTORS,
     OBJECTIVE_ADJUST,
     NutritionService,
 )
+from controllers.client_controller import ClientController
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.theme.colors import TEXT
 from ui.theme.fonts import get_text_font
 
 
 class FicheNutritionTab(ctk.CTkFrame):
-    def __init__(self, master, client_id: int):
+    def __init__(self, master, controller: ClientController, client_id: int):
         super().__init__(master, fg_color="transparent")
         self.client_id = client_id
+        self.controller = controller
         self.nutrition_service = NutritionService(FicheNutritionRepository())
-        self.client_repo = ClientRepository()
-        self.client = self.client_repo.find_by_id(client_id)
+        self.client = self.controller.get_client_by_id(client_id)
         self.fiche = self.nutrition_service.get_last_sheet_for_client(client_id)
 
         self.display = Card(self)
