@@ -6,6 +6,7 @@ from models.plan_alimentaire import Repas
 from services.client_service import ClientService
 from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
+from services.pdf_generator import generate_nutrition_pdf
 from dtos.nutrition_dtos import (
     ItemDTO,
     NutritionPageDTO,
@@ -62,6 +63,9 @@ class NutritionController:
 
     def export_sheet_to_pdf(self, fiche_data: Dict, client_data, file_path: str) -> None:
         self.nutrition_service.export_sheet_to_pdf(fiche_data, client_data, file_path)
+
+    def export_plan_to_pdf(self, nutrition_dto: NutritionPageDTO, file_path: str) -> None:
+        generate_nutrition_pdf(nutrition_dto, file_path)
 
     # --- Internal helpers ---
     def _plan_to_dto(self, plan) -> PlanAlimentaireDTO:
