@@ -6,6 +6,7 @@ import customtkinter as ctk
 from controllers.calendar_controller import CalendarController
 from controllers.session_controller import SessionController
 from ui.components.calendar_view import CalendarView
+from ui.components.draggable_list import DraggableList
 from ui.modals.session_detail_modal import SessionDetailModal
 from ui.theme.fonts import get_section_font
 
@@ -24,16 +25,48 @@ class CalendarPage(ctk.CTkFrame):
         self.year = today.year
         self.month = today.month
 
-        ctk.CTkLabel(self, text="Planning", font=get_section_font()).pack(pady=5)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=2)
+        self.grid_rowconfigure(1, weight=1)
+        ctk.CTkLabel(self, text="Planning", font=get_section_font()).grid(
+            row=0, column=0, columnspan=2, pady=5
+        )
+
+        left = ctk.CTkFrame(self)
+        left.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        right = ctk.CTkFrame(self)
+        right.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
+
+        self.dragging_session_id: str | None = None
+        self.draggable = DraggableList(left, self.on_drag_start)
+        self.draggable.pack(fill="both", expand=True)
         self.calendar = CalendarView(
-            self, self.on_previous_month, self.on_next_month, self.on_session_click
+            right,
+            self.on_previous_month,
+            self.on_next_month,
+            self.on_session_click,
+            self.get_dragged_session_id,
+            self.on_session_drop,
         )
         self.calendar.pack(fill="both", expand=True)
+        self._refresh()
+
+    def on_drag_start(self, session_id: str) -> None:
+        self.dragging_session_id = session_id
+
+    def get_dragged_session_id(self) -> str | None:
+        return self.dragging_session_id
+
+    def on_session_drop(self, session_id: str, year: int, month: int, day: int) -> None:
+        self.controller.schedule_session(session_id, year, month, day)
+        self.dragging_session_id = None
         self._refresh()
 
     def _refresh(self) -> None:
         data = self.controller.get_calendar_data(self.year, self.month)
         self.calendar.set_data(self.year, self.month, data)
+        sessions = self.controller.get_unscheduled_sessions()
+        self.draggable.set_sessions(sessions)
 
     def on_session_click(self, session_id: str) -> None:
         session = self.controller.get_session_details(session_id)
