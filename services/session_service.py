@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import re
 import uuid
+from datetime import date
 from typing import Any, Dict, Optional
 
 from models.session import Block, BlockItem, Session
@@ -25,10 +26,11 @@ class SessionService:
         mode = "INDIVIDUEL" if client_id else "COLLECTIF"
         session = Session(
             session_id=session_id,
-            client_id=client_id,
             mode=mode,
             label=label,
             duration_sec=duration_sec,
+            date_creation=meta.get("date") or date.today().isoformat(),
+            client_id=client_id,
             blocks=[],
             meta={},
         )

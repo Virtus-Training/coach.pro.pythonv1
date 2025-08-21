@@ -2,6 +2,7 @@
 
 import customtkinter as ctk
 
+from controllers.calendar_controller import CalendarController
 from controllers.client_controller import ClientController
 from controllers.dashboard_controller import DashboardController
 from controllers.nutrition_controller import NutritionController
@@ -13,6 +14,7 @@ from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.sessions_repo import SessionsRepository
 from services.client_service import ClientService
+from services.calendar_service import CalendarService
 from services.dashboard_service import DashboardService
 from services.exercise_service import ExerciseService
 from services.nutrition_service import NutritionService
@@ -69,6 +71,9 @@ class CoachApp(ctk.CTk):
             session_service, client_service, exercise_service
         )
 
+        calendar_service = CalendarService(sessions_repo)
+        self.calendar_controller = CalendarController(calendar_service)
+
         self.page_titles = {
             "dashboard": "Tableau de bord",
             "programs": "Programmes",
@@ -102,7 +107,9 @@ class CoachApp(ctk.CTk):
                     self.shell.content_area, self.session_controller
                 )
             case "calendar":
-                self.current_page = CalendarPage(self.shell.content_area)
+                self.current_page = CalendarPage(
+                    self.shell.content_area, self.calendar_controller
+                )
             case "nutrition":
                 self.current_page = NutritionPage(
                     self.shell.content_area, self.nutrition_controller, client_id=1
