@@ -62,7 +62,7 @@ class CoachApp(ctk.CTk):
         )
 
         session_service = SessionService(sessions_repo)
-        self.session_controller = SessionController(session_service)
+        self.session_controller = SessionController(session_service, client_service)
 
         self.page_titles = {
             "dashboard": "Tableau de bord",
