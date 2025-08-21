@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
-from models.client import Client
 from controllers.client_controller import ClientController
+from models.client import Client
 from ui.components.design_system import (
     Card,
     CardTitle,

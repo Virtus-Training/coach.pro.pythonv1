@@ -4,13 +4,13 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 
+from controllers.client_controller import ClientController
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from services.nutrition_service import (
     ACTIVITY_FACTORS,
     OBJECTIVE_ADJUST,
     NutritionService,
 )
-from controllers.client_controller import ClientController
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.theme.colors import TEXT
 from ui.theme.fonts import get_text_font
