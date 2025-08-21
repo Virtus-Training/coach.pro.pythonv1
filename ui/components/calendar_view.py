@@ -32,9 +32,13 @@ class CalendarView(ctk.CTkFrame):
         on_previous_month: Callable[[], None],
         on_next_month: Callable[[], None],
         on_session_click: Callable[[str], None] | None = None,
+        get_dragged_session_id: Callable[[], str | None] | None = None,
+        on_session_drop: Callable[[str, int, int, int], None] | None = None,
     ) -> None:
         super().__init__(parent)
         self.on_session_click = on_session_click
+        self.get_dragged_session_id = get_dragged_session_id
+        self.on_session_drop = on_session_drop
 
         header = ctk.CTkFrame(self)
         header.pack(fill="x", pady=5)
@@ -69,6 +73,8 @@ class CalendarView(ctk.CTkFrame):
             self.grid_frame.grid_rowconfigure(i, weight=1)
 
     def set_data(self, year: int, month: int, data: Dict[int, List[Session]]) -> None:
+        self.current_year = year
+        self.current_month = month
         self.month_label.configure(text=f"{MONTHS_FR[month]} {year}")
         cal = calendar.Calendar(firstweekday=0)
         weeks = cal.monthdayscalendar(year, month)
@@ -78,8 +84,10 @@ class CalendarView(ctk.CTkFrame):
                 for w in cell.winfo_children():
                     w.destroy()
                 day = weeks[r][c] if r < len(weeks) else 0
+                cell.unbind("<ButtonRelease-1>")
                 if day == 0:
                     continue
+                cell.bind("<ButtonRelease-1>", lambda e, d=day: self._handle_drop(d))
                 ctk.CTkLabel(cell, text=str(day)).pack(anchor="ne", padx=2, pady=2)
                 for sess in data.get(day, []):
                     ctk.CTkButton(
@@ -94,3 +102,10 @@ class CalendarView(ctk.CTkFrame):
     def _handle_session_click(self, session_id: str) -> None:
         if self.on_session_click:
             self.on_session_click(session_id)
+
+    def _handle_drop(self, day: int) -> None:
+        if not (self.on_session_drop and self.get_dragged_session_id):
+            return
+        session_id = self.get_dragged_session_id()
+        if session_id:
+            self.on_session_drop(session_id, self.current_year, self.current_month, day)

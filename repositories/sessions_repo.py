@@ -10,7 +10,9 @@ class SessionsRepository:
             try:
                 conn.execute("BEGIN")
                 conn.execute(
-                    "INSERT OR REPLACE INTO sessions(session_id, client_id, mode, label, duration_sec, date_creation) VALUES (?,?,?,?,?,?)",
+                    "INSERT OR REPLACE INTO sessions("\
+                    "session_id, client_id, mode, label, duration_sec, date_creation, is_template"\
+                    ") VALUES (?,?,?,?,?,?,?)",
                     (
                         s.session_id,
                         s.client_id,
@@ -18,6 +20,7 @@ class SessionsRepository:
                         s.label,
                         s.duration_sec,
                         s.date_creation,
+                        int(s.is_template),
                     ),
                 )
                 for b in s.blocks:
@@ -105,11 +108,32 @@ class SessionsRepository:
                         duration_sec=s["duration_sec"],
                         date_creation=s["date_creation"],
                         client_id=s["client_id"],
+                        is_template=bool(s["is_template"]),
                         blocks=blocks,
                         meta={},
                     )
                 )
             return sessions
+
+    def list_templates(self) -> list[Session]:
+        with db_manager.get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM sessions WHERE is_template = 1 ORDER BY label"
+            ).fetchall()
+            return [
+                Session(
+                    session_id=r["session_id"],
+                    mode=r["mode"],
+                    label=r["label"],
+                    duration_sec=r["duration_sec"],
+                    date_creation=r["date_creation"],
+                    client_id=r["client_id"],
+                    is_template=bool(r["is_template"]),
+                    blocks=[],
+                    meta={},
+                )
+                for r in rows
+            ]
 
     def get_by_id(self, session_id: str) -> Session | None:
         with db_manager.get_connection() as conn:
@@ -157,6 +181,7 @@ class SessionsRepository:
                 duration_sec=s["duration_sec"],
                 date_creation=s["date_creation"],
                 client_id=s["client_id"],
+                is_template=bool(s["is_template"]),
                 blocks=blocks,
                 meta={},
             )
