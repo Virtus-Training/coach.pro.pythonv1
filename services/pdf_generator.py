@@ -6,6 +6,7 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 from models.client import Client
+from pdf_templates.session_template import SessionPDFTemplate
 from ui.theme.colors import (
     NEUTRAL_100,
     NEUTRAL_300,
@@ -73,3 +74,8 @@ def generate_nutrition_sheet_pdf(
 
     c.showPage()
     c.save()
+
+
+def generate_session_pdf(session_dto: dict, client_name: str | None, file_path: str) -> None:
+    template = SessionPDFTemplate(session_dto, client_name)
+    template.build(file_path)

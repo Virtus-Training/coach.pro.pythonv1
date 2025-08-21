@@ -5,13 +5,16 @@ from __future__ import annotations
 from typing import Any, Dict, Tuple
 
 from repositories.exercices_repo import ExerciseRepository
+from services.client_service import ClientService
+from services.pdf_generator import generate_session_pdf
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
 
 
 class SessionController:
-    def __init__(self, session_service: SessionService) -> None:
+    def __init__(self, session_service: SessionService, client_service: ClientService) -> None:
         self.session_service = session_service
+        self.client_service = client_service
 
     def build_session_preview_dto(
         self, blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
@@ -92,6 +95,16 @@ class SessionController:
     def save_session(self, session_dto: Dict[str, Any], client_id: int | None) -> None:
         """Persist a generated session from its DTO representation."""
         self.session_service.save_session_from_dto(session_dto, client_id)
+
+    def export_session_to_pdf(
+        self, session_dto: Dict[str, Any], client_id: int | None, file_path: str
+    ) -> None:
+        client_name: str | None = None
+        if client_id is not None:
+            client = self.client_service.get_client_by_id(client_id)
+            if client:
+                client_name = f"{client.prenom} {client.nom}"
+        generate_session_pdf(session_dto, client_name, file_path)
 
 
 __all__ = ["SessionController"]
