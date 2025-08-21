@@ -4,13 +4,16 @@ import customtkinter as ctk
 
 from controllers.client_controller import ClientController
 from controllers.nutrition_controller import NutritionController
+from controllers.session_controller import SessionController
 from repositories.aliment_repo import AlimentRepository
 from repositories.client_repo import ClientRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
+from repositories.sessions_repo import SessionsRepository
 from services.client_service import ClientService
 from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
+from services.session_service import SessionService
 from ui.layout.app_shell import AppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
@@ -52,6 +55,10 @@ class CoachApp(ctk.CTk):
             nutrition_service, plan_service, client_service
         )
 
+        sessions_repo = SessionsRepository()
+        session_service = SessionService(sessions_repo)
+        self.session_controller = SessionController(session_service)
+
         self.page_titles = {
             "dashboard": "Tableau de bord",
             "programs": "Programmes",
@@ -79,7 +86,9 @@ class CoachApp(ctk.CTk):
             case "programs":
                 self.current_page = ProgramPage(self.shell.content_area)
             case "sessions":
-                self.current_page = SessionPage(self.shell.content_area)
+                self.current_page = SessionPage(
+                    self.shell.content_area, self.session_controller
+                )
             case "calendar":
                 self.current_page = CalendarPage(self.shell.content_area)
             case "nutrition":
