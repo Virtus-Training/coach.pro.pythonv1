@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 from repositories.exercices_repo import ExerciseRepository
 from services.session_service import SessionService
 from services.tracking_service import TrackingService
+from dtos.tracking_dtos import ExerciseProgressionDTO, TrackedExerciseDTO
 
 
 class TrackingController:
@@ -41,3 +42,11 @@ class TrackingController:
 
     def save_session_results(self, session_id: str, results_data: List[Dict[str, Any]]) -> None:
         self.tracking_service.save_session_results(session_id, results_data)
+
+    def get_exercise_progression(
+        self, client_id: int, exercice_id: int
+    ) -> ExerciseProgressionDTO:
+        return self.tracking_service.get_exercise_progression(client_id, exercice_id)
+
+    def get_tracked_exercises(self, client_id: int) -> List[TrackedExerciseDTO]:
+        return self.tracking_service.get_tracked_exercises(client_id)
