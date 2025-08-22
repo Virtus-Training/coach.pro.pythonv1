@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+
 import customtkinter as ctk
 
 from controllers.calendar_controller import CalendarController

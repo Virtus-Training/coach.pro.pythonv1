@@ -17,7 +17,9 @@ class CalendarService:
     def get_unscheduled_sessions(self) -> List[Session]:
         return self.repo.list_templates()
 
-    def schedule_session(self, template_id: str, year: int, month: int, day: int) -> None:
+    def schedule_session(
+        self, template_id: str, year: int, month: int, day: int
+    ) -> None:
         template = self.repo.get_by_id(template_id)
         if not template:
             return

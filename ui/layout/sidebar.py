@@ -5,13 +5,15 @@ import os
 import customtkinter as ctk
 from PIL import Image
 
-from utils.icon_loader import load_icon
 from ui.theme import colors, fonts
+from utils.icon_loader import load_icon
 
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, switch_page_callback, active_module: str = "dashboard"):
-        super().__init__(parent, width=220, corner_radius=0, fg_color=colors.NEUTRAL_900)
+        super().__init__(
+            parent, width=220, corner_radius=0, fg_color=colors.NEUTRAL_900
+        )
         self.switch_page_callback = switch_page_callback
         self.active_module = active_module
 

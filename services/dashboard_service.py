@@ -3,7 +3,9 @@ from repositories.sessions_repo import SessionsRepository
 
 
 class DashboardService:
-    def __init__(self, client_repo: ClientRepository, sessions_repo: SessionsRepository) -> None:
+    def __init__(
+        self, client_repo: ClientRepository, sessions_repo: SessionsRepository
+    ) -> None:
         self.client_repo = client_repo
         self.sessions_repo = sessions_repo
 

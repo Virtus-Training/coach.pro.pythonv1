@@ -8,7 +8,6 @@ import customtkinter as ctk
 
 from models.session import Session
 
-
 MONTHS_FR = [
     "",
     "Janvier",
@@ -109,7 +108,9 @@ class CalendarView(ctk.CTkFrame):
                             row,
                             text="+",
                             width=20,
-                            command=lambda sid=sess.session_id: self.on_log_session(sid),
+                            command=lambda sid=sess.session_id: self.on_log_session(
+                                sid
+                            ),
                         ).pack(side="left", padx=2)
 
     def _handle_session_click(self, session_id: str) -> None:

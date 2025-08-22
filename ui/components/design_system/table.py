@@ -125,4 +125,3 @@ class DataTable(ctk.CTkFrame):
 
 
 __all__ = ["DataTable"]
-

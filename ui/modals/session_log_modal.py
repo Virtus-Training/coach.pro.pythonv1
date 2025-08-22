@@ -53,6 +53,7 @@ class _ExercisesResultsField(ctk.CTkScrollableFrame):
     def get_value(self) -> List[Dict[str, Any]]:  # type: ignore[override]
         out: List[Dict[str, Any]] = []
         for item in self.entries:
+
             def _parse(entry, typ):
                 value = entry.get().strip()
                 if not value:
@@ -96,7 +97,9 @@ class SessionLogModal(BaseFormModal):
         super().__init__(
             parent,
             title=title,
-            form_fields={"results": lambda master: _ExercisesResultsField(master, exercises)},
+            form_fields={
+                "results": lambda master: _ExercisesResultsField(master, exercises)
+            },
             save_callback=self._on_save,
         )
         self.geometry("600x400")

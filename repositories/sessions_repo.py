@@ -10,8 +10,8 @@ class SessionsRepository:
             try:
                 conn.execute("BEGIN")
                 conn.execute(
-                    "INSERT OR REPLACE INTO sessions("\
-                    "session_id, client_id, mode, label, duration_sec, date_creation, is_template"\
+                    "INSERT OR REPLACE INTO sessions("
+                    "session_id, client_id, mode, label, duration_sec, date_creation, is_template"
                     ") VALUES (?,?,?,?,?,?,?)",
                     (
                         s.session_id,

@@ -4,7 +4,6 @@ import customtkinter as ctk
 from PIL import Image
 
 from controllers.dashboard_controller import DashboardController
-
 from ui.components.card import IconCard
 from ui.components.design_system import PrimaryButton
 from ui.components.title import SectionTitle

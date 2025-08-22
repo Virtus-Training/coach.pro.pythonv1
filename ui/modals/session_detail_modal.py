@@ -1,5 +1,6 @@
-import customtkinter as ctk
 from tkinter import filedialog
+
+import customtkinter as ctk
 
 from controllers.session_controller import SessionController
 from models.session import Session

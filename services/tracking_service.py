@@ -1,14 +1,16 @@
 from typing import Any, Dict, List
 
-from repositories.resultat_exercice_repo import ResultatExerciceRepository
 from dtos.tracking_dtos import ExerciseProgressionDTO, TrackedExerciseDTO
+from repositories.resultat_exercice_repo import ResultatExerciceRepository
 
 
 class TrackingService:
     def __init__(self, repo: ResultatExerciceRepository) -> None:
         self.repo = repo
 
-    def save_session_results(self, session_id: str, results_data: List[Dict[str, Any]]) -> None:
+    def save_session_results(
+        self, session_id: str, results_data: List[Dict[str, Any]]
+    ) -> None:
         for res in results_data:
             self.repo.upsert(
                 session_id=session_id,

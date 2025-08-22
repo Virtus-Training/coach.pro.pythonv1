@@ -2,8 +2,8 @@
 
 import customtkinter as ctk
 
-from utils.icon_loader import load_icon
 from ui.theme import colors, fonts
+from utils.icon_loader import load_icon
 
 
 class Header(ctk.CTkFrame):

@@ -26,4 +26,7 @@ class DraggableList(ctk.CTkFrame):
                 hover_color="#333333",
             )
             btn.pack(fill="x", pady=2, padx=2)
-            btn.bind("<ButtonPress-1>", lambda e, sid=sess.session_id: self.on_drag_start(sid))
+            btn.bind(
+                "<ButtonPress-1>",
+                lambda e, sid=sess.session_id: self.on_drag_start(sid),
+            )

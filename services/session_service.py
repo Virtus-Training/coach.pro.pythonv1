@@ -14,7 +14,9 @@ class SessionService:
     def __init__(self, repo: SessionsRepository) -> None:
         self.repo = repo
 
-    def save_session_from_dto(self, session_dto: Dict[str, Any], client_id: Optional[int]) -> None:
+    def save_session_from_dto(
+        self, session_dto: Dict[str, Any], client_id: Optional[int]
+    ) -> None:
         session = self._dto_to_session(session_dto, client_id)
         self.repo.save(session)
 

@@ -6,7 +6,7 @@ import customtkinter as ctk
 
 from exceptions.validation_error import ValidationError
 from ui.components.design_system import PrimaryButton, SecondaryButton
-from ui.theme.colors import DARK_BG, DANGER
+from ui.theme.colors import DANGER, DARK_BG
 from ui.theme.fonts import LABEL_SMALL
 
 

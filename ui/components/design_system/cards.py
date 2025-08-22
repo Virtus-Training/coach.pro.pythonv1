@@ -6,12 +6,12 @@ import customtkinter as ctk
 from PIL import Image
 
 from ui.theme.colors import (
+    CARD_HOVER,
     NEUTRAL_100,
     NEUTRAL_300,
     NEUTRAL_700,
     NEUTRAL_800,
     TAG_BACKGROUND,
-    CARD_HOVER,
 )
 from ui.theme.fonts import CARD_TITLE, LABEL_NORMAL
 

@@ -15,8 +15,8 @@ from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
 from repositories.resultat_exercice_repo import ResultatExerciceRepository
 from repositories.sessions_repo import SessionsRepository
-from services.client_service import ClientService
 from services.calendar_service import CalendarService
+from services.client_service import ClientService
 from services.dashboard_service import DashboardService
 from services.exercise_service import ExerciseService
 from services.nutrition_service import NutritionService
@@ -81,9 +81,7 @@ class CoachApp(ctk.CTk):
         )
 
         calendar_service = CalendarService(sessions_repo)
-        self.calendar_controller = CalendarController(
-            calendar_service, session_service
-        )
+        self.calendar_controller = CalendarController(calendar_service, session_service)
 
         self.page_titles = {
             "dashboard": "Tableau de bord",
@@ -135,7 +133,9 @@ class CoachApp(ctk.CTk):
             case "pdf":
                 self.current_page = PdfPage(self.shell.content_area)
             case "clients":
-                self.current_page = ClientsPage(self.shell.content_area, self.client_controller)
+                self.current_page = ClientsPage(
+                    self.shell.content_area, self.client_controller
+                )
             case "messaging":
                 self.current_page = MessagingPage(self.shell.content_area)
             case "billing":

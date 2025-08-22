@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Dict, Tuple
 
+from models.session import Session
 from services.client_service import ClientService
 from services.exercise_service import ExerciseService
 from services.pdf_generator import generate_session_pdf
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
-from models.session import Session
 
 
 class SessionController:
@@ -30,7 +30,9 @@ class SessionController:
         blocks_out: list[Dict[str, Any]] = []
         for blk in blocks:
             title = (
-                f"{blk.type} — {blk.duration_sec // 60}’" if blk.duration_sec else blk.type
+                f"{blk.type} — {blk.duration_sec // 60}’"
+                if blk.duration_sec
+                else blk.type
             )
             block_dto = {
                 "title": title,
