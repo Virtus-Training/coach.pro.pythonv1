@@ -5,16 +5,6 @@ from typing import Callable, Iterable, Optional, Tuple
 import customtkinter as ctk
 from PIL import Image
 
-from ui.theme.colors import (
-    CARD_HOVER,
-    NEUTRAL_100,
-    NEUTRAL_300,
-    NEUTRAL_700,
-    NEUTRAL_800,
-    TAG_BACKGROUND,
-)
-from ui.theme.fonts import CARD_TITLE, LABEL_NORMAL
-
 from .buttons import SecondaryButton
 
 
@@ -24,10 +14,10 @@ class Card(ctk.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(
             master,
-            fg_color=NEUTRAL_800,
+            fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
             corner_radius=16,
             border_width=1,
-            border_color=NEUTRAL_700,
+            border_color=ctk.ThemeManager.theme["color"]["subtle_border"],
             **kwargs,
         )
 
@@ -48,16 +38,17 @@ class InfoCard(ctk.CTkFrame):
     ) -> None:
         super().__init__(
             master,
-            fg_color=NEUTRAL_800,
+            fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
             corner_radius=16,
             border_width=1,
-            border_color=NEUTRAL_700,
+            border_color=ctk.ThemeManager.theme["color"]["subtle_border"],
             **kwargs,
         )
 
         self.on_click_callback = on_click_callback
-        self._default_fg = NEUTRAL_800
-        self._hover_fg = CARD_HOVER
+        colors = ctk.ThemeManager.theme["color"]
+        self._default_fg = colors["surface_light"]
+        self._hover_fg = colors["surface_dark"]
 
         self.grid_columnconfigure(1, weight=1)
 
@@ -76,12 +67,18 @@ class InfoCard(ctk.CTkFrame):
         info_frame.grid_columnconfigure(0, weight=1)
 
         title_label = ctk.CTkLabel(
-            info_frame, text=title, font=CARD_TITLE, text_color=NEUTRAL_100
+            info_frame,
+            text=title,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H3"]),
+            text_color=colors["primary_text"],
         )
         title_label.grid(row=0, column=0, sticky="w")
 
         subtitle_label = ctk.CTkLabel(
-            info_frame, text=subtitle, font=LABEL_NORMAL, text_color=NEUTRAL_300
+            info_frame,
+            text=subtitle,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
+            text_color=colors["secondary_text"],
         )
         subtitle_label.grid(row=1, column=0, sticky="w", pady=(4, 0))
 
@@ -92,9 +89,9 @@ class InfoCard(ctk.CTkFrame):
                 tag_label = ctk.CTkLabel(
                     tags_frame,
                     text=tag,
-                    font=LABEL_NORMAL,
-                    text_color=NEUTRAL_100,
-                    fg_color=TAG_BACKGROUND,
+                    font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Small"]),
+                    text_color=colors["surface_dark"],
+                    fg_color=colors["primary"],
                     corner_radius=8,
                     padx=6,
                     pady=2,

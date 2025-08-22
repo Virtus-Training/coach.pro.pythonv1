@@ -2,21 +2,24 @@
 
 import customtkinter as ctk
 
-from ui.theme import colors, fonts
 from utils.icon_loader import load_icon
 
 
 class Header(ctk.CTkFrame):
     def __init__(self, parent, title: str = ""):
-        super().__init__(parent, height=60, fg_color=colors.NEUTRAL_800)
+        super().__init__(
+            parent,
+            height=60,
+            fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
+        )
         self.pack_propagate(False)
         self.grid_columnconfigure(0, weight=1)
 
         self.title_label = ctk.CTkLabel(
             self,
             text=title,
-            text_color=colors.TEXT,
-            font=fonts.get_title_font(),
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H1"]),
         )
         self.title_label.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
@@ -28,8 +31,8 @@ class Header(ctk.CTkFrame):
             text="Coach",
             image=user_icon,
             compound="left",
-            text_color=colors.TEXT_SECONDARY,
-            font=fonts.get_text_font(),
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
         ).pack()
 
     def update_title(self, new_title: str) -> None:

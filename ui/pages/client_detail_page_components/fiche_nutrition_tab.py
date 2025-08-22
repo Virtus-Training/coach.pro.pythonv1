@@ -8,8 +8,6 @@ from controllers.client_controller import ClientController
 from controllers.nutrition_controller import NutritionController
 from services.nutrition_service import ACTIVITY_FACTORS, OBJECTIVE_ADJUST
 from ui.components.design_system import Card, CardTitle, PrimaryButton
-from ui.theme.colors import TEXT
-from ui.theme.fonts import get_text_font
 
 
 class FicheNutritionTab(ctk.CTkFrame):
@@ -49,6 +47,8 @@ class FicheNutritionTab(ctk.CTkFrame):
     def refresh(self):
         for w in self.display.winfo_children():
             w.destroy()
+        colors = ctk.ThemeManager.theme["color"]
+        fonts = ctk.ThemeManager.theme["font"]
         if not self.fiche:
             message = (
                 "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
@@ -56,8 +56,8 @@ class FicheNutritionTab(ctk.CTkFrame):
             ctk.CTkLabel(
                 self.display,
                 text=message,
-                text_color=TEXT,
-                font=get_text_font(),
+                text_color=colors["primary_text"],
+                font=ctk.CTkFont(**fonts["Body"]),
             ).pack(expand=True, fill="both")
             self.export_btn.configure(state="disabled")
         else:
@@ -84,14 +84,14 @@ class FicheNutritionTab(ctk.CTkFrame):
                 ctk.CTkLabel(
                     info_frame,
                     text=label,
-                    text_color=TEXT,
-                    font=get_text_font(),
+                    text_color=colors["primary_text"],
+                    font=ctk.CTkFont(**fonts["Body"]),
                 ).grid(row=row, column=0, sticky="w", pady=2)
                 ctk.CTkLabel(
                     info_frame,
                     text=value,
-                    text_color=TEXT,
-                    font=get_text_font(),
+                    text_color=colors["primary_text"],
+                    font=ctk.CTkFont(**fonts["Body"]),
                 ).grid(row=row, column=1, sticky="e", pady=2)
 
     # Modal
@@ -131,40 +131,50 @@ class GenerateFicheModal(ctk.CTkToplevel):
         frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         def add_entry(label, var):
-            ctk.CTkLabel(frame, text=label, text_color=TEXT).pack(anchor="w")
+            ctk.CTkLabel(
+                frame, text=label, text_color=colors["primary_text"]
+            ).pack(anchor="w")
             ctk.CTkEntry(frame, textvariable=var).pack(fill="x", pady=(0, 10))
 
         add_entry("Poids (kg)", self.poids_var)
         add_entry("Taille (cm)", self.taille_var)
         add_entry("Date de naissance (AAAA-MM-JJ)", self.date_var)
 
-        ctk.CTkLabel(frame, text="Sexe", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(frame, text="Sexe", text_color=colors["primary_text"]).pack(
+            anchor="w"
+        )
         ctk.CTkOptionMenu(
             frame, variable=self.sexe_var, values=["Homme", "Femme"]
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Niveau d'activité", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(
+            frame, text="Niveau d'activité", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkOptionMenu(
             frame,
             variable=self.activite_var,
             values=list(ACTIVITY_FACTORS.keys()),
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Objectif", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(frame, text="Objectif", text_color=colors["primary_text"]).pack(
+            anchor="w"
+        )
         ctk.CTkOptionMenu(
             frame,
             variable=self.obj_var,
             values=list(OBJECTIVE_ADJUST.keys()),
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Protéines (g/kg)", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(
+            frame, text="Protéines (g/kg)", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Répartition G/L (%)", text_color=TEXT).pack(
-            anchor="w"
-        )
+        ctk.CTkLabel(
+            frame, text="Répartition G/L (%)", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var
         ).pack(fill="x", pady=(0, 10))

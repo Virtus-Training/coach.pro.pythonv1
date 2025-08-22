@@ -7,7 +7,6 @@ from repositories.sessions_repo import SessionsRepository
 from services.session_service import SessionService
 from services.tracking_service import TrackingService
 from ui.components.charts.line_chart import LineChart
-from ui.theme.colors import DARK_PANEL, PRIMARY, TEXT
 
 
 class StatsTab(ctk.CTkFrame):
@@ -24,10 +23,11 @@ class StatsTab(ctk.CTkFrame):
         control = ctk.CTkFrame(self, fg_color="transparent")
         control.pack(fill="x", padx=10, pady=10)
 
+        colors = ctk.ThemeManager.theme["color"]
         ctk.CTkLabel(
             control,
             text="Sélectionner un exercice pour voir la progression",
-            text_color=TEXT,
+            text_color=colors["primary_text"],
         ).pack(anchor="w")
 
         tracked = self.tracking_controller.get_tracked_exercises(self.client_id)
@@ -38,14 +38,14 @@ class StatsTab(ctk.CTkFrame):
             values=list(self.ex_options.keys()),
             variable=self.var,
             command=self._on_select,
-            fg_color=DARK_PANEL,
-            button_color=DARK_PANEL,
-            button_hover_color=PRIMARY,
-            text_color=TEXT,
+            fg_color=colors["surface_light"],
+            button_color=colors["surface_light"],
+            button_hover_color=colors["primary"],
+            text_color=colors["primary_text"],
             state="readonly",
         ).pack(anchor="w", pady=(5, 0))
 
-        self.graph_frame = ctk.CTkFrame(self, fg_color=DARK_PANEL)
+        self.graph_frame = ctk.CTkFrame(self, fg_color=colors["surface_light"])
         self.graph_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         self._show_message(
@@ -61,7 +61,9 @@ class StatsTab(ctk.CTkFrame):
 
     def _show_message(self, message: str) -> None:
         self._clear_graph()
-        ctk.CTkLabel(self.graph_frame, text=message, text_color=TEXT).pack(expand=True)
+        ctk.CTkLabel(
+            self.graph_frame, text=message, text_color=colors["primary_text"]
+        ).pack(expand=True)
 
     def _on_select(self, choice: str) -> None:
         ex_id = self.ex_options.get(choice)

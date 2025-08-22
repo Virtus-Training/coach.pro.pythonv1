@@ -2,8 +2,6 @@ import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-from ui.theme.colors import DARK_BG, DARK_PANEL, PRIMARY, TEXT
-
 
 class LineChart(ctk.CTkFrame):
     def __init__(
@@ -15,19 +13,20 @@ class LineChart(ctk.CTkFrame):
         xlabel: str = "",
         ylabel: str = "",
     ) -> None:
-        super().__init__(master, fg_color=DARK_PANEL)
+        colors = ctk.ThemeManager.theme["color"]
+        super().__init__(master, fg_color=colors["surface_light"])
         fig = Figure(figsize=(5, 4), dpi=100)
-        fig.patch.set_facecolor(DARK_PANEL)
+        fig.patch.set_facecolor(colors["surface_light"])
         ax = fig.add_subplot(111)
-        ax.set_facecolor(DARK_BG)
-        ax.plot(dates, values, color=PRIMARY, marker="o")
-        ax.set_title(title, color=TEXT)
-        ax.set_xlabel(xlabel, color=TEXT)
-        ax.set_ylabel(ylabel, color=TEXT)
-        ax.tick_params(axis="x", colors=TEXT, rotation=45)
-        ax.tick_params(axis="y", colors=TEXT)
+        ax.set_facecolor(colors["surface_dark"])
+        ax.plot(dates, values, color=colors["primary"], marker="o")
+        ax.set_title(title, color=colors["primary_text"])
+        ax.set_xlabel(xlabel, color=colors["primary_text"])
+        ax.set_ylabel(ylabel, color=colors["primary_text"])
+        ax.tick_params(axis="x", colors=colors["primary_text"], rotation=45)
+        ax.tick_params(axis="y", colors=colors["primary_text"])
         for spine in ax.spines.values():
-            spine.set_color(TEXT)
+            spine.set_color(colors["primary_text"])
         self.canvas = FigureCanvasTkAgg(fig, master=self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack(fill="both", expand=True)

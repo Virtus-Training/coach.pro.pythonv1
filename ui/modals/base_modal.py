@@ -6,8 +6,6 @@ import customtkinter as ctk
 
 from exceptions.validation_error import ValidationError
 from ui.components.design_system import PrimaryButton, SecondaryButton
-from ui.theme.colors import DANGER, DARK_BG
-from ui.theme.fonts import LABEL_SMALL
 
 
 class BaseFormModal(ctk.CTkToplevel):
@@ -30,8 +28,10 @@ class BaseFormModal(ctk.CTkToplevel):
         save_callback: Callable[[dict[str, Any]], None],
     ) -> None:
         super().__init__(parent)
+        colors = ctk.ThemeManager.theme["color"]
+        fonts = ctk.ThemeManager.theme["font"]
         self.title(title)
-        self.configure(fg_color=DARK_BG)
+        self.configure(fg_color=colors["surface_dark"])
         self.geometry("400x200")
         self.resizable(False, False)
         self.grab_set()
@@ -49,7 +49,10 @@ class BaseFormModal(ctk.CTkToplevel):
             field.grid(row=row, column=0, sticky="ew", pady=(0, 10))
 
         self.general_error_label = ctk.CTkLabel(
-            self, text="", text_color=DANGER, font=LABEL_SMALL
+            self,
+            text="",
+            text_color=colors["error"],
+            font=ctk.CTkFont(**fonts["Small"]),
         )
         self.general_error_label.pack(padx=20)
         self.general_error_label.pack_forget()

@@ -9,22 +9,12 @@ from dtos.nutrition_dtos import NutritionPageDTO
 from models.client import Client
 from pdf_templates.nutrition_template import NutritionPDFTemplate
 from pdf_templates.session_template import SessionPDFTemplate
-from ui.theme.colors import (
-    NEUTRAL_100,
-    NEUTRAL_300,
-    NEUTRAL_700,
-    NEUTRAL_800,
-    NEUTRAL_900,
-    PRIMARY,
-)
-
-# Mapping des anciennes couleurs vers le nouveau Design System
-DARK_BG = NEUTRAL_900
-DARK_PANEL = NEUTRAL_800
-TEXT = NEUTRAL_100
-TEXT_MUTED = NEUTRAL_300
-# On choisit une couleur neutre pour remplacer l'ancienne 'SECONDARY'
-SECONDARY = NEUTRAL_700
+PRIMARY = "#22D3EE"
+DARK_BG = "#111827"
+DARK_PANEL = "#1F2937"
+TEXT = "#E5E7EB"
+TEXT_MUTED = "#9CA3AF"
+SECONDARY = "#374151"
 
 
 def generate_nutrition_sheet_pdf(

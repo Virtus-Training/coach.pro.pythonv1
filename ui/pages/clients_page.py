@@ -11,7 +11,6 @@ from ui.components.design_system import (
     SecondaryButton,
 )
 from ui.modals.client_form_modal import ClientFormModal
-from ui.theme.colors import NEUTRAL_900
 
 
 class ClientsPage(ctk.CTkFrame):
@@ -19,7 +18,7 @@ class ClientsPage(ctk.CTkFrame):
 
     def __init__(self, parent, controller: ClientController):
         super().__init__(parent)
-        self.configure(fg_color=NEUTRAL_900)
+        self.configure(fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
 
         self.controller = controller
 

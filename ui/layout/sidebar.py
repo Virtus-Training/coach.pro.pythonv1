@@ -5,14 +5,16 @@ import os
 import customtkinter as ctk
 from PIL import Image
 
-from ui.theme import colors, fonts
 from utils.icon_loader import load_icon
 
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, switch_page_callback, active_module: str = "dashboard"):
         super().__init__(
-            parent, width=220, corner_radius=0, fg_color=colors.NEUTRAL_900
+            parent,
+            width=220,
+            corner_radius=0,
+            fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
         )
         self.switch_page_callback = switch_page_callback
         self.active_module = active_module
@@ -45,8 +47,8 @@ class Sidebar(ctk.CTkFrame):
         ctk.CTkLabel(
             self,
             text="CoachPro",
-            font=fonts.get_title_font(),
-            text_color=colors.PRIMARY,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H2"]),
+            text_color=ctk.ThemeManager.theme["color"]["primary"],
         ).pack(pady=(0, 20))
 
         for item_id, item_name, icon_file in self.menu_items:
@@ -55,17 +57,18 @@ class Sidebar(ctk.CTkFrame):
     def _add_button(self, item_id: str, label: str, icon_filename: str) -> None:
         icon = load_icon(icon_filename, 18)
         is_active = self.active_module == item_id
+        theme = ctk.ThemeManager.theme["color"]
         button = ctk.CTkButton(
             self,
             text=label,
             image=icon,
             anchor="w",
             command=lambda i=item_id: self._on_click(i),
-            fg_color=colors.PRIMARY if is_active else "transparent",
-            text_color=colors.NEUTRAL_100 if is_active else colors.TEXT,
-            hover_color=colors.PRIMARY if is_active else colors.NEUTRAL_800,
+            fg_color=theme["primary"] if is_active else "transparent",
+            text_color=theme["surface_dark"] if is_active else theme["primary_text"],
+            hover_color=theme["primary"] if is_active else theme["surface_light"],
             corner_radius=0,
-            font=ctk.CTkFont(size=14),
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
             height=40,
         )
         button.pack(fill="x", padx=10, pady=2)
