@@ -76,5 +76,13 @@
     "macOS": { "family": "Inter", "size": 13, "weight": "normal" },
     "Windows": { "family": "Inter", "size": 13, "weight": "normal" },
     "Linux": { "family": "Inter", "size": 13, "weight": "normal" }
+  },
+  "DataTable": {
+    "header_fg_color": "#374151",
+    "header_text_color": "#E5E7EB",
+    "row_even_fg_color": "#1F2937",
+    "row_odd_fg_color": "#212E42",
+    "row_hover_fg_color": "#374151",
+    "row_text_color": "#E5E7EB"
   }
 }

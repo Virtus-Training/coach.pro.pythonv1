@@ -19,11 +19,10 @@ class DataTable(ctk.CTkFrame):
         self.sort_column: int | None = None
         self.sort_reverse = False
 
+        self.theme = ctk.ThemeManager.theme["DataTable"]
         header_font = ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])
 
-        colors = ctk.ThemeManager.theme["color"]
-
-        self.header_frame = ctk.CTkFrame(self, fg_color=colors["subtle_border"])
+        self.header_frame = ctk.CTkFrame(self, fg_color=self.theme["header_fg_color"])
         self.header_frame.pack(fill="x")
 
         self.body = ctk.CTkScrollableFrame(self, fg_color="transparent")
@@ -35,9 +34,9 @@ class DataTable(ctk.CTkFrame):
             btn = ctk.CTkButton(
                 self.header_frame,
                 text=title,
-                fg_color=colors["subtle_border"],
-                hover_color=colors["subtle_border"],
-                text_color=colors["primary_text"],
+                fg_color=self.theme["header_fg_color"],
+                hover_color=self.theme["header_fg_color"],
+                text_color=self.theme["header_text_color"],
                 font=header_font,
                 corner_radius=0,
                 command=lambda c=idx: self._on_header_click(c),
@@ -55,14 +54,28 @@ class DataTable(ctk.CTkFrame):
             child.destroy()
 
         for r, row in enumerate(self.data):
-            bg = colors["surface_dark"] if r % 2 == 0 else colors["surface_light"]
+            bg = (
+                self.theme["row_even_fg_color"]
+                if r % 2 == 0
+                else self.theme["row_odd_fg_color"]
+            )
             row_frame = ctk.CTkFrame(self.body, fg_color=bg)
             row_frame.grid(row=r, column=0, sticky="ew")
+            row_frame.bind(
+                "<Enter>",
+                lambda _e, f=row_frame: f.configure(
+                    fg_color=self.theme["row_hover_fg_color"]
+                ),
+            )
+            row_frame.bind(
+                "<Leave>",
+                lambda _e, f=row_frame, color=bg: f.configure(fg_color=color),
+            )
             for c, value in enumerate(row):
                 lbl = ctk.CTkLabel(
                     row_frame,
                     text=str(value),
-                    text_color=colors["primary_text"],
+                    text_color=self.theme["row_text_color"],
                 )
                 lbl.grid(row=0, column=c, padx=5, pady=2, sticky="w")
                 row_frame.grid_columnconfigure(c, weight=1)
@@ -85,16 +98,14 @@ class DataTable(ctk.CTkFrame):
 
         col = self.sort_column
 
-        def sort_key(row: List[Any]):
-            value = row[col]
-            if isinstance(value, (int, float)):
-                return value
-            try:
-                return float(value)
-            except (TypeError, ValueError):
-                return str(value).lower()
+        try:
+            [float(row[col]) for row in self.data]
+        except (TypeError, ValueError):
+            key = lambda row: str(row[col]).lower()
+        else:
+            key = lambda row: float(row[col])
 
-        self.data.sort(key=sort_key, reverse=self.sort_reverse)
+        self.data.sort(key=key, reverse=self.sort_reverse)
 
     def _update_header_arrows(self) -> None:
         for idx, btn in enumerate(self.header_buttons):
