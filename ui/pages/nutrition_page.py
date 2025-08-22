@@ -1,7 +1,7 @@
+from tkinter import filedialog
 from typing import Dict
 
 import customtkinter as ctk
-from tkinter import filedialog
 
 from controllers.nutrition_controller import NutritionController
 from dtos.nutrition_dtos import NutritionPageDTO, PlanAlimentaireDTO
@@ -65,9 +65,7 @@ class NutritionPage(ctk.CTkFrame):
 
     # Right panel
     def _create_right_panel(self) -> None:
-        self.search_bar = FoodSearchBar(
-            self, self.controller, self._on_food_selected
-        )
+        self.search_bar = FoodSearchBar(self, self.controller, self._on_food_selected)
         self.search_bar.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
 
     def _create_top_bar(self) -> None:
@@ -112,7 +110,10 @@ class NutritionPage(ctk.CTkFrame):
 
         if portion_names:
             portion_menu = ctk.CTkOptionMenu(
-                popup, values=portion_names, variable=portion_var, command=on_portion_change
+                popup,
+                values=portion_names,
+                variable=portion_var,
+                command=on_portion_change,
             )
             portion_menu.pack(padx=10, pady=10)
 
@@ -174,7 +175,5 @@ class NutritionPage(ctk.CTkFrame):
         self.prot_lbl.configure(
             text=f"Protéines: {totals['proteines']:.1f} / {cible_p}"
         )
-        self.carb_lbl.configure(
-            text=f"Glucides: {totals['glucides']:.1f} / {cible_g}"
-        )
+        self.carb_lbl.configure(text=f"Glucides: {totals['glucides']:.1f} / {cible_g}")
         self.fat_lbl.configure(text=f"Lipides: {totals['lipides']:.1f} / {cible_l}")

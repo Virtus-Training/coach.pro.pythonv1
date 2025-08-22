@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
+from models.aliment import Aliment
 from models.client import Client
 from models.fiche_nutrition import FicheNutrition
-from models.aliment import Aliment
 from models.portion import Portion
 from repositories.aliment_repo import AlimentRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository

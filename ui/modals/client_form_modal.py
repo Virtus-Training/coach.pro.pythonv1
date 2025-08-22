@@ -28,7 +28,10 @@ class ClientFormModal(BaseFormModal):
         }
 
         if client:
-            save_callback = lambda data: controller.update_client(client.id, data)
+
+            def save_callback(data):
+                controller.update_client(client.id, data)
+
             title = "Modifier un client"
         else:
             save_callback = controller.add_client
@@ -40,6 +43,4 @@ class ClientFormModal(BaseFormModal):
             self.form_fields["prenom"].set_value(client.prenom)
             self.form_fields["nom"].set_value(client.nom)
             self.form_fields["email"].set_value(client.email or "")
-            self.form_fields["date_naissance"].set_value(
-                client.date_naissance or ""
-            )
+            self.form_fields["date_naissance"].set_value(client.date_naissance or "")

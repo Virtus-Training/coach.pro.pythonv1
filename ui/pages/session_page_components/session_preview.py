@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import customtkinter as ctk
 from tkinter import filedialog
 
+import customtkinter as ctk
+
+from controllers.session_controller import SessionController
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.components.workout_block import WorkoutBlock
-from controllers.session_controller import SessionController
 
 
 class SessionPreview(ctk.CTkFrame):
@@ -136,9 +137,7 @@ class SessionPreview(ctk.CTkFrame):
             defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
         )
         if path:
-            self.controller.export_session_to_pdf(
-                self._last_dto, self._client_id, path
-            )
+            self.controller.export_session_to_pdf(self._last_dto, self._client_id, path)
 
 
 __all__ = ["SessionPreview"]

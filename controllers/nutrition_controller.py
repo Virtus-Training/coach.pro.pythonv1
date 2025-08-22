@@ -1,18 +1,18 @@
 from typing import Dict, List
 
-from models.aliment import Aliment
-from models.portion import Portion
-from models.plan_alimentaire import Repas
-from services.client_service import ClientService
-from services.nutrition_service import NutritionService
-from services.plan_alimentaire_service import PlanAlimentaireService
-from services.pdf_generator import generate_nutrition_pdf
 from dtos.nutrition_dtos import (
     ItemDTO,
     NutritionPageDTO,
     PlanAlimentaireDTO,
     RepasDTO,
 )
+from models.aliment import Aliment
+from models.plan_alimentaire import Repas
+from models.portion import Portion
+from services.client_service import ClientService
+from services.nutrition_service import NutritionService
+from services.pdf_generator import generate_nutrition_pdf
+from services.plan_alimentaire_service import PlanAlimentaireService
 
 
 class NutritionController:
@@ -61,10 +61,14 @@ class NutritionController:
     def calculate_nutrition_targets(self, data: Dict) -> Dict:
         return self.nutrition_service.calculate_nutrition_targets(data)
 
-    def export_sheet_to_pdf(self, fiche_data: Dict, client_data, file_path: str) -> None:
+    def export_sheet_to_pdf(
+        self, fiche_data: Dict, client_data, file_path: str
+    ) -> None:
         self.nutrition_service.export_sheet_to_pdf(fiche_data, client_data, file_path)
 
-    def export_plan_to_pdf(self, nutrition_dto: NutritionPageDTO, file_path: str) -> None:
+    def export_plan_to_pdf(
+        self, nutrition_dto: NutritionPageDTO, file_path: str
+    ) -> None:
         generate_nutrition_pdf(nutrition_dto, file_path)
 
     # --- Internal helpers ---

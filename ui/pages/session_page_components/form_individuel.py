@@ -32,9 +32,9 @@ class FormIndividuel(Card):
         self._client_map = {f"{c.prenom} {c.nom}": c.id for c in clients}
         client_names = list(self._client_map.keys())
         self.client_var = ctk.StringVar(value=client_names[0] if client_names else "")
-        ctk.CTkComboBox(
-            client_row, variable=self.client_var, values=client_names
-        ).grid(row=0, column=1, sticky="ew")
+        ctk.CTkComboBox(client_row, variable=self.client_var, values=client_names).grid(
+            row=0, column=1, sticky="ew"
+        )
 
         # Objectif de la séance
         objective_row = ctk.CTkFrame(self, fg_color="transparent")

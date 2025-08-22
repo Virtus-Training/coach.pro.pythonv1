@@ -1,10 +1,10 @@
+import logging
 import random
 import time
 import uuid
 from datetime import date
 from typing import Any, Dict, List
 
-import logging
 import services.session_templates as T
 from models.exercices import Exercise
 from models.session import Block, BlockItem, Session
@@ -231,16 +231,16 @@ def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Se
 
     repo = ExerciseRepository()
     tag = objectif.lower()
-    pool = [
-        ex for ex in repo.filter(tags=[tag]) if ex.id not in set(exclusions)
-    ]
+    pool = [ex for ex in repo.filter(tags=[tag]) if ex.id not in set(exclusions)]
     if len(pool) < 4:
         raise ValueError("Pas assez d'exercices disponibles pour cet objectif")
 
     rng = random.Random()
     rng.shuffle(pool)
 
-    def make_block(name: str, exercises: list[Exercise], reps: int, duration: int) -> Block:
+    def make_block(
+        name: str, exercises: list[Exercise], reps: int, duration: int
+    ) -> Block:
         blk = Block(block_id=str(uuid.uuid4()), type=name, duration_sec=duration)
         for ex in exercises:
             blk.items.append(BlockItem(exercise_id=ex.id, prescription={"reps": reps}))
@@ -252,9 +252,7 @@ def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Se
     remaining = pool[2:]
     main_count = min(len(remaining), rng.randint(4, 6))
     main_ex = remaining[:main_count]
-    main = make_block(
-        "Corps de séance", main_ex, 12, max(duree_minutes - 15, 0) * 60
-    )
+    main = make_block("Corps de séance", main_ex, 12, max(duree_minutes - 15, 0) * 60)
 
     remaining = remaining[main_count:]
     cooldown_ex = remaining[:2]

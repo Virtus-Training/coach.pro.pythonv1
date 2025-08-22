@@ -7,7 +7,14 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.platypus import Image, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+from reportlab.platypus import (
+    Image,
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 
 from ui.theme.colors import (
     NEUTRAL_700,
@@ -19,7 +26,9 @@ from ui.theme.colors import (
 
 
 class SessionPDFTemplate:
-    def __init__(self, session_dto: Dict[str, Any], client_name: str | None = None) -> None:
+    def __init__(
+        self, session_dto: Dict[str, Any], client_name: str | None = None
+    ) -> None:
         self.session = session_dto
         self.client_name = client_name
 
