@@ -41,10 +41,13 @@ from ui.pages.session_page import SessionPage
 class CoachApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("ui/theme/theme.json")
+
         self.title("CoachPro – Virtus Training")
         self.geometry("1280x800")
         self.minsize(1000, 700)
-        self.configure(fg_color="#0f0f0f")
 
         self.shell = AppShell(self, self.switch_page, active_module="dashboard")
         self.shell.pack(fill="both", expand=True)
@@ -163,8 +166,5 @@ class CoachApp(ctk.CTk):
 
 
 def launch_app():
-    ctk.set_appearance_mode("dark")
-    ctk.set_default_color_theme("dark-blue")
-
     app = CoachApp()
     app.mainloop()

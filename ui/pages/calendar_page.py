@@ -11,7 +11,7 @@ from ui.components.calendar_view import CalendarView
 from ui.components.draggable_list import DraggableList
 from ui.modals.session_detail_modal import SessionDetailModal
 from ui.modals.session_log_modal import SessionLogModal
-from ui.theme.fonts import get_section_font
+
 
 
 class CalendarPage(ctk.CTkFrame):
@@ -33,7 +33,11 @@ class CalendarPage(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(1, weight=1)
-        ctk.CTkLabel(self, text="Planning", font=get_section_font()).grid(
+        ctk.CTkLabel(
+            self,
+            text="Planning",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H2"]),
+        ).grid(
             row=0, column=0, columnspan=2, pady=5
         )
 

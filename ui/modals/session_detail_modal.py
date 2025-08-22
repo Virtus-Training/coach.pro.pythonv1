@@ -6,7 +6,6 @@ from controllers.session_controller import SessionController
 from models.session import Session
 from ui.components.design_system import PrimaryButton, SecondaryButton
 from ui.pages.session_page_components.session_preview import SessionPreview
-from ui.theme.colors import DARK_BG
 
 
 class SessionDetailModal(ctk.CTkToplevel):
@@ -14,7 +13,7 @@ class SessionDetailModal(ctk.CTkToplevel):
         super().__init__(parent)
         self.session = session
         self.controller = controller
-        self.configure(fg_color=DARK_BG)
+        self.configure(fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
         self.title(session.label)
         self.geometry("700x600")
         self.resizable(False, False)

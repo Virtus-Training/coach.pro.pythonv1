@@ -4,7 +4,6 @@ import customtkinter as ctk
 
 from ui.components.design_system.cards import Card
 from ui.components.design_system.typography import CardTitle
-from ui.theme.colors import NEUTRAL_700, PRIMARY
 
 
 class MealCard(Card):
@@ -38,7 +37,8 @@ class MealCard(Card):
         self.items_frame.pack(fill="both", expand=True, padx=8, pady=4)
 
     def set_active(self, active: bool) -> None:
-        color = PRIMARY if active else NEUTRAL_700
+        colors = ctk.ThemeManager.theme["color"]
+        color = colors["primary"] if active else colors["subtle_border"]
         self.configure(border_color=color)
 
     def update(self, items: List[Dict], totals: Dict[str, float]) -> None:

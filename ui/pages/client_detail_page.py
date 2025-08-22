@@ -9,7 +9,6 @@ from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
 )
 from ui.pages.client_detail_page_components.stats_tab import StatsTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
-from ui.theme.colors import NEUTRAL_900
 
 
 class ClientDetailPage(ctk.CTkFrame):
@@ -22,7 +21,7 @@ class ClientDetailPage(ctk.CTkFrame):
         nutrition_controller: NutritionController,
         client_id: int,
     ):
-        super().__init__(master, fg_color=NEUTRAL_900)
+        super().__init__(master, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
         self.client_id = client_id
         self.controller = controller
         self.nutrition_controller = nutrition_controller

@@ -2,9 +2,6 @@
 
 import customtkinter as ctk
 
-from ui.theme.colors import NEUTRAL_100, NEUTRAL_700, PRIMARY
-from ui.theme.fonts import H3_NORMAL
-
 
 class PrimaryButton(ctk.CTkButton):
     """Bouton standard pour les actions principales."""
@@ -12,10 +9,10 @@ class PrimaryButton(ctk.CTkButton):
     def __init__(self, master, **kwargs):
         super().__init__(
             master,
-            fg_color=PRIMARY,
-            hover_color="#007BBE",
-            text_color=NEUTRAL_100,
-            font=H3_NORMAL,
+            fg_color=ctk.ThemeManager.theme["color"]["primary"],
+            hover_color="#06B6D4",
+            text_color=ctk.ThemeManager.theme["color"]["surface_dark"],
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
             corner_radius=8,
             height=40,
             **kwargs,
@@ -29,11 +26,11 @@ class SecondaryButton(ctk.CTkButton):
         super().__init__(
             master,
             fg_color="transparent",
-            hover_color=NEUTRAL_700,
-            text_color=PRIMARY,
+            hover_color=ctk.ThemeManager.theme["color"]["subtle_border"],
+            text_color=ctk.ThemeManager.theme["color"]["primary"],
             border_width=2,
-            border_color=PRIMARY,
-            font=H3_NORMAL,
+            border_color=ctk.ThemeManager.theme["color"]["primary"],
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
             corner_radius=8,
             height=40,
             **kwargs,

@@ -17,13 +17,11 @@ from reportlab.platypus import (
 )
 
 from dtos.nutrition_dtos import NutritionPageDTO, RepasDTO
-from ui.theme.colors import (
-    NEUTRAL_700,
-    TABLE_HEADER_BG,
-    TABLE_ROW_EVEN_BG,
-    TABLE_ROW_ODD_BG,
-    TEXT,
-)
+TABLE_HEADER_BG = "#374151"
+TABLE_ROW_ODD_BG = "#1F2937"
+TABLE_ROW_EVEN_BG = "#111827"
+NEUTRAL_700 = "#374151"
+TEXT = "#E5E7EB"
 
 
 class NutritionPDFTemplate:
