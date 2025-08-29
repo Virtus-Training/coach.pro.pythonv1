@@ -5,23 +5,16 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
+from dtos.nutrition_dtos import NutritionPageDTO
 from models.client import Client
-from ui.theme.colors import (
-    NEUTRAL_100,
-    NEUTRAL_300,
-    NEUTRAL_700,
-    NEUTRAL_800,
-    NEUTRAL_900,
-    PRIMARY,
-)
-
-# Mapping des anciennes couleurs vers le nouveau Design System
-DARK_BG = NEUTRAL_900
-DARK_PANEL = NEUTRAL_800
-TEXT = NEUTRAL_100
-TEXT_MUTED = NEUTRAL_300
-# On choisit une couleur neutre pour remplacer l'ancienne 'SECONDARY'
-SECONDARY = NEUTRAL_700
+from pdf_templates.nutrition_template import NutritionPDFTemplate
+from pdf_templates.session_template import SessionPDFTemplate
+PRIMARY = "#22D3EE"
+DARK_BG = "#111827"
+DARK_PANEL = "#1F2937"
+TEXT = "#E5E7EB"
+TEXT_MUTED = "#9CA3AF"
+SECONDARY = "#374151"
 
 
 def generate_nutrition_sheet_pdf(
@@ -73,3 +66,15 @@ def generate_nutrition_sheet_pdf(
 
     c.showPage()
     c.save()
+
+
+def generate_session_pdf(
+    session_dto: dict, client_name: str | None, file_path: str
+) -> None:
+    template = SessionPDFTemplate(session_dto, client_name)
+    template.build(file_path)
+
+
+def generate_nutrition_pdf(nutrition_dto: NutritionPageDTO, file_path: str) -> None:
+    template = NutritionPDFTemplate(nutrition_dto)
+    template.build(file_path)

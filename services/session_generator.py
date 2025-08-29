@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 import uuid
@@ -6,7 +7,9 @@ from typing import Any, Dict, List, Tuple
 import services.session_templates as T
 from models.exercices import Exercise
 from models.session import Block, BlockItem, Session
+from repositories.client_repo import ClientRepository
 from repositories.exercices_repo import ExerciseRepository
+from services.client_service import ClientService
 
 
 def rest_from_density(density_1_10: int) -> int:
@@ -286,8 +289,66 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
         mode="COLLECTIF",
         label=f"{params['course_type']} {params['duration_min']}'",
         duration_sec=params["duration_min"] * 60,
+        date_creation=date.today().isoformat(),
         blocks=blocks,
         meta={"intensity": params.get("intensity", "Medium")},
     )
     # Pas d’ajustement fin ici (on est déjà ~au budget). On pourra peaufiner si besoin.
     return s
+
+
+def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Session:
+    """Generate a simple individual session for a client."""
+    client_service = ClientService(ClientRepository())
+    client, exclusions = client_service.get_client_with_exclusions(client_id)
+
+    repo = ExerciseRepository()
+    tag = objectif.lower()
+    pool = [ex for ex in repo.filter(tags=[tag]) if ex.id not in set(exclusions)]
+    if len(pool) < 4:
+        raise ValueError("Pas assez d'exercices disponibles pour cet objectif")
+
+    rng = random.Random()
+    rng.shuffle(pool)
+
+    def make_block(
+        name: str, exercises: list[Exercise], reps: int, duration: int
+    ) -> Block:
+        blk = Block(block_id=str(uuid.uuid4()), type=name, duration_sec=duration)
+        for ex in exercises:
+            blk.items.append(BlockItem(exercise_id=ex.id, prescription={"reps": reps}))
+        return blk
+
+    warmup_ex = pool[:2]
+    warmup = make_block("Échauffement", warmup_ex, 10, 10 * 60)
+
+    remaining = pool[2:]
+    main_count = min(len(remaining), rng.randint(4, 6))
+    main_ex = remaining[:main_count]
+    main = make_block("Corps de séance", main_ex, 12, max(duree_minutes - 15, 0) * 60)
+
+    remaining = remaining[main_count:]
+    cooldown_ex = remaining[:2]
+    if len(cooldown_ex) < 2:
+        needed = 2 - len(cooldown_ex)
+        reuse_warm = warmup_ex[:needed]
+        cooldown_ex.extend(reuse_warm)
+        needed -= len(reuse_warm)
+        if needed > 0:
+            cooldown_ex.extend(main_ex[:needed])
+            logging.warning(
+                "Re-used main block exercises for cooldown due to limited pool"
+            )
+    cooldown = make_block("Retour au calme", cooldown_ex, 8, 5 * 60)
+
+    session = Session(
+        session_id=str(uuid.uuid4()),
+        mode="INDIVIDUEL",
+        label=f"Séance pour {client.prenom} {client.nom}",
+        duration_sec=duree_minutes * 60,
+        date_creation=date.today().isoformat(),
+        client_id=client_id,
+        blocks=[warmup, main, cooldown],
+        meta={"goal": objectif},
+    )
+    return session

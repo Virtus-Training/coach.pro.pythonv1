@@ -4,26 +4,26 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 
-from repositories.client_repo import ClientRepository
-from repositories.fiche_nutrition_repo import FicheNutritionRepository
-from services.nutrition_service import (
-    ACTIVITY_FACTORS,
-    OBJECTIVE_ADJUST,
-    NutritionService,
-)
+from controllers.client_controller import ClientController
+from controllers.nutrition_controller import NutritionController
+from services.nutrition_service import ACTIVITY_FACTORS, OBJECTIVE_ADJUST
 from ui.components.design_system import Card, CardTitle, PrimaryButton
-from ui.theme.colors import TEXT
-from ui.theme.fonts import get_text_font
 
 
 class FicheNutritionTab(ctk.CTkFrame):
-    def __init__(self, master, client_id: int):
+    def __init__(
+        self,
+        master,
+        controller: ClientController,
+        nutrition_controller: NutritionController,
+        client_id: int,
+    ):
         super().__init__(master, fg_color="transparent")
         self.client_id = client_id
-        self.nutrition_service = NutritionService(FicheNutritionRepository())
-        self.client_repo = ClientRepository()
-        self.client = self.client_repo.find_by_id(client_id)
-        self.fiche = self.nutrition_service.get_last_sheet_for_client(client_id)
+        self.controller = controller
+        self.nutrition_controller = nutrition_controller
+        self.client = self.controller.get_client_by_id(client_id)
+        self.fiche = self.nutrition_controller.get_last_sheet_for_client(client_id)
 
         self.display = Card(self)
         self.display.pack(fill="both", expand=True, padx=20, pady=20)
@@ -47,6 +47,8 @@ class FicheNutritionTab(ctk.CTkFrame):
     def refresh(self):
         for w in self.display.winfo_children():
             w.destroy()
+        colors = ctk.ThemeManager.theme["color"]
+        fonts = ctk.ThemeManager.theme["font"]
         if not self.fiche:
             message = (
                 "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
@@ -54,8 +56,8 @@ class FicheNutritionTab(ctk.CTkFrame):
             ctk.CTkLabel(
                 self.display,
                 text=message,
-                text_color=TEXT,
-                font=get_text_font(),
+                text_color=colors["primary_text"],
+                font=ctk.CTkFont(**fonts["Body"]),
             ).pack(expand=True, fill="both")
             self.export_btn.configure(state="disabled")
         else:
@@ -82,14 +84,14 @@ class FicheNutritionTab(ctk.CTkFrame):
                 ctk.CTkLabel(
                     info_frame,
                     text=label,
-                    text_color=TEXT,
-                    font=get_text_font(),
+                    text_color=colors["primary_text"],
+                    font=ctk.CTkFont(**fonts["Body"]),
                 ).grid(row=row, column=0, sticky="w", pady=2)
                 ctk.CTkLabel(
                     info_frame,
                     text=value,
-                    text_color=TEXT,
-                    font=get_text_font(),
+                    text_color=colors["primary_text"],
+                    font=ctk.CTkFont(**fonts["Body"]),
                 ).grid(row=row, column=1, sticky="e", pady=2)
 
     # Modal
@@ -103,7 +105,7 @@ class FicheNutritionTab(ctk.CTkFrame):
             defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
         )
         if path:
-            self.nutrition_service.export_sheet_to_pdf(
+            self.nutrition_controller.export_sheet_to_pdf(
                 asdict(self.fiche), self.client, path
             )
 
@@ -129,40 +131,50 @@ class GenerateFicheModal(ctk.CTkToplevel):
         frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         def add_entry(label, var):
-            ctk.CTkLabel(frame, text=label, text_color=TEXT).pack(anchor="w")
+            ctk.CTkLabel(
+                frame, text=label, text_color=colors["primary_text"]
+            ).pack(anchor="w")
             ctk.CTkEntry(frame, textvariable=var).pack(fill="x", pady=(0, 10))
 
         add_entry("Poids (kg)", self.poids_var)
         add_entry("Taille (cm)", self.taille_var)
         add_entry("Date de naissance (AAAA-MM-JJ)", self.date_var)
 
-        ctk.CTkLabel(frame, text="Sexe", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(frame, text="Sexe", text_color=colors["primary_text"]).pack(
+            anchor="w"
+        )
         ctk.CTkOptionMenu(
             frame, variable=self.sexe_var, values=["Homme", "Femme"]
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Niveau d'activité", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(
+            frame, text="Niveau d'activité", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkOptionMenu(
             frame,
             variable=self.activite_var,
             values=list(ACTIVITY_FACTORS.keys()),
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Objectif", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(frame, text="Objectif", text_color=colors["primary_text"]).pack(
+            anchor="w"
+        )
         ctk.CTkOptionMenu(
             frame,
             variable=self.obj_var,
             values=list(OBJECTIVE_ADJUST.keys()),
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Protéines (g/kg)", text_color=TEXT).pack(anchor="w")
+        ctk.CTkLabel(
+            frame, text="Protéines (g/kg)", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkLabel(frame, text="Répartition G/L (%)", text_color=TEXT).pack(
-            anchor="w"
-        )
+        ctk.CTkLabel(
+            frame, text="Répartition G/L (%)", text_color=colors["primary_text"]
+        ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var
         ).pack(fill="x", pady=(0, 10))
@@ -179,7 +191,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
                 "niveau_activite": self.parent.client.niveau_activite or "Sédentaire",
                 "objectif": "Maintenance",
             }
-            res = self.parent.nutrition_service.calculate_nutrition_targets(data)
+            res = self.parent.nutrition_controller.calculate_nutrition_targets(data)
             return res["ratio_glucides_lipides_cible"]
         except Exception:
             return 50.0
@@ -210,7 +222,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
             "proteines_g_par_kg": float(self.prot_var.get()),
             "ratio_glucides": float(self.ratio_var.get()),
         }
-        fiche = self.parent.nutrition_service.generate_nutrition_sheet(
+        fiche = self.parent.nutrition_controller.generate_nutrition_sheet(
             self.parent.client_id, data
         )
         self.parent.fiche = fiche

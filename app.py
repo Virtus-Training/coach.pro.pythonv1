@@ -2,8 +2,28 @@
 
 import customtkinter as ctk
 
-from ui.layout.header import Header
-from ui.layout.sidebar import Sidebar
+from controllers.calendar_controller import CalendarController
+from controllers.client_controller import ClientController
+from controllers.dashboard_controller import DashboardController
+from controllers.nutrition_controller import NutritionController
+from controllers.session_controller import SessionController
+from controllers.tracking_controller import TrackingController
+from repositories.aliment_repo import AlimentRepository
+from repositories.client_repo import ClientRepository
+from repositories.exercices_repo import ExerciseRepository
+from repositories.fiche_nutrition_repo import FicheNutritionRepository
+from repositories.plan_alimentaire_repo import PlanAlimentaireRepository
+from repositories.resultat_exercice_repo import ResultatExerciceRepository
+from repositories.sessions_repo import SessionsRepository
+from services.calendar_service import CalendarService
+from services.client_service import ClientService
+from services.dashboard_service import DashboardService
+from services.exercise_service import ExerciseService
+from services.nutrition_service import NutritionService
+from services.plan_alimentaire_service import PlanAlimentaireService
+from services.session_service import SessionService
+from services.tracking_service import TrackingService
+from ui.layout.app_shell import AppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
 from ui.pages.client_detail_page import ClientDetailPage
@@ -21,86 +41,130 @@ from ui.pages.session_page import SessionPage
 class CoachApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("ui/theme/theme.json")
+
         self.title("CoachPro – Virtus Training")
         self.geometry("1280x800")
         self.minsize(1000, 700)
-        self.configure(fg_color="#0f0f0f")
 
-        # Layout de la fenêtre principale
-        self.sidebar = Sidebar(self, self.switch_page, active_module="dashboard")
-        self.sidebar.pack(side="left", fill="y")
-
-        self.header = Header(self)
-        self.header.pack(fill="x", side="top")
-
-        self.main_frame = ctk.CTkFrame(self, fg_color="#1f1f1f")
-        self.main_frame.pack(side="left", fill="both", expand=True)
+        self.shell = AppShell(self, self.switch_page, active_module="dashboard")
+        self.shell.pack(fill="both", expand=True)
 
         self.current_page = None
-        self.clients_page = None
-        self.client_detail_page = None
-        self.switch_page("dashboard")  # Page par défaut
 
-    def switch_page(self, page_name):
-        # Détruire la page précédente
+        client_repo = ClientRepository()
+        client_service = ClientService(client_repo)
+        self.client_controller = ClientController(client_service)
+
+        sessions_repo = SessionsRepository()
+        dashboard_service = DashboardService(client_repo, sessions_repo)
+        self.dashboard_controller = DashboardController(dashboard_service)
+
+        fiche_repo = FicheNutritionRepository()
+        aliment_repo = AlimentRepository()
+        plan_repo = PlanAlimentaireRepository()
+        nutrition_service = NutritionService(fiche_repo, aliment_repo)
+        plan_service = PlanAlimentaireService(plan_repo)
+        self.nutrition_controller = NutritionController(
+            nutrition_service, plan_service, client_service
+        )
+
+        session_service = SessionService(sessions_repo)
+        exercise_service = ExerciseService(ExerciseRepository())
+        self.session_controller = SessionController(
+            session_service, client_service, exercise_service
+        )
+
+        result_repo = ResultatExerciceRepository()
+        tracking_service = TrackingService(result_repo)
+        self.tracking_controller = TrackingController(
+            tracking_service, session_service, ExerciseRepository()
+        )
+
+        calendar_service = CalendarService(sessions_repo)
+        self.calendar_controller = CalendarController(calendar_service, session_service)
+
+        self.page_titles = {
+            "dashboard": "Tableau de bord",
+            "programs": "Programmes",
+            "calendar": "Calendrier",
+            "sessions": "Séances",
+            "progress": "Progression",
+            "pdf": "PDF",
+            "nutrition": "Nutrition",
+            "database": "Base de données",
+            "clients": "Gestion des Clients",
+            "messaging": "Messagerie",
+            "billing": "Facturation",
+            "settings": "Paramètres",
+        }
+
+        self.switch_page("dashboard")
+
+    def switch_page(self, page_name: str, title: str | None = None):
         if self.current_page:
             self.current_page.destroy()
 
-        self.header.update_title("Nom de la page actuelle")
-
-        # Sélectionner et afficher la bonne page
         match page_name:
             case "dashboard":
-                self.current_page = DashboardPage(self.main_frame)
+                self.current_page = DashboardPage(
+                    self.shell.content_area, self.dashboard_controller
+                )
             case "programs":
-                self.current_page = ProgramPage(self.main_frame)
+                self.current_page = ProgramPage(self.shell.content_area)
             case "sessions":
-                self.current_page = SessionPage(self.main_frame)
+                self.current_page = SessionPage(
+                    self.shell.content_area, self.session_controller
+                )
             case "calendar":
-                self.current_page = CalendarPage(self.main_frame)
+                self.current_page = CalendarPage(
+                    self.shell.content_area,
+                    self.calendar_controller,
+                    self.session_controller,
+                    self.tracking_controller,
+                )
             case "nutrition":
-                self.current_page = NutritionPage(self.main_frame, client_id=1)
-                self.header.update_title("Nutrition")
+                self.current_page = NutritionPage(
+                    self.shell.content_area, self.nutrition_controller, client_id=1
+                )
             case "database":
-                self.current_page = DatabasePage(self.main_frame)
+                self.current_page = DatabasePage(self.shell.content_area)
             case "progress":
-                self.current_page = ProgressPage(self.main_frame)
+                self.current_page = ProgressPage(self.shell.content_area)
             case "pdf":
-                self.current_page = PdfPage(self.main_frame)
+                self.current_page = PdfPage(self.shell.content_area)
             case "clients":
-                self.clients_page = ClientsPage(self.main_frame)
-                self.current_page = self.clients_page
+                self.current_page = ClientsPage(
+                    self.shell.content_area, self.client_controller
+                )
             case "messaging":
-                self.current_page = MessagingPage(self.main_frame)
+                self.current_page = MessagingPage(self.shell.content_area)
             case "billing":
-                self.current_page = BillingPage(self.main_frame)
+                self.current_page = BillingPage(self.shell.content_area)
             case _:
-                self.current_page = DashboardPage(self.main_frame)
+                self.current_page = DashboardPage(self.shell.content_area)
 
-        self.current_page.pack(fill="both", expand=True)
+        self.shell.set_content(self.current_page)
+        self.shell.header.update_title(title or self.page_titles.get(page_name, ""))
+        self.shell.sidebar.set_active(page_name)
 
     def show_client_detail(self, client_id: int) -> None:
-        """Affiche la page de détail d'un client."""
-        if self.clients_page:
-            self.clients_page.pack_forget()
-        self.client_detail_page = ClientDetailPage(self.main_frame, client_id)
-        self.client_detail_page.pack(fill="both", expand=True)
-        self.current_page = self.client_detail_page
+        page = ClientDetailPage(
+            self.shell.content_area,
+            self.client_controller,
+            self.nutrition_controller,
+            client_id,
+        )
+        self.shell.set_content(page)
+        self.current_page = page
+        self.shell.header.update_title("Fiche Client")
 
     def show_clients_page(self) -> None:
-        """Revient à la page de liste des clients."""
-        if self.client_detail_page:
-            self.client_detail_page.pack_forget()
-            self.client_detail_page.destroy()
-            self.client_detail_page = None
-        if self.clients_page:
-            self.clients_page.pack(fill="both", expand=True)
-            self.current_page = self.clients_page
+        self.switch_page("clients")
 
 
 def launch_app():
-    ctk.set_appearance_mode("dark")
-    ctk.set_default_color_theme("dark-blue")
-
     app = CoachApp()
     app.mainloop()

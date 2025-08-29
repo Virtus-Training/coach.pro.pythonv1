@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from tkinter import filedialog
+
 import customtkinter as ctk
 
+from controllers.session_controller import SessionController
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.components.workout_block import WorkoutBlock
 
@@ -11,8 +14,12 @@ from ui.components.workout_block import WorkoutBlock
 class SessionPreview(ctk.CTkFrame):
     """Display area for generated session details."""
 
-    def __init__(self, parent) -> None:
+    def __init__(
+        self, parent, controller: SessionController, show_action_buttons: bool = True
+    ) -> None:
         super().__init__(parent)
+        self.controller = controller
+        self.show_action_buttons = show_action_buttons
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
@@ -20,8 +27,11 @@ class SessionPreview(ctk.CTkFrame):
         self._content.grid(row=0, column=0, sticky="nsew", padx=8, pady=8)
 
         self._last_dto: dict | None = None
+        self._client_id: int | None = None
         self._grid: ctk.CTkFrame | None = None
         self._blocks: list[WorkoutBlock] = []
+        self._save_btn: PrimaryButton | None = None
+        self._export_btn: PrimaryButton | None = None
         self.show_empty_state()
 
     def show_empty_state(self) -> None:
@@ -34,9 +44,10 @@ class SessionPreview(ctk.CTkFrame):
             justify="center",
         ).pack(expand=True, padx=16, pady=16)
 
-    def render_session(self, session_dto: dict) -> None:
+    def render_session(self, session_dto: dict, client_id: int | None = None) -> None:
         """Render the session preview from a DTO."""
         self._last_dto = session_dto
+        self._client_id = client_id
         for w in self._content.winfo_children():
             w.destroy()
 
@@ -78,9 +89,17 @@ class SessionPreview(ctk.CTkFrame):
         self.after(10, self._arrange_blocks)
         self._grid.bind("<Configure>", lambda e: self._arrange_blocks())
 
-        PrimaryButton(
-            self._content, text="Enregistrer la séance", command=self._on_save
-        ).pack(padx=8, pady=12, anchor="e")
+        if self.show_action_buttons:
+            btn_frame = ctk.CTkFrame(self._content, fg_color="transparent")
+            btn_frame.pack(padx=8, pady=12, anchor="e")
+            self._export_btn = PrimaryButton(
+                btn_frame, text="Exporter en PDF", command=self._on_export_pdf
+            )
+            self._export_btn.pack(side="right", padx=(8, 0))
+            self._save_btn = PrimaryButton(
+                btn_frame, text="Enregistrer la séance", command=self._on_save
+            )
+            self._save_btn.pack(side="right")
 
     def _arrange_blocks(self) -> None:
         """Place workout blocks in a responsive grid."""
@@ -104,8 +123,21 @@ class SessionPreview(ctk.CTkFrame):
         for c in range(cols):
             self._grid.grid_columnconfigure(c, weight=1)
 
-    def _on_save(self) -> None:  # pragma: no cover - placeholder
-        pass
+    def _on_save(self) -> None:  # pragma: no cover - UI callback
+        if not self._last_dto or not self._save_btn:
+            return
+        self._save_btn.configure(state="disabled")
+        self.controller.save_session(self._last_dto, self._client_id)
+        print("Séance enregistrée !")
+
+    def _on_export_pdf(self) -> None:  # pragma: no cover - UI callback
+        if not self._last_dto:
+            return
+        path = filedialog.asksaveasfilename(
+            defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
+        )
+        if path:
+            self.controller.export_session_to_pdf(self._last_dto, self._client_id, path)
 
 
 __all__ = ["SessionPreview"]

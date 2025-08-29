@@ -3,8 +3,6 @@ import customtkinter as ctk
 from repositories.seance_repo import SeanceRepository
 from ui.components.design_system import Card, CardTitle, PrimaryButton
 from ui.modals.session_log_modal import SessionLogModal
-from ui.theme.colors import TEXT, TEXT_MUTED
-from ui.theme.fonts import get_small_font, get_text_font
 
 
 class SuiviTab(ctk.CTkFrame):
@@ -33,17 +31,19 @@ class SuiviTab(ctk.CTkFrame):
             card.pack(fill="x", pady=10)
 
             CardTitle(card, text=s.titre).pack(anchor="w", padx=20, pady=(20, 5))
+            colors = ctk.ThemeManager.theme["color"]
+            fonts = ctk.ThemeManager.theme["font"]
             ctk.CTkLabel(
                 card,
                 text=s.date_creation,
-                text_color=TEXT_MUTED,
-                font=get_small_font(),
+                text_color=colors["secondary_text"],
+                font=ctk.CTkFont(**fonts["Small"]),
             ).pack(anchor="w", padx=20)
             ctk.CTkLabel(
                 card,
                 text=f"Objectif: {s.type_seance}",
-                text_color=TEXT,
-                font=get_text_font(),
+                text_color=colors["primary_text"],
+                font=ctk.CTkFont(**fonts["Body"]),
             ).pack(anchor="w", padx=20, pady=(0, 20))
 
     def _open_modal(self):

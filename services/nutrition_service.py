@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
+from models.aliment import Aliment
 from models.client import Client
 from models.fiche_nutrition import FicheNutrition
+from models.portion import Portion
+from repositories.aliment_repo import AlimentRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from services.pdf_generator import generate_nutrition_sheet_pdf
 
@@ -23,8 +26,13 @@ OBJECTIVE_ADJUST = {
 
 
 class NutritionService:
-    def __init__(self, repo: FicheNutritionRepository):
-        self.repo = repo
+    def __init__(
+        self,
+        fiche_repo: FicheNutritionRepository,
+        aliment_repo: AlimentRepository,
+    ) -> None:
+        self.repo = fiche_repo
+        self.aliment_repo = aliment_repo
 
     @staticmethod
     def _bmr(data: Dict) -> float:
@@ -107,3 +115,16 @@ class NutritionService:
         self, fiche_data: Dict, client_data: Client, file_path: str
     ) -> None:
         generate_nutrition_sheet_pdf(fiche_data, client_data, file_path)
+
+    # --- Simple data fetchers for controller ---
+    def search_aliments(self, query: str) -> List[Aliment]:
+        return self.aliment_repo.search_by_name(query)
+
+    def get_portions_for_aliment(self, aliment_id: int) -> List[Portion]:
+        return self.aliment_repo.get_portions_for_aliment(aliment_id)
+
+    def get_aliment_by_id(self, aliment_id: int) -> Optional[Aliment]:
+        for a in self.aliment_repo.list_all():
+            if a.id == aliment_id:
+                return a
+        return None

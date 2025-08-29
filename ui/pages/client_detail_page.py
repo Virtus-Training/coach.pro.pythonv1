@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
-from repositories.client_repo import ClientRepository
-from services.client_service import ClientService
+from controllers.client_controller import ClientController
+from controllers.nutrition_controller import NutritionController
 from ui.components.design_system import PageTitle, SecondaryButton
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
@@ -9,17 +9,23 @@ from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
 )
 from ui.pages.client_detail_page_components.stats_tab import StatsTab
 from ui.pages.client_detail_page_components.suivi_tab import SuiviTab
-from ui.theme.colors import NEUTRAL_900
 
 
 class ClientDetailPage(ctk.CTkFrame):
     """Page affichant les détails d'un client."""
 
-    def __init__(self, master, client_id: int):
-        super().__init__(master, fg_color=NEUTRAL_900)
+    def __init__(
+        self,
+        master,
+        controller: ClientController,
+        nutrition_controller: NutritionController,
+        client_id: int,
+    ):
+        super().__init__(master, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
         self.client_id = client_id
-        self.client_service = ClientService(ClientRepository())
-        client = self.client_service.get_client_by_id(client_id)
+        self.controller = controller
+        self.nutrition_controller = nutrition_controller
+        client = self.controller.get_client_by_id(client_id)
 
         header = ctk.CTkFrame(self, fg_color="transparent")
         header.pack(fill="x", padx=20, pady=20)
@@ -42,7 +48,7 @@ class ClientDetailPage(ctk.CTkFrame):
         tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         anam_tab = tabview.add("Anamnèse")
         if client:
-            AnamneseTab(anam_tab, client).pack(
+            AnamneseTab(anam_tab, self.controller, client).pack(
                 fill="both", expand=True, padx=10, pady=10
             )
         suivi_tab = tabview.add("Suivi & Séances")
@@ -54,6 +60,9 @@ class ClientDetailPage(ctk.CTkFrame):
             fill="both", expand=True, padx=10, pady=10
         )
         fiche_tab = tabview.add("Fiche Nutrition")
-        FicheNutritionTab(fiche_tab, self.client_id).pack(
-            fill="both", expand=True, padx=10, pady=10
-        )
+        FicheNutritionTab(
+            fiche_tab,
+            self.controller,
+            self.nutrition_controller,
+            self.client_id,
+        ).pack(fill="both", expand=True, padx=10, pady=10)

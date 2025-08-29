@@ -1,57 +1,74 @@
-"""Controller utilities for session preview generation."""
+"""Controller handling session preview generation and persistence."""
 
 from __future__ import annotations
 
 from typing import Any, Dict, Tuple
 
-from repositories.exercices_repo import ExerciseRepository
-from services.session_generator import generate_collectif
+from models.session import Session
+from services.client_service import ClientService
+from services.exercise_service import ExerciseService
+from services.pdf_generator import generate_session_pdf
+from services.session_generator import generate_collectif, generate_individuel
+from services.session_service import SessionService
 
 
-def build_session_preview_dto(
-    blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
-) -> Dict[str, Any]:
-    """Map session blocks to a DTO consumable by the view."""
-    blocks_out: list[Dict[str, Any]] = []
-    for blk in blocks:
-        title = (
-            f"{blk.type} — {blk.duration_sec // 60}’" if blk.duration_sec else blk.type
-        )
-        block_dto = {
-            "title": title,
-            "format": blk.type,
-            "duration": f"{blk.duration_sec // 60}’" if blk.duration_sec else "",
-            "exercises": [],
-        }
-        for item in blk.items:
-            meta = exercises_by_id.get(item.exercise_id, {})
-            name = meta.get("name", f"Exercice #{item.exercise_id}")
-            muscle = meta.get("primary_muscle", "")
-            equip = " / ".join(meta.get("equipment", []))
-            presc = item.prescription or {}
-            reps = None
-            if "reps" in presc:
-                reps = f"{presc['reps']} reps"
-            elif "work_sec" in presc:
-                reps = f"{presc['work_sec']}s"
-            exercise = {
-                "id": item.exercise_id,
-                "nom": name,
-                "reps": reps,
-                "repos_s": presc.get("rest_sec"),
-                "muscle": muscle,
-                "equip": equip,
+class SessionController:
+    def __init__(
+        self,
+        session_service: SessionService,
+        client_service: ClientService,
+        exercise_service: ExerciseService,
+    ) -> None:
+        self.session_service = session_service
+        self.client_service = client_service
+        self.exercise_service = exercise_service
+
+    def build_session_preview_dto(
+        self, blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """Map session blocks to a DTO consumable by the view."""
+        blocks_out: list[Dict[str, Any]] = []
+        for blk in blocks:
+            title = (
+                f"{blk.type} — {blk.duration_sec // 60}’"
+                if blk.duration_sec
+                else blk.type
+            )
+            block_dto = {
+                "title": title,
+                "format": blk.type,
+                "duration": f"{blk.duration_sec // 60}’" if blk.duration_sec else "",
+                "exercises": [],
             }
-            block_dto["exercises"].append(exercise)
-        blocks_out.append(block_dto)
-    return {"blocks": blocks_out}
+            for item in blk.items:
+                meta = exercises_by_id.get(item.exercise_id, {})
+                name = meta.get("name", f"Exercice #{item.exercise_id}")
+                muscle = meta.get("primary_muscle", "")
+                equip = " / ".join(meta.get("equipment", []))
+                presc = item.prescription or {}
+                reps = None
+                if "reps" in presc:
+                    reps = f"{presc['reps']} reps"
+                elif "work_sec" in presc:
+                    reps = f"{presc['work_sec']}s"
+                exercise = {
+                    "id": item.exercise_id,
+                    "nom": name,
+                    "reps": reps,
+                    "repos_s": presc.get("rest_sec"),
+                    "muscle": muscle,
+                    "equip": equip,
+                }
+                block_dto["exercises"].append(exercise)
+            blocks_out.append(block_dto)
+        return {"blocks": blocks_out}
 
-
-def generate_session_preview(
-    params: Dict[str, Any], mode: str = "collectif"
-) -> Tuple[Any, Dict[str, Any]]:
-    """Generate a session and its preview DTO."""
-    if mode == "collectif":
+    def generate_session_preview(
+        self, params: Dict[str, Any], mode: str = "collectif"
+    ) -> Tuple[Any, Dict[str, Any]]:
+        """Generate a collective session and its preview DTO."""
+        if mode != "collectif":
+            raise ValueError(f"Unknown mode: {mode}")
         svc_params = {
             "duration": int(params.get("duration", 0)),
             "equipment": params.get("equipment", []),
@@ -67,27 +84,51 @@ def generate_session_preview(
         }
         session = generate_collectif(svc_params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
-        repo = ExerciseRepository()
-        meta = repo.get_meta_by_ids(ids)
-        dto = build_session_preview_dto(session.blocks, meta)
+        meta = self.exercise_service.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
         dto["meta"] = {
             "title": session.label,
             "duration": f"{session.duration_sec // 60} min",
         }
         return session, dto
-    elif mode == "individuel":
-        session = {"client": params.get("client"), "goal": params.get("goal")}
-        dto = {
-            "meta": {
-                "title": f"Séance pour {session['client']}",
-                "goal": session["goal"],
-                "duration": "45 min",
-            },
-            "blocks": [],
+
+    def generate_individual_session(
+        self, client_id: int, objectif: str, duree_minutes: int
+    ) -> Tuple[Any, Dict[str, Any]]:
+        session = generate_individuel(client_id, objectif, duree_minutes)
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        meta = self.exercise_service.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "goal": objectif,
+            "duration": f"{session.duration_sec // 60} min",
         }
         return session, dto
-    else:
-        raise ValueError(f"Unknown mode: {mode}")
+
+    def build_preview_from_session(self, session: Session) -> Dict[str, Any]:
+        ids = [it.exercise_id for b in session.blocks for it in b.items]
+        meta = self.exercise_service.get_meta_by_ids(ids)
+        dto = self.build_session_preview_dto(session.blocks, meta)
+        dto["meta"] = {
+            "title": session.label,
+            "duration": f"{session.duration_sec // 60} min",
+        }
+        return dto
+
+    def save_session(self, session_dto: Dict[str, Any], client_id: int | None) -> None:
+        """Persist a generated session from its DTO representation."""
+        self.session_service.save_session_from_dto(session_dto, client_id)
+
+    def export_session_to_pdf(
+        self, session_dto: Dict[str, Any], client_id: int | None, file_path: str
+    ) -> None:
+        client_name: str | None = None
+        if client_id is not None:
+            client = self.client_service.get_client_by_id(client_id)
+            if client:
+                client_name = f"{client.prenom} {client.nom}"
+        generate_session_pdf(session_dto, client_name, file_path)
 
 
-__all__ = ["build_session_preview_dto", "generate_session_preview"]
+__all__ = ["SessionController"]

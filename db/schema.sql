@@ -50,14 +50,16 @@ CREATE TABLE seances (
 
 CREATE TABLE resultats_exercices (
     id INTEGER PRIMARY KEY,
-    seance_id INTEGER NOT NULL,
+    session_id TEXT NOT NULL,
     exercice_id INTEGER NOT NULL,
     series_effectuees INTEGER,
     reps_effectuees INTEGER,
     charge_utilisee REAL,
+    rpe INTEGER,
     feedback_client TEXT,
-    FOREIGN KEY(seance_id) REFERENCES seances(id),
-    FOREIGN KEY(exercice_id) REFERENCES exercices(id)
+    FOREIGN KEY(session_id) REFERENCES sessions(session_id),
+    FOREIGN KEY(exercice_id) REFERENCES exercices(id),
+    UNIQUE(session_id, exercice_id)
 );
 
 CREATE TABLE aliments (
@@ -125,5 +127,38 @@ CREATE TABLE fiches_nutrition (
     glucides_g INTEGER NOT NULL,
     lipides_g INTEGER NOT NULL,
     FOREIGN KEY(client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE sessions (
+    session_id TEXT PRIMARY KEY,
+    client_id INTEGER,
+    mode TEXT NOT NULL,
+    label TEXT NOT NULL,
+    duration_sec INTEGER NOT NULL,
+    date_creation TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_template INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
+);
+
+CREATE TABLE session_blocks (
+    block_id TEXT PRIMARY KEY,
+    session_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    duration_sec INTEGER,
+    rounds INTEGER,
+    work_sec INTEGER,
+    rest_sec INTEGER,
+    title TEXT,
+    locked INTEGER DEFAULT 0,
+    FOREIGN KEY(session_id) REFERENCES sessions(session_id)
+);
+
+CREATE TABLE session_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    block_id TEXT NOT NULL,
+    exercise_id TEXT NOT NULL,
+    prescription TEXT NOT NULL,
+    notes TEXT,
+    FOREIGN KEY(block_id) REFERENCES session_blocks(block_id)
 );
 

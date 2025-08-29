@@ -3,13 +3,15 @@
 import customtkinter as ctk
 from PIL import Image
 
-from ui.theme.colors import DARK_PANEL, TEXT
-from ui.theme.fonts import get_section_font
-
 
 class IconCard(ctk.CTkFrame):
     def __init__(self, parent, text: str, icon_path: str = None, command=None):
-        super().__init__(parent, height=80, corner_radius=10, fg_color=DARK_PANEL)
+        super().__init__(
+            parent,
+            height=80,
+            corner_radius=10,
+            fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
+        )
         self.pack_propagate(False)
 
         self.button = ctk.CTkButton(
@@ -18,10 +20,10 @@ class IconCard(ctk.CTkFrame):
             image=ctk.CTkImage(Image.open(icon_path), size=(26, 26))
             if icon_path
             else None,
-            font=get_section_font(),
-            text_color=TEXT,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H3"]),
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
             fg_color="transparent",
-            hover_color="#333333",
+            hover_color=ctk.ThemeManager.theme["color"]["surface_dark"],
             anchor="w",
             command=command,
         )

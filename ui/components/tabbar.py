@@ -5,13 +5,12 @@ import os
 import customtkinter as ctk
 from PIL import Image
 
-from ui.theme.colors import DARK_PANEL, DARK_SOFT, PRIMARY, TEXT_SECONDARY
-from ui.theme.fonts import get_text_font
-
 
 class CustomTabBar(ctk.CTkFrame):
     def __init__(self, parent, tabs, on_tab_selected, active_tab):
-        super().__init__(parent, fg_color=DARK_PANEL)
+        super().__init__(
+            parent, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"]
+        )
         self.tabs = tabs
         self.on_tab_selected = on_tab_selected
         self.active_tab = active_tab
@@ -36,9 +35,12 @@ class CustomTabBar(ctk.CTkFrame):
                 image=icon_image,
                 compound="left",
                 fg_color="transparent",
-                hover_color=DARK_SOFT,
-                font=get_text_font(),
-                text_color=PRIMARY if tab_id == self.active_tab else TEXT_SECONDARY,
+                hover_color=ctk.ThemeManager.theme["color"]["surface_light"],
+                font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
+                text_color=
+                    ctk.ThemeManager.theme["color"]["primary"]
+                    if tab_id == self.active_tab
+                    else ctk.ThemeManager.theme["color"]["secondary_text"],
                 command=lambda tid=tab_id: self.select_tab(tid),
             )
             inner.pack(fill="both", expand=True, padx=2)
@@ -55,8 +57,16 @@ class CustomTabBar(ctk.CTkFrame):
         for tab_id, (frame, button) in self.buttons.items():
             frame.configure(fg_color=self.get_tab_color(tab_id))
             button.configure(
-                text_color=PRIMARY if tab_id == self.active_tab else TEXT_SECONDARY
+                text_color=
+                    ctk.ThemeManager.theme["color"]["primary"]
+                    if tab_id == self.active_tab
+                    else ctk.ThemeManager.theme["color"]["secondary_text"],
             )
 
     def get_tab_color(self, tab_id):
-        return "#1e293b" if tab_id == self.active_tab else DARK_PANEL
+        colors = ctk.ThemeManager.theme["color"]
+        return (
+            colors["surface_light"]
+            if tab_id == self.active_tab
+            else colors["surface_dark"]
+        )
