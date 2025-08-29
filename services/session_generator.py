@@ -1,7 +1,7 @@
 import random
 import time
 import uuid
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import services.session_templates as T
 from models.exercices import Exercise
@@ -24,25 +24,83 @@ def map_slider_to_entropy(v: int) -> float:
     return max(0.0, min(1.0, (v / 100.0) ** 0.75))
 
 
-def filter_pool(repo: ExerciseRepository, params: Dict[str, Any]) -> List[Exercise]:
+def filter_and_score_pool(
+    repo: ExerciseRepository, params: Dict[str, Any]
+) -> List[Tuple[Exercise, float]]:
     tags = []
-    if params["course_type"] == "Hyrox":
+    if params.get("course_type") == "Hyrox":
         tags.append("hyrox")
-    if params["course_type"] == "Cross-Training":
+    if params.get("course_type") == "Cross-Training":
         tags.append("cross")
-    return repo.filter(equipment=params["equipment"], tags=tags or None)
+
+    exercises = repo.filter(equipment=params.get("equipment"), tags=tags or None)
+
+    continuum = params.get("continuum_cardio_renfo", 0)
+    focus = params.get("focus", "Full-body")
+    objectif = params.get("objectif", "Force")
+
+    focus_map = {
+        "Upper": ["push", "pull", "carry"],
+        "Lower": ["squat", "hinge"],
+        "Push": ["push"],
+        "Pull": ["pull"],
+    }
+    objectif_map = {
+        "Force": ["force"],
+        "Endurance": ["cardio", "conditionning", "endurance"],
+        "Technique": ["technique"],
+        "Hypertrophie": ["hypertrophie", "muscle"],
+    }
+
+    out: List[Tuple[Exercise, float]] = []
+    for ex in exercises:
+        weight = 1.0
+        ex_tags = [t.strip().lower() for t in (ex.tags or "").split(",")]
+        pattern = (ex.movement_pattern or "").lower()
+
+        if continuum > 0:  # cardio → poids ↑ pour tags cardio/conditionning
+            if "cardio" in ex_tags or "conditionning" in ex_tags:
+                weight *= 1 + continuum / 100.0
+            else:
+                weight *= 1 - continuum / 200.0
+        elif continuum < 0:  # renfo
+            if (
+                "force" in ex_tags
+                or pattern in ["hinge", "squat", "push", "pull", "carry"]
+            ):
+                weight *= 1 + abs(continuum) / 100.0
+            else:
+                weight *= 1 - abs(continuum) / 200.0
+
+        patterns_focus = focus_map.get(focus, [])
+        if patterns_focus:
+            if pattern in patterns_focus:
+                weight *= 1.5
+            else:
+                weight *= 0.7
+
+        obj_tags = objectif_map.get(objectif, [])
+        if obj_tags:
+            if any(t in ex_tags for t in obj_tags):
+                weight *= 1.5
+            else:
+                weight *= 0.8
+
+        out.append((ex, max(weight, 0.1)))
+
+    out.sort(key=lambda x: x[1], reverse=True)
+    return out
 
 
 def weighted_choice(
-    rng: random.Random, items: List[Exercise], entropy: float
+    rng: random.Random, items: List[Tuple[Exercise, float]], entropy: float
 ) -> Exercise:
     if not items:
         raise ValueError("Pool is empty")
-    if (
-        entropy <= 0.05
-    ):  # quasi déterministe = tri par (polyarticulaire/tag match?) — simplifié ici
-        return items[0]
-    return rng.choice(items)
+    if entropy <= 0.05:
+        return sorted(items, key=lambda x: x[1], reverse=True)[0][0]
+    exercises, weights = zip(*items)
+    return rng.choices(exercises, weights=weights, k=1)[0]
 
 
 def pick_main_block_count(duration_min: int, entropy: float) -> int:
@@ -89,7 +147,7 @@ def choose_format(
 
 def build_block(
     slot: Dict[str, Any],
-    pool: List[Exercise],
+    pool: List[Tuple[Exercise, float]],
     rng: random.Random,
     entropy: float,
     params=None,
@@ -112,7 +170,7 @@ def build_block(
     for _ in range(n_items):
         # filtre doux : éviter de reprendre le même pattern si possible
         candidates2 = [
-            ex for ex in candidates if ex.movement_pattern != last_pattern
+            (ex, w) for ex, w in candidates if ex.movement_pattern != last_pattern
         ] or candidates
         ex = weighted_choice(rng, candidates2, entropy)
 
@@ -146,12 +204,12 @@ def adjust_to_time_budget(blocks: List[Block], duration_min: int) -> List[Block]
 def generate_collectif(params: Dict[str, Any]) -> Session:
     """Generate a collective session from form parameters."""
     params = params.copy()
-    params.setdefault("variability", 50)
+    params.setdefault("variabilite", 50)
     params.setdefault("volume", 50)
     params.setdefault("enabled_formats", params.pop("formats", []))
-    params.setdefault("continuum", 0)
+    params.setdefault("continuum_cardio_renfo", 0)
     params.setdefault("focus", "Full-body")
-    params.setdefault("objective", "Force")
+    params.setdefault("objectif", "Force")
     params.setdefault("auto_include", [])
     params.setdefault("course_type", "Cross-Training")
     params.setdefault("intensity", "Moyenne")
@@ -165,13 +223,18 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
 
     tpl = T.pick_template(params["course_type"], params["duration_min"])
     repo = ExerciseRepository()
-    pool = filter_pool(repo, params)
+    pool = filter_and_score_pool(repo, params)
     if not pool:
         raise ValueError(
             "Impossible de générer une séance : la base de données d'exercices est vide."
         )
-    rng = random.Random(params.get("seed") or int(time.time()))
-    entropy = map_slider_to_entropy(params.get("variability", 50))
+    variabilite = params.get("variabilite", 50)
+    if variabilite <= 10:
+        seed = 42
+    else:
+        seed = int(time.time())
+    rng = random.Random(seed)
+    entropy = map_slider_to_entropy(variabilite)
 
     blocks: List[Block] = []
 
@@ -186,7 +249,8 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
     allowed = allowed_formats_for_course(params["course_type"])
 
     if main:
-        main_secs = main["duration_sec"]
+        work_minutes = params["duration_min"] * (0.45 + 0.5 * params["volume"] / 100)
+        main_secs = int(work_minutes * 60)
         n_main = pick_main_block_count(params["duration_min"], entropy)
         parts = split_minutes(main_secs, n_main, rng)
 
