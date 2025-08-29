@@ -7,7 +7,7 @@ from repositories.client_repo import ClientRepository
 from services.client_service import ClientService
 from ui.components.design_system.typography import PageTitle
 
-from .session_page_components.form_collectif import FormCollectif
+from .session_page_components.form_collectif_v2 import FormCollectif
 from .session_page_components.form_individuel import FormIndividuel
 from .session_page_components.session_preview import SessionPreview
 
