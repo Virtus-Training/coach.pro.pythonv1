@@ -53,10 +53,17 @@ def generate_session_preview(
     """Generate a session and its preview DTO."""
     if mode == "collectif":
         svc_params = {
-            "course_type": params.get("course_type"),
             "duration": int(params.get("duration", 0)),
-            "intensity": params.get("intensity"),
             "equipment": params.get("equipment", []),
+            "variability": int(params.get("variability", 0)),
+            "volume": int(params.get("volume", 0)),
+            "enabled_formats": params.get("formats", []),
+            "continuum": int(params.get("continuum", 0)),
+            "focus": params.get("focus"),
+            "objective": params.get("objective"),
+            "auto_include": params.get("auto_include", []),
+            "course_type": params.get("course_type", "Cross-Training"),
+            "intensity": params.get("intensity", "Moyenne"),
         }
         session = generate_collectif(svc_params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]

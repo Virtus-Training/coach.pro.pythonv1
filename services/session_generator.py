@@ -144,7 +144,17 @@ def adjust_to_time_budget(blocks: List[Block], duration_min: int) -> List[Block]
 
 
 def generate_collectif(params: Dict[str, Any]) -> Session:
+    """Generate a collective session from form parameters."""
     params = params.copy()
+    params.setdefault("variability", 50)
+    params.setdefault("volume", 50)
+    params.setdefault("enabled_formats", params.pop("formats", []))
+    params.setdefault("continuum", 0)
+    params.setdefault("focus", "Full-body")
+    params.setdefault("objective", "Force")
+    params.setdefault("auto_include", [])
+    params.setdefault("course_type", "Cross-Training")
+    params.setdefault("intensity", "Moyenne")
     params["duration_min"] = int(
         params.get("duration") or params.get("duration_min", 0)
     )
