@@ -69,20 +69,7 @@ class SessionController:
         """Generate a collective session and its preview DTO."""
         if mode != "collectif":
             raise ValueError(f"Unknown mode: {mode}")
-        svc_params = {
-            "duration": int(params.get("duration", 0)),
-            "equipment": params.get("equipment", []),
-            "variability": int(params.get("variability", 0)),
-            "volume": int(params.get("volume", 0)),
-            "enabled_formats": params.get("formats", []),
-            "continuum": int(params.get("continuum", 0)),
-            "focus": params.get("focus"),
-            "objective": params.get("objective"),
-            "auto_include": params.get("auto_include", []),
-            "course_type": params.get("course_type", "Cross-Training"),
-            "intensity": params.get("intensity", "Moyenne"),
-        }
-        session = generate_collectif(svc_params)
+        session = generate_collectif(params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
         meta = self.exercise_service.get_meta_by_ids(ids)
         dto = self.build_session_preview_dto(session.blocks, meta)
