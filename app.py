@@ -49,9 +49,6 @@ class CoachApp(ctk.CTk):
         self.geometry("1280x800")
         self.minsize(1000, 700)
 
-        self.shell = AppShell(self, self.switch_page, active_module="dashboard")
-        self.shell.pack(fill="both", expand=True)
-
         self.current_page = None
 
         client_repo = ClientRepository()
@@ -87,20 +84,80 @@ class CoachApp(ctk.CTk):
         calendar_service = CalendarService(sessions_repo)
         self.calendar_controller = CalendarController(calendar_service, session_service)
 
-        self.page_titles = {
-            "dashboard": "Tableau de bord",
-            "programs": "Programmes",
-            "calendar": "Calendrier",
-            "sessions": "Séances",
-            "progress": "Progression",
-            "pdf": "PDF",
-            "nutrition": "Nutrition",
-            "database": "Base de données",
-            "clients": "Gestion des Clients",
-            "messaging": "Messagerie",
-            "billing": "Facturation",
-            "settings": "Paramètres",
+        self.page_registry = {
+            "dashboard": {
+                "label": "Tableau de bord",
+                "icon": "layout-dashboard.png",
+                "factory": lambda parent: DashboardPage(parent, self.dashboard_controller),
+            },
+            "programs": {
+                "label": "Programmes",
+                "icon": "dumbbell.png",
+                "factory": lambda parent: ProgramPage(parent),
+            },
+            "calendar": {
+                "label": "Calendrier",
+                "icon": "calendar.png",
+                "factory": lambda parent: CalendarPage(
+                    parent,
+                    self.calendar_controller,
+                    self.session_controller,
+                    self.tracking_controller,
+                ),
+            },
+            "sessions": {
+                "label": "Séances",
+                "icon": "clock.png",
+                "factory": lambda parent: SessionPage(parent, self.session_controller),
+            },
+            "progress": {
+                "label": "Progression",
+                "icon": "chart.png",
+                "factory": lambda parent: ProgressPage(parent),
+            },
+            "pdf": {
+                "label": "PDF",
+                "icon": "pdf.png",
+                "factory": lambda parent: PdfPage(parent),
+            },
+            "nutrition": {
+                "label": "Nutrition",
+                "icon": "meal-plan.png",
+                "factory": lambda parent: NutritionPage(
+                    parent, self.nutrition_controller, client_id=1
+                ),
+            },
+            "database": {
+                "label": "Base de données",
+                "icon": "database.png",
+                "factory": lambda parent: DatabasePage(parent),
+            },
+            "clients": {
+                "label": "Clients",
+                "icon": "users.png",
+                "factory": lambda parent: ClientsPage(parent, self.client_controller),
+            },
+            "messaging": {
+                "label": "Messagerie",
+                "icon": "chat.png",
+                "factory": lambda parent: MessagingPage(parent),
+            },
+            "billing": {
+                "label": "Facturation",
+                "icon": "billing.png",
+                "factory": lambda parent: BillingPage(parent),
+            },
+            "settings": {
+                "label": "Paramètres",
+                "icon": "settings.png",
+                "factory": lambda parent: DashboardPage(parent, self.dashboard_controller),
+            },
         }
+
+        self.shell = AppShell(
+            self, self.switch_page, self.page_registry, active_module="dashboard"
+        )
+        self.shell.pack(fill="both", expand=True)
 
         self.switch_page("dashboard")
 
@@ -108,48 +165,13 @@ class CoachApp(ctk.CTk):
         if self.current_page:
             self.current_page.destroy()
 
-        match page_name:
-            case "dashboard":
-                self.current_page = DashboardPage(
-                    self.shell.content_area, self.dashboard_controller
-                )
-            case "programs":
-                self.current_page = ProgramPage(self.shell.content_area)
-            case "sessions":
-                self.current_page = SessionPage(
-                    self.shell.content_area, self.session_controller
-                )
-            case "calendar":
-                self.current_page = CalendarPage(
-                    self.shell.content_area,
-                    self.calendar_controller,
-                    self.session_controller,
-                    self.tracking_controller,
-                )
-            case "nutrition":
-                self.current_page = NutritionPage(
-                    self.shell.content_area, self.nutrition_controller, client_id=1
-                )
-            case "database":
-                self.current_page = DatabasePage(self.shell.content_area)
-            case "progress":
-                self.current_page = ProgressPage(self.shell.content_area)
-            case "pdf":
-                self.current_page = PdfPage(self.shell.content_area)
-            case "clients":
-                self.current_page = ClientsPage(
-                    self.shell.content_area, self.client_controller
-                )
-            case "messaging":
-                self.current_page = MessagingPage(self.shell.content_area)
-            case "billing":
-                self.current_page = BillingPage(self.shell.content_area)
-            case _:
-                self.current_page = DashboardPage(self.shell.content_area)
+        entry = self.page_registry.get(page_name, self.page_registry["dashboard"])
+        self.current_page = entry["factory"](self.shell.content_area)
 
         self.shell.set_content(self.current_page)
-        self.shell.header.update_title(title or self.page_titles.get(page_name, ""))
-        self.shell.sidebar.set_active(page_name)
+        self.shell.header.update_title(title or entry["label"])
+        active_name = page_name if page_name in self.page_registry else "dashboard"
+        self.shell.sidebar.set_active(active_name)
 
     def show_client_detail(self, client_id: int) -> None:
         page = ClientDetailPage(

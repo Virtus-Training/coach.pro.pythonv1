@@ -7,13 +7,21 @@ from ui.layout.sidebar import Sidebar
 class AppShell(ctk.CTkFrame):
     """Main application shell with persistent sidebar and header."""
 
-    def __init__(self, parent, switch_page_callback, active_module: str = "dashboard"):
+    def __init__(
+        self,
+        parent,
+        switch_page_callback,
+        page_registry: dict[str, dict],
+        active_module: str = "dashboard",
+    ):
         super().__init__(parent)
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
         # Sidebar
-        self.sidebar = Sidebar(self, switch_page_callback, active_module=active_module)
+        self.sidebar = Sidebar(
+            self, switch_page_callback, page_registry, active_module=active_module
+        )
         self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsw")
 
         # Header

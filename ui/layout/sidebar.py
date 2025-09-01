@@ -9,7 +9,13 @@ from utils.icon_loader import load_icon
 
 
 class Sidebar(ctk.CTkFrame):
-    def __init__(self, parent, switch_page_callback, active_module: str = "dashboard"):
+    def __init__(
+        self,
+        parent,
+        switch_page_callback,
+        page_registry: dict[str, dict],
+        active_module: str = "dashboard",
+    ):
         super().__init__(
             parent,
             width=220,
@@ -18,21 +24,7 @@ class Sidebar(ctk.CTkFrame):
         )
         self.switch_page_callback = switch_page_callback
         self.active_module = active_module
-
-        self.menu_items = [
-            ("dashboard", "Tableau de bord", "layout-dashboard.png"),
-            ("programs", "Programmes", "dumbbell.png"),
-            ("calendar", "Calendrier", "calendar.png"),
-            ("sessions", "Séances", "clock.png"),
-            ("progress", "Progression", "chart.png"),
-            ("pdf", "PDF", "pdf.png"),
-            ("nutrition", "Nutrition", "meal-plan.png"),
-            ("database", "Base de données", "database.png"),
-            ("clients", "Clients", "users.png"),
-            ("messaging", "Messagerie", "chat.png"),
-            ("billing", "Facturation", "billing.png"),
-            ("settings", "Paramètres", "settings.png"),
-        ]
+        self.page_registry = page_registry
 
         self._build()
 
@@ -51,8 +43,8 @@ class Sidebar(ctk.CTkFrame):
             text_color=ctk.ThemeManager.theme["color"]["primary"],
         ).pack(pady=(0, 20))
 
-        for item_id, item_name, icon_file in self.menu_items:
-            self._add_button(item_id, item_name, icon_file)
+        for item_id, data in self.page_registry.items():
+            self._add_button(item_id, data["label"], data["icon"])
 
     def _add_button(self, item_id: str, label: str, icon_filename: str) -> None:
         icon = load_icon(icon_filename, 18)
