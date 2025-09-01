@@ -72,7 +72,8 @@ class CoachApp(ctk.CTk):
         )
 
         session_service = SessionService(sessions_repo)
-        exercise_service = ExerciseService(ExerciseRepository())
+        exercise_repo = ExerciseRepository()
+        exercise_service = ExerciseService(exercise_repo)
         self.session_controller = SessionController(
             session_service, client_service, exercise_service
         )
@@ -80,7 +81,7 @@ class CoachApp(ctk.CTk):
         result_repo = ResultatExerciceRepository()
         tracking_service = TrackingService(result_repo)
         self.tracking_controller = TrackingController(
-            tracking_service, session_service, ExerciseRepository()
+            tracking_service, session_service, exercise_repo
         )
 
         calendar_service = CalendarService(sessions_repo)
