@@ -39,22 +39,34 @@ class SessionPage(ctk.CTkFrame):
         self.preview_panel = SessionPreview(right_col, self.session_controller)
         self.preview_panel.pack(fill="both", expand=True, padx=16, pady=16)
 
-        # Onglets pour les formulaires
+        # Onglets pour les formulaires (avec contenu scrollable)
         tabs = ctk.CTkTabview(left_col)
         tabs.pack(fill="both", expand=True, padx=16, pady=16)
 
         collectif_tab = tabs.add("Cours Collectif")
         individuel_tab = tabs.add("Individuel")
 
+        # Cadres scrollables dans chaque onglet pour garantir l'accès au bouton
+        collectif_scroll = ctk.CTkScrollableFrame(
+            collectif_tab, fg_color="transparent"
+        )
+        collectif_scroll.pack(fill="both", expand=True)
+
         self.form_collectif = FormCollectifV2(
-            collectif_tab, generate_callback=self.on_generate_collectif
+            collectif_scroll, generate_callback=self.on_generate_collectif
         )
         self.form_collectif.pack(fill="both", expand=True, padx=16, pady=16)
 
         client_controller = ClientController(ClientService(ClientRepository()))
         clients = client_controller.get_all_clients_for_view()
+
+        individuel_scroll = ctk.CTkScrollableFrame(
+            individuel_tab, fg_color="transparent"
+        )
+        individuel_scroll.pack(fill="both", expand=True)
+
         self.form_individuel = FormIndividuel(
-            individuel_tab, clients, generate_callback=self.on_generate_individual
+            individuel_scroll, clients, generate_callback=self.on_generate_individual
         )
         self.form_individuel.pack(fill="both", expand=True, padx=16, pady=16)
 

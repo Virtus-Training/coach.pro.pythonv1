@@ -2,9 +2,7 @@
 
 import customtkinter as ctk
 
-from PIL import Image
-
-from utils.icon_loader import load_icon
+from utils.icon_loader import load_icon, load_square_image
 
 
 class Sidebar(ctk.CTkScrollableFrame):
@@ -33,12 +31,9 @@ class Sidebar(ctk.CTkScrollableFrame):
 
     def _build(self) -> None:
         """Builds the widgets of the sidebar."""
-        # Logo
-        logo = ctk.CTkImage(
-            light_image=load_icon("Logo.png"),
-            dark_image=load_icon("Logo.png"),
-            size=(140, 32),
-        )
+        # Logo (square)
+        # Use square-padding helper to avoid distortion and enforce square size
+        logo = load_square_image("assets/Logo.png", 48)
         logo_label = ctk.CTkLabel(self, image=logo, text="", anchor="center")
         logo_label.pack(pady=(20, 10))
 
@@ -49,11 +44,8 @@ class Sidebar(ctk.CTkScrollableFrame):
 
     def _add_button(self, item_id: str, label: str, icon_name: str) -> ctk.CTkButton:
         """Adds a navigation button to the sidebar."""
-        icon = ctk.CTkImage(
-            light_image=load_icon(icon_name),
-            dark_image=load_icon(icon_name),
-            size=(20, 20),
-        )
+        # Use icon loader with explicit size and pass CTkImage directly to button
+        icon = load_icon(icon_name, 20)
         button = ctk.CTkButton(
             self,
             image=icon,

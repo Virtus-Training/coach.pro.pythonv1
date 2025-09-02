@@ -29,3 +29,37 @@ def load_icon(filename: str, size: Tuple[int, int] | int) -> ctk.CTkImage:
         image = Image.open(path)
         _ICON_CACHE[key] = ctk.CTkImage(image, size=size)
     return _ICON_CACHE[key]
+
+
+def load_square_image(path: str, size: Tuple[int, int] | int) -> ctk.CTkImage:
+    """Load any image and render it into a square without distortion.
+
+    Pads the shorter side with transparency so the image becomes square,
+    then returns a CTkImage scaled to the requested square ``size``.
+
+    Parameters
+    ----------
+    path: str
+        Filesystem path to the image (e.g., ``assets/Logo.png``).
+    size: tuple[int, int] | int
+        Desired square size. If a tuple is provided, the max side is used
+        to produce a square size.
+    """
+
+    if isinstance(size, int):
+        target_size = (size, size)
+    else:
+        # Ensure square target size by using the max of provided tuple
+        s = max(size)
+        target_size = (s, s)
+
+    key = (path, target_size)
+    if key not in _ICON_CACHE:
+        img = Image.open(path).convert("RGBA")
+        w, h = img.size
+        side = max(w, h)
+        # Create transparent square canvas and paste centered
+        square = Image.new("RGBA", (side, side), (0, 0, 0, 0))
+        square.paste(img, ((side - w) // 2, (side - h) // 2))
+        _ICON_CACHE[key] = ctk.CTkImage(square, size=target_size)
+    return _ICON_CACHE[key]
