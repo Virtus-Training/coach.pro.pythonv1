@@ -19,11 +19,11 @@ from .session_page_components.session_preview import SessionPreview
 class SessionPage(ctk.CTkFrame):
     """Page principale pour la génération de séances."""
 
-    def __init__(self, parent, session_controller: SessionController):
+    def __init__(self, parent, session_controller):
         super().__init__(parent)
         self.session_controller = session_controller
         self.grid_rowconfigure(1, weight=1)
-
+        
         PageTitle(self, text="Séances").grid(
             row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(16, 8)
         )
@@ -55,7 +55,7 @@ class SessionPage(ctk.CTkFrame):
 
         # Aperçu de la séance
 
-        self.preview_panel = SessionPreview(right_col)
+        self.preview_panel = SessionPreview(right_col, self.session_controller)
         self.preview_panel.pack(fill="both", expand=True, padx=16, pady=16)
 
 
