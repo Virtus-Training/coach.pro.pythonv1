@@ -162,17 +162,20 @@ class CoachApp(ctk.CTk):
         self.switch_page("dashboard")
 
     def switch_page(self, page_name: str, title: str | None = None):
+        # Détruit la page actuelle si elle existe
         if self.current_page:
             self.current_page.destroy()
 
+        # Crée la nouvelle page et l'assigne à self.current_page
         entry = self.page_registry.get(page_name, self.page_registry["dashboard"])
         self.current_page = entry["factory"](self.shell.content_area)
 
+        # Définit le contenu de la coquille (shell)
         self.shell.set_content(self.current_page)
         self.shell.header.update_title(title or entry["label"])
         active_name = page_name if page_name in self.page_registry else "dashboard"
         self.shell.sidebar.set_active(active_name)
-
+        
     def show_client_detail(self, client_id: int) -> None:
         page = ClientDetailPage(
             self.shell.content_area,
