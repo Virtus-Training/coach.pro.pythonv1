@@ -34,6 +34,11 @@ class SessionPage(ctk.CTkFrame):
         left_col.grid(row=0, column=0, sticky="nsew")
         right_col.grid(row=0, column=1, sticky="nsew")
 
+        # Aperçu de la séance
+        # (Initialisation déplacée ici pour que right_col soit définie)
+        self.preview_panel = SessionPreview(right_col, self.session_controller)
+        self.preview_panel.pack(fill="both", expand=True, padx=16, pady=16)
+
         # Onglets pour les formulaires
         tabs = ctk.CTkTabview(left_col)
         tabs.pack(fill="both", expand=True, padx=16, pady=16)
@@ -52,11 +57,6 @@ class SessionPage(ctk.CTkFrame):
             individuel_tab, clients, generate_callback=self.on_generate_individual
         )
         self.form_individuel.pack(fill="both", expand=True, padx=16, pady=16)
-
-        # Aperçu de la séance
-
-        self.preview_panel = SessionPreview(right_col, self.session_controller)
-        self.preview_panel.pack(fill="both", expand=True, padx=16, pady=16)
 
 
     def on_generate_collectif(self) -> None:
