@@ -9,6 +9,7 @@ from dtos.nutrition_dtos import NutritionPageDTO
 from models.client import Client
 from pdf_templates.nutrition_template import NutritionPDFTemplate
 from pdf_templates.session_template import SessionPDFTemplate
+
 PRIMARY = "#22D3EE"
 DARK_BG = "#111827"
 DARK_PANEL = "#1F2937"

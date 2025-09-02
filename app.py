@@ -88,7 +88,9 @@ class CoachApp(ctk.CTk):
             "dashboard": {
                 "label": "Tableau de bord",
                 "icon": "layout-dashboard.png",
-                "factory": lambda parent: DashboardPage(parent, self.dashboard_controller),
+                "factory": lambda parent: DashboardPage(
+                    parent, self.dashboard_controller
+                ),
             },
             "programs": {
                 "label": "Programmes",
@@ -150,7 +152,9 @@ class CoachApp(ctk.CTk):
             "settings": {
                 "label": "Paramètres",
                 "icon": "settings.png",
-                "factory": lambda parent: DashboardPage(parent, self.dashboard_controller),
+                "factory": lambda parent: DashboardPage(
+                    parent, self.dashboard_controller
+                ),
             },
         }
 
@@ -175,7 +179,7 @@ class CoachApp(ctk.CTk):
         self.shell.header.update_title(title or entry["label"])
         active_name = page_name if page_name in self.page_registry else "dashboard"
         self.shell.sidebar.set_active(active_name)
-        
+
     def show_client_detail(self, client_id: int) -> None:
         page = ClientDetailPage(
             self.shell.content_area,

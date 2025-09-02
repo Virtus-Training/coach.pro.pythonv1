@@ -21,7 +21,9 @@ class ClientDetailPage(ctk.CTkFrame):
         nutrition_controller: NutritionController,
         client_id: int,
     ):
-        super().__init__(master, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
+        super().__init__(
+            master, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"]
+        )
         self.client_id = client_id
         self.controller = controller
         self.nutrition_controller = nutrition_controller

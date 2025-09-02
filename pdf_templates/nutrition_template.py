@@ -17,6 +17,7 @@ from reportlab.platypus import (
 )
 
 from dtos.nutrition_dtos import NutritionPageDTO, RepasDTO
+
 TABLE_HEADER_BG = "#374151"
 TABLE_ROW_ODD_BG = "#1F2937"
 TABLE_ROW_EVEN_BG = "#111827"

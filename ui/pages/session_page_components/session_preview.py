@@ -1,4 +1,5 @@
 import customtkinter as ctk
+
 from ui.pages.session_preview_panel import render_preview
 
 
@@ -53,4 +54,3 @@ class SessionPreview(ctk.CTkFrame):
         # Store the dto and render using the shared renderer
         self._current_dto = session_dto
         self._last_cols = render_preview(self.content_frame, session_dto)
-

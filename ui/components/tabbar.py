@@ -37,10 +37,9 @@ class CustomTabBar(ctk.CTkFrame):
                 fg_color="transparent",
                 hover_color=ctk.ThemeManager.theme["color"]["surface_light"],
                 font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
-                text_color=
-                    ctk.ThemeManager.theme["color"]["primary"]
-                    if tab_id == self.active_tab
-                    else ctk.ThemeManager.theme["color"]["secondary_text"],
+                text_color=ctk.ThemeManager.theme["color"]["primary"]
+                if tab_id == self.active_tab
+                else ctk.ThemeManager.theme["color"]["secondary_text"],
                 command=lambda tid=tab_id: self.select_tab(tid),
             )
             inner.pack(fill="both", expand=True, padx=2)
@@ -57,10 +56,9 @@ class CustomTabBar(ctk.CTkFrame):
         for tab_id, (frame, button) in self.buttons.items():
             frame.configure(fg_color=self.get_tab_color(tab_id))
             button.configure(
-                text_color=
-                    ctk.ThemeManager.theme["color"]["primary"]
-                    if tab_id == self.active_tab
-                    else ctk.ThemeManager.theme["color"]["secondary_text"],
+                text_color=ctk.ThemeManager.theme["color"]["primary"]
+                if tab_id == self.active_tab
+                else ctk.ThemeManager.theme["color"]["secondary_text"],
             )
 
     def get_tab_color(self, tab_id):

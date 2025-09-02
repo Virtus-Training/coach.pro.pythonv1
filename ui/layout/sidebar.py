@@ -76,4 +76,3 @@ class Sidebar(ctk.CTkScrollableFrame):
                     fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
                     text_color=ctk.ThemeManager.theme["color"]["primary_text"],
                 )
-

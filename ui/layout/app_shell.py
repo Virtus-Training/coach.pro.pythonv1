@@ -19,7 +19,7 @@ class AppShell(ctk.CTkFrame):
         super().__init__(parent)
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
-        self.current_content = None # <- Ligne à ajouter
+        self.current_content = None  # <- Ligne à ajouter
 
         # Sidebar
         self.sidebar = Sidebar(

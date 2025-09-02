@@ -8,7 +8,6 @@ Application entry point.
 from app import launch_app
 from db.database_setup import initialize_database
 
-
 if __name__ == "__main__":
     # Prepare the database before starting the UI
     initialize_database()

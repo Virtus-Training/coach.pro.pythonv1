@@ -13,7 +13,6 @@ from ui.modals.session_detail_modal import SessionDetailModal
 from ui.modals.session_log_modal import SessionLogModal
 
 
-
 class CalendarPage(ctk.CTkFrame):
     def __init__(
         self,
@@ -37,9 +36,7 @@ class CalendarPage(ctk.CTkFrame):
             self,
             text="Planning",
             font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H2"]),
-        ).grid(
-            row=0, column=0, columnspan=2, pady=5
-        )
+        ).grid(row=0, column=0, columnspan=2, pady=5)
 
         left = ctk.CTkFrame(self)
         left.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)

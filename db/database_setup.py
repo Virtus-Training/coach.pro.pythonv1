@@ -1,5 +1,5 @@
-from pathlib import Path
 import sqlite3
+from pathlib import Path
 
 from db.database_manager import db_manager
 from db.seed import create_schema, seed_data
@@ -51,4 +51,3 @@ def initialize_database() -> None:
 
     # Otherwise, nothing to do
     return
-

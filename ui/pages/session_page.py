@@ -3,7 +3,6 @@
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
-from controllers.session_controller import SessionController
 from repositories.client_repo import ClientRepository
 from services.client_service import ClientService
 from ui.components.design_system.typography import PageTitle
@@ -25,7 +24,7 @@ class SessionPage(ctk.CTkFrame):
         self.grid_rowconfigure(1, weight=1)
         # Ensure the single grid column stretches so the right pane can expand fully
         self.grid_columnconfigure(0, weight=1)
-        
+
         PageTitle(self, text="Séances").grid(
             row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(16, 8)
         )
@@ -49,9 +48,7 @@ class SessionPage(ctk.CTkFrame):
         individuel_tab = tabs.add("Individuel")
 
         # Cadres scrollables dans chaque onglet pour garantir l'accès au bouton
-        collectif_scroll = ctk.CTkScrollableFrame(
-            collectif_tab, fg_color="transparent"
-        )
+        collectif_scroll = ctk.CTkScrollableFrame(collectif_tab, fg_color="transparent")
         collectif_scroll.pack(fill="both", expand=True)
 
         self.form_collectif = FormCollectifV2(
@@ -71,7 +68,6 @@ class SessionPage(ctk.CTkFrame):
             individuel_scroll, clients, generate_callback=self.on_generate_individual
         )
         self.form_individuel.pack(fill="both", expand=True, padx=16, pady=16)
-
 
     def on_generate_collectif(self) -> None:
         params = self.form_collectif.get_params()

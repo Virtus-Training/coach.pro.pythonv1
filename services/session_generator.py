@@ -68,10 +68,13 @@ def filter_and_score_pool(
             else:
                 weight *= 1 - continuum / 200.0
         elif continuum < 0:  # renfo
-            if (
-                "force" in ex_tags
-                or pattern in ["hinge", "squat", "push", "pull", "carry"]
-            ):
+            if "force" in ex_tags or pattern in [
+                "hinge",
+                "squat",
+                "push",
+                "pull",
+                "carry",
+            ]:
                 weight *= 1 + abs(continuum) / 100.0
             else:
                 weight *= 1 - abs(continuum) / 200.0

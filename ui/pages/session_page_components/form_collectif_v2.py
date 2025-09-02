@@ -136,9 +136,9 @@ class FormCollectif(Card):
             row=0, column=0, sticky="w", padx=(0, 8)
         )
         self.volume_var = ctk.DoubleVar(value=50)
-        ctk.CTkSlider(
-            volume_row, from_=0, to=100, variable=self.volume_var
-        ).grid(row=0, column=1, sticky="ew")
+        ctk.CTkSlider(volume_row, from_=0, to=100, variable=self.volume_var).grid(
+            row=0, column=1, sticky="ew"
+        )
 
         # Formats
         format_section = ctk.CTkFrame(self, fg_color="transparent")
