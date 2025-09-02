@@ -100,7 +100,7 @@ def seed_data():
             conn.executemany(
                 """
                 INSERT INTO resultats_exercices (
-                    seance_id, exercice_id, series_effectuees,
+                    session_id, exercice_id, series_effectuees,
                     reps_effectuees, charge_utilisee, feedback_client
                 ) VALUES (?,?,?,?,?,?)
                 """,

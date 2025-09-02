@@ -6,6 +6,21 @@ from ui.components.design_system.buttons import PrimaryButton
 from ui.components.design_system.cards import Card
 from ui.components.design_system.typography import CardTitle
 
+# Types de cours (affichage) demandés
+COURSE_TYPES_DISPLAY = [
+    "Hyrox",
+    "Crossfit",
+    "CAF",
+    "Core and glutes",
+    "TRX",
+]
+
+# Mapping affichage -> valeurs attendues par les services
+COURSE_TYPE_VALUE_MAP = {
+    "Crossfit": "Cross-Training",
+    "Core and glutes": "Core & Glutes",
+}
+
 # Options par défaut
 DURATIONS = ["30", "45", "60", "90"]
 DEFAULT_EQUIPMENTS = [
@@ -60,8 +75,21 @@ class FormCollectif(Card):
         )
 
         # Durée de séance
+        # Type de séance
+        course_row = ctk.CTkFrame(self, fg_color="transparent")
+        course_row.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 8))
+        course_row.grid_columnconfigure(1, weight=1)
+        ctk.CTkLabel(course_row, text="Type de séance").grid(
+            row=0, column=0, sticky="w", padx=(0, 8)
+        )
+        self.course_type_var = ctk.StringVar(value="Crossfit")
+        ctk.CTkOptionMenu(
+            course_row, variable=self.course_type_var, values=COURSE_TYPES_DISPLAY
+        ).grid(row=0, column=1, sticky="ew")
+
+        # DurǸe de sǸance
         duration_row = ctk.CTkFrame(self, fg_color="transparent")
-        duration_row.grid(row=1, column=0, sticky="ew", padx=16, pady=(0, 8))
+        duration_row.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 8))
         duration_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(duration_row, text="Durée de séance").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -73,7 +101,7 @@ class FormCollectif(Card):
 
         # Matériel disponible
         equip_section = ctk.CTkFrame(self, fg_color="transparent")
-        equip_section.grid(row=2, column=0, sticky="ew", padx=16, pady=(0, 8))
+        equip_section.grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 8))
         CardTitle(equip_section, text="Matériel disponible").grid(
             row=0, column=0, sticky="w", pady=(0, 12)
         )
@@ -90,7 +118,7 @@ class FormCollectif(Card):
 
         # Variabilité
         variability_row = ctk.CTkFrame(self, fg_color="transparent")
-        variability_row.grid(row=3, column=0, sticky="ew", padx=16, pady=(0, 8))
+        variability_row.grid(row=4, column=0, sticky="ew", padx=16, pady=(0, 8))
         variability_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(variability_row, text="Variabilité").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -102,7 +130,7 @@ class FormCollectif(Card):
 
         # Volume
         volume_row = ctk.CTkFrame(self, fg_color="transparent")
-        volume_row.grid(row=4, column=0, sticky="ew", padx=16, pady=(0, 8))
+        volume_row.grid(row=5, column=0, sticky="ew", padx=16, pady=(0, 8))
         volume_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(volume_row, text="Volume").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -114,7 +142,7 @@ class FormCollectif(Card):
 
         # Formats
         format_section = ctk.CTkFrame(self, fg_color="transparent")
-        format_section.grid(row=5, column=0, sticky="ew", padx=16, pady=(0, 8))
+        format_section.grid(row=6, column=0, sticky="ew", padx=16, pady=(0, 8))
         CardTitle(format_section, text="Format").grid(
             row=0, column=0, sticky="w", pady=(0, 12)
         )
@@ -131,7 +159,7 @@ class FormCollectif(Card):
 
         # Continuum Cardio ↔ Renfo
         continuum_row = ctk.CTkFrame(self, fg_color="transparent")
-        continuum_row.grid(row=6, column=0, sticky="ew", padx=16, pady=(0, 8))
+        continuum_row.grid(row=7, column=0, sticky="ew", padx=16, pady=(0, 8))
         continuum_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(continuum_row, text="Continuum Cardio ↔ Renfo").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -143,7 +171,7 @@ class FormCollectif(Card):
 
         # Focus
         focus_row = ctk.CTkFrame(self, fg_color="transparent")
-        focus_row.grid(row=7, column=0, sticky="ew", padx=16, pady=(0, 8))
+        focus_row.grid(row=8, column=0, sticky="ew", padx=16, pady=(0, 8))
         focus_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(focus_row, text="Focus").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -155,7 +183,7 @@ class FormCollectif(Card):
 
         # Objectif
         obj_row = ctk.CTkFrame(self, fg_color="transparent")
-        obj_row.grid(row=8, column=0, sticky="ew", padx=16, pady=(0, 8))
+        obj_row.grid(row=9, column=0, sticky="ew", padx=16, pady=(0, 8))
         obj_row.grid_columnconfigure(1, weight=1)
         ctk.CTkLabel(obj_row, text="Objectif").grid(
             row=0, column=0, sticky="w", padx=(0, 8)
@@ -167,7 +195,7 @@ class FormCollectif(Card):
 
         # Inclure automatiquement
         auto_section = ctk.CTkFrame(self, fg_color="transparent")
-        auto_section.grid(row=9, column=0, sticky="ew", padx=16, pady=(0, 8))
+        auto_section.grid(row=10, column=0, sticky="ew", padx=16, pady=(0, 8))
         CardTitle(auto_section, text="Inclure automatiquement").grid(
             row=0, column=0, sticky="w", pady=(0, 12)
         )
@@ -183,12 +211,15 @@ class FormCollectif(Card):
 
         # Bouton d'action
         PrimaryButton(self, text="Générer la séance", command=generate_callback).grid(
-            row=10, column=0, sticky="ew", padx=16, pady=(0, 16)
+            row=11, column=0, sticky="ew", padx=16, pady=(0, 16)
         )
 
     def get_params(self) -> dict:
         """Retourne les valeurs du formulaire sous forme de dictionnaire."""
         return {
+            "course_type": COURSE_TYPE_VALUE_MAP.get(
+                self.course_type_var.get(), self.course_type_var.get()
+            ),
             "duration": int(self.duration_var.get()),
             "equipment": [k for k, v in self.equipment_vars.items() if v.get()],
             "variability": int(self.variability_var.get()),

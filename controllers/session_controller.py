@@ -29,15 +29,19 @@ class SessionController:
         """Map session blocks to a DTO consumable by the view."""
         blocks_out: list[Dict[str, Any]] = []
         for blk in blocks:
-            title = (
-                f"{blk.type} — {blk.duration_sec // 60}’"
-                if blk.duration_sec
-                else blk.type
-            )
+            # Build block title and duration in minutes when available
+            if getattr(blk, "duration_sec", None):
+                mins = blk.duration_sec // 60
+                title = f"{blk.type} · {mins} min"
+                duration_txt = f"{mins} min"
+            else:
+                title = blk.type
+                duration_txt = ""
+
             block_dto = {
                 "title": title,
                 "format": blk.type,
-                "duration": f"{blk.duration_sec // 60}’" if blk.duration_sec else "",
+                "duration": duration_txt,
                 "exercises": [],
             }
             for item in blk.items:
@@ -132,3 +136,4 @@ class SessionController:
 
 
 __all__ = ["SessionController"]
+

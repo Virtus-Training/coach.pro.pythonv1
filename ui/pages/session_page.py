@@ -23,6 +23,8 @@ class SessionPage(ctk.CTkFrame):
         super().__init__(parent)
         self.session_controller = session_controller
         self.grid_rowconfigure(1, weight=1)
+        # Ensure the single grid column stretches so the right pane can expand fully
+        self.grid_columnconfigure(0, weight=1)
         
         PageTitle(self, text="Séances").grid(
             row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(16, 8)
@@ -30,7 +32,7 @@ class SessionPage(ctk.CTkFrame):
 
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.grid(row=1, column=0, columnspan=2, sticky="nsew")
-        left_col, right_col = two_columns(container)
+        left_col, right_col = two_columns(container, left_width=360, fixed_side="left")
         left_col.grid(row=0, column=0, sticky="nsew")
         right_col.grid(row=0, column=1, sticky="nsew")
 

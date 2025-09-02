@@ -8,6 +8,8 @@ def pick_template(course_type: str, duration_min: int):
         return cross_training(duration_min)
     if course_type == "Hyrox":
         return hyrox(duration_min)
+    if course_type == "TRX":
+        return trx(duration_min)
     raise ValueError("Unknown course type")
 
 
@@ -57,3 +59,10 @@ def hyrox(duration_min: int):
     if duration_min == 45:
         return _pack(8, 35, 2, "FORTIME")
     return _pack(8, 48, 4, "FORTIME")
+
+
+def trx(duration_min: int):
+    # Séances orientées TRX/anneaux, formats EMOM/AMRAP
+    if duration_min == 45:
+        return _pack(6, 36, 3, "EMOM")
+    return _pack(8, 48, 4, "EMOM")

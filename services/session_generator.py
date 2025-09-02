@@ -2,6 +2,7 @@ import logging
 import random
 import time
 import uuid
+from datetime import date
 from typing import Any, Dict, List, Tuple
 
 import services.session_templates as T
@@ -136,6 +137,7 @@ def allowed_formats_for_course(course_type: str) -> list[str]:
             "EMOM",
         ],  # Tabata en finisher court, généralement
     }
+    by_course["TRX"] = ["EMOM", "AMRAP", "Tabata"]
     return by_course.get(course_type, ["AMRAP", "EMOM", "For Time", "Tabata"])
 
 
