@@ -1,36 +1,41 @@
+# ui/layout/app_shell.py
+
 import customtkinter as ctk
 
 from ui.layout.header import Header
 from ui.layout.sidebar import Sidebar
-from .content_area import ContentArea
+
 
 class AppShell(ctk.CTkFrame):
-    def __init__(self, master, switch_page_callback, page_registry, active_module="dashboard"):
-        super().__init__(master)
-        self.master = master
-        self.switch_page_callback = switch_page_callback
-        self.page_registry = page_registry
-        self.active_module = active_module
-        self.current_content = None # Laissez cette ligne pour éviter de futures erreurs
+    """Main application shell with persistent sidebar and header."""
 
-        # Configuration de la grille
+    def __init__(
+        self,
+        parent,
+        switch_page_callback,
+        page_registry: dict[str, dict],
+        active_module: str = "dashboard",
+    ):
+        super().__init__(parent)
         self.grid_rowconfigure(1, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.current_content = None # <- Ligne à ajouter
 
-        # Création des widgets
+        # Sidebar
         self.sidebar = Sidebar(
-            self,
-            self.switch_page_callback,
-            self.page_registry,
-            self.active_module,
+            self, switch_page_callback, page_registry, active_module=active_module
         )
-        self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsew")
+        self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsw")
 
+        # Header
         self.header = Header(self)
-        self.header.grid(row=0, column=1, sticky="nsew")
+        self.header.grid(row=0, column=1, sticky="ew")
 
-        self.content_area = ContentArea(self)
-        self.content_area.grid(row=1, column=1, sticky="nsew", padx=20, pady=20)
+        # Content area
+        self.content_area = ctk.CTkFrame(
+            self, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"]
+        )
+        self.content_area.grid(row=1, column=1, sticky="nsew")
 
     def set_content(self, new_content):
         if self.current_content:
@@ -38,6 +43,3 @@ class AppShell(ctk.CTkFrame):
 
         self.current_content = new_content
         self.current_content.pack(fill="both", expand=True)
-
-    def set_sidebar_active(self, page_name: str):
-        self.sidebar.set_active(page_name)
