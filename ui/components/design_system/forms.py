@@ -10,20 +10,20 @@ class LabeledInput(ctk.CTkFrame):
         super().__init__(master, fg_color="transparent")
         self.columnconfigure(0, weight=1)
 
-        colors = ctk.ThemeManager.theme["color"]
-        fonts = ctk.ThemeManager.theme["font"]
+        self._colors = ctk.ThemeManager.theme["color"]
+        self._fonts = ctk.ThemeManager.theme["font"]
 
         self._label = ctk.CTkLabel(
             self,
             text=label,
-            font=ctk.CTkFont(**fonts["Body"]),
-            text_color=colors["primary_text"],
+            font=ctk.CTkFont(**self._fonts["Body"]),
+            text_color=self._colors["primary_text"],
         )
         self._label.grid(row=0, column=0, sticky="w")
 
         self.entry = ctk.CTkEntry(
             self,
-            border_color=colors["subtle_border"],
+            border_color=self._colors["subtle_border"],
             **entry_kwargs,
         )
         self.entry.grid(row=1, column=0, sticky="ew", pady=(0, 4))
@@ -31,8 +31,8 @@ class LabeledInput(ctk.CTkFrame):
         self.error_label = ctk.CTkLabel(
             self,
             text="",
-            font=ctk.CTkFont(**fonts["Small"]),
-            text_color=colors["error"],
+            font=ctk.CTkFont(**self._fonts["Small"]),
+            text_color=self._colors["error"],
         )
         self.error_label.grid(row=2, column=0, sticky="w")
         self.error_label.grid_remove()
@@ -48,8 +48,8 @@ class LabeledInput(ctk.CTkFrame):
     def show_error(self, message: str) -> None:
         self.error_label.configure(text=message)
         self.error_label.grid()
-        self.entry.configure(border_color=colors["error"])
+        self.entry.configure(border_color=self._colors["error"])
 
     def hide_error(self) -> None:
         self.error_label.grid_remove()
-        self.entry.configure(border_color=colors["subtle_border"])
+        self.entry.configure(border_color=self._colors["subtle_border"])

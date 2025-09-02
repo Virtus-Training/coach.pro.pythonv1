@@ -129,11 +129,12 @@ class GenerateFicheModal(ctk.CTkToplevel):
 
         frame = ctk.CTkFrame(self)
         frame.pack(fill="both", expand=True, padx=20, pady=20)
+        colors = ctk.ThemeManager.theme["color"]
 
         def add_entry(label, var):
-            ctk.CTkLabel(
-                frame, text=label, text_color=colors["primary_text"]
-            ).pack(anchor="w")
+            ctk.CTkLabel(frame, text=label, text_color=colors["primary_text"]).pack(
+                anchor="w"
+            )
             ctk.CTkEntry(frame, textvariable=var).pack(fill="x", pady=(0, 10))
 
         add_entry("Poids (kg)", self.poids_var)

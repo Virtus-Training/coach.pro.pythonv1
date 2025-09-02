@@ -101,9 +101,13 @@ class DataTable(ctk.CTkFrame):
         try:
             [float(row[col]) for row in self.data]
         except (TypeError, ValueError):
-            key = lambda row: str(row[col]).lower()
+
+            def key(row):
+                return str(row[col]).lower()
         else:
-            key = lambda row: float(row[col])
+
+            def key(row):
+                return float(row[col])
 
         self.data.sort(key=key, reverse=self.sort_reverse)
 

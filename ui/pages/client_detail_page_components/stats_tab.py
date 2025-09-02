@@ -23,11 +23,11 @@ class StatsTab(ctk.CTkFrame):
         control = ctk.CTkFrame(self, fg_color="transparent")
         control.pack(fill="x", padx=10, pady=10)
 
-        colors = ctk.ThemeManager.theme["color"]
+        self.colors = ctk.ThemeManager.theme["color"]
         ctk.CTkLabel(
             control,
             text="Sélectionner un exercice pour voir la progression",
-            text_color=colors["primary_text"],
+            text_color=self.colors["primary_text"],
         ).pack(anchor="w")
 
         tracked = self.tracking_controller.get_tracked_exercises(self.client_id)
@@ -38,14 +38,14 @@ class StatsTab(ctk.CTkFrame):
             values=list(self.ex_options.keys()),
             variable=self.var,
             command=self._on_select,
-            fg_color=colors["surface_light"],
-            button_color=colors["surface_light"],
-            button_hover_color=colors["primary"],
-            text_color=colors["primary_text"],
+            fg_color=self.colors["surface_light"],
+            button_color=self.colors["surface_light"],
+            button_hover_color=self.colors["primary"],
+            text_color=self.colors["primary_text"],
             state="readonly",
         ).pack(anchor="w", pady=(5, 0))
 
-        self.graph_frame = ctk.CTkFrame(self, fg_color=colors["surface_light"])
+        self.graph_frame = ctk.CTkFrame(self, fg_color=self.colors["surface_light"])
         self.graph_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         self._show_message(
@@ -62,7 +62,7 @@ class StatsTab(ctk.CTkFrame):
     def _show_message(self, message: str) -> None:
         self._clear_graph()
         ctk.CTkLabel(
-            self.graph_frame, text=message, text_color=colors["primary_text"]
+            self.graph_frame, text=message, text_color=self.colors["primary_text"]
         ).pack(expand=True)
 
     def _on_select(self, choice: str) -> None:

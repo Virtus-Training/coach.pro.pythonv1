@@ -6,12 +6,12 @@ from ui.pages.database_page_tabs.aliments_tab import AlimentsTab
 class DatabasePage(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-        colors = ctk.ThemeManager.theme["color"]
-        fonts = ctk.ThemeManager.theme["font"]
-        self.configure(fg_color=colors["surface_dark"])
+        self.colors = ctk.ThemeManager.theme["color"]
+        self.fonts = ctk.ThemeManager.theme["font"]
+        self.configure(fg_color=self.colors["surface_dark"])
 
         # Header
-        header = ctk.CTkFrame(self, fg_color=colors["primary"], corner_radius=10)
+        header = ctk.CTkFrame(self, fg_color=self.colors["primary"], corner_radius=10)
         header.pack(fill="x", padx=20, pady=20)
 
         title_row = ctk.CTkFrame(header, fg_color="transparent")
@@ -19,20 +19,20 @@ class DatabasePage(ctk.CTkFrame):
         ctk.CTkLabel(
             title_row,
             text="🗃️",
-            font=ctk.CTkFont(**fonts["H1"]),
+            font=ctk.CTkFont(**self.fonts["H1"]),
         ).pack(side="left", padx=(0, 10))
         ctk.CTkLabel(
             title_row,
             text="Bases de Données",
-            font=ctk.CTkFont(**fonts["H1"]),
-            text_color=colors["surface_dark"],
+            font=ctk.CTkFont(**self.fonts["H1"]),
+            text_color=self.colors["surface_dark"],
         ).pack(side="left")
 
         ctk.CTkLabel(
             header,
             text="Gérez vos bases de données d'exercices, d'aliments et de programmes.",
-            font=ctk.CTkFont(**fonts["Body"]),
-            text_color=colors["primary_text"],
+            font=ctk.CTkFont(**self.fonts["Body"]),
+            text_color=self.colors["primary_text"],
         ).pack(anchor="w", padx=20, pady=(5, 15))
 
         # Tab view
@@ -50,11 +50,13 @@ class DatabasePage(ctk.CTkFrame):
         scroll.pack(fill="both", expand=True)
 
         for i in range(10):
-            row = ctk.CTkFrame(scroll, fg_color=colors["surface_light"], corner_radius=8)
+            row = ctk.CTkFrame(
+                scroll, fg_color=self.colors["surface_light"], corner_radius=8
+            )
             row.pack(fill="x", padx=10, pady=4)
             ctk.CTkLabel(
                 row,
                 text=f"Exercice {i + 1}",
-                font=ctk.CTkFont(**fonts["Body"]),
-                text_color=colors["primary_text"],
+                font=ctk.CTkFont(**self.fonts["Body"]),
+                text_color=self.colors["primary_text"],
             ).pack(side="left", padx=10)
