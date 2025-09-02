@@ -8,9 +8,18 @@ import customtkinter as ctk
 
 
 class DataTable(ctk.CTkFrame):
-    """Generic table widget with sortable columns and filtering."""
+    """Generic table widget with sortable columns, filtering and selection.
 
-    def __init__(self, master, headers: List[str], data: Iterable[Iterable[Any]]):
+    Optional callback on row selection can be provided via `on_select`.
+    """
+
+    def __init__(
+        self,
+        master,
+        headers: List[str],
+        data: Iterable[Iterable[Any]],
+        on_select: callable | None = None,
+    ):
         super().__init__(master, fg_color="transparent")
 
         self.headers = list(headers)
@@ -18,6 +27,8 @@ class DataTable(ctk.CTkFrame):
         self.data = list(self.original_data)
         self.sort_column: int | None = None
         self.sort_reverse = False
+        self.on_select = on_select
+        self.selected_index: int | None = None
 
         self.theme = ctk.ThemeManager.theme["DataTable"]
         header_font = ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])
@@ -59,7 +70,9 @@ class DataTable(ctk.CTkFrame):
                 if r % 2 == 0
                 else self.theme["row_odd_fg_color"]
             )
-            row_frame = ctk.CTkFrame(self.body, fg_color=bg)
+            sel_bg = self.theme.get("row_selected_fg_color", self.theme["row_hover_fg_color"])
+            is_selected = self.selected_index == r
+            row_frame = ctk.CTkFrame(self.body, fg_color=(sel_bg if is_selected else bg))
             row_frame.grid(row=r, column=0, sticky="ew")
             row_frame.bind(
                 "<Enter>",
@@ -69,8 +82,20 @@ class DataTable(ctk.CTkFrame):
             )
             row_frame.bind(
                 "<Leave>",
-                lambda _e, f=row_frame, color=bg: f.configure(fg_color=color),
+                lambda _e, f=row_frame, color=(sel_bg if is_selected else bg): f.configure(fg_color=color),
             )
+            if self.on_select is not None:
+                def _make_click(idx: int, rf: ctk.CTkFrame):
+                    def _cb(_e=None):
+                        self.selected_index = idx
+                        # re-render to update selection highlighting
+                        self._render_rows()
+                        try:
+                            self.on_select(idx, self.data[idx])
+                        except Exception:
+                            pass
+                    return _cb
+                row_frame.bind("<Button-1>", _make_click(r, row_frame))
             for c, value in enumerate(row):
                 lbl = ctk.CTkLabel(
                     row_frame,
@@ -79,6 +104,8 @@ class DataTable(ctk.CTkFrame):
                 )
                 lbl.grid(row=0, column=c, padx=5, pady=2, sticky="w")
                 row_frame.grid_columnconfigure(c, weight=1)
+                if self.on_select is not None:
+                    lbl.bind("<Button-1>", _make_click(r, row_frame))
 
     # ------------------------------------------------------------------
     def _on_header_click(self, column: int) -> None:
@@ -133,6 +160,7 @@ class DataTable(ctk.CTkFrame):
         if self.sort_column is not None:
             self._sort_data()
 
+        self.selected_index = None
         self._update_header_arrows()
         self._render_rows()
 

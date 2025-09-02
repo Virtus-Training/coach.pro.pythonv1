@@ -249,7 +249,9 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
     # 1) Warm-up (obligatoire, d'abord)
     warm = next((s for s in tpl if s["slot"] == "warmup"), None)
     if warm:
-        blocks.append(build_block(warm, pool, rng, entropy, params))
+        # Track used exercises across blocks to avoid duplicates
+        params.setdefault("_used_ids", set())
+        blocks.append(build_block_v2(warm, pool, rng, entropy, params))
 
     # 2) Main – déstructuré : 1 ou 2 sous-blocs, formats aléatoires, ordre aléatoire
     main = next((s for s in tpl if s["slot"] == "main"), None)
@@ -272,7 +274,7 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
             slot_dyn["items"] = (
                 3 if chosen_type in ("AMRAP", "EMOM") else 2 + rng.randint(0, 1)
             )
-            blk = build_block(slot_dyn, pool, rng, entropy, params)
+            blk = build_block_v2(slot_dyn, pool, rng, entropy, params)
             main_blocks.append(blk)
 
         rng.shuffle(main_blocks)  # << ORDRE ALÉATOIRE
@@ -287,7 +289,10 @@ def generate_collectif(params: Dict[str, Any]) -> Session:
             fin["type"]
         ]
         fin_dyn["type"] = rng.choice(fin_candidates) if entropy >= 0.25 else fin["type"]
-        blocks.append(build_block(fin_dyn, pool, rng, entropy, params))
+        blocks.append(build_block_v2(fin_dyn, pool, rng, entropy, params))
+
+    # Clear helper param
+    params.pop("_used_ids", None)
 
     s = Session(
         session_id=str(uuid.uuid4()),
@@ -357,3 +362,91 @@ def generate_individuel(client_id: int, objectif: str, duree_minutes: int) -> Se
         meta={"goal": objectif},
     )
     return session
+
+
+# -----------------------------------------------------------------------------
+# New, more coherent block builder with slot-aware weighting and de-duplication
+def build_block_v2(
+    slot: Dict[str, Any],
+    pool: List[Tuple[Exercise, float]],
+    rng: random.Random,
+    entropy: float,
+    params=None,
+) -> Block:
+    block = Block(block_id=str(uuid.uuid4()), type=slot["type"])
+    block.duration_sec = slot.get("duration_sec", 0)
+    block.rounds = slot.get("rounds", 0)
+    block.work_sec = slot.get("work_sec", 0)
+    block.rest_sec = slot.get("rest_sec", 0)
+
+    params = params or {}
+    density = params.get("density", 5)
+    intensity = params.get("intensity_cont", 6)
+    default_rest = rest_from_density(density)
+    used_ids = params.get("_used_ids")
+    slot_name = slot.get("slot")
+
+    n_items = max(1, int(slot.get("items", 1)))
+
+    # Adjust weights depending on slot context and avoid reusing already picked exercises
+    candidates: List[Tuple[Exercise, float]] = []
+    for ex, w in pool:
+        if used_ids and ex.id in used_ids:
+            w *= 0.2
+        tags = [t.strip().lower() for t in (ex.tags or "").split(",")]
+        pattern = (ex.movement_pattern or "").lower()
+        if slot_name == "warmup":
+            if not ex.est_chargeable:
+                w *= 1.4
+            if "cardio" in tags or "technique" in tags:
+                w *= 1.25
+            if pattern in ("hinge", "squat") and ex.est_chargeable:
+                w *= 0.8
+        elif slot_name == "finisher" or str(slot.get("type", "")).upper().startswith("TABATA"):
+            if "cardio" in tags or "conditionning" in tags:
+                w *= 1.4
+            if pattern in ("hinge", "squat") and ex.est_chargeable:
+                w *= 0.7
+        candidates.append((ex, max(w, 0.05)))
+
+    rng.shuffle(candidates)
+
+    last_pattern = None
+    last_primary = None
+    for _ in range(n_items):
+        pool_step = [
+            (ex, w)
+            for ex, w in candidates
+            if ex.movement_pattern != last_pattern and ex.groupe_musculaire_principal != last_primary
+        ] or [
+            (ex, w)
+            for ex, w in candidates
+            if ex.movement_pattern != last_pattern
+        ] or candidates
+        ex = weighted_choice(rng, pool_step, entropy)
+
+        tnorm = block.type.replace(" ", "").upper()
+        if tnorm in ("SETSXREPS", "AMRAP"):
+            base_reps = 12 if getattr(ex, "category", "") != "Plyo/Power" else 8
+            presc = {
+                "reps": reps_from_intensity(intensity, base_reps),
+                "rest_sec": default_rest,
+            }
+        elif tnorm in ("FORTIME", "FORTIME"):
+            presc = {
+                "reps": reps_from_intensity(intensity, 15),
+                "rest_sec": max(30, default_rest),
+            }
+        elif tnorm == "EMOM":
+            presc = {"reps": reps_from_intensity(intensity, 10)}
+        elif tnorm == "TABATA":
+            presc = {"work_sec": block.work_sec, "rest_sec": block.rest_sec}
+        else:
+            presc = {}
+        block.items.append(BlockItem(exercise_id=ex.id, prescription=presc))
+        last_pattern = ex.movement_pattern
+        last_primary = ex.groupe_musculaire_principal
+        if used_ids is not None:
+            used_ids.add(ex.id)
+
+    return block

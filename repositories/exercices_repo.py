@@ -26,6 +26,78 @@ class ExerciseRepository:
             for row in rows
         ]
 
+    # Alias for consistency
+    def list_all(self) -> List[Exercise]:
+        return self.list_all_exercices()
+
+    def get_by_name(self, name: str) -> Optional[Exercise]:
+        with db_manager.get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM exercices WHERE nom = ?",
+                (name,),
+            ).fetchone()
+        if not row:
+            return None
+        return Exercise(
+            id=row["id"],
+            nom=row["nom"],
+            groupe_musculaire_principal=row["groupe_musculaire_principal"],
+            equipement=row["equipement"],
+            tags=row["tags"],
+            movement_pattern=row["movement_pattern"],
+            type_effort=row["type_effort"],
+            coefficient_volume=row["coefficient_volume"],
+            est_chargeable=bool(row["est_chargeable"]),
+        )
+
+    def create(self, e: Exercise) -> int:
+        with db_manager.get_connection() as conn:
+            cur = conn.execute(
+                (
+                    "INSERT INTO exercices (nom, groupe_musculaire_principal, equipement, tags, "
+                    "movement_pattern, type_effort, coefficient_volume, est_chargeable) "
+                    "VALUES (?,?,?,?,?,?,?,?)"
+                ),
+                (
+                    e.nom,
+                    e.groupe_musculaire_principal,
+                    e.equipement,
+                    e.tags,
+                    e.movement_pattern,
+                    e.type_effort,
+                    e.coefficient_volume,
+                    1 if e.est_chargeable else 0,
+                ),
+            )
+            conn.commit()
+            return int(cur.lastrowid)
+
+    def update(self, e: Exercise) -> None:
+        with db_manager.get_connection() as conn:
+            conn.execute(
+                (
+                    "UPDATE exercices SET nom=?, groupe_musculaire_principal=?, equipement=?, tags=?, "
+                    "movement_pattern=?, type_effort=?, coefficient_volume=?, est_chargeable=? WHERE id = ?"
+                ),
+                (
+                    e.nom,
+                    e.groupe_musculaire_principal,
+                    e.equipement,
+                    e.tags,
+                    e.movement_pattern,
+                    e.type_effort,
+                    e.coefficient_volume,
+                    1 if e.est_chargeable else 0,
+                    e.id,
+                ),
+            )
+            conn.commit()
+
+    def delete(self, exercise_id: int) -> None:
+        with db_manager.get_connection() as conn:
+            conn.execute("DELETE FROM exercices WHERE id = ?", (exercise_id,))
+            conn.commit()
+
     def get_names_by_ids(self, ids: List[int]) -> Dict[int, str]:
         if not ids:
             return {}

@@ -1,6 +1,7 @@
 import customtkinter as ctk
 
 from ui.pages.database_page_tabs.aliments_tab import AlimentsTab
+from ui.pages.database_page_tabs.exercises_tab import ExercisesTab
 
 
 class DatabasePage(ctk.CTkFrame):
@@ -40,23 +41,11 @@ class DatabasePage(ctk.CTkFrame):
         tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
         exercises_tab = tabview.add("Exercices")
-        self.init_exercises_tab(exercises_tab)
+        ExercisesTab(exercises_tab).pack(fill="both", expand=True)
 
         foods_tab = tabview.add("Aliments")
         AlimentsTab(foods_tab).pack(fill="both", expand=True)
 
     def init_exercises_tab(self, frame):
-        scroll = ctk.CTkScrollableFrame(frame, fg_color="transparent")
-        scroll.pack(fill="both", expand=True)
-
-        for i in range(10):
-            row = ctk.CTkFrame(
-                scroll, fg_color=self.colors["surface_light"], corner_radius=8
-            )
-            row.pack(fill="x", padx=10, pady=4)
-            ctk.CTkLabel(
-                row,
-                text=f"Exercice {i + 1}",
-                font=ctk.CTkFont(**self.fonts["Body"]),
-                text_color=self.colors["primary_text"],
-            ).pack(side="left", padx=10)
+        # Legacy placeholder removed; now handled by ExercisesTab
+        pass
