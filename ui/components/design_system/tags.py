@@ -1,14 +1,15 @@
+from typing import Callable, Iterable, List, Optional
+
 import customtkinter as ctk
-from typing import Iterable, List, Optional, Callable
 
 
 def _hex_to_rgb(h: str) -> tuple[int, int, int]:
-    h = h.lstrip('#')
-    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+    h = h.lstrip("#")
+    return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def _rgb_to_hex(rgb: tuple[int, int, int]) -> str:
-    return '#%02x%02x%02x' % rgb
+    return "#%02x%02x%02x" % rgb
 
 
 def _blend(c1: str, c2: str, t: float) -> str:
@@ -27,7 +28,14 @@ class TagRadioGroup(ctk.CTkFrame):
     - options: list of string options to choose from
     """
 
-    def __init__(self, master, label: str, options: Iterable[str], helper: str | None = None, on_change: Optional[Callable[[Optional[str]], None]] = None):
+    def __init__(
+        self,
+        master,
+        label: str,
+        options: Iterable[str],
+        helper: str | None = None,
+        on_change: Optional[Callable[[Optional[str]], None]] = None,
+    ):
         super().__init__(master, fg_color="transparent")
         self._colors = ctk.ThemeManager.theme.get("color", {})
         self._fonts = ctk.ThemeManager.theme.get("font", {})
@@ -50,7 +58,9 @@ class TagRadioGroup(ctk.CTkFrame):
         self._seg = ctk.CTkSegmentedButton(self, values=list(options))
         self._seg.pack(fill="x", pady=(4, 0))
         try:
-            self._seg.configure(command=lambda v: self._on_change(v) if self._on_change else None)
+            self._seg.configure(
+                command=lambda v: self._on_change(v) if self._on_change else None
+            )
         except Exception:
             pass
 
@@ -77,7 +87,16 @@ class TagCheckboxGroup(ctk.CTkFrame):
     - get_csv() -> Optional[str]
     """
 
-    def __init__(self, master, label: str, options: Iterable[str], columns: int = 3, helper: str | None = None, compact: bool = False, on_change: Optional[Callable[[List[str]], None]] = None):
+    def __init__(
+        self,
+        master,
+        label: str,
+        options: Iterable[str],
+        columns: int = 3,
+        helper: str | None = None,
+        compact: bool = False,
+        on_change: Optional[Callable[[List[str]], None]] = None,
+    ):
         super().__init__(master, fg_color="transparent")
         self._colors = ctk.ThemeManager.theme.get("color", {})
         self._fonts = ctk.ThemeManager.theme.get("font", {})
@@ -107,7 +126,9 @@ class TagCheckboxGroup(ctk.CTkFrame):
         c = 0
         for opt in options:
             var = ctk.BooleanVar(value=False)
-            cb = ctk.CTkCheckBox(self._grid, text=opt, variable=var, command=self._on_toggle)
+            cb = ctk.CTkCheckBox(
+                self._grid, text=opt, variable=var, command=self._on_toggle
+            )
             pad_x = (0, 8 if compact else 12)
             pad_y = (0, 4 if compact else 6)
             cb.grid(row=r, column=c, padx=pad_x, pady=pad_y, sticky="w")
@@ -183,7 +204,16 @@ class ChipRadioGroup(ctk.CTkFrame):
     Renders each option as a pill-shaped button that sizes to its text and wraps to the next line based on width.
     """
 
-    def __init__(self, master, label: str, options: Iterable[str], helper: str | None = None, on_change: Optional[Callable[[Optional[str]], None]] = None, selected_color: str | None = None, unselected_color: str | None = None):
+    def __init__(
+        self,
+        master,
+        label: str,
+        options: Iterable[str],
+        helper: str | None = None,
+        on_change: Optional[Callable[[Optional[str]], None]] = None,
+        selected_color: str | None = None,
+        unselected_color: str | None = None,
+    ):
         super().__init__(master, fg_color="transparent")
         self._colors = ctk.ThemeManager.theme.get("color", {})
         self._fonts = ctk.ThemeManager.theme.get("font", {})
@@ -208,8 +238,12 @@ class ChipRadioGroup(ctk.CTkFrame):
         self._wrap.pack(fill="x", pady=(6, 4))
 
         seg_theme = ctk.ThemeManager.theme.get("CTkSegmentedButton", {})
-        self._sel_color = selected_color or seg_theme.get("selected_color", ["#22D3EE"])[0]
-        self._unsel_color = unselected_color or seg_theme.get("unselected_color", ["#374151"])[0]
+        self._sel_color = (
+            selected_color or seg_theme.get("selected_color", ["#22D3EE"])[0]
+        )
+        self._unsel_color = (
+            unselected_color or seg_theme.get("unselected_color", ["#374151"])[0]
+        )
         self._unsel_text = self._colors.get("primary_text", "#E5E7EB")
 
         self._chips: list[ctk.CTkButton] = []
@@ -296,7 +330,16 @@ class ChipRadioGroup(ctk.CTkFrame):
 class ChipCheckboxGroup(ctk.CTkFrame):
     """Auto-wrapping chip checkbox group (multi-select)."""
 
-    def __init__(self, master, label: str, options: Iterable[str], helper: str | None = None, on_change: Optional[Callable[[List[str]], None]] = None, selected_color: str | None = None, unselected_color: str | None = None):
+    def __init__(
+        self,
+        master,
+        label: str,
+        options: Iterable[str],
+        helper: str | None = None,
+        on_change: Optional[Callable[[List[str]], None]] = None,
+        selected_color: str | None = None,
+        unselected_color: str | None = None,
+    ):
         super().__init__(master, fg_color="transparent")
         self._colors = ctk.ThemeManager.theme.get("color", {})
         self._fonts = ctk.ThemeManager.theme.get("font", {})
@@ -321,8 +364,12 @@ class ChipCheckboxGroup(ctk.CTkFrame):
         self._wrap.pack(fill="x", pady=(6, 4))
 
         seg_theme = ctk.ThemeManager.theme.get("CTkSegmentedButton", {})
-        self._sel_color = selected_color or seg_theme.get("selected_color", ["#22D3EE"])[0]
-        self._unsel_color = unselected_color or seg_theme.get("unselected_color", ["#374151"])[0]
+        self._sel_color = (
+            selected_color or seg_theme.get("selected_color", ["#22D3EE"])[0]
+        )
+        self._unsel_color = (
+            unselected_color or seg_theme.get("unselected_color", ["#374151"])[0]
+        )
         self._unsel_text = self._colors.get("primary_text", "#E5E7EB")
 
         self._chips: list[ctk.CTkButton] = []

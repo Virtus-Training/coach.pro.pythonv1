@@ -21,4 +21,3 @@ class Divider(ctk.CTkFrame):
         if "pady" not in kwargs:
             kwargs["pady"] = self._default_pad
         return super().pack(*args, **kwargs)
-

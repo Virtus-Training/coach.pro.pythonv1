@@ -1,10 +1,13 @@
-import customtkinter as ctk
 from typing import Callable, List, Tuple
+
+import customtkinter as ctk
 
 
 class CommandPalette(ctk.CTkToplevel):
     def __init__(self, master):
-        super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if CTkToplevel not themed
+        super().__init__(
+            master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"]
+        )  # fallback if CTkToplevel not themed
         self.title("Commandes")
         self.geometry("520x420")
         self.resizable(True, True)
@@ -14,7 +17,9 @@ class CommandPalette(ctk.CTkToplevel):
         frame = ctk.CTkFrame(self, fg_color="transparent")
         frame.pack(fill="both", expand=True, padx=12, pady=12)
 
-        self.entry = ctk.CTkEntry(frame, placeholder_text="Tapez une commande… (ex: ajouter, modifier)")
+        self.entry = ctk.CTkEntry(
+            frame, placeholder_text="Tapez une commande… (ex: ajouter, modifier)"
+        )
         self.entry.pack(fill="x", pady=(0, 8))
         self.entry.bind("<KeyRelease>", self._on_change)
         self.entry.bind("<Return>", self._on_enter)
@@ -34,7 +39,13 @@ class CommandPalette(ctk.CTkToplevel):
         except Exception:
             pass
 
-    def add_command(self, label: str, action: Callable[[], None], enabled: bool = True, shortcut: str | None = None):
+    def add_command(
+        self,
+        label: str,
+        action: Callable[[], None],
+        enabled: bool = True,
+        shortcut: str | None = None,
+    ):
         self._commands.append((label, action, enabled, shortcut))
 
     def open(self):
@@ -49,9 +60,9 @@ class CommandPalette(ctk.CTkToplevel):
         for i in self._filtered:
             label, _action, _enabled, shortcut = self._commands[i]
             text = f"{label}" + (f"   ({shortcut})" if shortcut else "")
-            l = ctk.CTkLabel(self.list, text=text)
-            l.pack(fill="x", pady=2)
-            self._labels.append(l)
+            label_widget = ctk.CTkLabel(self.list, text=text)
+            label_widget.pack(fill="x", pady=2)
+            self._labels.append(label_widget)
         self._active_index = 0
         self._highlight()
         # Bind arrows after list created
@@ -70,27 +81,33 @@ class CommandPalette(ctk.CTkToplevel):
             if q and q not in label.lower():
                 continue
             text = f"{label}" + (f"   ({shortcut})" if shortcut else "")
-            l = ctk.CTkLabel(self.list, text=text)
-            l.pack(fill="x", pady=2)
-            self._labels.append(l)
+            label_widget = ctk.CTkLabel(self.list, text=text)
+            label_widget.pack(fill="x", pady=2)
+            self._labels.append(label_widget)
             self._filtered.append(i)
         self._active_index = 0
         self._highlight()
 
     def _highlight(self):
-        for idx, l in enumerate(self._labels):
+        for idx, label_widget in enumerate(self._labels):
             if idx == self._active_index:
                 try:
-                    l.configure(text_color=ctk.ThemeManager.theme["color"].get("primary", "#22D3EE"))
+                    label_widget.configure(
+                        text_color=ctk.ThemeManager.theme["color"].get(
+                            "primary", "#22D3EE"
+                        )
+                    )
                 except Exception:
                     pass
             else:
-                l.configure(text_color=None)
+                label_widget.configure(text_color=None)
 
     def _move(self, delta: int):
         if not self._labels:
             return
-        self._active_index = max(0, min(len(self._labels) - 1, self._active_index + delta))
+        self._active_index = max(
+            0, min(len(self._labels) - 1, self._active_index + delta)
+        )
         self._highlight()
 
     def _on_enter(self, _e=None):
@@ -103,4 +120,3 @@ class CommandPalette(ctk.CTkToplevel):
         except Exception:
             pass
         action()
-

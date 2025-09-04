@@ -60,11 +60,13 @@ class AlimentForm(ctk.CTkToplevel):
         if not nom:
             self.in_nom.show_error("Nom requis")
             return
+
         def _num(val: str) -> float:
             try:
                 return float(val.replace(",", ".").strip()) if val.strip() else 0.0
             except Exception:
                 return 0.0
+
         payload = {
             "nom": nom,
             "categorie": self.in_cat.get_value() or None,
@@ -93,9 +95,13 @@ class AlimentsTab(ctk.CTkFrame):
 
         self.btn_add = ctk.CTkButton(toolbar, text="Ajouter", command=self._on_add)
         self.btn_add.pack(side="right", padx=(8, 0))
-        self.btn_edit = ctk.CTkButton(toolbar, text="Modifier", command=self._on_edit, state="disabled")
+        self.btn_edit = ctk.CTkButton(
+            toolbar, text="Modifier", command=self._on_edit, state="disabled"
+        )
         self.btn_edit.pack(side="right", padx=(8, 0))
-        self.btn_del = ctk.CTkButton(toolbar, text="Supprimer", command=self._on_delete, state="disabled")
+        self.btn_del = ctk.CTkButton(
+            toolbar, text="Supprimer", command=self._on_delete, state="disabled"
+        )
         self.btn_del.pack(side="right")
 
         self.selected_name: Optional[str] = None
@@ -113,7 +119,9 @@ class AlimentsTab(ctk.CTkFrame):
         headers = ["Nom", "Kcal", "Protéines", "Glucides", "Lipides"]
         if hasattr(self, "table"):
             self.table.destroy()
-        self.table = DataTable(self, headers=headers, data=data, on_select=self._on_select)
+        self.table = DataTable(
+            self, headers=headers, data=data, on_select=self._on_select
+        )
         self.table.pack(fill="both", expand=True, padx=10, pady=(10, 10))
         self.selected_name = None
         self.btn_edit.configure(state="disabled")
@@ -143,6 +151,7 @@ class AlimentsTab(ctk.CTkFrame):
             )
             self.repo.create(a)
             self._load()
+
         AlimentForm(self, on_submit=handle_submit)
 
     def _on_edit(self) -> None:
@@ -151,6 +160,7 @@ class AlimentsTab(ctk.CTkFrame):
         a = self.repo.get_by_name(self.selected_name)
         if not a:
             return
+
         def handle_submit(p: dict):
             a.nom = p["nom"]
             a.categorie = p["categorie"]
@@ -162,6 +172,7 @@ class AlimentsTab(ctk.CTkFrame):
             a.unite_base = p["unite"]
             self.repo.update(a)
             self._load()
+
         AlimentForm(self, on_submit=handle_submit, aliment=a)
 
     def _on_delete(self) -> None:
@@ -175,10 +186,19 @@ class AlimentsTab(ctk.CTkFrame):
         ctk.CTkLabel(confirm, text=f"Supprimer '{a.nom}' ?").pack(padx=16, pady=16)
         row = ctk.CTkFrame(confirm, fg_color="transparent")
         row.pack(pady=(0, 12))
+
         def do_del():
             self.repo.delete(int(a.id))
             confirm.destroy()
             self._load()
-        ctk.CTkButton(row, text="Annuler", command=confirm.destroy).pack(side="left", padx=8)
-        ctk.CTkButton(row, text="Supprimer", fg_color="#B00020", hover_color="#8E001A", command=do_del).pack(side="left")
 
+        ctk.CTkButton(row, text="Annuler", command=confirm.destroy).pack(
+            side="left", padx=8
+        )
+        ctk.CTkButton(
+            row,
+            text="Supprimer",
+            fg_color="#B00020",
+            hover_color="#8E001A",
+            command=do_del,
+        ).pack(side="left")

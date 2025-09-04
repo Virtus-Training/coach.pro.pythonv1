@@ -70,9 +70,13 @@ class DataTable(ctk.CTkFrame):
                 if r % 2 == 0
                 else self.theme["row_odd_fg_color"]
             )
-            sel_bg = self.theme.get("row_selected_fg_color", self.theme["row_hover_fg_color"])
+            sel_bg = self.theme.get(
+                "row_selected_fg_color", self.theme["row_hover_fg_color"]
+            )
             is_selected = self.selected_index == r
-            row_frame = ctk.CTkFrame(self.body, fg_color=(sel_bg if is_selected else bg))
+            row_frame = ctk.CTkFrame(
+                self.body, fg_color=(sel_bg if is_selected else bg)
+            )
             row_frame.grid(row=r, column=0, sticky="ew")
             row_frame.bind(
                 "<Enter>",
@@ -82,9 +86,12 @@ class DataTable(ctk.CTkFrame):
             )
             row_frame.bind(
                 "<Leave>",
-                lambda _e, f=row_frame, color=(sel_bg if is_selected else bg): f.configure(fg_color=color),
+                lambda _e,
+                f=row_frame,
+                color=(sel_bg if is_selected else bg): f.configure(fg_color=color),
             )
             if self.on_select is not None:
+
                 def _make_click(idx: int, rf: ctk.CTkFrame):
                     def _cb(_e=None):
                         self.selected_index = idx
@@ -94,7 +101,9 @@ class DataTable(ctk.CTkFrame):
                             self.on_select(idx, self.data[idx])
                         except Exception:
                             pass
+
                     return _cb
+
                 row_frame.bind("<Button-1>", _make_click(r, row_frame))
             for c, value in enumerate(row):
                 lbl = ctk.CTkLabel(

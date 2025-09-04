@@ -402,7 +402,9 @@ def build_block_v2(
                 w *= 1.25
             if pattern in ("hinge", "squat") and ex.est_chargeable:
                 w *= 0.8
-        elif slot_name == "finisher" or str(slot.get("type", "")).upper().startswith("TABATA"):
+        elif slot_name == "finisher" or str(slot.get("type", "")).upper().startswith(
+            "TABATA"
+        ):
             if "cardio" in tags or "conditionning" in tags:
                 w *= 1.4
             if pattern in ("hinge", "squat") and ex.est_chargeable:
@@ -414,15 +416,16 @@ def build_block_v2(
     last_pattern = None
     last_primary = None
     for _ in range(n_items):
-        pool_step = [
-            (ex, w)
-            for ex, w in candidates
-            if ex.movement_pattern != last_pattern and ex.groupe_musculaire_principal != last_primary
-        ] or [
-            (ex, w)
-            for ex, w in candidates
-            if ex.movement_pattern != last_pattern
-        ] or candidates
+        pool_step = (
+            [
+                (ex, w)
+                for ex, w in candidates
+                if ex.movement_pattern != last_pattern
+                and ex.groupe_musculaire_principal != last_primary
+            ]
+            or [(ex, w) for ex, w in candidates if ex.movement_pattern != last_pattern]
+            or candidates
+        )
         ex = weighted_choice(rng, pool_step, entropy)
 
         tnorm = block.type.replace(" ", "").upper()
