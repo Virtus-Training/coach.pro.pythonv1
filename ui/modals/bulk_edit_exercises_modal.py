@@ -1,0 +1,71 @@
+import customtkinter as ctk
+from typing import Callable, List
+
+from ui.components.design_system import ChipCheckboxGroup, Divider, CardTitle
+
+
+class BulkEditExercisesModal(ctk.CTkToplevel):
+    def __init__(self, master, on_submit: Callable[[dict], None]):
+        super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if CTkToplevel not themed
+        self.title("Édition en masse")
+        self.geometry("640x520")
+        self.minsize(520, 420)
+        self.resizable(True, True)
+        self._on_submit = on_submit
+
+        colors = ctk.ThemeManager.theme["color"]
+
+        frame = ctk.CTkFrame(self, fg_color="transparent")
+        frame.pack(fill="both", expand=True, padx=16, pady=16)
+
+        content = ctk.CTkScrollableFrame(frame, fg_color="transparent")
+        content.pack(side="top", fill="both", expand=True)
+
+        # Load options from Exercise form constants, or fallback to empty
+        EQUIPMENT_OPTIONS = []
+        TAG_OPTIONS = []
+        try:
+            from ui.pages.database_page_tabs.exercises_tab import EQUIPMENT_OPTIONS as EO, TAG_OPTIONS as TO
+            EQUIPMENT_OPTIONS = list(EO)
+            TAG_OPTIONS = list(TO)
+        except Exception:
+            pass
+
+        CardTitle(content, text="Équipements").pack(anchor="w", pady=(0, 6))
+        self.equip_add = ChipCheckboxGroup(content, label="Ajouter", helper="Sélectionnez les équipements à ajouter", options=EQUIPMENT_OPTIONS)
+        self.equip_add.pack(fill="x", pady=(0, 8))
+        self.equip_remove = ChipCheckboxGroup(content, label="Retirer", helper="Sélectionnez les équipements à retirer", options=EQUIPMENT_OPTIONS)
+        self.equip_remove.pack(fill="x", pady=(0, 8))
+
+        Divider(content)
+        CardTitle(content, text="Tags").pack(anchor="w", pady=(6, 6))
+        self.tags_add = ChipCheckboxGroup(content, label="Ajouter", helper="Sélectionnez les tags à ajouter", options=TAG_OPTIONS)
+        self.tags_add.pack(fill="x", pady=(0, 8))
+        self.tags_remove = ChipCheckboxGroup(content, label="Retirer", helper="Sélectionnez les tags à retirer", options=TAG_OPTIONS)
+        self.tags_remove.pack(fill="x", pady=(0, 8))
+
+        # Footer
+        btn_row = ctk.CTkFrame(frame, fg_color="transparent")
+        btn_row.pack(side="bottom", fill="x", pady=(8, 0))
+        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy).pack(side="right")
+        ctk.CTkButton(btn_row, text="Appliquer", command=self._submit).pack(side="right", padx=(0, 8))
+
+        # Modal behavior
+        try:
+            self.transient(master)
+            self.grab_set()
+            self.attributes("-topmost", True)
+            self.after(150, lambda: self.attributes("-topmost", False))
+        except Exception:
+            pass
+        self.bind("<Escape>", lambda _e=None: self.destroy())
+
+    def _submit(self) -> None:
+        changes = {
+            "equip_add": self.equip_add.get_values() if hasattr(self.equip_add, "get_values") else [],
+            "equip_remove": self.equip_remove.get_values() if hasattr(self.equip_remove, "get_values") else [],
+            "tags_add": self.tags_add.get_values() if hasattr(self.tags_add, "get_values") else [],
+            "tags_remove": self.tags_remove.get_values() if hasattr(self.tags_remove, "get_values") else [],
+        }
+        self._on_submit(changes)
+        self.destroy()

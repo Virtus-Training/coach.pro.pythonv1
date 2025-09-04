@@ -7,66 +7,264 @@ import customtkinter as ctk
 
 from models.exercices import Exercise
 from repositories.exercices_repo import ExerciseRepository
-from ui.components.design_system import LabeledInput
+from ui.components.design_system import (
+    LabeledInput,
+    CardTitle,
+    Divider,
+    AccordionSection,
+    ChipRadioGroup,
+    ChipCheckboxGroup,
+)
+
+
+# Vocabulaire normalisé pour éviter la casse et les variations d'écriture
+MUSCLE_GROUPS = [
+    "Poitrine",
+    "Dos",
+    "\u00C9paules",  # Épaules
+    "Jambes",
+    "Fessiers",
+    "Biceps",
+    "Triceps",
+    "Abdominaux",
+    "Lombaires",
+    "Mollets",
+    "Avant-bras",
+]
+
+EQUIPMENT_OPTIONS = [
+    "Poids du corps",
+    "Halt\u00E8res",  # Haltères
+    "Barre",
+    "Kettlebell",
+    "\u00C9lastiques",  # Élastiques
+    "Machine",
+    "Poulie",
+    "TRX",
+    "Anneaux",
+    "Banc",
+]
+
+TAG_OPTIONS = [
+    "Unilat\u00E9ral",
+    "Bilat\u00E9ral",
+    "Explosif",
+    "Tempo lent",
+    "Isom\u00E9trie",
+    "Plyo",
+    "Mobilit\u00E9",
+]
+
+# Tags de cours collectifs (persistés dans le champ `tags`)
+COURSE_TAGS = [
+    "CAF",
+    "Core & Glutes",
+    "Cross-Training",
+    "Crossfit",
+    "Hyrox",
+    "TRX",
+]
+
+MOVEMENT_PATTERNS = [
+    "Push",
+    "Pull",
+    "Squat",
+    "Hinge",
+    "Carry",
+    "Lunge",
+    "Twist",
+    "Gait",
+]
+
+EFFORT_TYPES = [
+    "Force",
+    "Hypertrophie",
+    "Endurance",
+    "Cardio",
+    "Technique",
+    "Mobilit\u00E9",
+]
 
 
 class ExerciseForm(ctk.CTkToplevel):
-    """Formulaire d'exercice unique pour ajout et modification."""
+    """Formulaire d'exercice pour ajout et modification."""
 
     def __init__(self, master, on_submit, exercise: Optional[Exercise] = None) -> None:
         super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if CTkToplevel not themed
         self.title("Exercice")
-        self.geometry("520x520")
-        self.resizable(False, False)
+        self.geometry("760x720")
+        self.minsize(640, 560)
+        self.resizable(True, True)
         self._on_submit = on_submit
 
         frame = ctk.CTkFrame(self, fg_color="transparent")
         frame.pack(fill="both", expand=True, padx=16, pady=16)
+        frame.grid_columnconfigure(0, weight=1)
+        frame.grid_columnconfigure(1, weight=0)
+        frame.grid_rowconfigure(0, weight=1)
 
-        self.in_nom = LabeledInput(frame, label="Nom")
+        # Scrollable content (left)
+        content = ctk.CTkScrollableFrame(frame, fg_color="transparent")
+        content.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+
+        # Sidebar summary (right)
+        sidebar = ctk.CTkFrame(frame, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"], corner_radius=8)
+        sidebar.grid(row=0, column=1, sticky="ns")
+        CardTitle(sidebar, text="Synth\u00E8se").pack(anchor="w", padx=12, pady=(12, 6))
+        self.summary_frame = ctk.CTkFrame(sidebar, fg_color="transparent")
+        self.summary_frame.pack(fill="both", expand=True, padx=12, pady=(0, 12))
+
+        # Général
+        CardTitle(content, text="G\u00E9n\u00E9ral").pack(anchor="w", pady=(0, 6))
+        self.in_nom = LabeledInput(content, label="Nom")
         self.in_nom.pack(fill="x", pady=(0, 8))
 
-        self.in_groupe = LabeledInput(frame, label="Groupe musculaire principal")
-        self.in_groupe.pack(fill="x", pady=(0, 8))
+        self.grp_groupe = ChipRadioGroup(
+            content,
+            label="Groupe musculaire principal",
+            options=MUSCLE_GROUPS,
+            helper="Choix unique",
+            selected_color="#34D399",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_groupe.pack(fill="x", pady=(4, 8))
 
-        self.in_equip = LabeledInput(frame, label="Équipements (séparés par ,)")
-        self.in_equip.pack(fill="x", pady=(0, 8))
+        # Équipements
+        sec_equip = AccordionSection(content, title="\u00C9quipements", initially_open=False)
+        sec_equip.pack(fill="x")
+        self.grp_equip = ChipCheckboxGroup(
+            sec_equip.body,
+            label="",
+            options=EQUIPMENT_OPTIONS,
+            helper="Multi-s\u00E9lection",
+            selected_color="#60A5FA",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_equip.pack(fill="x", pady=(0, 8))
 
-        self.in_tags = LabeledInput(frame, label="Tags (séparés par ,)")
-        self.in_tags.pack(fill="x", pady=(0, 8))
+        # Cours collectifs
+        sec_course = AccordionSection(content, title="Cours collectifs", initially_open=False)
+        sec_course.pack(fill="x")
+        self.grp_course = ChipCheckboxGroup(
+            sec_course.body,
+            label="",
+            options=COURSE_TAGS,
+            helper="Multi-s\u00E9lection",
+            selected_color="#F59E0B",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_course.pack(fill="x", pady=(0, 8))
 
-        self.in_pattern = LabeledInput(frame, label="Pattern (push/pull/squat/hinge/carry...)")
-        self.in_pattern.pack(fill="x", pady=(0, 8))
+        # Tags
+        sec_tags = AccordionSection(content, title="Tags", initially_open=False)
+        sec_tags.pack(fill="x")
+        self.grp_tags = ChipCheckboxGroup(
+            sec_tags.body,
+            label="",
+            options=TAG_OPTIONS,
+            helper="Multi-s\u00E9lection",
+            selected_color="#F472B6",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_tags.pack(fill="x", pady=(0, 8))
 
-        self.in_type = LabeledInput(frame, label="Type d'effort (Force/Cardio/Technique...)")
-        self.in_type.pack(fill="x", pady=(0, 8))
+        # Mouvement
+        sec_move = AccordionSection(content, title="Mouvement", initially_open=True)
+        sec_move.pack(fill="x")
+        self.grp_pattern = ChipRadioGroup(
+            sec_move.body,
+            label="Pattern",
+            options=MOVEMENT_PATTERNS,
+            helper="Choix unique",
+            selected_color="#22D3EE",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_pattern.pack(fill="x", pady=(0, 8))
 
-        self.in_coeff = LabeledInput(frame, label="Coeff. volume (ex: 1.0)")
-        self.in_coeff.pack(fill="x", pady=(0, 8))
+        # Type d'effort
+        sec_type = AccordionSection(content, title="Type d'effort", initially_open=False)
+        sec_type.pack(fill="x")
+        self.grp_type = ChipRadioGroup(
+            sec_type.body,
+            label="",
+            options=EFFORT_TYPES,
+            helper="Choix unique",
+            selected_color="#A78BFA",
+            on_change=lambda _v=None: self._update_summary(),
+        )
+        self.grp_type.pack(fill="x", pady=(0, 8))
+
+        # Paramètres
+        sec_params = AccordionSection(content, title="Param\u00E8tres", initially_open=False)
+        sec_params.pack(fill="x")
+        meta_row = ctk.CTkFrame(sec_params.body, fg_color="transparent")
+        meta_row.pack(fill="x", pady=(0, 8))
+        meta_row.grid_columnconfigure(0, weight=1)
+        meta_row.grid_columnconfigure(1, weight=1)
 
         self.var_charge = ctk.BooleanVar(value=False)
-        self.sw_charge = ctk.CTkSwitch(frame, text="Chargeable", variable=self.var_charge)
-        self.sw_charge.pack(anchor="w", pady=(4, 12))
+        self.sw_charge = ctk.CTkSwitch(meta_row, text="Chargeable", variable=self.var_charge)
+        self.sw_charge.configure(command=self._update_summary)
+        self.sw_charge.grid(row=0, column=0, sticky="w", padx=(0, 8))
+        self.in_coeff = LabeledInput(meta_row, label="Coeff. volume (ex: 1.0)")
+        self.in_coeff.grid(row=0, column=1, sticky="ew")
+        try:
+            self.in_coeff.entry.bind("<KeyRelease>", lambda _e=None: self._update_summary())
+        except Exception:
+            pass
 
+        # Footer
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
-        btn_row.pack(fill="x", pady=(8, 0))
+        btn_row.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
         ctk.CTkButton(btn_row, text="Annuler", command=self.destroy).pack(side="right")
-        ctk.CTkButton(btn_row, text="Enregistrer", command=self._submit).pack(side="right", padx=(0, 8))
+        ctk.CTkButton(btn_row, text="Valider", command=self._submit).pack(side="right", padx=(0, 8))
+        ctk.CTkButton(btn_row, text="Valider + Nouveau", command=lambda: self._submit(reset_after=True)).pack(side="right", padx=(0, 8))
 
+        # Pré-remplissage
         if exercise:
             self.in_nom.set_value(exercise.nom)
-            self.in_groupe.set_value(exercise.groupe_musculaire_principal)
-            self.in_equip.set_value(exercise.equipement or "")
-            self.in_tags.set_value(exercise.tags or "")
-            self.in_pattern.set_value(exercise.movement_pattern or "")
-            self.in_type.set_value(exercise.type_effort or "")
+            self.grp_groupe.set_value(exercise.groupe_musculaire_principal)
+            if exercise.equipement:
+                vals = [v.strip() for v in str(exercise.equipement).split(",") if v.strip()]
+                self.grp_equip.set_values(vals)
+            if exercise.tags:
+                vals_all = [v.strip() for v in str(exercise.tags).split(",") if v.strip()]
+                vals_course = [v for v in vals_all if v in COURSE_TAGS]
+                vals_tags = [v for v in vals_all if v in TAG_OPTIONS]
+                if vals_course:
+                    self.grp_course.set_values(vals_course)
+                if vals_tags:
+                    self.grp_tags.set_values(vals_tags)
+            self.grp_pattern.set_value(exercise.movement_pattern or None)
+            self.grp_type.set_value(exercise.type_effort or None)
             self.in_coeff.set_value(str(exercise.coefficient_volume or 1.0))
             self.var_charge.set(bool(exercise.est_chargeable))
+        self._update_summary()
 
+        # Modal behavior
+        try:
+            self.transient(master)
+        except Exception:
+            pass
+        try:
+            self.in_nom.entry.focus_set()
+        except Exception:
+            self.focus_set()
+        self.bind("<Return>", lambda _e=None: self._submit())
+        self.bind("<Escape>", lambda _e=None: self.destroy())
+        try:
+            self.attributes("-topmost", True)
+        except Exception:
+            pass
+        self.after(150, lambda: self.attributes("-topmost", False))
+        try:
+            self.grab_set()
+        except Exception:
+            pass
         self.lift()
-        self.focus()
+        self.focus_force()
 
-    def _submit(self) -> None:
+    def _submit(self, reset_after: bool = False) -> None:
         nom = self.in_nom.get_value()
         if not nom:
             self.in_nom.show_error("Nom requis")
@@ -76,18 +274,85 @@ class ExerciseForm(ctk.CTkToplevel):
         except ValueError:
             self.in_coeff.show_error("Nombre invalide")
             return
+
+        tags_vals: list[str] = []
+        try:
+            tags_vals += self.grp_tags.get_values()
+        except Exception:
+            pass
+        try:
+            tags_vals += self.grp_course.get_values()
+        except Exception:
+            pass
+        tags_csv = ",".join(sorted(set(tags_vals))) if tags_vals else None
+
         payload = {
             "nom": nom,
-            "groupe": self.in_groupe.get_value(),
-            "equip": self.in_equip.get_value() or None,
-            "tags": self.in_tags.get_value() or None,
-            "pattern": self.in_pattern.get_value() or None,
-            "type_effort": self.in_type.get_value() or "",
+            "groupe": self.grp_groupe.get_value() or "",
+            "equip": self.grp_equip.get_csv(),
+            "tags": tags_csv,
+            "pattern": self.grp_pattern.get_value(),
+            "type_effort": self.grp_type.get_value() or "",
             "coeff": coeff,
             "charge": bool(self.var_charge.get()),
         }
         self._on_submit(payload)
-        self.destroy()
+        if reset_after:
+            try:
+                self.in_nom.set_value("")
+                self.in_nom.entry.focus_set()
+            except Exception:
+                pass
+        else:
+            self.destroy()
+
+    def _update_summary(self) -> None:
+        for w in self.summary_frame.winfo_children():
+            w.destroy()
+
+        colors = {
+            "group": "#34D399",
+            "pattern": "#22D3EE",
+            "type": "#A78BFA",
+            "equip": "#60A5FA",
+            "course": "#F59E0B",
+            "tags": "#F472B6",
+            "flag": "#10B981",
+            "meta": "#9CA3AF",
+        }
+
+        def add_section(title: str, items: list[str], color: str):
+            if not items:
+                return
+            sec = ctk.CTkFrame(self.summary_frame, fg_color="transparent")
+            sec.pack(fill="x", pady=(0, 6))
+            ctk.CTkLabel(sec, text=title).pack(anchor="w")
+            row = ctk.CTkFrame(sec, fg_color="transparent")
+            row.pack(anchor="w")
+            for it in items:
+                f = ctk.CTkFrame(row, fg_color=color, corner_radius=999)
+                ctk.CTkLabel(f, text=it, padx=8, pady=2, text_color="#111827", font=("Segoe UI", 11, "bold")).pack()
+                f.pack(side="left", padx=(0, 6), pady=(2, 0))
+
+        g = [self.grp_groupe.get_value()] if self.grp_groupe.get_value() else []
+        p = [self.grp_pattern.get_value()] if self.grp_pattern.get_value() else []
+        t = [self.grp_type.get_value()] if self.grp_type.get_value() else []
+        equips = sorted(self.grp_equip.get_values() if hasattr(self.grp_equip, 'get_values') else [])
+        courses = sorted(self.grp_course.get_values() if hasattr(self.grp_course, 'get_values') else [])
+        tags = sorted(self.grp_tags.get_values() if hasattr(self.grp_tags, 'get_values') else [])
+
+        add_section("Groupe", g, colors["group"])
+        add_section("Mouvement", p, colors["pattern"])
+        add_section("Type", t, colors["type"])
+        add_section("\u00C9quipements", equips, colors["equip"])
+        add_section("Cours", courses, colors["course"])
+        add_section("Tags", tags, colors["tags"])
+
+        flags = ["Chargeable"] if bool(self.var_charge.get()) else []
+        if flags:
+            add_section("Options", flags, colors["flag"])
+        coeff_txt = (self.in_coeff.get_value() if hasattr(self.in_coeff, 'get_value') else None) or "1.0"
+        add_section("Coeff.", [coeff_txt], colors["meta"])
 
 
 class _Listbox(ctk.CTkFrame):
@@ -110,6 +375,7 @@ class _Listbox(ctk.CTkFrame):
             self,
             activestyle="dotbox",
             exportselection=False,
+            selectmode=tk.EXTENDED,
             background=bg,
             foreground=fg,
             selectbackground=sel_bg,
@@ -152,13 +418,25 @@ class _Listbox(ctk.CTkFrame):
             return self._items_visible[idx]
         return None
 
+    def selected_keys(self) -> list[str]:
+        cur = self._lb.curselection()
+        keys: list[str] = []
+        for i in cur:
+            try:
+                idx = int(i)
+                if 0 <= idx < len(self._items_visible):
+                    keys.append(self._items_visible[idx])
+            except Exception:
+                pass
+        return keys
+
     def _on_select(self, _e=None):
         if self.on_select:
             self.on_select(self.current_key())
 
 
 class ExercisesTab(ctk.CTkFrame):
-    """Version légère de l'onglet Exercices (ajout/suppression uniquement)."""
+    """Gestion basique des exercices: liste, ajout, modification, suppression."""
 
     def __init__(self, parent, repo: ExerciseRepository | None = None):
         super().__init__(parent, fg_color="transparent")
@@ -183,7 +461,7 @@ class ExercisesTab(ctk.CTkFrame):
         self.btn_del = ctk.CTkButton(toolbar, text="Supprimer", command=self._on_delete, state="disabled")
         self.btn_del.pack(side="right")
 
-        # Body: list + helper
+        # Body
         body = ctk.CTkFrame(self, fg_color="transparent")
         body.pack(fill="both", expand=True, padx=12, pady=(10, 12))
         body.grid_columnconfigure(0, weight=1)
@@ -192,7 +470,7 @@ class ExercisesTab(ctk.CTkFrame):
         ctk.CTkLabel(
             body,
             text="Liste des exercices",
-            font=ctk.CTkFont(**self.fonts["BodyBold"]) if "BodyBold" in self.fonts else ctk.CTkFont(size=13, weight="bold"),
+            font=ctk.CTkFont(size=13, weight="bold"),
             text_color=self.colors.get("primary_text", None),
         ).grid(row=0, column=0, sticky="w", pady=(0, 6))
 
@@ -201,21 +479,21 @@ class ExercisesTab(ctk.CTkFrame):
 
         self._load()
 
-    # ------------------------------------------------------------------
     def _load(self) -> None:
         self.exercises: List[Exercise] = self.repo.list_all()
-        # Only display names for compactness
         names: list[str] = [e.nom for e in self.exercises]
         self.listbox.set_items(names)
         self.selected_name = None
-        self.btn_del.configure(state="disabled")
-        self.btn_edit.configure(state="disabled")
+        for b in (self.btn_del, self.btn_edit):
+            b.configure(state="disabled")
 
     def _on_select(self, name: Optional[str]) -> None:
         self.selected_name = name
-        state = ("normal" if name else "disabled")
-        self.btn_del.configure(state=state)
-        self.btn_edit.configure(state=state)
+        keys = self.listbox.selected_keys()
+        has_any = bool(keys)
+        single = len(keys) == 1
+        self.btn_del.configure(state=("normal" if has_any else "disabled"))
+        self.btn_edit.configure(state=("normal" if single else "disabled"))
 
     def _on_search(self, _event=None):
         self.listbox.filter(self.search_entry.get())
@@ -260,22 +538,29 @@ class ExercisesTab(ctk.CTkFrame):
         ExerciseForm(self, on_submit=handle_submit, exercise=e)
 
     def _on_delete(self) -> None:
-        if not self.selected_name:
+        keys = self.listbox.selected_keys()
+        if not keys:
             return
-        e = self.repo.get_by_name(self.selected_name)
-        if not e:
-            return
-        # Confirmation
+        e = self.repo.get_by_name(keys[0]) if len(keys) == 1 else None
         confirm = ctk.CTkToplevel(self, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if CTkToplevel not themed
         confirm.title("Confirmer la suppression")
-        ctk.CTkLabel(confirm, text=f"Supprimer '{e.nom}' ?").pack(padx=16, pady=16)
+        if len(keys) == 1 and e:
+            msg = f"Supprimer '{e.nom}' ?"
+        else:
+            preview = ", ".join(keys[:3]) + ("…" if len(keys) > 3 else "")
+            msg = f"Supprimer {len(keys)} exercice(s) : {preview}"
+        ctk.CTkLabel(confirm, text=msg).pack(padx=16, pady=16)
         row = ctk.CTkFrame(confirm, fg_color="transparent")
         row.pack(pady=(0, 12))
 
         def do_del():
-            self.repo.delete(int(e.id))
+            for name in keys:
+                ex = self.repo.get_by_name(name)
+                if ex:
+                    self.repo.delete(int(ex.id))
             confirm.destroy()
             self._load()
 
         ctk.CTkButton(row, text="Annuler", command=confirm.destroy).pack(side="left", padx=8)
         ctk.CTkButton(row, text="Supprimer", fg_color="#B00020", hover_color="#8E001A", command=do_del).pack(side="left")
+
