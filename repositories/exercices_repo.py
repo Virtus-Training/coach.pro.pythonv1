@@ -19,6 +19,10 @@ class ExerciseRepository:
                 groupe_musculaire_principal=row["groupe_musculaire_principal"],
                 equipement=row["equipement"],
                 tags=row["tags"],
+                movement_pattern=row.get("movement_pattern") if isinstance(row, dict) else row["movement_pattern"],
+                movement_category=(
+                    row.get("movement_category") if isinstance(row, dict) else row["movement_category"] if "movement_category" in row.keys() else None
+                ),
                 type_effort=row["type_effort"],
                 coefficient_volume=row["coefficient_volume"],
                 est_chargeable=bool(row["est_chargeable"]),
@@ -45,6 +49,7 @@ class ExerciseRepository:
             equipement=row["equipement"],
             tags=row["tags"],
             movement_pattern=row["movement_pattern"],
+            movement_category=row["movement_category"] if "movement_category" in row.keys() else None,
             type_effort=row["type_effort"],
             coefficient_volume=row["coefficient_volume"],
             est_chargeable=bool(row["est_chargeable"]),
@@ -55,8 +60,8 @@ class ExerciseRepository:
             cur = conn.execute(
                 (
                     "INSERT INTO exercices (nom, groupe_musculaire_principal, equipement, tags, "
-                    "movement_pattern, type_effort, coefficient_volume, est_chargeable) "
-                    "VALUES (?,?,?,?,?,?,?,?)"
+                    "movement_pattern, movement_category, type_effort, coefficient_volume, est_chargeable) "
+                    "VALUES (?,?,?,?,?,?,?,?,?)"
                 ),
                 (
                     e.nom,
@@ -64,6 +69,7 @@ class ExerciseRepository:
                     e.equipement,
                     e.tags,
                     e.movement_pattern,
+                    e.movement_category,
                     e.type_effort,
                     e.coefficient_volume,
                     1 if e.est_chargeable else 0,
@@ -77,7 +83,7 @@ class ExerciseRepository:
             conn.execute(
                 (
                     "UPDATE exercices SET nom=?, groupe_musculaire_principal=?, equipement=?, tags=?, "
-                    "movement_pattern=?, type_effort=?, coefficient_volume=?, est_chargeable=? WHERE id = ?"
+                    "movement_pattern=?, movement_category=?, type_effort=?, coefficient_volume=?, est_chargeable=? WHERE id = ?"
                 ),
                 (
                     e.nom,
@@ -85,6 +91,7 @@ class ExerciseRepository:
                     e.equipement,
                     e.tags,
                     e.movement_pattern,
+                    e.movement_category,
                     e.type_effort,
                     e.coefficient_volume,
                     1 if e.est_chargeable else 0,
@@ -97,6 +104,38 @@ class ExerciseRepository:
         with db_manager.get_connection() as conn:
             conn.execute("DELETE FROM exercices WHERE id = ?", (exercise_id,))
             conn.commit()
+
+    def cleanup_normalize(self) -> int:
+        """Normalise les valeurs redondantes/incohérentes.
+
+        - movement_pattern: 'plyo'/'saut'/'jump' -> 'Jump'
+        - movement_category: NULL si hors {Polyarticulaire, Isolation, Gainage}
+        - tags: 'Plyo' -> 'Explosif', 'Isometrie' -> 'Isométrie'
+
+        Returns: nombre approximatif de changements.
+        """
+        with db_manager.get_connection() as conn:
+            before = conn.total_changes
+            conn.execute(
+                "UPDATE exercices SET movement_pattern='Jump' "
+                "WHERE LOWER(movement_pattern) IN ('plyo','saut','jump')"
+            )
+            conn.execute(
+                (
+                    "UPDATE exercices SET movement_category = NULL "
+                    "WHERE movement_category IS NOT NULL "
+                    "AND movement_category NOT IN ('Polyarticulaire','Isolation','Gainage')"
+                )
+            )
+            conn.execute(
+                "UPDATE exercices SET tags=REPLACE(tags,'Plyo','Explosif') WHERE tags LIKE '%Plyo%'"
+            )
+            conn.execute(
+                "UPDATE exercices SET tags=REPLACE(tags,'Isometrie','Isométrie') WHERE tags LIKE '%Isometrie%'"
+            )
+            conn.commit()
+            after = conn.total_changes
+            return max(0, after - before)
 
     def get_names_by_ids(self, ids: List[int]) -> Dict[int, str]:
         if not ids:
@@ -182,6 +221,8 @@ class ExerciseRepository:
                 groupe_musculaire_principal=row["groupe_musculaire_principal"],
                 equipement=row["equipement"],
                 tags=row["tags"],
+                movement_pattern=row["movement_pattern"],
+                movement_category=row["movement_category"] if "movement_category" in row.keys() else None,
                 type_effort=row["type_effort"],
                 coefficient_volume=row["coefficient_volume"],
                 est_chargeable=bool(row["est_chargeable"]),

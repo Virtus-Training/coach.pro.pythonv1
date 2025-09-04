@@ -10,6 +10,7 @@ class Exercise:
     equipement: Optional[str] = None
     tags: Optional[str] = None
     movement_pattern: Optional[str] = None
+    movement_category: Optional[str] = None
     type_effort: str = ""
     coefficient_volume: float = 1.0
     est_chargeable: bool = False

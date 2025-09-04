@@ -35,7 +35,8 @@ def seed_data():
                     e.strip() for e in row.get("tags", "").split(";") if e.strip()
                 )
                 movement_pattern = row.get("movement_pattern", "").strip() or None
-                type_effort = row.get("category", "").strip() or ""
+                movement_category = row.get("category", "").strip() or None
+                type_effort = ""
                 est_chargeable = (
                     0 if equip_list and equip_list == ["Poids du corps"] else 1
                 )
@@ -46,6 +47,7 @@ def seed_data():
                         equipement,
                         tags or None,
                         movement_pattern,
+                        movement_category,
                         type_effort,
                         1.0,
                         est_chargeable,
@@ -56,8 +58,8 @@ def seed_data():
             """
             INSERT INTO exercices (
                 nom, groupe_musculaire_principal, equipement, tags, movement_pattern,
-                type_effort, coefficient_volume, est_chargeable
-            ) VALUES (?,?,?,?,?,?,?,?)
+                movement_category, type_effort, coefficient_volume, est_chargeable
+            ) VALUES (?,?,?,?,?,?,?,?,?)
             """,
             exercices,
         )

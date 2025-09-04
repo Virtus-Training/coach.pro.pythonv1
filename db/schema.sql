@@ -12,6 +12,7 @@ CREATE TABLE exercices (
     equipement TEXT,
     tags TEXT,
     movement_pattern TEXT,
+    movement_category TEXT,
     type_effort TEXT NOT NULL,
     coefficient_volume REAL DEFAULT 1.0,
     est_chargeable BOOLEAN NOT NULL

@@ -2,10 +2,21 @@ from tkinter import filedialog
 
 import customtkinter as ctk
 
-from controllers.session_controller import SessionController
-from models.session import Session
-from ui.components.design_system import PrimaryButton, SecondaryButton
-from ui.pages.session_page_components.session_preview import SessionPreview
+# Support execution of this file directly by fixing sys.path
+try:
+    from controllers.session_controller import SessionController
+    from models.session import Session
+    from ui.components.design_system import PrimaryButton, SecondaryButton
+    from ui.pages.session_page_components.session_preview import SessionPreview
+except ModuleNotFoundError:
+    import os, sys
+    ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    from controllers.session_controller import SessionController
+    from models.session import Session
+    from ui.components.design_system import PrimaryButton, SecondaryButton
+    from ui.pages.session_page_components.session_preview import SessionPreview
 
 
 class SessionDetailModal(ctk.CTkToplevel):

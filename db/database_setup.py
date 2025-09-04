@@ -43,6 +43,32 @@ def initialize_database() -> None:
             print("INFO: Base de donnees reconstruite et renseignee.")
             return
 
+        # Lightweight migrations
+        try:
+            cols = {r[1] for r in conn.execute("PRAGMA table_info(exercices)").fetchall()}
+            if "movement_category" not in cols:
+                print("INFO: Migration: ajout de la colonne movement_category dans 'exercices'.")
+                conn.execute("ALTER TABLE exercices ADD COLUMN movement_category TEXT")
+            # Canonicalisation des données pour réduire les redondances
+            # 1) pattern: map 'Plyo' -> 'Jump'
+            conn.execute("UPDATE exercices SET movement_pattern='Jump' WHERE LOWER(movement_pattern) IN ('plyo','saut','jump')")
+            # 2) category: ne garder que valeurs reconnues, sinon NULL
+            allowed = {"Polyarticulaire", "Isolation", "Gainage"}
+            try:
+                rows = conn.execute("SELECT id, movement_category FROM exercices WHERE movement_category IS NOT NULL").fetchall()
+                for r in rows:
+                    val = r[1]
+                    if val not in allowed:
+                        conn.execute("UPDATE exercices SET movement_category = NULL WHERE id = ?", (r[0],))
+            except Exception:
+                pass
+            # 3) tags: remplacer 'Plyo' par 'Explosif', normaliser Isometrie
+            conn.execute("UPDATE exercices SET tags=REPLACE(tags, 'Plyo', 'Explosif') WHERE tags LIKE '%Plyo%'")
+            conn.execute("UPDATE exercices SET tags=REPLACE(tags, 'Isometrie', 'Isométrie') WHERE tags LIKE '%Isometrie%'")
+            conn.commit()
+        except Exception as e:
+            print(f"WARN: Migration partielle non appliquee: {e}")
+
         if _is_exercices_empty(conn):
             print("INFO: Table 'exercices' vide. Import des donnees...")
             seed_data()
