@@ -2,7 +2,7 @@ import customtkinter as ctk
 
 from controllers.client_controller import ClientController
 from controllers.nutrition_controller import NutritionController
-from ui.components.design_system import PageTitle, SecondaryButton
+from ui.components.design_system import HeroBanner, SecondaryButton
 from ui.pages.client_detail_page_components.anamnese_tab import AnamneseTab
 from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
     FicheNutritionTab,
@@ -29,22 +29,26 @@ class ClientDetailPage(ctk.CTkFrame):
         self.nutrition_controller = nutrition_controller
         client = self.controller.get_client_by_id(client_id)
 
-        header = ctk.CTkFrame(self, fg_color="transparent")
-        header.pack(fill="x", padx=20, pady=20)
-
+        # Header with back button + hero
+        back_bar = ctk.CTkFrame(self, fg_color="transparent")
+        back_bar.pack(fill="x", padx=20, pady=(20, 0))
         SecondaryButton(
-            header,
+            back_bar,
             text="< Retour",
             command=self.master.master.show_clients_page,
             width=100,
         ).pack(side="left")
 
-        if client:
-            title = f"{client.prenom} {client.nom}"
-        else:
-            title = "Client introuvable"
-
-        PageTitle(header, text=title).pack(side="left", padx=20)
+        title = (
+            f"{client.prenom} {client.nom}" if client else "Client introuvable"
+        )
+        hero = HeroBanner(
+            self,
+            title=title,
+            subtitle="Fiche client, suivi, statistiques et nutrition",
+            icon_path="assets/icons/users.png",
+        )
+        hero.pack(fill="x", padx=20, pady=16)
 
         tabview = ctk.CTkTabview(self)
         tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))

@@ -33,9 +33,10 @@ class Sidebar(ctk.CTkScrollableFrame):
         """Builds the widgets of the sidebar."""
         # Logo (square)
         # Use square-padding helper to avoid distortion and enforce square size
-        logo = load_square_image("assets/Logo.png", 48)
+        # Larger logo for better brand presence (96px)
+        logo = load_square_image("assets/Logo.png", 96)
         logo_label = ctk.CTkLabel(self, image=logo, text="", anchor="center")
-        logo_label.pack(pady=(20, 10))
+        logo_label.pack(pady=(24, 16))
 
         # Buttons
         for item_id, data in self.page_registry.items():
@@ -54,6 +55,7 @@ class Sidebar(ctk.CTkScrollableFrame):
             compound="left",
             anchor="w",
             corner_radius=4,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
             command=lambda i=item_id: self._on_click(i),
         )
         button.pack(fill="x", padx=10, pady=2)

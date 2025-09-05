@@ -1,11 +1,11 @@
-# ui/pages/dashboard_page.py
+﻿# ui/pages/dashboard_page.py
 
 import customtkinter as ctk
 from PIL import Image
 
 from controllers.dashboard_controller import DashboardController
 from ui.components.card import IconCard
-from ui.components.design_system import PrimaryButton
+from ui.components.design_system import PrimaryButton, HeroBanner
 from ui.components.title import SectionTitle
 
 
@@ -19,12 +19,18 @@ class DashboardPage(ctk.CTkFrame):
 
         data = self.controller.get_dashboard_data()
 
+        # Header hero
+        hero = HeroBanner(
+            self,
+            title="Tableau de bord",
+            subtitle="Vue dâ€™ensemble des activitÃ©s et raccourcis.",
+            icon_path="assets/icons/layout-dashboard.png",
+        )
+        hero.pack(fill="x", padx=20, pady=20)
+
         # Scrollable container
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        scroll.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # === SECTION 1 : Titre & raccourcis navigation ===
-        SectionTitle(scroll, "Tableau de bord").pack(pady=(10, 10))
+        scroll.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
         # === SECTION HAUTE : Rappel + KPI + Raccourcis ===
 
@@ -35,7 +41,7 @@ class DashboardPage(ctk.CTkFrame):
         reminder_frame.pack(fill="x", padx=10, pady=(0, 20))
         ctk.CTkLabel(
             reminder_frame,
-            text="📅 Aujourd’hui : 3 séances prévues, 2 suivis clients, 1 export PDF",
+            text="ðŸ“… Aujourdâ€™hui : 3 sÃ©ances prÃ©vues, 2 suivis clients, 1 export PDF",
             font=ctk.CTkFont(**fonts["Body"]),
             text_color=colors["primary_text"],
             anchor="w",
@@ -67,13 +73,13 @@ class DashboardPage(ctk.CTkFrame):
             ).pack(pady=(0, 10))
 
         mini_kpi("Clients actifs", str(data.active_clients))
-        mini_kpi("Séances ce mois", str(data.sessions_this_month))
+        mini_kpi("SÃ©ances ce mois", str(data.sessions_this_month))
         mini_kpi(
-            "Taux de complétion",
+            "Taux de complÃ©tion",
             f"{int(data.average_session_completion_rate * 100)}%",
         )
 
-        # Boutons d’action rapide
+        # Boutons dâ€™action rapide
         shortcuts = ctk.CTkFrame(scroll, fg_color="transparent")
         shortcuts.pack(fill="x", padx=10, pady=20)
 
@@ -89,21 +95,21 @@ class DashboardPage(ctk.CTkFrame):
                 text_color=colors["surface_dark"],
             )
 
-        btn_session = shortcut_btn("Nouvelle séance", "➕")
+        btn_session = shortcut_btn("Nouvelle sÃ©ance", "âž•")
         btn_session.configure(
             command=lambda: self.winfo_toplevel().switch_page("sessions")
         )
         btn_session.pack(side="left", padx=5)
-        btn_client = shortcut_btn("Importer client", "📥")
+        btn_client = shortcut_btn("Importer client", "ðŸ“¥")
         btn_client.configure(
             command=lambda: self.winfo_toplevel().switch_page("clients")
         )
         btn_client.pack(side="left", padx=5)
-        shortcut_btn("Exporter PDF", "📤").pack(side="left", padx=5)
-        shortcut_btn("Paramètres", "⚙️").pack(side="left", padx=5)
-        shortcut_btn("Suivi progression", "📊").pack(side="left", padx=5)
-        shortcut_btn("Plan nutrition", "🍽️").pack(side="left", padx=5)
-        shortcut_btn("Planning", "📆").pack(side="left", padx=5)
+        shortcut_btn("Exporter PDF", "ðŸ“¤").pack(side="left", padx=5)
+        shortcut_btn("ParamÃ¨tres", "âš™ï¸").pack(side="left", padx=5)
+        shortcut_btn("Suivi progression", "ðŸ“Š").pack(side="left", padx=5)
+        shortcut_btn("Plan nutrition", "ðŸ½ï¸").pack(side="left", padx=5)
+        shortcut_btn("Planning", "ðŸ“†").pack(side="left", padx=5)
 
         grid_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         grid_frame.pack(pady=10)
@@ -113,7 +119,7 @@ class DashboardPage(ctk.CTkFrame):
 
         cards = [
             ("Programmes", "dumbbell.png"),
-            ("Séances", "clock.png"),
+            ("SÃ©ances", "clock.png"),
             ("Calendrier", "calendar.png"),
             ("Clients", "users.png"),
             ("Nutrition", "apple.png"),
@@ -123,10 +129,10 @@ class DashboardPage(ctk.CTkFrame):
             ("Progression", "chart.png"),
             ("Messagerie", "chat.png"),
             ("Assistant IA", "spark.png"),
-            ("Paramètres", "settings.png"),
+            ("ParamÃ¨tres", "settings.png"),
         ]
 
-        columns = 4  # Nombre de colonnes désirées
+        columns = 4  # Nombre de colonnes dÃ©sirÃ©es
 
         for i, (label, icon) in enumerate(cards):
             row = i // columns
@@ -134,9 +140,9 @@ class DashboardPage(ctk.CTkFrame):
             card = IconCard(grid_frame, text=label, icon_path=f"assets/icons/{icon}")
             card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
-        PrimaryButton(scroll, text="Créer un nouveau programme").pack(pady=30)
+        PrimaryButton(scroll, text="CrÃ©er un nouveau programme").pack(pady=30)
 
-        # === SECTION 2 : Statistiques visuelles stylisées ===
+        # === SECTION 2 : Statistiques visuelles stylisÃ©es ===
 
         SectionTitle(scroll, "Statistiques de la semaine").pack(pady=(30, 10))
 
@@ -149,7 +155,7 @@ class DashboardPage(ctk.CTkFrame):
         title_row.pack(fill="x", pady=(10, 5), padx=10)
         ctk.CTkLabel(
             title_row,
-            text="📊 Répartition des séances",
+            text="ðŸ“Š RÃ©partition des sÃ©ances",
             font=ctk.CTkFont(**fonts["H2"]),
             text_color=colors["primary_text"],
         ).pack(side="left")
@@ -157,7 +163,7 @@ class DashboardPage(ctk.CTkFrame):
         stats_content = ctk.CTkFrame(stats_card, fg_color="transparent")
         stats_content.pack(padx=20, pady=10, fill="x")
 
-        # --- Fake Graphe stylisé (donut statique dessiné)
+        # --- Fake Graphe stylisÃ© (donut statique dessinÃ©)
         graph_canvas = ctk.CTkCanvas(
             stats_content,
             width=200,
@@ -167,7 +173,7 @@ class DashboardPage(ctk.CTkFrame):
         )
         graph_canvas.grid(row=0, column=0, padx=(0, 40))
 
-        # Donut stylisé
+        # Donut stylisÃ©
         graph_canvas.create_oval(20, 20, 180, 180, fill="#333333", outline="")
         graph_canvas.create_arc(
             20, 20, 180, 180, start=0, extent=90, fill="#3b82f6", outline=""
@@ -185,7 +191,7 @@ class DashboardPage(ctk.CTkFrame):
             60, 60, 140, 140, fill=colors["surface_light"], outline=""
         )  # Centre du donut
 
-        # --- Détails à droite du graphe
+        # --- DÃ©tails Ã  droite du graphe
         stat_labels = ctk.CTkFrame(stats_content, fg_color="transparent")
         stat_labels.grid(row=0, column=1, sticky="nw")
 
@@ -194,7 +200,7 @@ class DashboardPage(ctk.CTkFrame):
             row.pack(anchor="w", pady=4)
             dot = ctk.CTkLabel(
                 row,
-                text="⬤",
+                text="â¬¤",
                 text_color=color,
                 font=ctk.CTkFont(**fonts["Body"]),
             )
@@ -208,7 +214,7 @@ class DashboardPage(ctk.CTkFrame):
             name.pack(side="left", padx=(0, 10))
             value = ctk.CTkLabel(
                 row,
-                text=f"{percent} – {total} séances",
+                text=f"{percent} â€“ {total} sÃ©ances",
                 font=ctk.CTkFont(**fonts["Small"]),
                 text_color=colors["secondary_text"],
             )
@@ -227,7 +233,7 @@ class DashboardPage(ctk.CTkFrame):
 
         ctk.CTkLabel(
             kpi_frame,
-            text="Indicateurs clés",
+            text="Indicateurs clÃ©s",
             font=ctk.CTkFont(**fonts["H2"]),
             text_color=colors["primary_text"],
         ).pack(anchor="w", padx=20, pady=(10, 0))
@@ -254,14 +260,14 @@ class DashboardPage(ctk.CTkFrame):
             ).pack(pady=(0, 10))
 
         kpi("Clients actifs", str(data.active_clients))
-        kpi("Séances ce mois", str(data.sessions_this_month))
+        kpi("SÃ©ances ce mois", str(data.sessions_this_month))
         kpi(
-            "Taux de complétion",
+            "Taux de complÃ©tion",
             f"{int(data.average_session_completion_rate * 100)}%",
         )
 
-        # === SECTION 3 : Clients récents ===
-        SectionTitle(scroll, "Clients récents").pack(pady=(30, 10))
+        # === SECTION 3 : Clients rÃ©cents ===
+        SectionTitle(scroll, "Clients rÃ©cents").pack(pady=(30, 10))
 
         clients_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         clients_frame.pack(pady=10, fill="x")
@@ -269,7 +275,7 @@ class DashboardPage(ctk.CTkFrame):
         clients = [
             ("Pauline C.", "user1.png", "il y a 2 jours"),
             ("Thomas B.", "user2.png", "hier"),
-            ("Chloé D.", "user3.png", "il y a 4 jours"),
+            ("ChloÃ© D.", "user3.png", "il y a 4 jours"),
         ]
 
         for name, avatar_file, date in clients:
@@ -296,3 +302,4 @@ class DashboardPage(ctk.CTkFrame):
                 font=ctk.CTkFont(**fonts["Small"]),
                 text_color=colors["secondary_text"],
             ).pack(side="right", padx=20)
+

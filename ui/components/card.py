@@ -1,4 +1,4 @@
-# ui/components/card.py
+﻿# ui/components/card.py
 
 import customtkinter as ctk
 from PIL import Image
@@ -28,3 +28,4 @@ class IconCard(ctk.CTkFrame):
             command=command,
         )
         self.button.pack(fill="both", padx=10, pady=10)
+

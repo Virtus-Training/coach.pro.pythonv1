@@ -5,8 +5,8 @@ import customtkinter as ctk
 from controllers.client_controller import ClientController
 from models.client import Client
 from ui.components.design_system import (
+    HeroBanner,
     InfoCard,
-    PageTitle,
     PrimaryButton,
     SecondaryButton,
 )
@@ -22,9 +22,13 @@ class ClientsPage(ctk.CTkFrame):
 
         self.controller = controller
 
-        PageTitle(self, text="Gestion des Clients").pack(
-            anchor="w", padx=20, pady=(20, 24)
+        hero = HeroBanner(
+            self,
+            title="Clients",
+            subtitle="Gérez votre portefeuille et ouvrez les fiches détaillées.",
+            icon_path="assets/icons/users.png",
         )
+        hero.pack(fill="x", padx=20, pady=20)
 
         actions = ctk.CTkFrame(self, fg_color="transparent")
         actions.pack(fill="x", padx=20, pady=(0, 24))

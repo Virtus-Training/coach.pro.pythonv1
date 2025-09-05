@@ -1,4 +1,4 @@
-import tkinter as tk
+﻿import tkinter as tk
 from typing import List
 
 import customtkinter as ctk
@@ -25,8 +25,8 @@ class ExclusionSelector(ctk.CTkFrame):
 
         center = ctk.CTkFrame(self)
         center.grid(row=0, column=1, padx=5, pady=5, sticky="ns")
-        ctk.CTkButton(center, text=">", width=40, command=self.add).pack(pady=(40, 5))
-        ctk.CTkButton(center, text="<", width=40, command=self.remove).pack()
+        ctk.CTkButton(center, text=">", width=40, command=self.add, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(pady=(40, 5))
+        ctk.CTkButton(center, text="<", width=40, command=self.remove, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack()
 
         right = ctk.CTkFrame(self)
         right.grid(row=0, column=2, sticky="nsew", padx=(10, 0))
@@ -76,3 +76,4 @@ class ExclusionSelector(ctk.CTkFrame):
 
     def get_excluded_ids(self) -> List[int]:
         return [e.id for e in self.excluded]
+

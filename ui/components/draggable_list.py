@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from typing import Callable, List
 
@@ -24,9 +24,11 @@ class DraggableList(ctk.CTkFrame):
                 anchor="w",
                 fg_color="transparent",
                 hover_color="#333333",
+                font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
             )
             btn.pack(fill="x", pady=2, padx=2)
             btn.bind(
                 "<ButtonPress-1>",
                 lambda e, sid=sess.session_id: self.on_drag_start(sid),
             )
+

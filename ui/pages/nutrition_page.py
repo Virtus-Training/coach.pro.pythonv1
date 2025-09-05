@@ -1,11 +1,11 @@
-from tkinter import filedialog
+﻿from tkinter import filedialog
 from typing import Dict
 
 import customtkinter as ctk
 
 from controllers.nutrition_controller import NutritionController
 from dtos.nutrition_dtos import NutritionPageDTO, PlanAlimentaireDTO
-from ui.components.design_system import Card, CardTitle, PrimaryButton
+from ui.components.design_system import Card, CardTitle, PrimaryButton, HeroBanner
 from ui.components.food_search_bar import FoodSearchBar
 from ui.components.meal_card import MealCard
 
@@ -41,7 +41,7 @@ class NutritionPage(ctk.CTkFrame):
         name = f"{self.client.prenom} {self.client.nom}" if self.client else "Client"
         CardTitle(self.left_card, text=name).pack(padx=10, pady=(10, 5))
         self.cal_lbl = ctk.CTkLabel(self.left_card, text="Calories: 0 / 0")
-        self.prot_lbl = ctk.CTkLabel(self.left_card, text="Protéines: 0 / 0")
+        self.prot_lbl = ctk.CTkLabel(self.left_card, text="ProtÃ©ines: 0 / 0")
         self.carb_lbl = ctk.CTkLabel(self.left_card, text="Glucides: 0 / 0")
         self.fat_lbl = ctk.CTkLabel(self.left_card, text="Lipides: 0 / 0")
         for lbl in [self.cal_lbl, self.prot_lbl, self.carb_lbl, self.fat_lbl]:
@@ -69,11 +69,21 @@ class NutritionPage(ctk.CTkFrame):
         self.search_bar.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
 
     def _create_top_bar(self) -> None:
-        bar = ctk.CTkFrame(self, fg_color="transparent")
-        bar.grid(row=0, column=0, columnspan=3, sticky="e", padx=5, pady=5)
-        PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack(
-            anchor="e"
+        subtitle = (
+            f"Plan alimentaire de {self.client.prenom} {self.client.nom}"
+            if self.client
+            else "Plan alimentaire"
         )
+        hero = HeroBanner(
+            self,
+            title="Nutrition",
+            subtitle=subtitle,
+            icon_path="assets/icons/meal-plan.png",
+        )
+        hero.grid(row=0, column=0, columnspan=3, sticky="ew", padx=10, pady=(10, 8))
+        bar = ctk.CTkFrame(self, fg_color="transparent")
+        bar.grid(row=0, column=0, columnspan=3, sticky="e", padx=16, pady=(0, 0))
+        PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack()
 
     # Callbacks
     def _set_active_meal(self, repas_id: int) -> None:
@@ -128,7 +138,7 @@ class NutritionPage(ctk.CTkFrame):
             self._refresh()
             popup.destroy()
 
-        ctk.CTkButton(popup, text="Ajouter", command=add_action).pack(pady=10)
+        ctk.CTkButton(popup, text="Ajouter", command=add_action, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(pady=10)
 
     def _export_pdf(self) -> None:
         path = filedialog.asksaveasfilename(
@@ -173,7 +183,8 @@ class NutritionPage(ctk.CTkFrame):
         cible_l = self.fiche.lipides_g if self.fiche else 0
         self.cal_lbl.configure(text=f"Calories: {totals['kcal']:.0f} / {cible_kcal}")
         self.prot_lbl.configure(
-            text=f"Protéines: {totals['proteines']:.1f} / {cible_p}"
+            text=f"ProtÃ©ines: {totals['proteines']:.1f} / {cible_p}"
         )
         self.carb_lbl.configure(text=f"Glucides: {totals['glucides']:.1f} / {cible_g}")
         self.fat_lbl.configure(text=f"Lipides: {totals['lipides']:.1f} / {cible_l}")
+

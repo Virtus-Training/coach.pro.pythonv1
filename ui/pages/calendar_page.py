@@ -8,6 +8,7 @@ from controllers.calendar_controller import CalendarController
 from controllers.session_controller import SessionController
 from controllers.tracking_controller import TrackingController
 from ui.components.calendar_view import CalendarView
+from ui.components.design_system import HeroBanner
 from ui.components.draggable_list import DraggableList
 from ui.modals.session_detail_modal import SessionDetailModal
 from ui.modals.session_log_modal import SessionLogModal
@@ -32,11 +33,14 @@ class CalendarPage(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(1, weight=1)
-        ctk.CTkLabel(
+
+        hero = HeroBanner(
             self,
-            text="Planning",
-            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H2"]),
-        ).grid(row=0, column=0, columnspan=2, pady=5)
+            title="Calendrier",
+            subtitle="Planifiez et suivez vos séances.",
+            icon_path="assets/icons/calendar.png",
+        )
+        hero.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 5))
 
         left = ctk.CTkFrame(self)
         left.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)

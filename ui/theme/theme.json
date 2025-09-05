@@ -16,7 +16,7 @@
     "H3": { "family": "Inter", "size": 16, "weight": "bold" },
     "Body": { "family": "Inter", "size": 14, "weight": "normal" },
     "Small": { "family": "Inter", "size": 12, "weight": "normal" },
-    "Button": { "family": "Inter", "size": 14, "weight": "bold" }
+    "Button": { "family": "Inter", "size": 16, "weight": "bold" }
   },
   "CTk": {
     "fg_color": ["#111827", "#111827"]

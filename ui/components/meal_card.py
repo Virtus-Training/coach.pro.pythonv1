@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List
+﻿from typing import Callable, Dict, List
 
 import customtkinter as ctk
 
@@ -61,6 +61,7 @@ class MealCard(Card):
                 row,
                 text="x",
                 width=24,
-                command=lambda iid=item["id"]: self.on_delete_item(iid),
+                command=lambda iid=item["id"]: self.on_delete_item(iid, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
             )
             btn.pack(side="right")
+

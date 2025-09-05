@@ -1,4 +1,4 @@
-from typing import List, Optional
+﻿from typing import List, Optional
 
 import customtkinter as ctk
 
@@ -20,25 +20,25 @@ class AlimentForm(ctk.CTkToplevel):
 
         self.in_nom = LabeledInput(frame, label="Nom")
         self.in_nom.pack(fill="x", pady=(0, 8))
-        self.in_cat = LabeledInput(frame, label="Catégorie")
+        self.in_cat = LabeledInput(frame, label="CatÃ©gorie")
         self.in_cat.pack(fill="x", pady=(0, 8))
         self.in_type = LabeledInput(frame, label="Type d'alimentation")
         self.in_type.pack(fill="x", pady=(0, 8))
         self.in_kcal = LabeledInput(frame, label="Kcal/100g")
         self.in_kcal.pack(fill="x", pady=(0, 8))
-        self.in_prot = LabeledInput(frame, label="Protéines/100g")
+        self.in_prot = LabeledInput(frame, label="ProtÃ©ines/100g")
         self.in_prot.pack(fill="x", pady=(0, 8))
         self.in_gluc = LabeledInput(frame, label="Glucides/100g")
         self.in_gluc.pack(fill="x", pady=(0, 8))
         self.in_lip = LabeledInput(frame, label="Lipides/100g")
         self.in_lip.pack(fill="x", pady=(0, 8))
-        self.in_unite = LabeledInput(frame, label="Unité base", text="g")
+        self.in_unite = LabeledInput(frame, label="UnitÃ© base", text="g")
         self.in_unite.pack(fill="x", pady=(0, 8))
 
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
         btn_row.pack(fill="x", pady=(8, 0))
-        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy).pack(side="right")
-        ctk.CTkButton(btn_row, text="Enregistrer", command=self._submit).pack(
+        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="right")
+        ctk.CTkButton(btn_row, text="Enregistrer", command=self._submit, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
             side="right", padx=(0, 8)
         )
 
@@ -93,15 +93,13 @@ class AlimentsTab(ctk.CTkFrame):
         self.search_entry.pack(side="left", fill="x", expand=True)
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        self.btn_add = ctk.CTkButton(toolbar, text="Ajouter", command=self._on_add)
+        self.btn_add = ctk.CTkButton(toolbar, text="Ajouter", command=self._on_add, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
         self.btn_add.pack(side="right", padx=(8, 0))
         self.btn_edit = ctk.CTkButton(
-            toolbar, text="Modifier", command=self._on_edit, state="disabled"
-        )
+            toolbar, text="Modifier", command=self._on_edit, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
         self.btn_edit.pack(side="right", padx=(8, 0))
         self.btn_del = ctk.CTkButton(
-            toolbar, text="Supprimer", command=self._on_delete, state="disabled"
-        )
+            toolbar, text="Supprimer", command=self._on_delete, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
         self.btn_del.pack(side="right")
 
         self.selected_name: Optional[str] = None
@@ -116,7 +114,7 @@ class AlimentsTab(ctk.CTkFrame):
             [a.nom, a.kcal_100g, a.proteines_100g, a.glucides_100g, a.lipides_100g]
             for a in self.aliments
         ]
-        headers = ["Nom", "Kcal", "Protéines", "Glucides", "Lipides"]
+        headers = ["Nom", "Kcal", "ProtÃ©ines", "Glucides", "Lipides"]
         if hasattr(self, "table"):
             self.table.destroy()
         self.table = DataTable(
@@ -192,7 +190,7 @@ class AlimentsTab(ctk.CTkFrame):
             confirm.destroy()
             self._load()
 
-        ctk.CTkButton(row, text="Annuler", command=confirm.destroy).pack(
+        ctk.CTkButton(row, text="Annuler", command=confirm.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
             side="left", padx=8
         )
         ctk.CTkButton(
@@ -201,4 +199,6 @@ class AlimentsTab(ctk.CTkFrame):
             fg_color="#B00020",
             hover_color="#8E001A",
             command=do_del,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
         ).pack(side="left")
+

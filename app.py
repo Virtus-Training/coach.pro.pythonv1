@@ -48,6 +48,11 @@ class CoachApp(ctk.CTk):
         self.title("CoachPro – Virtus Training")
         self.geometry("1280x800")
         self.minsize(1000, 700)
+        # Ensure clean window title (override any garbled text)
+        try:
+            self.title("CoachPro – Virtus Training")
+        except Exception:
+            self.title("CoachPro - Virtus Training")
 
         self.current_page = None
 

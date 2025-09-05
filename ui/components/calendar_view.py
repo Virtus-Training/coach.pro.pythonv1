@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import calendar
 from datetime import date
@@ -11,17 +11,17 @@ from models.session import Session
 MONTHS_FR = [
     "",
     "Janvier",
-    "Février",
+    "FÃ©vrier",
     "Mars",
     "Avril",
     "Mai",
     "Juin",
     "Juillet",
-    "Août",
+    "AoÃ»t",
     "Septembre",
     "Octobre",
     "Novembre",
-    "Décembre",
+    "DÃ©cembre",
 ]
 
 
@@ -44,12 +44,12 @@ class CalendarView(ctk.CTkFrame):
 
         header = ctk.CTkFrame(self)
         header.pack(fill="x", pady=5)
-        ctk.CTkButton(header, text="<", width=40, command=on_previous_month).pack(
+        ctk.CTkButton(header, text="<", width=40, command=on_previous_month, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
             side="left", padx=5
         )
         self.month_label = ctk.CTkLabel(header, text="")
         self.month_label.pack(side="left", expand=True)
-        ctk.CTkButton(header, text=">", width=40, command=on_next_month).pack(
+        ctk.CTkButton(header, text=">", width=40, command=on_next_month, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
             side="right", padx=5
         )
 
@@ -99,8 +99,7 @@ class CalendarView(ctk.CTkFrame):
                         text=sess.label,
                         anchor="w",
                         command=lambda sid=sess.session_id: self._handle_session_click(
-                            sid
-                        ),
+                            sid, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
                     ).pack(side="left", fill="x", expand=True)
                     sess_date = date(year, month, day)
                     if self.on_log_session and sess_date <= date.today():
@@ -109,8 +108,7 @@ class CalendarView(ctk.CTkFrame):
                             text="+",
                             width=20,
                             command=lambda sid=sess.session_id: self.on_log_session(
-                                sid
-                            ),
+                                sid, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
                         ).pack(side="left", padx=2)
 
     def _handle_session_click(self, session_id: str) -> None:
@@ -123,3 +121,4 @@ class CalendarView(ctk.CTkFrame):
         session_id = self.get_dragged_session_id()
         if session_id:
             self.on_session_drop(session_id, self.current_year, self.current_month, day)
+

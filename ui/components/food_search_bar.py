@@ -1,4 +1,4 @@
-import customtkinter as ctk
+﻿import customtkinter as ctk
 
 from controllers.nutrition_controller import NutritionController
 
@@ -34,6 +34,7 @@ class FoodSearchBar(ctk.CTkFrame):
                 self.results_frame,
                 text=aliment.nom,
                 anchor="w",
-                command=lambda a=aliment: self.on_food_selected_callback(a),
+                command=lambda a=aliment: self.on_food_selected_callback(a, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
             )
             btn.pack(fill="x", padx=2, pady=2)
+
