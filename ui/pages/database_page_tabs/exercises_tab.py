@@ -137,7 +137,10 @@ class ExerciseForm(ctk.CTkToplevel):
             options=MUSCLE_GROUPS,
             helper="Choix unique",
             selected_color="#34D399",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_groupe.pack(fill="x", pady=(4, 8))
 
@@ -152,7 +155,10 @@ class ExerciseForm(ctk.CTkToplevel):
             options=EQUIPMENT_OPTIONS,
             helper="Multi-s\u00e9lection",
             selected_color="#60A5FA",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_equip.pack(fill="x", pady=(0, 8))
 
@@ -167,7 +173,10 @@ class ExerciseForm(ctk.CTkToplevel):
             options=COURSE_TAGS,
             helper="Multi-s\u00e9lection",
             selected_color="#F59E0B",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_course.pack(fill="x", pady=(0, 8))
 
@@ -180,7 +189,10 @@ class ExerciseForm(ctk.CTkToplevel):
             options=TAG_OPTIONS,
             helper="Multi-s\u00e9lection",
             selected_color="#F472B6",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_tags.pack(fill="x", pady=(0, 8))
 
@@ -193,12 +205,17 @@ class ExerciseForm(ctk.CTkToplevel):
             options=MOVEMENT_PATTERNS,
             helper="Choix unique",
             selected_color="#22D3EE",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_pattern.pack(fill="x", pady=(0, 8))
 
         # Type de mouvement (catégorie)
-        sec_cat = AccordionSection(content, title="Type de mouvement", initially_open=False)
+        sec_cat = AccordionSection(
+            content, title="Type de mouvement", initially_open=False
+        )
         sec_cat.pack(fill="x")
         self.grp_category = ChipRadioGroup(
             sec_cat.body,
@@ -206,14 +223,15 @@ class ExerciseForm(ctk.CTkToplevel):
             options=MOVEMENT_CATEGORIES,
             helper="Choix unique",
             selected_color="#16A34A",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_category.pack(fill="x", pady=(0, 8))
 
         # Type d'effort
-        sec_type = AccordionSection(
-            content, title="Type d'effort", initially_open=True
-        )
+        sec_type = AccordionSection(content, title="Type d'effort", initially_open=True)
         sec_type.pack(fill="x")
         self.grp_type = ChipRadioGroup(
             sec_type.body,
@@ -221,7 +239,10 @@ class ExerciseForm(ctk.CTkToplevel):
             options=EFFORT_TYPES,
             helper="Choix unique",
             selected_color="#A78BFA",
-            on_change=lambda _v=None: (self._update_summary(), self._update_submit_state()),
+            on_change=lambda _v=None: (
+                self._update_summary(),
+                self._update_submit_state(),
+            ),
         )
         self.grp_type.pack(fill="x", pady=(0, 8))
 
@@ -239,7 +260,9 @@ class ExerciseForm(ctk.CTkToplevel):
         self.sw_charge = ctk.CTkSwitch(
             meta_row, text="Chargeable", variable=self.var_charge
         )
-        self.sw_charge.configure(command=lambda: (self._update_summary(), self._update_submit_state()))
+        self.sw_charge.configure(
+            command=lambda: (self._update_summary(), self._update_submit_state())
+        )
         self.sw_charge.grid(row=0, column=0, sticky="w", padx=(0, 8))
         self.in_coeff = LabeledInput(meta_row, label="Coeff. volume (ex: 1.0)")
         self.in_coeff.grid(row=0, column=1, sticky="ew")
@@ -284,7 +307,9 @@ class ExerciseForm(ctk.CTkToplevel):
                     self.grp_tags.set_values(vals_tags)
             self.grp_pattern.set_value(exercise.movement_pattern or None)
             try:
-                self.grp_category.set_value(getattr(exercise, "movement_category", None))
+                self.grp_category.set_value(
+                    getattr(exercise, "movement_category", None)
+                )
             except Exception:
                 pass
             self.grp_type.set_value(exercise.type_effort or None)
@@ -292,11 +317,16 @@ class ExerciseForm(ctk.CTkToplevel):
             self.var_charge.set(bool(exercise.est_chargeable))
         # Bind live validation on name and coeff
         try:
-            self.in_nom.entry.bind("<KeyRelease>", lambda _e=None: (self._update_summary(), self._update_submit_state()))
+            self.in_nom.entry.bind(
+                "<KeyRelease>",
+                lambda _e=None: (self._update_summary(), self._update_submit_state()),
+            )
         except Exception:
             pass
         try:
-            self.in_coeff.entry.bind("<KeyRelease>", lambda _e=None: self._update_submit_state())
+            self.in_coeff.entry.bind(
+                "<KeyRelease>", lambda _e=None: self._update_submit_state()
+            )
         except Exception:
             pass
 
@@ -346,6 +376,7 @@ class ExerciseForm(ctk.CTkToplevel):
             tags_vals += self.grp_course.get_values()
         except Exception:
             pass
+
         # Normalisation des tags (synonymes -> canonique)
         def _canon_tag(v: str) -> str:
             if v == "Plyo":
@@ -353,6 +384,7 @@ class ExerciseForm(ctk.CTkToplevel):
             if v == "Isometrie":
                 return "Isométrie"
             return v
+
         canon_tags = [_canon_tag(t) for t in tags_vals if t]
         tags_csv = ",".join(sorted(set(canon_tags))) if canon_tags else None
 
@@ -452,7 +484,11 @@ class ExerciseForm(ctk.CTkToplevel):
 
         g = [self.grp_groupe.get_value()] if self.grp_groupe.get_value() else []
         p = [self.grp_pattern.get_value()] if self.grp_pattern.get_value() else []
-        cat = [self.grp_category.get_value()] if hasattr(self, "grp_category") and self.grp_category.get_value() else []
+        cat = (
+            [self.grp_category.get_value()]
+            if hasattr(self, "grp_category") and self.grp_category.get_value()
+            else []
+        )
         t = [self.grp_type.get_value()] if self.grp_type.get_value() else []
         equips = sorted(
             self.grp_equip.get_values() if hasattr(self.grp_equip, "get_values") else []
@@ -602,7 +638,9 @@ class _ExercisePreview(ctk.CTkFrame):
 
         # Wrapper pour marges internes
         self._wrap = ctk.CTkFrame(
-            self, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"], corner_radius=8
+            self,
+            fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"],
+            corner_radius=8,
         )
         self._wrap.pack(fill="both", expand=True)
 
@@ -724,13 +762,27 @@ class _ExercisePreview(ctk.CTkFrame):
 
         # Groupe, Mouvement, Type en chips unitaires si présents
         if exercise.groupe_musculaire_principal:
-            self._render_pills(self._body, "Groupe", [exercise.groupe_musculaire_principal], colors["group"])
+            self._render_pills(
+                self._body,
+                "Groupe",
+                [exercise.groupe_musculaire_principal],
+                colors["group"],
+            )
         if exercise.movement_pattern:
-            self._render_pills(self._body, "Mouvement", [exercise.movement_pattern], colors["pattern"])
+            self._render_pills(
+                self._body, "Mouvement", [exercise.movement_pattern], colors["pattern"]
+            )
         if getattr(exercise, "movement_category", None):
-            self._render_pills(self._body, "Catégorie", [exercise.movement_category], colors["category"])
+            self._render_pills(
+                self._body,
+                "Catégorie",
+                [exercise.movement_category],
+                colors["category"],
+            )
         if exercise.type_effort:
-            self._render_pills(self._body, "Type", [exercise.type_effort], colors["type"])
+            self._render_pills(
+                self._body, "Type", [exercise.type_effort], colors["type"]
+            )
 
         equips = sorted(self._csv_to_list(exercise.equipement))
         tags_all = sorted(self._csv_to_list(exercise.tags))
@@ -923,7 +975,8 @@ class ExercisesTab(ctk.CTkFrame):
             toast = ctk.CTkToplevel(self)
             toast.title("Nettoyage terminé")
             ctk.CTkLabel(
-                toast, text=f"Normalisation effectuée. Modifications: {changes}",
+                toast,
+                text=f"Normalisation effectuée. Modifications: {changes}",
             ).pack(padx=12, pady=10)
             try:
                 toast.after(1600, toast.destroy)

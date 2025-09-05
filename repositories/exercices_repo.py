@@ -19,9 +19,15 @@ class ExerciseRepository:
                 groupe_musculaire_principal=row["groupe_musculaire_principal"],
                 equipement=row["equipement"],
                 tags=row["tags"],
-                movement_pattern=row.get("movement_pattern") if isinstance(row, dict) else row["movement_pattern"],
+                movement_pattern=row.get("movement_pattern")
+                if isinstance(row, dict)
+                else row["movement_pattern"],
                 movement_category=(
-                    row.get("movement_category") if isinstance(row, dict) else row["movement_category"] if "movement_category" in row.keys() else None
+                    row.get("movement_category")
+                    if isinstance(row, dict)
+                    else row["movement_category"]
+                    if "movement_category" in row.keys()
+                    else None
                 ),
                 type_effort=row["type_effort"],
                 coefficient_volume=row["coefficient_volume"],
@@ -49,7 +55,9 @@ class ExerciseRepository:
             equipement=row["equipement"],
             tags=row["tags"],
             movement_pattern=row["movement_pattern"],
-            movement_category=row["movement_category"] if "movement_category" in row.keys() else None,
+            movement_category=row["movement_category"]
+            if "movement_category" in row.keys()
+            else None,
             type_effort=row["type_effort"],
             coefficient_volume=row["coefficient_volume"],
             est_chargeable=bool(row["est_chargeable"]),
@@ -222,7 +230,9 @@ class ExerciseRepository:
                 equipement=row["equipement"],
                 tags=row["tags"],
                 movement_pattern=row["movement_pattern"],
-                movement_category=row["movement_category"] if "movement_category" in row.keys() else None,
+                movement_category=row["movement_category"]
+                if "movement_category" in row.keys()
+                else None,
                 type_effort=row["type_effort"],
                 coefficient_volume=row["coefficient_volume"],
                 est_chargeable=bool(row["est_chargeable"]),
