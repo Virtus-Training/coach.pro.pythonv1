@@ -1,4 +1,4 @@
-﻿import customtkinter as ctk
+import customtkinter as ctk
 from PIL import Image
 
 from .ui_helpers import choose_equipment_icon, create_chip, create_pill
@@ -22,7 +22,7 @@ class BlockCard(ctk.CTkFrame):
         }
         bg, accent = type_colors.get(block.type.upper(), ("#232323", "#0a6b84"))
 
-        # Carte + barre latÃ©rale dâ€™accent
+        # Carte + barre latérale d'accent
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
@@ -32,11 +32,11 @@ class BlockCard(ctk.CTkFrame):
         card = ctk.CTkFrame(self, fg_color=bg, corner_radius=12)
         card.grid(row=0, column=1, sticky="nsew")
 
-        # --- En-tÃªte du bloc
+        # --- En-tête du bloc
         top = ctk.CTkFrame(card, fg_color="#1b1b1b")
         top.pack(fill="x", padx=12, pady=(12, 8))
         title = block.title or (
-            f"{block.type} â€“ {block.duration_sec // 60}â€™"
+            f"{block.type} – {block.duration_sec // 60}'"
             if block.duration_sec
             else block.type
         )
@@ -62,7 +62,7 @@ class BlockCard(ctk.CTkFrame):
             )
             name = meta["name"]
             equip_list = meta.get("equipment", [])
-            equip_text = " Â· ".join(equip_list) if equip_list else "Poids du corps"
+            equip_text = " · ".join(equip_list) if equip_list else "Poids du corps"
 
             presc = []
             reps = it.prescription.get("reps")
@@ -71,12 +71,12 @@ class BlockCard(ctk.CTkFrame):
                 presc.append(f"{reps} reps")
             if rest:
                 presc.append(f"repos {rest}")
-            presc_txt = " â€¢ ".join(presc) if presc else ""
+            presc_txt = " • ".join(presc) if presc else ""
 
             rowf = ctk.CTkFrame(body, fg_color="transparent")
             rowf.pack(fill="x", padx=10, pady=6)
 
-            ctk.CTkLabel(rowf, text="â€¢", font=("Segoe UI", 14)).pack(
+            ctk.CTkLabel(rowf, text="•", font=("Segoe UI", 14)).pack(
                 side="left", padx=(0, 8)
             )
             icon_path = choose_equipment_icon(equip_list)
@@ -110,6 +110,6 @@ class BlockCard(ctk.CTkFrame):
         # --- Actions
         actions = ctk.CTkFrame(card, fg_color="transparent")
         actions.pack(fill="x", padx=12, pady=(2, 12))
-        ctk.CTkButton(actions, text="RegÃ©nÃ©rer ce bloc", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left", padx=4)
+        ctk.CTkButton(actions, text="Regénérer ce bloc", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left", padx=4)
         ctk.CTkButton(actions, text="Remplacer un exercice", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left", padx=4)
 

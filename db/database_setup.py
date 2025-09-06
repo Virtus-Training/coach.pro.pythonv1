@@ -84,6 +84,26 @@ def initialize_database() -> None:
         except Exception as e:
             print(f"WARN: Migration partielle non appliquee: {e}")
 
+        # Ensure sessions table has course_type and intensity columns
+        try:
+            if _table_exists(conn, "sessions"):
+                s_cols = {
+                    r[1] for r in conn.execute("PRAGMA table_info(sessions)").fetchall()
+                }
+                if "course_type" not in s_cols:
+                    print(
+                        "INFO: Migration: ajout de la colonne course_type dans 'sessions'."
+                    )
+                    conn.execute("ALTER TABLE sessions ADD COLUMN course_type TEXT")
+                if "intensity" not in s_cols:
+                    print(
+                        "INFO: Migration: ajout de la colonne intensity dans 'sessions'."
+                    )
+                    conn.execute("ALTER TABLE sessions ADD COLUMN intensity TEXT")
+                conn.commit()
+        except Exception as e:
+            print(f"WARN: Migration 'sessions' non appliquee: {e}")
+
         if _is_exercices_empty(conn):
             print("INFO: Table 'exercices' vide. Import des donnees...")
             seed_data()
@@ -91,4 +111,37 @@ def initialize_database() -> None:
             return
 
     # Otherwise, nothing to do
+    # Ensure pdf_templates table exists for customizable PDF styles
+    try:
+        _ensure_pdf_templates_table()
+        # Ensure a default PDF template entry exists
+        try:
+            from services.pdf_template_service import PdfTemplateService
+
+            PdfTemplateService().ensure_default_exists()
+        except Exception:
+            pass
+    except Exception:
+        pass
     return
+
+
+def _ensure_pdf_templates_table() -> None:
+    with db_manager.get_connection() as conn:
+        try:
+            if not _table_exists(conn, "pdf_templates"):
+                conn.execute(
+                    """
+                    CREATE TABLE pdf_templates (
+                        id INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL UNIQUE,
+                        type TEXT NOT NULL,
+                        style_json TEXT NOT NULL,
+                        is_default INTEGER NOT NULL DEFAULT 0,
+                        updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )
+                    """
+                )
+                conn.commit()
+        except Exception as e:
+            print(f"WARN: Could not ensure pdf_templates table: {e}")

@@ -1,4 +1,4 @@
-﻿# ui/components/card.py
+# ui/components/card.py
 
 import customtkinter as ctk
 from PIL import Image

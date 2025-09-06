@@ -76,6 +76,16 @@ def generate_session_pdf(
     template.build(file_path)
 
 
+def generate_session_pdf_with_style(
+    session_dto: dict,
+    client_name: str | None,
+    file_path: str,
+    style: dict,
+) -> None:
+    template = SessionPDFTemplate(session_dto, client_name, style=style)
+    template.build(file_path)
+
+
 def generate_nutrition_pdf(nutrition_dto: NutritionPageDTO, file_path: str) -> None:
     template = NutritionPDFTemplate(nutrition_dto)
     template.build(file_path)

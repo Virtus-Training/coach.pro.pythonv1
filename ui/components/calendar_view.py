@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import calendar
 from datetime import date
@@ -11,17 +11,17 @@ from models.session import Session
 MONTHS_FR = [
     "",
     "Janvier",
-    "FÃ©vrier",
+    "Février",
     "Mars",
     "Avril",
     "Mai",
     "Juin",
     "Juillet",
-    "AoÃ»t",
+    "Août",
     "Septembre",
     "Octobre",
     "Novembre",
-    "DÃ©cembre",
+    "Décembre",
 ]
 
 

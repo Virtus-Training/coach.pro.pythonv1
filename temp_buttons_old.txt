@@ -1,4 +1,4 @@
-﻿"""Button components for the design system.
+"""Button components for the design system.
 
 Provides consistent button variants aligned with the app theme:
 - PrimaryButton: solid accent for main actions
@@ -45,7 +45,7 @@ class SecondaryButton(ctk.CTkButton):
 
 
 class GhostButton(ctk.CTkButton):
-    """Bouton discret (texte/ghost) idÃ©al pour toolbars et actions peu
+    """Bouton discret (texte/ghost) idéal pour toolbars et actions peu
     prioritaires. Utilise la couleur de texte secondaire avec un hover subtil.
     """
 
@@ -64,7 +64,7 @@ class GhostButton(ctk.CTkButton):
 
 
 class DangerButton(ctk.CTkButton):
-    """Bouton pour actions destructives (supprimerâ€¦)."""
+    """Bouton pour actions destructives (supprimer…)."""
 
     def __init__(self, master, **kwargs):
         colors = ctk.ThemeManager.theme["color"]
@@ -78,5 +78,4 @@ class DangerButton(ctk.CTkButton):
             height=40,
             **kwargs,
         )
-
 

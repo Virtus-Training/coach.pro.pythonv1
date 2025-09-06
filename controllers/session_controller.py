@@ -7,7 +7,11 @@ from typing import Any, Dict, Tuple
 from models.session import Session
 from services.client_service import ClientService
 from services.exercise_service import ExerciseService
-from services.pdf_generator import generate_session_pdf
+from services.pdf_generator import (
+    generate_session_pdf,
+    generate_session_pdf_with_style,
+)
+from services.pdf_template_service import PdfTemplateService
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
 
@@ -93,6 +97,8 @@ class SessionController:
         dto["meta"] = {
             "title": session.label,
             "duration": f"{session.duration_sec // 60} min",
+            "course_type": svc_params.get("course_type"),
+            "intensity": svc_params.get("intensity"),
         }
         return session, dto
 
@@ -132,7 +138,11 @@ class SessionController:
             client = self.client_service.get_client_by_id(client_id)
             if client:
                 client_name = f"{client.prenom} {client.nom}"
-        generate_session_pdf(session_dto, client_name, file_path)
+        try:
+            style = PdfTemplateService().get_session_style()
+            generate_session_pdf_with_style(session_dto, client_name, file_path, style)
+        except Exception:
+            generate_session_pdf(session_dto, client_name, file_path)
 
 
 __all__ = ["SessionController"]

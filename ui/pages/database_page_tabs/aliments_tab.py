@@ -1,4 +1,4 @@
-﻿from typing import List, Optional
+from typing import List, Optional
 
 import customtkinter as ctk
 
@@ -20,19 +20,19 @@ class AlimentForm(ctk.CTkToplevel):
 
         self.in_nom = LabeledInput(frame, label="Nom")
         self.in_nom.pack(fill="x", pady=(0, 8))
-        self.in_cat = LabeledInput(frame, label="CatÃ©gorie")
+        self.in_cat = LabeledInput(frame, label="Catégorie")
         self.in_cat.pack(fill="x", pady=(0, 8))
         self.in_type = LabeledInput(frame, label="Type d'alimentation")
         self.in_type.pack(fill="x", pady=(0, 8))
         self.in_kcal = LabeledInput(frame, label="Kcal/100g")
         self.in_kcal.pack(fill="x", pady=(0, 8))
-        self.in_prot = LabeledInput(frame, label="ProtÃ©ines/100g")
+        self.in_prot = LabeledInput(frame, label="Protéines/100g")
         self.in_prot.pack(fill="x", pady=(0, 8))
         self.in_gluc = LabeledInput(frame, label="Glucides/100g")
         self.in_gluc.pack(fill="x", pady=(0, 8))
         self.in_lip = LabeledInput(frame, label="Lipides/100g")
         self.in_lip.pack(fill="x", pady=(0, 8))
-        self.in_unite = LabeledInput(frame, label="UnitÃ© base", text="g")
+        self.in_unite = LabeledInput(frame, label="Unité base", text="g")
         self.in_unite.pack(fill="x", pady=(0, 8))
 
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
@@ -114,7 +114,7 @@ class AlimentsTab(ctk.CTkFrame):
             [a.nom, a.kcal_100g, a.proteines_100g, a.glucides_100g, a.lipides_100g]
             for a in self.aliments
         ]
-        headers = ["Nom", "Kcal", "ProtÃ©ines", "Glucides", "Lipides"]
+        headers = ["Nom", "Kcal", "Protéines", "Glucides", "Lipides"]
         if hasattr(self, "table"):
             self.table.destroy()
         self.table = DataTable(

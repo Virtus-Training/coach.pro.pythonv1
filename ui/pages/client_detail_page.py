@@ -72,3 +72,4 @@ class ClientDetailPage(ctk.CTkFrame):
             self.nutrition_controller,
             self.client_id,
         ).pack(fill="both", expand=True, padx=10, pady=10)
+

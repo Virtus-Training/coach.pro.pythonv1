@@ -33,6 +33,7 @@ from ui.pages.database_page import DatabasePage
 from ui.pages.messaging_page import MessagingPage
 from ui.pages.nutrition_page import NutritionPage
 from ui.pages.pdf_page import PdfPage
+from controllers.pdf_template_controller import PdfTemplateController
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
 from ui.pages.session_page import SessionPage
@@ -125,7 +126,7 @@ class CoachApp(ctk.CTk):
             "pdf": {
                 "label": "PDF",
                 "icon": "pdf.png",
-                "factory": lambda parent: PdfPage(parent),
+                "factory": lambda parent: PdfPage(parent, PdfTemplateController()),
             },
             "nutrition": {
                 "label": "Nutrition",

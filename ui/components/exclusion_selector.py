@@ -1,4 +1,4 @@
-﻿import tkinter as tk
+import tkinter as tk
 from typing import List
 
 import customtkinter as ctk

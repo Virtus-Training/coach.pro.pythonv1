@@ -20,3 +20,4 @@ class ProgramPage(ctk.CTkFrame):
         placeholder = Card(self)
         placeholder.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         CardTitle(placeholder, text="Bientôt disponible").pack(anchor="w", padx=12, pady=12)
+

@@ -9,10 +9,19 @@ class SessionsRepository:
         with db_manager.get_connection() as conn:
             try:
                 conn.execute("BEGIN")
+                course_type = None
+                intensity = None
+                try:
+                    # meta may be absent; guard access
+                    meta = getattr(s, "meta", {}) or {}
+                    course_type = meta.get("course_type")
+                    intensity = meta.get("intensity")
+                except Exception:
+                    pass
                 conn.execute(
                     "INSERT OR REPLACE INTO sessions("
-                    "session_id, client_id, mode, label, duration_sec, date_creation, is_template"
-                    ") VALUES (?,?,?,?,?,?,?)",
+                    "session_id, client_id, mode, label, duration_sec, date_creation, is_template, course_type, intensity"
+                    ") VALUES (?,?,?,?,?,?,?,?,?)",
                     (
                         s.session_id,
                         s.client_id,
@@ -21,6 +30,8 @@ class SessionsRepository:
                         s.duration_sec,
                         s.date_creation,
                         int(s.is_template),
+                        course_type,
+                        intensity,
                     ),
                 )
                 for b in s.blocks:

@@ -86,6 +86,16 @@ CREATE TABLE portions (
     FOREIGN KEY(aliment_id) REFERENCES aliments(id)
 );
 
+-- Templates PDF personnalisables
+CREATE TABLE IF NOT EXISTS pdf_templates (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    type TEXT NOT NULL,
+    style_json TEXT NOT NULL,
+    is_default INTEGER NOT NULL DEFAULT 0,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE plans_alimentaires (
     id INTEGER PRIMARY KEY,
     client_id INTEGER,
@@ -138,6 +148,8 @@ CREATE TABLE sessions (
     duration_sec INTEGER NOT NULL,
     date_creation TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_template INTEGER NOT NULL DEFAULT 0,
+    course_type TEXT,
+    intensity TEXT,
     FOREIGN KEY(client_id) REFERENCES clients(id)
 );
 

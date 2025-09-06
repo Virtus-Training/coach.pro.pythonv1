@@ -1,4 +1,4 @@
-﻿# ui/components/tabbar.py (modifiÃ©)
+# ui/components/tabbar.py (modifié)
 
 import os
 

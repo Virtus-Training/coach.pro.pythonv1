@@ -1,4 +1,4 @@
-﻿import customtkinter as ctk
+import customtkinter as ctk
 
 from controllers.nutrition_controller import NutritionController
 

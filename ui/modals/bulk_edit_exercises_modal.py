@@ -1,4 +1,4 @@
-﻿from typing import Callable
+from typing import Callable
 
 import customtkinter as ctk
 
@@ -10,7 +10,7 @@ class BulkEditExercisesModal(ctk.CTkToplevel):
         super().__init__(
             master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"]
         )  # fallback if CTkToplevel not themed
-        self.title("Ã‰dition en masse")
+        self.title("Édition en masse")
         self.geometry("640x520")
         self.minsize(520, 420)
         self.resizable(True, True)
@@ -38,18 +38,18 @@ class BulkEditExercisesModal(ctk.CTkToplevel):
         except Exception:
             pass
 
-        CardTitle(content, text="Ã‰quipements").pack(anchor="w", pady=(0, 6))
+        CardTitle(content, text="Équipements").pack(anchor="w", pady=(0, 6))
         self.equip_add = ChipCheckboxGroup(
             content,
             label="Ajouter",
-            helper="SÃ©lectionnez les Ã©quipements Ã  ajouter",
+            helper="Sélectionnez les équipements à ajouter",
             options=EQUIPMENT_OPTIONS,
         )
         self.equip_add.pack(fill="x", pady=(0, 8))
         self.equip_remove = ChipCheckboxGroup(
             content,
             label="Retirer",
-            helper="SÃ©lectionnez les Ã©quipements Ã  retirer",
+            helper="Sélectionnez les équipements à retirer",
             options=EQUIPMENT_OPTIONS,
         )
         self.equip_remove.pack(fill="x", pady=(0, 8))
@@ -59,14 +59,14 @@ class BulkEditExercisesModal(ctk.CTkToplevel):
         self.tags_add = ChipCheckboxGroup(
             content,
             label="Ajouter",
-            helper="SÃ©lectionnez les tags Ã  ajouter",
+            helper="Sélectionnez les tags à ajouter",
             options=TAG_OPTIONS,
         )
         self.tags_add.pack(fill="x", pady=(0, 8))
         self.tags_remove = ChipCheckboxGroup(
             content,
             label="Retirer",
-            helper="SÃ©lectionnez les tags Ã  retirer",
+            helper="Sélectionnez les tags à retirer",
             options=TAG_OPTIONS,
         )
         self.tags_remove.pack(fill="x", pady=(0, 8))

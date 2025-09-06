@@ -102,3 +102,4 @@ class CalendarPage(ctk.CTkFrame):
         else:
             self.month += 1
         self._refresh()
+

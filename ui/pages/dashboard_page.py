@@ -1,4 +1,5 @@
-﻿# ui/pages/dashboard_page.py
+#!/usr/bin/env python3
+# ui/pages/dashboard_page.py
 
 import customtkinter as ctk
 from PIL import Image
@@ -23,7 +24,7 @@ class DashboardPage(ctk.CTkFrame):
         hero = HeroBanner(
             self,
             title="Tableau de bord",
-            subtitle="Vue dâ€™ensemble des activitÃ©s et raccourcis.",
+            subtitle="Vue d’ensemble des activités et raccourcis.",
             icon_path="assets/icons/layout-dashboard.png",
         )
         hero.pack(fill="x", padx=20, pady=20)
@@ -41,7 +42,7 @@ class DashboardPage(ctk.CTkFrame):
         reminder_frame.pack(fill="x", padx=10, pady=(0, 20))
         ctk.CTkLabel(
             reminder_frame,
-            text="ðŸ“… Aujourdâ€™hui : 3 sÃ©ances prÃ©vues, 2 suivis clients, 1 export PDF",
+            text="🗓️ Aujourd’hui : 3 séances prévues, 2 suivis clients, 1 export PDF",
             font=ctk.CTkFont(**fonts["Body"]),
             text_color=colors["primary_text"],
             anchor="w",
@@ -73,13 +74,13 @@ class DashboardPage(ctk.CTkFrame):
             ).pack(pady=(0, 10))
 
         mini_kpi("Clients actifs", str(data.active_clients))
-        mini_kpi("SÃ©ances ce mois", str(data.sessions_this_month))
+        mini_kpi("Séances ce mois", str(data.sessions_this_month))
         mini_kpi(
-            "Taux de complÃ©tion",
+            "Taux de complétion",
             f"{int(data.average_session_completion_rate * 100)}%",
         )
 
-        # Boutons dâ€™action rapide
+        # Boutons d’action rapide
         shortcuts = ctk.CTkFrame(scroll, fg_color="transparent")
         shortcuts.pack(fill="x", padx=10, pady=20)
 
@@ -95,21 +96,21 @@ class DashboardPage(ctk.CTkFrame):
                 text_color=colors["surface_dark"],
             )
 
-        btn_session = shortcut_btn("Nouvelle sÃ©ance", "âž•")
+        btn_session = shortcut_btn("Nouvelle séance", "➕")
         btn_session.configure(
             command=lambda: self.winfo_toplevel().switch_page("sessions")
         )
         btn_session.pack(side="left", padx=5)
-        btn_client = shortcut_btn("Importer client", "ðŸ“¥")
+        btn_client = shortcut_btn("Importer client", "📥")
         btn_client.configure(
             command=lambda: self.winfo_toplevel().switch_page("clients")
         )
         btn_client.pack(side="left", padx=5)
-        shortcut_btn("Exporter PDF", "ðŸ“¤").pack(side="left", padx=5)
-        shortcut_btn("ParamÃ¨tres", "âš™ï¸").pack(side="left", padx=5)
-        shortcut_btn("Suivi progression", "ðŸ“Š").pack(side="left", padx=5)
-        shortcut_btn("Plan nutrition", "ðŸ½ï¸").pack(side="left", padx=5)
-        shortcut_btn("Planning", "ðŸ“†").pack(side="left", padx=5)
+        shortcut_btn("Exporter PDF", "📄").pack(side="left", padx=5)
+        shortcut_btn("Paramètres", "⚙️").pack(side="left", padx=5)
+        shortcut_btn("Suivi progression", "📈").pack(side="left", padx=5)
+        shortcut_btn("Plan nutrition", "🥗").pack(side="left", padx=5)
+        shortcut_btn("Planning", "🗓️").pack(side="left", padx=5)
 
         grid_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         grid_frame.pack(pady=10)
@@ -119,7 +120,7 @@ class DashboardPage(ctk.CTkFrame):
 
         cards = [
             ("Programmes", "dumbbell.png"),
-            ("SÃ©ances", "clock.png"),
+            ("Séances", "clock.png"),
             ("Calendrier", "calendar.png"),
             ("Clients", "users.png"),
             ("Nutrition", "apple.png"),
@@ -129,10 +130,10 @@ class DashboardPage(ctk.CTkFrame):
             ("Progression", "chart.png"),
             ("Messagerie", "chat.png"),
             ("Assistant IA", "spark.png"),
-            ("ParamÃ¨tres", "settings.png"),
+            ("Paramètres", "settings.png"),
         ]
 
-        columns = 4  # Nombre de colonnes dÃ©sirÃ©es
+        columns = 4  # Nombre de colonnes désirées
 
         for i, (label, icon) in enumerate(cards):
             row = i // columns
@@ -140,9 +141,9 @@ class DashboardPage(ctk.CTkFrame):
             card = IconCard(grid_frame, text=label, icon_path=f"assets/icons/{icon}")
             card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
-        PrimaryButton(scroll, text="CrÃ©er un nouveau programme").pack(pady=30)
+        PrimaryButton(scroll, text="Créer un nouveau programme").pack(pady=30)
 
-        # === SECTION 2 : Statistiques visuelles stylisÃ©es ===
+        # === SECTION 2 : Statistiques visuelles stylisées ===
 
         SectionTitle(scroll, "Statistiques de la semaine").pack(pady=(30, 10))
 
@@ -155,7 +156,7 @@ class DashboardPage(ctk.CTkFrame):
         title_row.pack(fill="x", pady=(10, 5), padx=10)
         ctk.CTkLabel(
             title_row,
-            text="ðŸ“Š RÃ©partition des sÃ©ances",
+            text="📊 Répartition des séances",
             font=ctk.CTkFont(**fonts["H2"]),
             text_color=colors["primary_text"],
         ).pack(side="left")
@@ -163,7 +164,7 @@ class DashboardPage(ctk.CTkFrame):
         stats_content = ctk.CTkFrame(stats_card, fg_color="transparent")
         stats_content.pack(padx=20, pady=10, fill="x")
 
-        # --- Fake Graphe stylisÃ© (donut statique dessinÃ©)
+        # --- Fake Graphe stylisé (donut statique dessiné)
         graph_canvas = ctk.CTkCanvas(
             stats_content,
             width=200,
@@ -173,7 +174,7 @@ class DashboardPage(ctk.CTkFrame):
         )
         graph_canvas.grid(row=0, column=0, padx=(0, 40))
 
-        # Donut stylisÃ©
+        # Donut stylisé
         graph_canvas.create_oval(20, 20, 180, 180, fill="#333333", outline="")
         graph_canvas.create_arc(
             20, 20, 180, 180, start=0, extent=90, fill="#3b82f6", outline=""
@@ -191,7 +192,7 @@ class DashboardPage(ctk.CTkFrame):
             60, 60, 140, 140, fill=colors["surface_light"], outline=""
         )  # Centre du donut
 
-        # --- DÃ©tails Ã  droite du graphe
+        # --- Détails à droite du graphe
         stat_labels = ctk.CTkFrame(stats_content, fg_color="transparent")
         stat_labels.grid(row=0, column=1, sticky="nw")
 
@@ -200,7 +201,7 @@ class DashboardPage(ctk.CTkFrame):
             row.pack(anchor="w", pady=4)
             dot = ctk.CTkLabel(
                 row,
-                text="â¬¤",
+                text="●",
                 text_color=color,
                 font=ctk.CTkFont(**fonts["Body"]),
             )
@@ -214,7 +215,7 @@ class DashboardPage(ctk.CTkFrame):
             name.pack(side="left", padx=(0, 10))
             value = ctk.CTkLabel(
                 row,
-                text=f"{percent} â€“ {total} sÃ©ances",
+                text=f"{percent} • {total} séances",
                 font=ctk.CTkFont(**fonts["Small"]),
                 text_color=colors["secondary_text"],
             )
@@ -233,7 +234,7 @@ class DashboardPage(ctk.CTkFrame):
 
         ctk.CTkLabel(
             kpi_frame,
-            text="Indicateurs clÃ©s",
+            text="Indicateurs clés",
             font=ctk.CTkFont(**fonts["H2"]),
             text_color=colors["primary_text"],
         ).pack(anchor="w", padx=20, pady=(10, 0))
@@ -260,14 +261,14 @@ class DashboardPage(ctk.CTkFrame):
             ).pack(pady=(0, 10))
 
         kpi("Clients actifs", str(data.active_clients))
-        kpi("SÃ©ances ce mois", str(data.sessions_this_month))
+        kpi("Séances ce mois", str(data.sessions_this_month))
         kpi(
-            "Taux de complÃ©tion",
+            "Taux de complétion",
             f"{int(data.average_session_completion_rate * 100)}%",
         )
 
-        # === SECTION 3 : Clients rÃ©cents ===
-        SectionTitle(scroll, "Clients rÃ©cents").pack(pady=(30, 10))
+        # === SECTION 3 : Clients récents ===
+        SectionTitle(scroll, "Clients récents").pack(pady=(30, 10))
 
         clients_frame = ctk.CTkFrame(scroll, fg_color="transparent")
         clients_frame.pack(pady=10, fill="x")
@@ -275,7 +276,7 @@ class DashboardPage(ctk.CTkFrame):
         clients = [
             ("Pauline C.", "user1.png", "il y a 2 jours"),
             ("Thomas B.", "user2.png", "hier"),
-            ("ChloÃ© D.", "user3.png", "il y a 4 jours"),
+            ("Chloé D.", "user3.png", "il y a 4 jours"),
         ]
 
         for name, avatar_file, date in clients:

@@ -91,3 +91,4 @@ class ClientsPage(ctk.CTkFrame):
         modal.grab_set()
         self.wait_window(modal)
         self._load_clients()
+

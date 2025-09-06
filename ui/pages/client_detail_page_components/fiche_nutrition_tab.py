@@ -1,4 +1,4 @@
-﻿import datetime
+import datetime
 from dataclasses import asdict
 from tkinter import filedialog
 
@@ -32,7 +32,7 @@ class FicheNutritionTab(ctk.CTkFrame):
         btn_frame.pack(side="bottom", pady=20)
         PrimaryButton(
             btn_frame,
-            text="GÃ©nÃ©rer / Mettre Ã  jour la fiche",
+            text="Générer / Mettre à jour la fiche",
             command=self.open_modal,
         ).pack(side="left", padx=5)
         self.export_btn = PrimaryButton(
@@ -51,7 +51,7 @@ class FicheNutritionTab(ctk.CTkFrame):
         fonts = ctk.ThemeManager.theme["font"]
         if not self.fiche:
             message = (
-                "Aucune fiche nutritionnelle n'a encore Ã©tÃ© gÃ©nÃ©rÃ©e pour ce client."
+                "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
             )
             ctk.CTkLabel(
                 self.display,
@@ -62,7 +62,7 @@ class FicheNutritionTab(ctk.CTkFrame):
             self.export_btn.configure(state="disabled")
         else:
             self.export_btn.configure(state="normal")
-            CardTitle(self.display, text="DerniÃ¨re Fiche Nutritionnelle").pack(
+            CardTitle(self.display, text="Dernière Fiche Nutritionnelle").pack(
                 anchor="w", padx=20, pady=(20, 20)
             )
             info_frame = ctk.CTkFrame(self.display, fg_color="transparent")
@@ -75,7 +75,7 @@ class FicheNutritionTab(ctk.CTkFrame):
                 ("Objectif", self.fiche.objectif),
                 ("Maintenance", f"{self.fiche.maintenance_kcal} kcal"),
                 ("Objectif (kcal)", f"{self.fiche.objectif_kcal} kcal"),
-                ("ProtÃ©ines", f"{self.fiche.proteines_g} g"),
+                ("Protéines", f"{self.fiche.proteines_g} g"),
                 ("Glucides", f"{self.fiche.glucides_g} g"),
                 ("Lipides", f"{self.fiche.lipides_g} g"),
             ]
@@ -114,7 +114,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
     def __init__(self, parent: FicheNutritionTab):
         super().__init__(parent)
         self.parent = parent
-        self.title("GÃ©nÃ©rer une fiche")
+        self.title("Générer une fiche")
         self.geometry("400x600")
 
         c = parent.client
@@ -122,7 +122,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
         self.taille_var = ctk.StringVar(value=str(c.taille_cm or ""))
         self.date_var = ctk.StringVar(value=c.date_naissance or "")
         self.sexe_var = ctk.StringVar(value=c.sexe or "Homme")
-        self.activite_var = ctk.StringVar(value=c.niveau_activite or "SÃ©dentaire")
+        self.activite_var = ctk.StringVar(value=c.niveau_activite or "Sédentaire")
         self.obj_var = ctk.StringVar(value="Maintenance")
         self.prot_var = ctk.DoubleVar(value=1.8)
         self.ratio_var = ctk.DoubleVar(value=self._default_ratio())
@@ -149,7 +149,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(
-            frame, text="Niveau d'activitÃ©", text_color=colors["primary_text"]
+            frame, text="Niveau d'activité", text_color=colors["primary_text"]
         ).pack(anchor="w")
         ctk.CTkOptionMenu(
             frame,
@@ -167,20 +167,20 @@ class GenerateFicheModal(ctk.CTkToplevel):
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(
-            frame, text="ProtÃ©ines (g/kg)", text_color=colors["primary_text"]
+            frame, text="Protéines (g/kg)", text_color=colors["primary_text"]
         ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(
-            frame, text="RÃ©partition G/L (%)", text_color=colors["primary_text"]
+            frame, text="Répartition G/L (%)", text_color=colors["primary_text"]
         ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var
         ).pack(fill="x", pady=(0, 10))
 
-        ctk.CTkButton(self, text="GÃ©nÃ©rer", command=self.generate, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(pady=10)
+        ctk.CTkButton(self, text="Générer", command=self.generate, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(pady=10)
 
     def _default_ratio(self) -> float:
         try:
@@ -189,7 +189,7 @@ class GenerateFicheModal(ctk.CTkToplevel):
                 "taille_cm": float(self.parent.client.taille_cm or 0),
                 "age": self._age(self.parent.client.date_naissance),
                 "sexe": self.parent.client.sexe or "Homme",
-                "niveau_activite": self.parent.client.niveau_activite or "SÃ©dentaire",
+                "niveau_activite": self.parent.client.niveau_activite or "Sédentaire",
                 "objectif": "Maintenance",
             }
             res = self.parent.nutrition_controller.calculate_nutrition_targets(data)

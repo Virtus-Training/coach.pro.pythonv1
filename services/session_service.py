@@ -37,7 +37,7 @@ class SessionService:
             date_creation=meta.get("date") or date.today().isoformat(),
             client_id=client_id,
             blocks=[],
-            meta={},
+            meta=meta,
         )
         for idx, blk in enumerate(dto.get("blocks", []), start=1):
             block_id = f"{session_id}-b{idx}"

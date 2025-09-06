@@ -25,10 +25,14 @@ TEXT = "#E5E7EB"
 
 class SessionPDFTemplate:
     def __init__(
-        self, session_dto: Dict[str, Any], client_name: str | None = None
+        self,
+        session_dto: Dict[str, Any],
+        client_name: str | None = None,
+        style: Dict[str, Any] | None = None,
     ) -> None:
         self.session = session_dto
         self.client_name = client_name
+        self.style = style or {}
 
     def build(self, file_path: str) -> None:
         doc = SimpleDocTemplate(file_path, pagesize=A4)
@@ -47,8 +51,10 @@ class SessionPDFTemplate:
             lines.append(f"Client : {self.client_name}")
         para = Paragraph("<br/>".join(lines), right)
         logo_path = Path(__file__).resolve().parent.parent / "assets" / "Logo.png"
-        logo = Image(str(logo_path), width=70, preserveAspectRatio=True)
-        table = Table([[logo, para]], colWidths=[70, 470])
+        logo_w = int(self.style.get("logo_width", 70))
+        table_total = 540  # approx usable width with default margins
+        logo = Image(str(logo_path), width=logo_w, preserveAspectRatio=True)
+        table = Table([[logo, para]], colWidths=[logo_w, table_total - logo_w])
         table.setStyle(
             TableStyle(
                 [
@@ -101,17 +107,30 @@ class SessionPDFTemplate:
                 data.append([ex.get("nom", ""), series, reps, rest_str])
             col_widths = [250, 60, 120, 60]
 
+        # Column widths override from style
+        cw_map = self.style.get("column_widths", {})
+        key = fmt if fmt in cw_map else "DEFAULT"
+        col_widths = cw_map.get(key, col_widths)
         table = Table(data, colWidths=col_widths)
+
+        # Color/style overrides
+        colors_cfg = self.style.get("colors", {})
+        header_bg = colors_cfg.get("table_header_bg", TABLE_HEADER_BG)
+        text_col = colors_cfg.get("table_text", TEXT)
+        grid_col = colors_cfg.get("table_grid", NEUTRAL_700)
+        row_odd_bg = colors_cfg.get("table_row_odd_bg", TABLE_ROW_ODD_BG)
+        row_even_bg = colors_cfg.get("table_row_even_bg", TABLE_ROW_EVEN_BG)
+
         style = [
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(TABLE_HEADER_BG)),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor(TEXT)),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(header_bg)),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.HexColor(text_col)),
             ("ALIGN", (1, 1), (-1, -1), "CENTER"),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor(NEUTRAL_700)),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.HexColor(grid_col)),
         ]
         for i in range(1, len(data)):
-            bg = TABLE_ROW_ODD_BG if i % 2 else TABLE_ROW_EVEN_BG
+            bg = row_odd_bg if i % 2 else row_even_bg
             style.append(("BACKGROUND", (0, i), (-1, i), colors.HexColor(bg)))
-            style.append(("TEXTCOLOR", (0, i), (-1, i), colors.HexColor(TEXT)))
+            style.append(("TEXTCOLOR", (0, i), (-1, i), colors.HexColor(text_col)))
         table.setStyle(TableStyle(style))
         elems.append(table)
         elems.append(Spacer(1, 12))
