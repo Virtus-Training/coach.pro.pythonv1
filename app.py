@@ -32,7 +32,7 @@ from ui.pages.dashboard_page import DashboardPage
 from ui.pages.database_page import DatabasePage
 from ui.pages.messaging_page import MessagingPage
 from ui.pages.nutrition_page import NutritionPage
-from ui.pages.pdf_page import PdfPage
+from ui.pages.pdf_templates_gallery import PdfTemplatesPage
 from controllers.pdf_template_controller import PdfTemplateController
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
@@ -126,7 +126,7 @@ class CoachApp(ctk.CTk):
             "pdf": {
                 "label": "PDF",
                 "icon": "pdf.png",
-                "factory": lambda parent: PdfPage(parent, PdfTemplateController()),
+                "factory": lambda parent: PdfTemplatesPage(parent, PdfTemplateController()),
             },
             "nutrition": {
                 "label": "Nutrition",
@@ -186,12 +186,13 @@ class CoachApp(ctk.CTk):
         active_name = page_name if page_name in self.page_registry else "dashboard"
         self.shell.sidebar.set_active(active_name)
 
-    def show_client_detail(self, client_id: int) -> None:
+    def show_client_detail(self, client_id: int, default_tab: str | None = None) -> None:
         page = ClientDetailPage(
             self.shell.content_area,
             self.client_controller,
             self.nutrition_controller,
             client_id,
+            default_tab=default_tab,
         )
         self.shell.set_content(page)
         self.current_page = page

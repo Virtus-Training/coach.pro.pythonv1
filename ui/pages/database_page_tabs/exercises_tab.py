@@ -20,6 +20,9 @@ from ui.components.design_system import (
     PrimaryButton,
     SecondaryButton,
 )
+from services.exercise_importer import import_from_wger
+import threading
+import traceback
 
 # Vocabulaire normalisé pour éviter la casse et les variations d'écriture
 MUSCLE_GROUPS = [
@@ -849,6 +852,15 @@ class ExercisesTab(ctk.CTkFrame):
             except Exception:
                 self.font_size_ctrl = None
 
+        # Importer depuis wger
+        try:
+            self.btn_import = SecondaryButton(
+                toolbar, text="Importer wger", command=self._on_import_wger
+            )
+            self.btn_import.pack(side="right", padx=(8, 0))
+        except Exception:
+            pass
+
         self.btn_add = PrimaryButton(toolbar, text="Ajouter", command=self._on_add)
         self.btn_add.pack(side="right", padx=(8, 0))
         self.btn_edit = SecondaryButton(
@@ -890,6 +902,16 @@ class ExercisesTab(ctk.CTkFrame):
         self.preview.grid(row=1, column=1, sticky="nsew", padx=(10, 0))
 
         self._load()
+
+    # ---------------------
+    # Import wger (UI)
+    # ---------------------
+    def _on_import_wger(self) -> None:
+        dialog = _WgerImportDialog(self, on_done=self._load)
+        try:
+            dialog.grab_set()
+        except Exception:
+            pass
 
     def _on_font_change(self, value: str | None) -> None:
         mapping = {"A": 12, "A+": 14, "A++": 16}
@@ -985,11 +1007,37 @@ class ExercisesTab(ctk.CTkFrame):
                 toast.after(1600, toast.destroy)
             except Exception:
                 pass
+            try:
+                toast.transient(self)
+            except Exception:
+                pass
+            try:
+                toast.attributes("-topmost", True)
+                toast.after(150, lambda: toast.attributes("-topmost", False))
+            except Exception:
+                pass
 
         ctk.CTkButton(row, text="Annuler", command=confirm.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
             side="left", padx=8
         )
         ctk.CTkButton(row, text="Nettoyer", command=do_clean, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left")
+        try:
+            confirm.transient(self)
+        except Exception:
+            pass
+        try:
+            confirm.attributes("-topmost", True)
+            confirm.after(150, lambda: confirm.attributes("-topmost", False))
+        except Exception:
+            pass
+        try:
+            confirm.grab_set()
+        except Exception:
+            pass
+        try:
+            confirm.lift(); confirm.focus_force()
+        except Exception:
+            pass
 
     def _on_edit(self) -> None:
         if not self.selected_name:
@@ -1050,6 +1098,177 @@ class ExercisesTab(ctk.CTkFrame):
             command=do_del,
             font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
         ).pack(side="left")
+        try:
+            confirm.transient(self)
+        except Exception:
+            pass
+        try:
+            confirm.attributes("-topmost", True)
+            confirm.after(150, lambda: confirm.attributes("-topmost", False))
+        except Exception:
+            pass
+        try:
+            confirm.grab_set()
+        except Exception:
+            pass
+        try:
+            confirm.lift(); confirm.focus_force()
+        except Exception:
+            pass
+
+
+class _WgerImportDialog(ctk.CTkToplevel):
+    def __init__(self, master, on_done=None) -> None:
+        super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if not themed
+        self.title("Importer depuis wger")
+        self.geometry("420x260")
+        self.resizable(False, False)
+        self._on_done = on_done
+        self._running = False
+
+        root = ctk.CTkFrame(self, fg_color="transparent")
+        root.pack(fill="both", expand=True, padx=16, pady=16)
+
+        CardTitle(root, text="wger → Exercices").pack(anchor="w", pady=(0, 8))
+
+        # Paramètres
+        self.in_max = LabeledInput(root, label="Nombre max à importer (ex: 100)")
+        try:
+            self.in_max.set_value("100")
+        except Exception:
+            pass
+        self.in_max.pack(fill="x")
+
+        # Progress
+        prog_box = ctk.CTkFrame(root, fg_color="transparent")
+        prog_box.pack(fill="x", pady=(12, 0))
+        self._progress_widget = None
+        # Utiliser un CTkSlider comme barre de progression (plus compatible que CTkProgressBar selon thème)
+        try:
+            self._progress_widget = ctk.CTkSlider(
+                prog_box, from_=0.0, to=1.0, number_of_steps=1000, state="disabled"
+            )
+        except Exception:
+            try:
+                self._progress_widget = ctk.CTkSlider(
+                    prog_box, from_=0.0, to=1.0, number_of_steps=1000
+                )
+            except Exception:
+                self._progress_widget = None
+        if self._progress_widget is not None:
+            try:
+                self._progress_widget.set(0.0)
+            except Exception:
+                pass
+            try:
+                self._progress_widget.pack(fill="x")
+            except Exception:
+                pass
+        self.lbl_status = ctk.CTkLabel(prog_box, text="En attente…")
+        self.lbl_status.pack(anchor="w", pady=(6, 0))
+
+        # Actions
+        btn_row = ctk.CTkFrame(root, fg_color="transparent")
+        btn_row.pack(fill="x", pady=(16, 0))
+        self.btn_cancel = ctk.CTkButton(btn_row, text="Fermer", command=self._close, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        self.btn_cancel.pack(side="right")
+        self.btn_start = ctk.CTkButton(btn_row, text="Démarrer", command=self._start, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        self.btn_start.pack(side="right", padx=(0, 8))
+        # ensure dialog appears on top
+        try:
+            self.transient(master)
+        except Exception:
+            pass
+        try:
+            self.attributes("-topmost", True)
+            self.after(150, lambda: self.attributes("-topmost", False))
+        except Exception:
+            pass
+        try:
+            self.grab_set()
+        except Exception:
+            pass
+        try:
+            self.lift(); self.focus_force()
+        except Exception:
+            pass
+
+    def _start(self) -> None:
+        if self._running:
+            return
+        # Parse max
+        try:
+            max_str = self.in_max.get_value() if hasattr(self.in_max, "get_value") else "100"
+            max_n = int(str(max_str).strip() or 100)
+            if max_n <= 0:
+                max_n = 100
+        except Exception:
+            max_n = 100
+
+        self._running = True
+        self.btn_start.configure(state="disabled")
+        self.lbl_status.configure(text="Import en cours…")
+        # thread pour ne pas bloquer l'UI
+        th = threading.Thread(target=self._run_import, args=(max_n,), daemon=True)
+        th.start()
+
+    def _run_import(self, max_n: int) -> None:
+        def on_progress(seen: int, imported: int, skipped: int, total: Optional[int]):
+            def _ui():
+                # Mise à jour barre
+                value = 0.0
+                if total and total > 0:
+                    value = min(1.0, max(0.0, seen / float(total)))
+                else:
+                    # fallback: basé sur max choisi
+                    value = min(1.0, max(0.0, seen / float(max_n)))
+                try:
+                    if self._progress_widget is not None:
+                        self._progress_widget.set(value)
+                except Exception:
+                    pass
+                self.lbl_status.configure(
+                    text=f"Traités {seen}/{total or max_n}  •  Insérés {imported}  •  Ignorés {skipped}"
+                )
+            try:
+                self.after(0, _ui)
+            except Exception:
+                pass
+
+        try:
+            imported, skipped = import_from_wger(max_items=max_n, on_progress=on_progress)
+            def _done():
+                try:
+                    if self._progress_widget is not None:
+                        self._progress_widget.set(1.0)
+                except Exception:
+                    pass
+                self.lbl_status.configure(text=f"Terminé • {imported} insérés, {skipped} ignorés")
+                self.btn_cancel.configure(state="normal")
+                self._running = False
+                if callable(self._on_done):
+                    try:
+                        self._on_done()
+                    except Exception:
+                        pass
+            self.after(0, _done)
+        except Exception:
+            err = traceback.format_exc(limit=1)
+            def _fail():
+                self.lbl_status.configure(text=f"Échec de l'import • {err}")
+                self.btn_cancel.configure(state="normal")
+                self._running = False
+            try:
+                self.after(0, _fail)
+            except Exception:
+                pass
+
+    def _close(self) -> None:
+        if not self._running:
+            try:
+                self.destroy()
+            except Exception:
+                pass
 
 
 

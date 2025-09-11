@@ -5,15 +5,25 @@ import customtkinter as ctk
 
 from controllers.nutrition_controller import NutritionController
 from dtos.nutrition_dtos import NutritionPageDTO, PlanAlimentaireDTO
-from ui.components.design_system import Card, CardTitle, PrimaryButton, HeroBanner
+from ui.components.design_system import (
+    Card,
+    CardTitle,
+    PrimaryButton,
+    SecondaryButton,
+    HeroBanner,
+)
 from ui.components.food_search_bar import FoodSearchBar
 from ui.components.meal_card import MealCard
+from ui.pages.client_detail_page_components.fiche_nutrition_tab import (
+    GenerateFicheModal,
+)
 
 
 class NutritionPage(ctk.CTkFrame):
     def __init__(self, parent, controller: NutritionController, client_id: int):
         super().__init__(parent)
         self.controller = controller
+        self.nutrition_controller = controller  # used by GenerateFicheModal
         self.client_id = client_id
 
         data = self.controller.get_nutrition_page_data(client_id)
@@ -83,7 +93,15 @@ class NutritionPage(ctk.CTkFrame):
         hero.grid(row=0, column=0, columnspan=3, sticky="ew", padx=10, pady=(10, 8))
         bar = ctk.CTkFrame(self, fg_color="transparent")
         bar.grid(row=0, column=0, columnspan=3, sticky="e", padx=16, pady=(0, 0))
-        PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack()
+        SecondaryButton(
+            bar,
+            text="Fiche nutrition",
+            command=self._open_fiche_modal,
+            width=160,
+        ).pack(side="right", padx=(0, 8))
+        PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack(
+            side="right"
+        )
 
     # Callbacks
     def _set_active_meal(self, repas_id: int) -> None:
@@ -106,6 +124,11 @@ class NutritionPage(ctk.CTkFrame):
         popup = ctk.CTkToplevel(self)
         popup.title(aliment.nom)
         popup.grab_set()
+        try:
+            from utils.ui_helpers import bring_to_front
+            bring_to_front(popup, make_modal=True)
+        except Exception:
+            pass
 
         gram_var = ctk.StringVar(value="100")
         gram_entry = ctk.CTkEntry(popup, textvariable=gram_var)
@@ -152,6 +175,12 @@ class NutritionPage(ctk.CTkFrame):
         if path:
             dto = NutritionPageDTO(client=self.client, fiche=self.fiche, plan=self.plan)
             self.controller.export_plan_to_pdf(dto, path)
+
+    def _open_fiche_modal(self) -> None:
+        GenerateFicheModal(self)
+
+    def refresh(self) -> None:
+        self._refresh()
 
     # Refresh UI
     def _refresh(self) -> None:

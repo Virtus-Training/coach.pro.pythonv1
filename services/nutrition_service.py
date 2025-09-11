@@ -10,6 +10,7 @@ from repositories.aliment_repo import AlimentRepository
 from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from services.pdf_generator import generate_nutrition_sheet_pdf
 
+# Facteurs d'activité (libellés FR propres)
 ACTIVITY_FACTORS = {
     "Sédentaire": 1.2,
     "Activité légère": 1.375,
@@ -51,40 +52,55 @@ class NutritionService:
         proteines_g_par_kg = float(data.get("proteines_g_par_kg", 1.8))
         ratio_glucides = data.get("ratio_glucides")
 
+        # Normalise d'éventuels libellés mal encodés
+        niveau_raw = str(data.get("niveau_activite", "Sédentaire"))
+        normalize = {
+            "SǸdentaire": "Sédentaire",
+            "Sedentaire": "Sédentaire",
+            "ActivitǸ lǸg��re": "Activité légère",
+            "Activité legere": "Activité légère",
+            "ActivitǸ modǸrǸe": "Activité modérée",
+            "Tres actif": "Très actif",
+            "Tr��s actif": "Très actif",
+            "ExtrǦmement actif": "Extrêmement actif",
+        }
+        niveau = normalize.get(niveau_raw, niveau_raw)
+
         bmr = self._bmr(data)
-        factor = ACTIVITY_FACTORS.get(data["niveau_activite"], 1.2)
+        factor = ACTIVITY_FACTORS.get(niveau, 1.2)
         maintenance = bmr * factor
 
-        adj = OBJECTIVE_ADJUST.get(data["objectif"], 0)
+        adj = OBJECTIVE_ADJUST.get(data.get("objectif", "Maintenance"), 0)
         objectif_kcal = maintenance + adj
 
-        proteines_g = round(proteines_g_par_kg * data["poids_kg"])
+        proteines_g = round(proteines_g_par_kg * data["poids_kg"])  # int
         protein_cal = proteines_g * 4
 
         if ratio_glucides is not None:
             ratio_glucides = float(ratio_glucides)
             remaining = objectif_kcal - protein_cal
-            carbs_cal = remaining * (ratio_glucides / 100)
+            remaining = max(0.0, remaining)
+            carbs_cal = remaining * (ratio_glucides / 100.0)
             lipids_cal = remaining - carbs_cal
             glucides_g = round(carbs_cal / 4)
             lipides_g = round(lipids_cal / 9)
         else:
-            lipides_g = round(data["poids_kg"])
+            lipides_g = round(data["poids_kg"])  # ~1 g/kg
             lipids_cal = lipides_g * 9
             remaining = objectif_kcal - protein_cal - lipids_cal
-            glucides_g = round(remaining / 4)
+            glucides_g = round(max(0.0, remaining) / 4)
             carbs_cal = glucides_g * 4
             remaining_total = objectif_kcal - protein_cal
             ratio_glucides = (
-                (carbs_cal / remaining_total * 100) if remaining_total > 0 else 0
+                (carbs_cal / remaining_total * 100.0) if remaining_total > 0 else 0.0
             )
 
         return {
             "maintenance_kcal": round(maintenance),
             "objectif_kcal": round(objectif_kcal),
-            "proteines_g": proteines_g,
-            "glucides_g": glucides_g,
-            "lipides_g": lipides_g,
+            "proteines_g": int(proteines_g),
+            "glucides_g": int(glucides_g),
+            "lipides_g": int(lipides_g),
             "proteines_cible_g_par_kg": proteines_g_par_kg,
             "ratio_glucides_lipides_cible": round(ratio_glucides, 2),
         }
@@ -128,3 +144,4 @@ class NutritionService:
             if a.id == aliment_id:
                 return a
         return None
+

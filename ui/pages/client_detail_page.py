@@ -20,6 +20,7 @@ class ClientDetailPage(ctk.CTkFrame):
         controller: ClientController,
         nutrition_controller: NutritionController,
         client_id: int,
+        default_tab: str | None = None,
     ):
         super().__init__(
             master, fg_color=ctk.ThemeManager.theme["color"]["surface_dark"]
@@ -35,7 +36,7 @@ class ClientDetailPage(ctk.CTkFrame):
         SecondaryButton(
             back_bar,
             text="< Retour",
-            command=self.master.master.show_clients_page,
+            command=self.master.master.master.show_clients_page,
             width=100,
         ).pack(side="left")
 
@@ -72,4 +73,11 @@ class ClientDetailPage(ctk.CTkFrame):
             self.nutrition_controller,
             self.client_id,
         ).pack(fill="both", expand=True, padx=10, pady=10)
+
+        # Select default tab if provided
+        try:
+            if default_tab:
+                tabview.set(default_tab)
+        except Exception:
+            pass
 

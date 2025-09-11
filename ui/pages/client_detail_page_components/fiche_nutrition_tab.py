@@ -8,6 +8,7 @@ from controllers.client_controller import ClientController
 from controllers.nutrition_controller import NutritionController
 from services.nutrition_service import ACTIVITY_FACTORS, OBJECTIVE_ADJUST
 from ui.components.design_system import Card, CardTitle, PrimaryButton
+from utils.ui_helpers import bring_to_front
 
 
 class FicheNutritionTab(ctk.CTkFrame):
@@ -48,7 +49,7 @@ class FicheNutritionTab(ctk.CTkFrame):
         for w in self.display.winfo_children():
             w.destroy()
         colors = ctk.ThemeManager.theme["color"]
-        fonts = ctk.ThemeManager.theme["font"]
+        fonts = ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"])._kwargs
         if not self.fiche:
             message = (
                 "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
@@ -57,7 +58,7 @@ class FicheNutritionTab(ctk.CTkFrame):
                 self.display,
                 text=message,
                 text_color=colors["primary_text"],
-                font=ctk.CTkFont(**fonts["Body"]),
+                font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
             ).pack(expand=True, fill="both")
             self.export_btn.configure(state="disabled")
         else:
@@ -79,19 +80,18 @@ class FicheNutritionTab(ctk.CTkFrame):
                 ("Glucides", f"{self.fiche.glucides_g} g"),
                 ("Lipides", f"{self.fiche.lipides_g} g"),
             ]
-
             for row, (label, value) in enumerate(fields):
                 ctk.CTkLabel(
                     info_frame,
                     text=label,
                     text_color=colors["primary_text"],
-                    font=ctk.CTkFont(**fonts["Body"]),
+                    font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
                 ).grid(row=row, column=0, sticky="w", pady=2)
                 ctk.CTkLabel(
                     info_frame,
                     text=value,
                     text_color=colors["primary_text"],
-                    font=ctk.CTkFont(**fonts["Body"]),
+                    font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
                 ).grid(row=row, column=1, sticky="e", pady=2)
 
     # Modal
@@ -115,31 +115,51 @@ class GenerateFicheModal(ctk.CTkToplevel):
         super().__init__(parent)
         self.parent = parent
         self.title("Générer une fiche")
-        self.geometry("400x600")
+        self.geometry("480x700")
+        try:
+            bring_to_front(self, make_modal=True)
+        except Exception:
+            pass
 
         c = parent.client
+        # Identité
+        self.prenom_var = ctk.StringVar(value=str(getattr(c, "prenom", "") or ""))
+        self.nom_var = ctk.StringVar(value=str(getattr(c, "nom", "") or ""))
+        # Mesures
         self.poids_var = ctk.StringVar(value=str(c.poids_kg or ""))
         self.taille_var = ctk.StringVar(value=str(c.taille_cm or ""))
-        self.date_var = ctk.StringVar(value=c.date_naissance or "")
+        # Date JJ/MM/AAAA
+        self.date_var = ctk.StringVar(value="")
+        if c.date_naissance:
+            try:
+                d = datetime.date.fromisoformat(c.date_naissance)
+                self.date_var.set(d.strftime("%d/%m/%Y"))
+            except Exception:
+                self.date_var.set(c.date_naissance)
         self.sexe_var = ctk.StringVar(value=c.sexe or "Homme")
         self.activite_var = ctk.StringVar(value=c.niveau_activite or "Sédentaire")
         self.obj_var = ctk.StringVar(value="Maintenance")
         self.prot_var = ctk.DoubleVar(value=1.8)
-        self.ratio_var = ctk.DoubleVar(value=self._default_ratio())
+        self.ratio_var = ctk.DoubleVar(value=30.0)
 
-        frame = ctk.CTkFrame(self)
-        frame.pack(fill="both", expand=True, padx=20, pady=20)
+        form = ctk.CTkScrollableFrame(self)
+        form.pack(fill="both", expand=True, padx=20, pady=(20, 10))
+        frame = form
         colors = ctk.ThemeManager.theme["color"]
 
-        def add_entry(label, var):
+        def add_entry(label: str, var):
             ctk.CTkLabel(frame, text=label, text_color=colors["primary_text"]).pack(
                 anchor="w"
             )
             ctk.CTkEntry(frame, textvariable=var).pack(fill="x", pady=(0, 10))
 
+        # Identité
+        add_entry("Prénom", self.prenom_var)
+        add_entry("Nom", self.nom_var)
+        # Mesures
         add_entry("Poids (kg)", self.poids_var)
         add_entry("Taille (cm)", self.taille_var)
-        add_entry("Date de naissance (AAAA-MM-JJ)", self.date_var)
+        add_entry("Date de naissance (JJ/MM/AAAA)", self.date_var)
 
         ctk.CTkLabel(frame, text="Sexe", text_color=colors["primary_text"]).pack(
             anchor="w"
@@ -152,18 +172,14 @@ class GenerateFicheModal(ctk.CTkToplevel):
             frame, text="Niveau d'activité", text_color=colors["primary_text"]
         ).pack(anchor="w")
         ctk.CTkOptionMenu(
-            frame,
-            variable=self.activite_var,
-            values=list(ACTIVITY_FACTORS.keys()),
+            frame, variable=self.activite_var, values=list(ACTIVITY_FACTORS.keys())
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(frame, text="Objectif", text_color=colors["primary_text"]).pack(
             anchor="w"
         )
         ctk.CTkOptionMenu(
-            frame,
-            variable=self.obj_var,
-            values=list(OBJECTIVE_ADJUST.keys()),
+            frame, variable=self.obj_var, values=list(OBJECTIVE_ADJUST.keys())
         ).pack(fill="x", pady=(0, 10))
 
         ctk.CTkLabel(
@@ -171,51 +187,83 @@ class GenerateFicheModal(ctk.CTkToplevel):
         ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=1.0, to=3.0, number_of_steps=20, variable=self.prot_var
-        ).pack(fill="x", pady=(0, 10))
+        ).pack(fill="x", pady=(0, 2))
+        self.prot_value_lbl = ctk.CTkLabel(
+            frame,
+            text=f"{float(self.prot_var.get()):.1f}",
+            text_color=colors["primary_text"],
+        )
+        self.prot_value_lbl.pack(anchor="e", pady=(0, 8))
+        self.prot_var.trace_add(
+            "write",
+            lambda *_: self.prot_value_lbl.configure(text=f"{float(self.prot_var.get()):.1f}"),
+        )
 
         ctk.CTkLabel(
             frame, text="Répartition G/L (%)", text_color=colors["primary_text"]
         ).pack(anchor="w")
         ctk.CTkSlider(
             frame, from_=0, to=100, number_of_steps=100, variable=self.ratio_var
-        ).pack(fill="x", pady=(0, 10))
+        ).pack(fill="x", pady=(0, 2))
+        self.ratio_value_lbl = ctk.CTkLabel(
+            frame,
+            text=f"{int(float(self.ratio_var.get()))}%",
+            text_color=colors["primary_text"],
+        )
+        self.ratio_value_lbl.pack(anchor="e", pady=(0, 8))
+        self.ratio_var.trace_add(
+            "write",
+            lambda *_: self.ratio_value_lbl.configure(
+                text=f"{int(float(self.ratio_var.get()))}%"
+            ),
+        )
 
-        ctk.CTkButton(self, text="Générer", command=self.generate, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(pady=10)
+        # Footer (erreur + action)
+        footer = ctk.CTkFrame(self, fg_color="transparent")
+        footer.pack(fill="x", padx=20, pady=(0, 16))
+        self.error_lbl = ctk.CTkLabel(
+            footer,
+            text="",
+            text_color=ctk.ThemeManager.theme["color"].get("error", "#EF4444"),
+        )
+        self.error_lbl.pack(side="left")
+        ctk.CTkButton(
+            footer,
+            text="Générer",
+            command=self.generate,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right")
 
-    def _default_ratio(self) -> float:
-        try:
-            data = {
-                "poids_kg": float(self.parent.client.poids_kg or 0),
-                "taille_cm": float(self.parent.client.taille_cm or 0),
-                "age": self._age(self.parent.client.date_naissance),
-                "sexe": self.parent.client.sexe or "Homme",
-                "niveau_activite": self.parent.client.niveau_activite or "Sédentaire",
-                "objectif": "Maintenance",
-            }
-            res = self.parent.nutrition_controller.calculate_nutrition_targets(data)
-            return res["ratio_glucides_lipides_cible"]
-        except Exception:
-            return 50.0
-
-    def _age(self, date_str: str | None) -> int:
+    def _parse_age(self, date_str: str | None) -> int:
         if not date_str:
             return 0
         try:
-            birth = datetime.date.fromisoformat(date_str)
-            today = datetime.date.today()
-            return (
-                today.year
-                - birth.year
-                - ((today.month, today.day) < (birth.month, birth.day))
-            )
+            d = datetime.datetime.strptime(date_str, "%d/%m/%Y").date()
         except Exception:
-            return 0
+            try:
+                d = datetime.date.fromisoformat(date_str)
+            except Exception:
+                return 0
+        today = datetime.date.today()
+        return today.year - d.year - ((today.month, today.day) < (d.month, d.day))
 
     def generate(self):
-        age = self._age(self.date_var.get())
+        self.error_lbl.configure(text="")
+        try:
+            poids = float(self.poids_var.get())
+        except Exception:
+            self.error_lbl.configure(text="Veuillez saisir un poids valide (kg).")
+            return
+        try:
+            taille = float(self.taille_var.get())
+        except Exception:
+            self.error_lbl.configure(text="Veuillez saisir une taille valide (cm).")
+            return
+
+        age = self._parse_age(self.date_var.get())
         data = {
-            "poids_kg": float(self.poids_var.get()),
-            "taille_cm": float(self.taille_var.get()),
+            "poids_kg": poids,
+            "taille_cm": taille,
             "age": age,
             "sexe": self.sexe_var.get(),
             "niveau_activite": self.activite_var.get(),
@@ -223,10 +271,49 @@ class GenerateFicheModal(ctk.CTkToplevel):
             "proteines_g_par_kg": float(self.prot_var.get()),
             "ratio_glucides": float(self.ratio_var.get()),
         }
-        fiche = self.parent.nutrition_controller.generate_nutrition_sheet(
-            self.parent.client_id, data
-        )
+        try:
+            fiche = self.parent.nutrition_controller.generate_nutrition_sheet(
+                self.parent.client_id, data
+            )
+        except Exception as e:
+            self.error_lbl.configure(text=f"Erreur: {e}")
+            return
+
         self.parent.fiche = fiche
-        self.parent.refresh()
+
+        # Enregistrement immédiat en PDF + ouverture
+        try:
+            import os, sys, subprocess
+            prenom = (self.prenom_var.get() or getattr(self.parent.client, "prenom", "") or "").strip()
+            nom = (self.nom_var.get() or getattr(self.parent.client, "nom", "") or "").strip()
+            default_name = f"Fiche_Nutrition_{prenom}_{nom}_{datetime.date.today().isoformat()}.pdf".replace(" ", "_")
+            path = filedialog.asksaveasfilename(
+                defaultextension=".pdf",
+                initialfile=default_name,
+                filetypes=[("PDF", "*.pdf")],
+            )
+            if path:
+                try:
+                    self.parent.client.prenom = prenom or self.parent.client.prenom
+                    self.parent.client.nom = nom or self.parent.client.nom
+                except Exception:
+                    pass
+                self.parent.nutrition_controller.export_sheet_to_pdf(asdict(fiche), self.parent.client, path)
+                try:
+                    if os.name == "nt":
+                        os.startfile(path)  # type: ignore[attr-defined]
+                    elif sys.platform == "darwin":
+                        subprocess.run(["open", path], check=False)
+                    else:
+                        subprocess.run(["xdg-open", path], check=False)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        try:
+            self.parent.refresh()
+        except Exception:
+            pass
         self.destroy()
 

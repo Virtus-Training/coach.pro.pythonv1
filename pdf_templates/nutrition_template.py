@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, List
@@ -47,7 +47,14 @@ class NutritionPDFTemplate:
             lines.append(f"{client.prenom} {client.nom}")
         para = Paragraph("<br/>".join(lines), right)
         logo_path = Path(__file__).resolve().parent.parent / "assets" / "Logo.png"
-        logo = Image(str(logo_path), width=70, preserveAspectRatio=True)
+        # Constrain the logo size to avoid oversized flowables
+        logo = Image(str(logo_path))
+        try:
+            logo._restrictSize(60, 60)
+        except Exception:
+            # Fallback: explicit size
+            logo.drawWidth = 60
+            logo.drawHeight = 60
         table = Table([[logo, para]], colWidths=[70, 470])
         table.setStyle(
             TableStyle(
@@ -67,18 +74,18 @@ class NutritionPDFTemplate:
         fiche = self.dto.fiche
         plan = self.dto.plan
         data = [
-            ["", "Kcal", "Protéines (g)", "Glucides (g)", "Lipides (g)"],
+            ["", "Kcal", "ProtÃ©ines (g)", "Glucides (g)", "Lipides (g)"],
             [
                 "Objectifs",
                 f"{getattr(fiche, 'objectif_kcal', 0)}",
-                f"{getattr(fiche, 'proteines_g', 0)}",
+                f"{getattr(fiche, 'Protéines_g', 0)}",
                 f"{getattr(fiche, 'glucides_g', 0)}",
                 f"{getattr(fiche, 'lipides_g', 0)}",
             ],
             [
                 "Total du plan",
                 f"{plan.totals_kcal:.0f}",
-                f"{plan.totals_proteines:.1f}",
+                f"{plan.totals_Protéines:.1f}",
                 f"{plan.totals_glucides:.1f}",
                 f"{plan.totals_lipides:.1f}",
             ],
@@ -103,15 +110,15 @@ class NutritionPDFTemplate:
         elems: List[Any] = []
         elems.append(Paragraph(f"<b>{repas.nom}</b>", styles["Heading4"]))
         elems.append(Spacer(1, 6))
-        data = [["Aliment", "Quantité", "Kcal", "P", "G", "L"]]
+        data = [["Aliment", "Quantité©", "Kcal", "P", "G", "L"]]
         for item in repas.items:
-            qty = f"{item.quantite:.0f}{item.unite}"
+            qty = f"{item.Quantité:.0f}{item.unite}"
             data.append(
                 [
                     item.nom,
                     qty,
                     f"{item.kcal:.0f}",
-                    f"{item.proteines:.1f}",
+                    f"{item.Protéines:.1f}",
                     f"{item.glucides:.1f}",
                     f"{item.lipides:.1f}",
                 ]
@@ -121,7 +128,7 @@ class NutritionPDFTemplate:
                 "Sous-total",
                 "",
                 f"{repas.totals_kcal:.0f}",
-                f"{repas.totals_proteines:.1f}",
+                f"{repas.totals_Protéines:.1f}",
                 f"{repas.totals_glucides:.1f}",
                 f"{repas.totals_lipides:.1f}",
             ]
@@ -153,3 +160,4 @@ class NutritionPDFTemplate:
 
 
 __all__ = ["NutritionPDFTemplate"]
+

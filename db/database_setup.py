@@ -53,6 +53,20 @@ def initialize_database() -> None:
                     "INFO: Migration: ajout de la colonne movement_category dans 'exercices'."
                 )
                 conn.execute("ALTER TABLE exercices ADD COLUMN movement_category TEXT")
+            # Provenance/licence (pour imports externes comme wger)
+            provenance_cols = [
+                ("source", "TEXT"),
+                ("source_uuid", "TEXT"),
+                ("source_url", "TEXT"),
+                ("license_name", "TEXT"),
+                ("license_url", "TEXT"),
+            ]
+            for col, ctype in provenance_cols:
+                if col not in cols:
+                    print(
+                        f"INFO: Migration: ajout de la colonne {col} ({ctype}) dans 'exercices'."
+                    )
+                    conn.execute(f"ALTER TABLE exercices ADD COLUMN {col} {ctype}")
             # Canonicalisation des données pour réduire les redondances
             # 1) pattern: map 'Plyo' -> 'Jump'
             conn.execute(
@@ -118,7 +132,7 @@ def initialize_database() -> None:
         try:
             from services.pdf_template_service import PdfTemplateService
 
-            PdfTemplateService().ensure_default_exists()
+            PdfTemplateService().ensure_all_defaults_exist()
         except Exception:
             pass
     except Exception:

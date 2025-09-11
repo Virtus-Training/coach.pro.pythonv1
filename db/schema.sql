@@ -15,7 +15,13 @@ CREATE TABLE exercices (
     movement_category TEXT,
     type_effort TEXT NOT NULL,
     coefficient_volume REAL DEFAULT 1.0,
-    est_chargeable BOOLEAN NOT NULL
+    est_chargeable BOOLEAN NOT NULL,
+    -- Provenance et licence (pour imports externes)
+    source TEXT,
+    source_uuid TEXT,
+    source_url TEXT,
+    license_name TEXT,
+    license_url TEXT
 );
 
 CREATE TABLE clients (

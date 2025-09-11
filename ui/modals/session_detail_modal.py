@@ -1,6 +1,7 @@
 from tkinter import filedialog
 
 import customtkinter as ctk
+from utils.ui_helpers import bring_to_front
 
 # Support execution of this file directly by fixing sys.path
 try:
@@ -31,6 +32,10 @@ class SessionDetailModal(ctk.CTkToplevel):
         self.geometry("700x600")
         self.resizable(False, False)
         self.grab_set()
+        try:
+            bring_to_front(self, make_modal=True)
+        except Exception:
+            pass
 
         self.dto = self.controller.build_preview_from_session(session)
         self.preview = SessionPreview(self, controller, show_action_buttons=False)

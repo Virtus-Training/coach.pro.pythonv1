@@ -5,6 +5,7 @@ from typing import Any, Callable
 import customtkinter as ctk
 
 from exceptions.validation_error import ValidationError
+from utils.ui_helpers import bring_to_front
 from ui.components.design_system import PrimaryButton, SecondaryButton
 
 
@@ -69,6 +70,11 @@ class BaseFormModal(ctk.CTkToplevel):
 
         self.update_idletasks()
         self.geometry(f"400x{self.winfo_height()}")
+        # Ensure modal pops over parent and grabs focus
+        try:
+            bring_to_front(self, make_modal=True)
+        except Exception:
+            pass
 
     def _on_save(self) -> None:
         self._hide_general_error()
