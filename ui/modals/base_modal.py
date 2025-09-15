@@ -5,8 +5,8 @@ from typing import Any, Callable
 import customtkinter as ctk
 
 from exceptions.validation_error import ValidationError
-from utils.ui_helpers import bring_to_front
 from ui.components.design_system import PrimaryButton, SecondaryButton
+from utils.ui_helpers import bring_to_front
 
 
 class BaseFormModal(ctk.CTkToplevel):

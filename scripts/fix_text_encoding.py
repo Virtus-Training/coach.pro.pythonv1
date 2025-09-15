@@ -3,7 +3,7 @@ from pathlib import Path
 
 try:
     from ftfy import fix_text
-except Exception as e:
+except Exception:
     print("ftfy is required: pip install ftfy", file=sys.stderr)
     raise
 

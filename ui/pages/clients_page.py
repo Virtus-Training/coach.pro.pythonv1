@@ -28,10 +28,10 @@ class ClientsPage(ctk.CTkFrame):
             subtitle="Gérez votre portefeuille et ouvrez les fiches détaillées.",
             icon_path="assets/icons/users.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         actions = ctk.CTkFrame(self, fg_color="transparent")
-        actions.pack(fill="x", padx=20, pady=(0, 24))
+        actions.pack(fill="x", padx=12, pady=(0, 12))
 
         PrimaryButton(
             actions, text="Ajouter un client", command=self._open_add_modal
@@ -41,7 +41,7 @@ class ClientsPage(ctk.CTkFrame):
         )
 
         self.scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        self.scroll.pack(fill="both", expand=True, padx=20, pady=20)
+        self.scroll.pack(fill="both", expand=True, padx=12, pady=8)
 
         self._load_clients()
 
@@ -91,4 +91,3 @@ class ClientsPage(ctk.CTkFrame):
         modal.grab_set()
         self.wait_window(modal)
         self._load_clients()
-

@@ -19,11 +19,11 @@ class DatabasePage(ctk.CTkFrame):
             subtitle="Gérez vos bases d'exercices, d'aliments et de programmes.",
             icon_path="assets/icons/database.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         # Tabs area
         tabview = ctk.CTkTabview(self)
-        tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        tabview.pack(fill="both", expand=True, padx=12, pady=(0, 12))
 
         exercises_tab = tabview.add("Exercices")
         ExercisesTab(exercises_tab).pack(fill="both", expand=True)
@@ -34,4 +34,3 @@ class DatabasePage(ctk.CTkFrame):
     def init_exercises_tab(self, frame):
         # Legacy placeholder removed; now handled by ExercisesTab
         pass
-

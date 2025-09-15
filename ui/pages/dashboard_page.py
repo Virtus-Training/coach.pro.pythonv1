@@ -6,7 +6,7 @@ from PIL import Image
 
 from controllers.dashboard_controller import DashboardController
 from ui.components.card import IconCard
-from ui.components.design_system import PrimaryButton, HeroBanner
+from ui.components.design_system import HeroBanner, PrimaryButton
 from ui.components.title import SectionTitle
 
 
@@ -27,11 +27,11 @@ class DashboardPage(ctk.CTkFrame):
             subtitle="Vue d’ensemble des activités et raccourcis.",
             icon_path="assets/icons/layout-dashboard.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         # Scrollable container
         scroll = ctk.CTkScrollableFrame(self, fg_color="transparent")
-        scroll.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        scroll.pack(fill="both", expand=True, padx=12, pady=(0, 12))
 
         # === SECTION HAUTE : Rappel + KPI + Raccourcis ===
 
@@ -303,4 +303,3 @@ class DashboardPage(ctk.CTkFrame):
                 font=ctk.CTkFont(**fonts["Small"]),
                 text_color=colors["secondary_text"],
             ).pack(side="right", padx=20)
-

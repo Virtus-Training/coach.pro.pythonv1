@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(python:*)",
+      "Bash(chcp:*)",
+      "Bash(ruff check:*)",
+      "Bash(dir data)",
+      "WebSearch"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

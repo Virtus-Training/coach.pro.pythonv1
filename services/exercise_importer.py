@@ -21,7 +21,6 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from db.database_manager import db_manager
 
-
 WGER_BASE = "https://wger.de/api/v2"
 
 

@@ -48,7 +48,7 @@ class HeroBanner(ctk.CTkFrame):
 
         if img is not None:
             ctk.CTkLabel(self, text="", image=img).grid(
-                row=0, column=0, rowspan=2, padx=(16, 12), pady=16
+                row=0, column=0, rowspan=2, padx=(12, 10), pady=8
             )
 
         # Title + subtitle
@@ -58,7 +58,7 @@ class HeroBanner(ctk.CTkFrame):
             font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H1"]),
             text_color=colors.get("surface_dark", "#111827"),
         )
-        title_lbl.grid(row=0, column=1, sticky="w", padx=(16 if img is None else 0, 16), pady=(14, 0))
+        title_lbl.grid(row=0, column=1, sticky="w", padx=(12 if img is None else 0, 12), pady=(6, 0))
 
         if subtitle:
             sub_lbl = ctk.CTkLabel(
@@ -67,14 +67,13 @@ class HeroBanner(ctk.CTkFrame):
                 font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
                 text_color=colors.get("surface_dark", "#111827"),
             )
-            sub_lbl.grid(row=1, column=1, sticky="w", padx=(16 if img is None else 0, 16), pady=(2, 14))
+            sub_lbl.grid(row=1, column=1, sticky="w", padx=(12 if img is None else 0, 12), pady=(1, 8))
 
         # Decorative right overlay (subtle)
         # A small translucent stripe adds a modern touch without images
-        deco = ctk.CTkFrame(self, fg_color="#ffffff", width=8, corner_radius=0)
+        deco = ctk.CTkFrame(self, fg_color="#ffffff", width=4, corner_radius=0)
         try:
             deco.configure(fg_color="#a5f3fc")  # light cyan
         except Exception:
             pass
         deco.grid(row=0, column=2, rowspan=2, sticky="ns", padx=(0, 0))
-

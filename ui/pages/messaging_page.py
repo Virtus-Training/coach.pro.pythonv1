@@ -1,6 +1,6 @@
 import customtkinter as ctk
 
-from ui.components.design_system import HeroBanner, Card, CardTitle
+from ui.components.design_system import Card, CardTitle, HeroBanner
 
 
 class MessagingPage(ctk.CTkFrame):
@@ -15,8 +15,8 @@ class MessagingPage(ctk.CTkFrame):
             subtitle="Échangez avec vos clients (à venir).",
             icon_path="assets/icons/chat.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         card = Card(self)
-        card.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        card.pack(fill="both", expand=True, padx=12, pady=(0, 12))
         CardTitle(card, text="Bientôt disponible").pack(anchor="w", padx=12, pady=12)

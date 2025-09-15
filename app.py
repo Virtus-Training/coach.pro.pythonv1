@@ -23,7 +23,7 @@ from services.nutrition_service import NutritionService
 from services.plan_alimentaire_service import PlanAlimentaireService
 from services.session_service import SessionService
 from services.tracking_service import TrackingService
-from ui.layout.app_shell import AppShell
+from ui.layout.modern_app_shell import ModernAppShell
 from ui.pages.billing_page import BillingPage
 from ui.pages.calendar_page import CalendarPage
 from ui.pages.client_detail_page import ClientDetailPage
@@ -31,11 +31,12 @@ from ui.pages.clients_page import ClientsPage
 from ui.pages.dashboard_page import DashboardPage
 from ui.pages.database_page import DatabasePage
 from ui.pages.messaging_page import MessagingPage
+from ui.pages.modern_dashboard_page import ModernDashboardPage
 from ui.pages.nutrition_page import NutritionPage
-from ui.pages.pdf_templates_gallery import PdfTemplatesPage
-from controllers.pdf_template_controller import PdfTemplateController
+from ui.pages.professional_pdf_templates_page import ProfessionalPdfTemplatesPage
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
+from ui.pages.saved_sessions_page import SavedSessionsPage
 from ui.pages.session_page import SessionPage
 
 
@@ -94,7 +95,7 @@ class CoachApp(ctk.CTk):
             "dashboard": {
                 "label": "Tableau de bord",
                 "icon": "layout-dashboard.png",
-                "factory": lambda parent: DashboardPage(
+                "factory": lambda parent: ModernDashboardPage(
                     parent, self.dashboard_controller
                 ),
             },
@@ -114,9 +115,14 @@ class CoachApp(ctk.CTk):
                 ),
             },
             "sessions": {
-                "label": "Séances",
+                "label": "Créer Séance",
                 "icon": "clock.png",
                 "factory": lambda parent: SessionPage(parent, self.session_controller),
+            },
+            "saved_sessions": {
+                "label": "Mes Séances",
+                "icon": "chart.png",
+                "factory": lambda parent: SavedSessionsPage(parent, self.session_controller, self),
             },
             "progress": {
                 "label": "Progression",
@@ -126,7 +132,7 @@ class CoachApp(ctk.CTk):
             "pdf": {
                 "label": "PDF",
                 "icon": "pdf.png",
-                "factory": lambda parent: PdfTemplatesPage(parent, PdfTemplateController()),
+                "factory": lambda parent: ProfessionalPdfTemplatesPage(parent),
             },
             "nutrition": {
                 "label": "Nutrition",
@@ -164,10 +170,14 @@ class CoachApp(ctk.CTk):
             },
         }
 
-        self.shell = AppShell(
+        # Modern App shell with enhanced UI
+        self.shell = ModernAppShell(
             self, self.switch_page, self.page_registry, active_module="dashboard"
         )
         self.shell.pack(fill="both", expand=True)
+
+        # Enable modern theme and effects
+        self.configure(fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
 
         self.switch_page("dashboard")
 
@@ -182,7 +192,8 @@ class CoachApp(ctk.CTk):
 
         # Définit le contenu de la coquille (shell)
         self.shell.set_content(self.current_page)
-        self.shell.header.update_title(title or entry["label"])
+        # ModernHeader expose update_page, pas update_title
+        self.shell.header.update_page(title or entry["label"])
         active_name = page_name if page_name in self.page_registry else "dashboard"
         self.shell.sidebar.set_active(active_name)
 

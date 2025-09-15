@@ -1,0 +1,104 @@
+{
+  "default": {
+    "name": "Professionnel",
+    "description": "Thème professionnel avec couleurs sobres",
+    "colors": {
+      "primary": "#2563EB",
+      "secondary": "#7C3AED",
+      "accent": "#059669",
+      "background": "#FFFFFF",
+      "surface": "#F8FAFC",
+      "text_primary": "#1F2937",
+      "text_secondary": "#6B7280",
+      "border": "#E5E7EB",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444"
+    },
+    "fonts": {
+      "title": {"name": "Helvetica-Bold", "size": 24, "weight": "bold"},
+      "subtitle": {"name": "Helvetica-Bold", "size": 18, "weight": "bold"},
+      "heading": {"name": "Helvetica-Bold", "size": 14, "weight": "bold"},
+      "subheading": {"name": "Helvetica", "size": 12, "weight": "normal"},
+      "body": {"name": "Helvetica", "size": 10, "weight": "normal"},
+      "caption": {"name": "Helvetica", "size": 8, "weight": "normal"},
+      "code": {"name": "Courier", "size": 9, "weight": "normal"}
+    },
+    "layout": {
+      "margins": {"top": 60, "bottom": 60, "left": 50, "right": 50},
+      "header_height": 80,
+      "footer_height": 40,
+      "block_spacing": 20,
+      "line_spacing": 1.2,
+      "paragraph_spacing": 6
+    }
+  },
+  "fitness": {
+    "name": "Fitness",
+    "description": "Thème dynamique pour le fitness",
+    "colors": {
+      "primary": "#FF4500",
+      "secondary": "#FF6347",
+      "accent": "#32CD32",
+      "background": "#FFFFFF",
+      "surface": "#FFF5EE",
+      "text_primary": "#2F4F4F",
+      "text_secondary": "#708090",
+      "border": "#DCDCDC",
+      "success": "#228B22",
+      "warning": "#FF8C00",
+      "error": "#DC143C"
+    },
+    "fonts": {
+      "title": {"name": "Helvetica-Bold", "size": 26, "weight": "bold"},
+      "subtitle": {"name": "Helvetica-Bold", "size": 20, "weight": "bold"},
+      "heading": {"name": "Helvetica-Bold", "size": 15, "weight": "bold"},
+      "subheading": {"name": "Helvetica", "size": 13, "weight": "normal"},
+      "body": {"name": "Helvetica", "size": 11, "weight": "normal"},
+      "caption": {"name": "Helvetica", "size": 9, "weight": "normal"},
+      "code": {"name": "Courier", "size": 9, "weight": "normal"}
+    },
+    "layout": {
+      "margins": {"top": 60, "bottom": 60, "left": 50, "right": 50},
+      "header_height": 80,
+      "footer_height": 40,
+      "block_spacing": 20,
+      "line_spacing": 1.2,
+      "paragraph_spacing": 6
+    }
+  },
+  "minimal": {
+    "name": "Minimaliste",
+    "description": "Design épuré et minimaliste",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#4A4A4A",
+      "accent": "#808080",
+      "background": "#FFFFFF",
+      "surface": "#F5F5F5",
+      "text_primary": "#000000",
+      "text_secondary": "#666666",
+      "border": "#CCCCCC",
+      "success": "#666666",
+      "warning": "#666666",
+      "error": "#000000"
+    },
+    "fonts": {
+      "title": {"name": "Times-Bold", "size": 22, "weight": "bold"},
+      "subtitle": {"name": "Times-Bold", "size": 16, "weight": "bold"},
+      "heading": {"name": "Times-Bold", "size": 13, "weight": "bold"},
+      "subheading": {"name": "Times-Roman", "size": 11, "weight": "normal"},
+      "body": {"name": "Times-Roman", "size": 10, "weight": "normal"},
+      "caption": {"name": "Times-Italic", "size": 8, "weight": "normal"},
+      "code": {"name": "Courier", "size": 9, "weight": "normal"}
+    },
+    "layout": {
+      "margins": {"top": 60, "bottom": 60, "left": 50, "right": 50},
+      "header_height": 80,
+      "footer_height": 40,
+      "block_spacing": 20,
+      "line_spacing": 1.2,
+      "paragraph_spacing": 6
+    }
+  }
+}

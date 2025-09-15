@@ -1,5 +1,10 @@
-from services.exercise_importer import _paged, _pick_fr_translation, _build_muscle_id_to_group_fr, _map_primary_group
-from services.exercise_importer import WGER_BASE
+from services.exercise_importer import (
+    WGER_BASE,
+    _build_muscle_id_to_group_fr,
+    _map_primary_group,
+    _paged,
+    _pick_fr_translation,
+)
 
 mm = _build_muscle_id_to_group_fr()
 base = f"{WGER_BASE}/exerciseinfo/?language=12&status=2&limit=20"

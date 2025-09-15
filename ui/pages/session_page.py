@@ -31,7 +31,7 @@ class SessionPage(ctk.CTkFrame):
 
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.grid(row=1, column=0, columnspan=2, sticky="nsew")
-        left_col, right_col = two_columns(container, left_width=360, fixed_side="left")
+        left_col, right_col = two_columns(container, left_width=480, fixed_side="left")
         left_col.grid(row=0, column=0, sticky="nsew")
         right_col.grid(row=0, column=1, sticky="nsew")
 
@@ -47,27 +47,43 @@ class SessionPage(ctk.CTkFrame):
         collectif_tab = tabs.add("Cours Collectif")
         individuel_tab = tabs.add("Individuel")
 
-        # Cadres scrollables dans chaque onglet pour garantir l'accès au bouton
+        # Structure avec bouton fixe en bas
+        collectif_tab.grid_rowconfigure(0, weight=1)
+        collectif_tab.grid_columnconfigure(0, weight=1)
+
+        # Zone scrollable pour le formulaire
         collectif_scroll = ctk.CTkScrollableFrame(collectif_tab, fg_color="transparent")
-        collectif_scroll.pack(fill="both", expand=True)
+        collectif_scroll.grid(row=0, column=0, sticky="nsew", padx=8, pady=(8, 0))
+
+        # Zone fixe pour le bouton
+        button_frame = ctk.CTkFrame(collectif_tab, fg_color="transparent", height=60)
+        button_frame.grid(row=1, column=0, sticky="ew", padx=8, pady=8)
+        button_frame.grid_propagate(False)
 
         self.form_collectif = FormCollectifV2(
-            collectif_scroll, generate_callback=self.on_generate_collectif
+            collectif_scroll, button_parent=button_frame, generate_callback=self.on_generate_collectif
         )
-        self.form_collectif.pack(fill="both", expand=True, padx=16, pady=16)
+        self.form_collectif.pack(fill="both", expand=True, padx=8, pady=8)
 
         client_controller = ClientController(ClientService(ClientRepository()))
         clients = client_controller.get_all_clients_for_view()
 
-        individuel_scroll = ctk.CTkScrollableFrame(
-            individuel_tab, fg_color="transparent"
-        )
-        individuel_scroll.pack(fill="both", expand=True)
+        # Structure similaire pour l'onglet individuel
+        individuel_tab.grid_rowconfigure(0, weight=1)
+        individuel_tab.grid_columnconfigure(0, weight=1)
+
+        individuel_scroll = ctk.CTkScrollableFrame(individuel_tab, fg_color="transparent")
+        individuel_scroll.grid(row=0, column=0, sticky="nsew", padx=8, pady=(8, 0))
+
+        # Zone fixe pour le bouton individuel
+        button_frame_indiv = ctk.CTkFrame(individuel_tab, fg_color="transparent", height=60)
+        button_frame_indiv.grid(row=1, column=0, sticky="ew", padx=8, pady=8)
+        button_frame_indiv.grid_propagate(False)
 
         self.form_individuel = FormIndividuel(
-            individuel_scroll, clients, generate_callback=self.on_generate_individual
+            individuel_scroll, clients, button_parent=button_frame_indiv, generate_callback=self.on_generate_individual
         )
-        self.form_individuel.pack(fill="both", expand=True, padx=16, pady=16)
+        self.form_individuel.pack(fill="both", expand=True, padx=8, pady=8)
 
     def on_generate_collectif(self) -> None:
         params = self.form_collectif.get_params()

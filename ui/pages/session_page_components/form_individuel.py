@@ -13,7 +13,7 @@ from ui.components.design_system.typography import CardTitle
 class FormIndividuel(Card):
     """Formulaire pour la génération de séances individuelles."""
 
-    def __init__(self, parent, clients: List[Client], generate_callback=None):
+    def __init__(self, parent, clients: List[Client], generate_callback=None, button_parent=None):
         super().__init__(parent)
         self.grid_columnconfigure(0, weight=1)
 
@@ -68,10 +68,15 @@ class FormIndividuel(Card):
             duration_row, variable=self.duration_var, values=duration_values
         ).grid(row=0, column=1, sticky="ew")
 
-        # Action button
-        PrimaryButton(self, text="Générer la séance", command=generate_callback).grid(
-            row=4, column=0, sticky="ew", padx=16, pady=(0, 16)
-        )
+        # Action button (supporte un conteneur externe fixe)
+        if button_parent is not None:
+            PrimaryButton(button_parent, text="Générer la séance", command=generate_callback).pack(
+                fill="x", padx=16, pady=(0, 8)
+            )
+        else:
+            PrimaryButton(self, text="Générer la séance", command=generate_callback).grid(
+                row=4, column=0, sticky="ew", padx=16, pady=(0, 16)
+            )
 
     def get_params(self) -> dict:
         """Retourne les paramètres du formulaire."""
@@ -80,3 +85,4 @@ class FormIndividuel(Card):
             "objectif": self.objective_var.get(),
             "duree_minutes": int(self.duration_var.get().split()[0]),
         }
+

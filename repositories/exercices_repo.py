@@ -63,6 +63,34 @@ class ExerciseRepository:
             est_chargeable=bool(row["est_chargeable"]),
         )
 
+    def get_by_id(self, exercise_id: int) -> Optional[Exercise]:
+        """Retourne un exercice par son identifiant ou None s'il n'existe pas.
+
+        Ajouté pour la compatibilité avec le SmartWorkoutGenerator qui
+        consulte ponctuellement les métadonnées d'un exercice.
+        """
+        with db_manager.get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM exercices WHERE id = ?",
+                (exercise_id,),
+            ).fetchone()
+        if not row:
+            return None
+        return Exercise(
+            id=row["id"],
+            nom=row["nom"],
+            groupe_musculaire_principal=row["groupe_musculaire_principal"],
+            equipement=row["equipement"],
+            tags=row["tags"],
+            movement_pattern=row["movement_pattern"],
+            movement_category=row["movement_category"]
+            if "movement_category" in row.keys()
+            else None,
+            type_effort=row["type_effort"],
+            coefficient_volume=row["coefficient_volume"],
+            est_chargeable=bool(row["est_chargeable"]),
+        )
+
     def create(self, e: Exercise) -> int:
         with db_manager.get_connection() as conn:
             cur = conn.execute(

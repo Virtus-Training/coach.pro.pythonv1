@@ -14,6 +14,8 @@ from services.pdf_generator import (
 from services.pdf_template_service import PdfTemplateService
 from services.session_generator import generate_collectif, generate_individuel
 from services.session_service import SessionService
+from services.smart_workout_generator import SmartWorkoutGenerator
+from services.workout_config_service import WorkoutConfigService
 
 
 class SessionController:
@@ -27,20 +29,31 @@ class SessionController:
         self.client_service = client_service
         self.exercise_service = exercise_service
 
+        # Initialiser les services smart
+        self.config_service = WorkoutConfigService()
+        self.smart_generator = SmartWorkoutGenerator(exercise_service, self.config_service)
+
     def build_session_preview_dto(
         self, blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Map session blocks to a DTO consumable by the view."""
         blocks_out: list[Dict[str, Any]] = []
         for blk in blocks:
-            # Build block title and duration in minutes when available
+            # Build block title with format, duration, and rounds
+            title_parts = [blk.type]
+            duration_txt = ""
+
+            # Ajouter le nombre de tours (sauf pour AMRAP)
+            if hasattr(blk, 'rounds') and blk.rounds and blk.rounds > 0 and blk.type.upper() != "AMRAP":
+                title_parts.append(f"{blk.rounds} tours")
+
+            # Ajouter la durée en minutes
             if getattr(blk, "duration_sec", None):
                 mins = blk.duration_sec // 60
-                title = f"{blk.type} · {mins} min"
+                title_parts.append(f"{mins} min")
                 duration_txt = f"{mins} min"
-            else:
-                title = blk.type
-                duration_txt = ""
+
+            title = " · ".join(title_parts)
 
             block_dto = {
                 "title": title,
@@ -89,8 +102,15 @@ class SessionController:
             "auto_include": params.get("auto_include", []),
             "course_type": params.get("course_type", "Cross-Training"),
             "intensity": params.get("intensity", "Moyenne"),
+            "custom_blocks": params.get("custom_blocks"),  # Ajouter les blocs personnalisés
         }
-        session = generate_collectif(svc_params)
+        # Utiliser le générateur intelligent avec fallback vers l'ancien
+        try:
+            session = self.smart_generator.generate_collectif_smart(svc_params)
+        except Exception as e:
+            # Fallback vers l'ancien générateur en cas d'erreur
+            print(f"Smart generator failed, fallback to basic: {e}")
+            session = generate_collectif(svc_params)
         ids = [it.exercise_id for b in session.blocks for it in b.items]
         meta = self.exercise_service.get_meta_by_ids(ids)
         dto = self.build_session_preview_dto(session.blocks, meta)
@@ -99,6 +119,7 @@ class SessionController:
             "duration": f"{session.duration_sec // 60} min",
             "course_type": svc_params.get("course_type"),
             "intensity": svc_params.get("intensity"),
+            "smart_generated": hasattr(session, '_smart_generated'),
         }
         return session, dto
 
@@ -123,12 +144,17 @@ class SessionController:
         dto["meta"] = {
             "title": session.label,
             "duration": f"{session.duration_sec // 60} min",
+            "smart_generated": hasattr(session, '_smart_generated'),
         }
         return dto
 
     def save_session(self, session_dto: Dict[str, Any], client_id: int | None) -> None:
         """Persist a generated session from its DTO representation."""
         self.session_service.save_session_from_dto(session_dto, client_id)
+
+    def get_workout_config_service(self) -> WorkoutConfigService:
+        """Expose le service de configuration pour l'UI des paramètres."""
+        return self.config_service
 
     def export_session_to_pdf(
         self, session_dto: Dict[str, Any], client_id: int | None, file_path: str

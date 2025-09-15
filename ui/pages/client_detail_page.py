@@ -32,7 +32,7 @@ class ClientDetailPage(ctk.CTkFrame):
 
         # Header with back button + hero
         back_bar = ctk.CTkFrame(self, fg_color="transparent")
-        back_bar.pack(fill="x", padx=20, pady=(20, 0))
+        back_bar.pack(fill="x", padx=12, pady=(8, 0))
         SecondaryButton(
             back_bar,
             text="< Retour",
@@ -49,10 +49,10 @@ class ClientDetailPage(ctk.CTkFrame):
             subtitle="Fiche client, suivi, statistiques et nutrition",
             icon_path="assets/icons/users.png",
         )
-        hero.pack(fill="x", padx=20, pady=16)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         tabview = ctk.CTkTabview(self)
-        tabview.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        tabview.pack(fill="both", expand=True, padx=12, pady=(0, 12))
         anam_tab = tabview.add("Anamnèse")
         if client:
             AnamneseTab(anam_tab, self.controller, client).pack(

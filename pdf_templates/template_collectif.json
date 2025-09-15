@@ -1,0 +1,94 @@
+{
+  "metadata": {
+    "name": "Template Cours Collectif",
+    "description": "Template professionnel pour séances collectives avec codes couleurs dynamiques",
+    "type": "COLLECTIF",
+    "version": "1.0"
+  },
+  "branding": {
+    "logo_path": "assets/logo.png",
+    "brand_name": "CoachPro",
+    "tagline": "Excellence en coaching collectif"
+  },
+  "colors": {
+    "primary": "#FF6B35",
+    "secondary": "#F7931E", 
+    "accent": "#2E86AB",
+    "text_primary": "#2C3E50",
+    "text_secondary": "#7F8C8D",
+    "background": "#FFFFFF",
+    "border": "#E8E8E8",
+    "highlight": "#FFF3CD",
+    "success": "#28A745",
+    "warning": "#FFC107"
+  },
+  "fonts": {
+    "title": {"name": "Helvetica-Bold", "size": 24},
+    "subtitle": {"name": "Helvetica-Bold", "size": 16},
+    "header": {"name": "Helvetica-Bold", "size": 14},
+    "body": {"name": "Helvetica", "size": 11},
+    "caption": {"name": "Helvetica", "size": 9}
+  },
+  "layout": {
+    "margins": {"top": 60, "bottom": 60, "left": 50, "right": 50},
+    "header_height": 80,
+    "footer_height": 40,
+    "block_spacing": 20,
+    "exercise_spacing": 8
+  },
+  "page_header": {
+    "show_logo": true,
+    "show_date": true,
+    "show_duration": true,
+    "background_color": "#FF6B35",
+    "text_color": "#FFFFFF",
+    "border_radius": 8
+  },
+  "session_info": {
+    "show_title": true,
+    "show_mode": true,
+    "show_participants": true,
+    "icon": "👥",
+    "background_color": "#FFF3CD",
+    "border_color": "#F7931E"
+  },
+  "blocks": {
+    "show_icons": true,
+    "show_duration": true,
+    "show_format": true,
+    "header_background": "#F8F9FA",
+    "border_color": "#E8E8E8",
+    "formats": {
+      "AMRAP": {"icon": "🔥", "color": "#DC3545"},
+      "EMOM": {"icon": "⏱️", "color": "#FF6B35"},
+      "TABATA": {"icon": "💥", "color": "#E83E8C"},
+      "SETSxREPS": {"icon": "💪", "color": "#28A745"},
+      "FOR_TIME": {"icon": "⚡", "color": "#FFC107"},
+      "LIBRE": {"icon": "🎯", "color": "#6F42C1"}
+    }
+  },
+  "exercises": {
+    "show_reps": true,
+    "show_rest": true,
+    "show_weight": true,
+    "show_notes": true,
+    "alternate_background": true,
+    "icon": "▸",
+    "text_color": "#2C3E50"
+  },
+  "footer": {
+    "show_coach_name": true,
+    "show_branding": true,
+    "show_page_numbers": true,
+    "text": "Séance générée avec CoachPro - Votre partenaire fitness",
+    "background_color": "#2E86AB",
+    "text_color": "#FFFFFF"
+  },
+  "visual_elements": {
+    "use_icons": true,
+    "use_borders": true,
+    "use_shadows": false,
+    "border_radius": 6,
+    "progress_bar": true
+  }
+}

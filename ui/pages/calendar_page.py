@@ -40,7 +40,7 @@ class CalendarPage(ctk.CTkFrame):
             subtitle="Planifiez et suivez vos séances.",
             icon_path="assets/icons/calendar.png",
         )
-        hero.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 5))
+        hero.grid(row=0, column=0, columnspan=2, sticky="ew", padx=8, pady=(6, 4))
 
         left = ctk.CTkFrame(self)
         left.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
@@ -102,4 +102,3 @@ class CalendarPage(ctk.CTkFrame):
         else:
             self.month += 1
         self._refresh()
-

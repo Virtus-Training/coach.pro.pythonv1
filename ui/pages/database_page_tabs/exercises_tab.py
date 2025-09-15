@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import threading
 import tkinter as tk
 import tkinter.font as tkfont
+import traceback
 from typing import List, Optional
 
 import customtkinter as ctk
 
 from models.exercices import Exercise
 from repositories.exercices_repo import ExerciseRepository
+from services.exercise_importer import import_from_wger
 from ui.components.design_system import (
     AccordionSection,
-    Card,
     CardTitle,
     ChipCheckboxGroup,
     ChipRadioGroup,
@@ -20,9 +22,7 @@ from ui.components.design_system import (
     PrimaryButton,
     SecondaryButton,
 )
-from services.exercise_importer import import_from_wger
-import threading
-import traceback
+from ui.components.modern_exercise_form import ModernExerciseForm
 
 # Vocabulaire normalisé pour éviter la casse et les variations d'écriture
 MUSCLE_GROUPS = [
@@ -973,7 +973,7 @@ class ExercisesTab(ctk.CTkFrame):
             self.repo.create(e)
             self._load()
 
-        ExerciseForm(self, on_submit=handle_submit)
+        ModernExerciseForm(self, on_submit=handle_submit)
 
     def _on_cleanup(self) -> None:
         # Confirmation
@@ -1059,7 +1059,7 @@ class ExercisesTab(ctk.CTkFrame):
             self.repo.update(e)
             self._load()
 
-        ExerciseForm(self, on_submit=handle_submit, exercise=e)
+        ModernExerciseForm(self, on_submit=handle_submit, exercise=e)
 
     def _on_delete(self) -> None:
         keys = self.listbox.selected_keys()

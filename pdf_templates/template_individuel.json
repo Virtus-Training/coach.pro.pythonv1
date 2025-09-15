@@ -1,0 +1,109 @@
+{
+  "metadata": {
+    "name": "Template Coaching Individuel",
+    "description": "Template premium pour coaching personnalisé avec suivi détaillé",
+    "type": "INDIVIDUEL", 
+    "version": "1.0"
+  },
+  "branding": {
+    "logo_path": "assets/logo.png",
+    "brand_name": "CoachPro",
+    "tagline": "Coaching personnalisé d'excellence"
+  },
+  "colors": {
+    "primary": "#2E86AB",
+    "secondary": "#A23B72", 
+    "accent": "#F18F01",
+    "text_primary": "#1A2332",
+    "text_secondary": "#6C757D",
+    "background": "#FFFFFF",
+    "border": "#DEE2E6",
+    "highlight": "#E3F2FD",
+    "success": "#198754",
+    "info": "#0DCAF0"
+  },
+  "fonts": {
+    "title": {"name": "Helvetica-Bold", "size": 26},
+    "subtitle": {"name": "Helvetica-Bold", "size": 18},
+    "header": {"name": "Helvetica-Bold", "size": 15},
+    "body": {"name": "Helvetica", "size": 12},
+    "caption": {"name": "Helvetica", "size": 10}
+  },
+  "layout": {
+    "margins": {"top": 70, "bottom": 70, "left": 60, "right": 60},
+    "header_height": 100,
+    "footer_height": 50,
+    "block_spacing": 25,
+    "exercise_spacing": 10
+  },
+  "page_header": {
+    "show_logo": true,
+    "show_date": true,
+    "show_duration": true,
+    "show_client_name": true,
+    "background_color": "#2E86AB",
+    "text_color": "#FFFFFF",
+    "border_radius": 10
+  },
+  "session_info": {
+    "show_title": true,
+    "show_mode": true,
+    "show_objectives": true,
+    "show_level": true,
+    "icon": "👤",
+    "background_color": "#E3F2FD",
+    "border_color": "#2E86AB"
+  },
+  "blocks": {
+    "show_icons": true,
+    "show_duration": true,
+    "show_format": true,
+    "show_intensity": true,
+    "header_background": "#F8F9FA",
+    "border_color": "#DEE2E6",
+    "formats": {
+      "AMRAP": {"icon": "🎯", "color": "#DC3545"},
+      "EMOM": {"icon": "⏰", "color": "#F18F01"},
+      "TABATA": {"icon": "⚡", "color": "#E83E8C"},
+      "SETSxREPS": {"icon": "💪", "color": "#198754"},
+      "FOR_TIME": {"icon": "🏃", "color": "#FFC107"},
+      "LIBRE": {"icon": "🔄", "color": "#A23B72"}
+    }
+  },
+  "exercises": {
+    "show_reps": true,
+    "show_rest": true,
+    "show_weight": true,
+    "show_notes": true,
+    "show_progression": true,
+    "show_technical_cues": true,
+    "alternate_background": true,
+    "detailed_view": true,
+    "icon": "▪",
+    "text_color": "#1A2332"
+  },
+  "performance_tracking": {
+    "show_rpe": true,
+    "show_target_hr": true,
+    "show_completion_checkboxes": true,
+    "show_notes_section": true
+  },
+  "footer": {
+    "show_coach_name": true,
+    "show_contact": true,
+    "show_branding": true,
+    "show_page_numbers": true,
+    "show_next_session": true,
+    "text": "Programme personnalisé - CoachPro Elite",
+    "background_color": "#1A2332",
+    "text_color": "#FFFFFF"
+  },
+  "visual_elements": {
+    "use_icons": true,
+    "use_borders": true,
+    "use_shadows": true,
+    "border_radius": 8,
+    "progress_bar": true,
+    "professional_layout": true
+  }
+}

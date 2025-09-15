@@ -283,7 +283,9 @@ class GenerateFicheModal(ctk.CTkToplevel):
 
         # Enregistrement immédiat en PDF + ouverture
         try:
-            import os, sys, subprocess
+            import os
+            import subprocess
+            import sys
             prenom = (self.prenom_var.get() or getattr(self.parent.client, "prenom", "") or "").strip()
             nom = (self.nom_var.get() or getattr(self.parent.client, "nom", "") or "").strip()
             default_name = f"Fiche_Nutrition_{prenom}_{nom}_{datetime.date.today().isoformat()}.pdf".replace(" ", "_")

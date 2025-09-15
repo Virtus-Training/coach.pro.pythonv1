@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional
 
-from services.pdf_template_service import PdfTemplateService
 from services.pdf_generator import generate_session_pdf_with_style
+from services.pdf_template_service import PdfTemplateService
 
 
 class PdfTemplateController:

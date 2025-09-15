@@ -1,0 +1,155 @@
+{
+  "muscle_balance_rules": {
+    "push_pull_ratio": 0.65,
+    "upper_lower_ratio": 0.6,
+    "max_consecutive_same_muscle": 1,
+    "core_frequency": 0.4
+  },
+  "format_rules": {
+    "AMRAP": {
+      "optimal_exercises": 4,
+      "rep_range": [
+        8,
+        15
+      ],
+      "prefer_patterns": [
+        "squat",
+        "push",
+        "pull"
+      ],
+      "avoid_complex": true
+    },
+    "EMOM": {
+      "optimal_exercises": 3,
+      "rep_range": [
+        6,
+        12
+      ],
+      "prefer_patterns": [
+        "hinge",
+        "carry",
+        "jump"
+      ],
+      "allow_complex": true
+    },
+    "For Time": {
+      "optimal_exercises": 5,
+      "rep_range": [
+        12,
+        21
+      ],
+      "prefer_patterns": [
+        "squat",
+        "pull",
+        "push"
+      ],
+      "scale_by_strength": true
+    },
+    "Tabata": {
+      "optimal_exercises": 1,
+      "rep_range": [
+        8,
+        12
+      ],
+      "prefer_patterns": [
+        "jump",
+        "carry"
+      ],
+      "high_intensity_only": true
+    }
+  },
+  "favorite_exercises": {
+    "warmup": [
+      "Air Squat",
+      "Jumping Jacks",
+      "Arm Circles",
+      "Leg Swings",
+      "Inchworms",
+      "Hip Circles",
+      "Shoulder Shrugs"
+    ],
+    "strength": [
+      "Back Squat",
+      "Deadlift",
+      "Bench Press",
+      "Overhead Press",
+      "Front Squat",
+      "Romanian Deadlift",
+      "Pull-ups"
+    ],
+    "conditioning": [
+      "Burpees",
+      "Kettlebell Swings",
+      "Box Jumps",
+      "Mountain Climbers",
+      "Thrusters",
+      "Wall Balls",
+      "Battle Ropes"
+    ],
+    "finisher": [
+      "Plank Hold",
+      "Burpee Finisher",
+      "Sprint",
+      "Max Effort Row",
+      "Farmer's Walk",
+      "Bear Crawl"
+    ]
+  },
+  "exercise_restrictions": {
+    "banned_exercises": [],
+    "limited_frequency": {
+      "Burpees": 0.4,
+      "Wall Balls": 0.3,
+      "Turkish Get-ups": 0.2
+    },
+    "progression_exercises": {
+      "Muscle-ups": {
+        "min_level": "advanced"
+      },
+      "Handstand Push-ups": {
+        "min_level": "intermediate"
+      },
+      "Pistol Squats": {
+        "min_level": "intermediate"
+      },
+      "Olympic Lifts": {
+        "min_level": "advanced"
+      }
+    }
+  },
+  "learning_preferences": {
+    "successful_combinations": {},
+    "client_feedback_weights": {},
+    "seasonal_adjustments": {},
+    "equipment_preferences": {}
+  },
+  "equipment_management": {
+    "available_equipment": [],
+    "equipment_rotation": true,
+    "max_equipment_changes": 3,
+    "setup_time_factor": 1.2
+  },
+  "timing_rules": {
+    "transition_time_sec": 30,
+    "equipment_change_sec": 60,
+    "instruction_time_sec": 45,
+    "rest_calculation_method": "density_based"
+  },
+  "physiological_rules": {
+    "fatigue_management": {
+      "max_consecutive_high_intensity": 2,
+      "recovery_exercise_ratio": 0.2,
+      "muscle_group_recovery_time": 24
+    },
+    "energy_system_targeting": {
+      "phosphocreatine": 0.3,
+      "glycolytic": 0.5,
+      "aerobic": 0.2
+    },
+    "movement_complexity": {
+      "warmup_complexity": "simple",
+      "main_complexity": "varied",
+      "finisher_complexity": "simple_to_moderate"
+    }
+  }
+}

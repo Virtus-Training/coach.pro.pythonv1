@@ -1,13 +1,14 @@
 import json
-import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
+import customtkinter as ctk
+
 from controllers.pdf_template_controller import PdfTemplateController
 from ui.components.design_system import (
-    HeroBanner,
     Card,
     CardTitle,
+    HeroBanner,
     PrimaryButton,
     SecondaryButton,
 )
@@ -26,11 +27,11 @@ class PdfPage(ctk.CTkFrame):
             subtitle="Exports et templates",
             icon_path="assets/icons/pdf.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         # Manager de templates
         root = Card(self)
-        root.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        root.pack(fill="both", expand=True, padx=12, pady=(0, 12))
         root.grid_columnconfigure(0, weight=0)
         root.grid_columnconfigure(1, weight=1)
         root.grid_rowconfigure(1, weight=1)

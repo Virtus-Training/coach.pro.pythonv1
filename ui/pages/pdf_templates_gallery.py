@@ -1,12 +1,19 @@
 import json
 import os
-import customtkinter as ctk
 import tkinter as tk
-from tkinter import filedialog, messagebox, colorchooser
+from tkinter import colorchooser, filedialog, messagebox
+
+import customtkinter as ctk
 from PIL import Image
 
 from controllers.pdf_template_controller import PdfTemplateController
-from ui.components.design_system import HeroBanner, Card, CardTitle, PrimaryButton, SecondaryButton
+from ui.components.design_system import (
+    Card,
+    CardTitle,
+    HeroBanner,
+    PrimaryButton,
+    SecondaryButton,
+)
 
 
 class _TemplateTile(ctk.CTkFrame):
@@ -86,10 +93,10 @@ class PdfTemplatesPage(ctk.CTkFrame):
             subtitle="Sélectionnez, créez et éditez vos templates",
             icon_path="assets/icons/pdf.png",
         )
-        hero.pack(fill="x", padx=20, pady=20)
+        hero.pack(fill="x", padx=12, pady=(6, 8))
 
         root = Card(self)
-        root.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        root.pack(fill="both", expand=True, padx=12, pady=(0, 12))
         # Rendre tout le contenu scrollable pour éviter d'être rogné
         root.grid_rowconfigure(0, weight=1)
         root.grid_columnconfigure(0, weight=1)
@@ -98,7 +105,7 @@ class PdfTemplatesPage(ctk.CTkFrame):
         content.grid(row=0, column=0, sticky="nsew")
 
         tabs = ctk.CTkTabview(content)
-        tabs.pack(fill="x", expand=False, padx=12, pady=12)
+        tabs.pack(fill="x", expand=False, padx=8, pady=8)
         self._families = [
             ("Séances", "session", "assets/icons/pdf.png"),
             ("Fiches nutrition", "nutrition", "assets/icons/pdf.png"),

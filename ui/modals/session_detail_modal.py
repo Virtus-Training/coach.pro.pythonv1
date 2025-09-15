@@ -1,6 +1,7 @@
 from tkinter import filedialog
 
 import customtkinter as ctk
+
 from utils.ui_helpers import bring_to_front
 
 # Support execution of this file directly by fixing sys.path

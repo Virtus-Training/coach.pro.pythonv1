@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import json
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
 
 from repositories.pdf_template_repo import PdfTemplateRepository
-
 
 DEFAULT_SESSION_STYLE: Dict[str, Any] = {
     "logo_width": 70,
