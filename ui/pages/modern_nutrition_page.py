@@ -76,14 +76,14 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             title_frame,
             text="🍎 Nutrition Intelligente",
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(size=24, weight="bold"),
         ).pack(anchor="w")
 
         ctk.CTkLabel(
             title_frame,
             text="Génération automatique de plans alimentaires personnalisés",
             font=ctk.CTkFont(size=14),
-            text_color=("gray60", "gray40")
+            text_color=("gray60", "gray40"),
         ).pack(anchor="w")
 
         # Actions principales
@@ -94,14 +94,14 @@ class ModernNutritionPage(ctk.CTkFrame):
             actions_frame,
             text="🤖 Générer Plan Auto",
             command=self._generate_automatic_plan,
-            width=180
+            width=180,
         ).pack(side="right", padx=(0, 10))
 
         SecondaryButton(
             actions_frame,
             text="⚙️ Configurer Profil",
             command=self._open_profile_config,
-            width=160
+            width=160,
         ).pack(side="right", padx=(0, 10))
 
     def _create_profile_panel(self):
@@ -117,7 +117,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             profile_header,
             text="👤 Profil Nutritionnel",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
         ).pack(anchor="w")
 
         # Informations du profil
@@ -131,7 +131,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             objectives_header,
             text="🎯 Objectifs Journaliers",
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w")
 
         # Barres de progression
@@ -139,13 +139,15 @@ class ModernNutritionPage(ctk.CTkFrame):
         self.objectives_frame.pack(fill="x", padx=15, pady=(0, 15))
 
         # Recommandations intelligentes
-        recommendations_header = ctk.CTkFrame(self.profile_frame, fg_color="transparent")
+        recommendations_header = ctk.CTkFrame(
+            self.profile_frame, fg_color="transparent"
+        )
         recommendations_header.pack(fill="x", padx=15, pady=(15, 10))
 
         ctk.CTkLabel(
             recommendations_header,
             text="💡 Recommandations",
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(anchor="w")
 
         self.recommendations_frame = ctk.CTkFrame(self.profile_frame)
@@ -165,7 +167,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             plan_header,
             text="🍽️ Plan Alimentaire Personnalisé",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
         ).pack(anchor="w")
 
         # Actions du plan
@@ -176,21 +178,21 @@ class ModernNutritionPage(ctk.CTkFrame):
             plan_actions,
             text="📊 Analyser",
             command=self._analyze_current_plan,
-            width=100
+            width=100,
         ).pack(side="left", padx=(0, 10))
 
         SecondaryButton(
             plan_actions,
             text="🔄 Optimiser",
             command=self._optimize_current_plan,
-            width=100
+            width=100,
         ).pack(side="left", padx=(0, 10))
 
         SecondaryButton(
             plan_actions,
             text="📄 Exporter PDF",
             command=self._export_plan_pdf,
-            width=120
+            width=120,
         ).pack(side="right")
 
         # Zone de contenu scrollable
@@ -213,7 +215,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             search_header,
             text="🔍 Recherche Intelligente",
-            font=ctk.CTkFont(size=18, weight="bold")
+            font=ctk.CTkFont(size=18, weight="bold"),
         ).pack(anchor="w")
 
         # Barre de recherche principale
@@ -227,7 +229,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             search_input_frame,
             textvariable=self.search_var,
             placeholder_text="Rechercher un aliment...",
-            font=ctk.CTkFont(size=14)
+            font=ctk.CTkFont(size=14),
         )
         self.search_entry.pack(fill="x", padx=10, pady=10)
 
@@ -239,9 +241,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         results_header.pack(fill="x", padx=15, pady=(15, 5))
 
         ctk.CTkLabel(
-            results_header,
-            text="Résultats",
-            font=ctk.CTkFont(size=16, weight="bold")
+            results_header, text="Résultats", font=ctk.CTkFont(size=16, weight="bold")
         ).pack(anchor="w")
 
         # Zone de résultats scrollable
@@ -259,32 +259,48 @@ class ModernNutritionPage(ctk.CTkFrame):
 
         # Titre des filtres
         ctk.CTkLabel(
-            filters_frame,
-            text="Filtres",
-            font=ctk.CTkFont(size=14, weight="bold")
+            filters_frame, text="Filtres", font=ctk.CTkFont(size=14, weight="bold")
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
         # Filtre par catégorie
-        ctk.CTkLabel(filters_frame, text="Catégorie:").pack(anchor="w", padx=10, pady=(5, 0))
+        ctk.CTkLabel(filters_frame, text="Catégorie:").pack(
+            anchor="w", padx=10, pady=(5, 0)
+        )
 
         self.category_var = ctk.StringVar(value="Toutes")
         self.category_menu = ctk.CTkOptionMenu(
             filters_frame,
             variable=self.category_var,
-            values=["Toutes", "Légumes", "Fruits", "Viandes", "Poissons", "Céréales", "Légumineuses"],
-            command=self._on_filter_change
+            values=[
+                "Toutes",
+                "Légumes",
+                "Fruits",
+                "Viandes",
+                "Poissons",
+                "Céréales",
+                "Légumineuses",
+            ],
+            command=self._on_filter_change,
         )
         self.category_menu.pack(fill="x", padx=10, pady=(5, 10))
 
         # Filtre par objectif nutritionnel
-        ctk.CTkLabel(filters_frame, text="Objectif:").pack(anchor="w", padx=10, pady=(5, 0))
+        ctk.CTkLabel(filters_frame, text="Objectif:").pack(
+            anchor="w", padx=10, pady=(5, 0)
+        )
 
         self.objective_var = ctk.StringVar(value="Tous")
         self.objective_menu = ctk.CTkOptionMenu(
             filters_frame,
             variable=self.objective_var,
-            values=["Tous", "Riche en protéines", "Faible en calories", "Riche en fibres", "Équilibré"],
-            command=self._on_filter_change
+            values=[
+                "Tous",
+                "Riche en protéines",
+                "Faible en calories",
+                "Riche en fibres",
+                "Équilibré",
+            ],
+            command=self._on_filter_change,
         )
         self.objective_menu.pack(fill="x", padx=10, pady=(5, 10))
 
@@ -294,7 +310,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             filters_frame,
             text="Compatible avec mon régime",
             variable=self.regime_compatible,
-            command=self._on_filter_change
+            command=self._on_filter_change,
         )
         self.regime_checkbox.pack(anchor="w", padx=10, pady=5)
 
@@ -307,7 +323,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             suggestions_frame,
             text="💡 Suggestions pour vous",
-            font=ctk.CTkFont(size=14, weight="bold")
+            font=ctk.CTkFont(size=14, weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
         self.suggestions_content = ctk.CTkFrame(suggestions_frame)
@@ -344,14 +360,14 @@ class ModernNutritionPage(ctk.CTkFrame):
         ctk.CTkLabel(
             welcome_frame,
             text="🌟 Bienvenue dans votre espace nutritionnel personnalisé !",
-            font=ctk.CTkFont(size=20, weight="bold")
+            font=ctk.CTkFont(size=20, weight="bold"),
         ).pack(pady=20)
 
         ctk.CTkLabel(
             welcome_frame,
             text="Pour commencer, configurez votre profil nutritionnel ou\ngénérez automatiquement un plan alimentaire.",
             font=ctk.CTkFont(size=14),
-            justify="center"
+            justify="center",
         ).pack(pady=10)
 
         actions_frame = ctk.CTkFrame(welcome_frame, fg_color="transparent")
@@ -362,7 +378,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             text="🤖 Générer mon premier plan",
             command=self._generate_automatic_plan,
             width=250,
-            height=50
+            height=50,
         ).pack(pady=10)
 
         SecondaryButton(
@@ -370,32 +386,34 @@ class ModernNutritionPage(ctk.CTkFrame):
             text="⚙️ Configurer mon profil",
             command=self._open_profile_config,
             width=200,
-            height=40
+            height=40,
         ).pack()
 
     def _show_profile_setup_needed(self):
         """Affiche l'interface de configuration de profil nécessaire"""
 
-        setup_frame = ctk.CTkFrame(self.profile_info_frame, fg_color=("orange", "dark_orange"))
+        setup_frame = ctk.CTkFrame(
+            self.profile_info_frame, fg_color=("orange", "dark_orange")
+        )
         setup_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         ctk.CTkLabel(
             setup_frame,
             text="⚠️ Configuration Requise",
-            font=ctk.CTkFont(size=16, weight="bold")
+            font=ctk.CTkFont(size=16, weight="bold"),
         ).pack(pady=(15, 5))
 
         ctk.CTkLabel(
             setup_frame,
             text="Créez votre profil nutritionnel\npour des recommandations personnalisées",
-            justify="center"
+            justify="center",
         ).pack(pady=5)
 
         PrimaryButton(
             setup_frame,
             text="Configurer maintenant",
             command=self._open_profile_config,
-            width=180
+            width=180,
         ).pack(pady=(10, 15))
 
     def _update_profile_display(self):
@@ -418,7 +436,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             self.profile_info_frame,
             text=info_text,
             justify="left",
-            font=ctk.CTkFont(size=12)
+            font=ctk.CTkFont(size=12),
         ).pack(anchor="w", padx=10, pady=10)
 
         self._update_objectives_display()
@@ -440,13 +458,17 @@ class ModernNutritionPage(ctk.CTkFrame):
             ("Calories", int(self.current_profile.besoins_caloriques or 0), 0, "kcal"),
             ("Protéines", int(macros.get("proteines_g", 0)), 0, "g"),
             ("Glucides", int(macros.get("glucides_g", 0)), 0, "g"),
-            ("Lipides", int(macros.get("lipides_g", 0)), 0, "g")
+            ("Lipides", int(macros.get("lipides_g", 0)), 0, "g"),
         ]
 
         for name, target, current, unit in objectives:
-            self._create_progress_bar(self.objectives_frame, name, target, current, unit)
+            self._create_progress_bar(
+                self.objectives_frame, name, target, current, unit
+            )
 
-    def _create_progress_bar(self, parent, name: str, target: int, current: int, unit: str):
+    def _create_progress_bar(
+        self, parent, name: str, target: int, current: int, unit: str
+    ):
         """Crée une barre de progression pour un objectif nutritionnel"""
 
         bar_frame = ctk.CTkFrame(parent)
@@ -454,7 +476,9 @@ class ModernNutritionPage(ctk.CTkFrame):
 
         # Label avec nom et valeurs
         label_text = f"{name}: {current} / {target} {unit}"
-        ctk.CTkLabel(bar_frame, text=label_text, font=ctk.CTkFont(size=12)).pack(anchor="w", padx=10, pady=(5, 0))
+        ctk.CTkLabel(bar_frame, text=label_text, font=ctk.CTkFont(size=12)).pack(
+            anchor="w", padx=10, pady=(5, 0)
+        )
 
         # Barre de progression
         progress = min(1.0, current / target if target > 0 else 0)
@@ -474,7 +498,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             ctk.CTkLabel(
                 self.suggestions_content,
                 text="Configurez votre profil pour\ndes suggestions personnalisées",
-                justify="center"
+                justify="center",
             ).pack(pady=10)
             return
 
@@ -485,23 +509,21 @@ class ModernNutritionPage(ctk.CTkFrame):
                 suggestions = self.food_search.obtenir_top_aliments(
                     critere="fibres_100g",
                     limit=5,
-                    exclude_categories=["Sucres et produits sucrés"]
+                    exclude_categories=["Sucres et produits sucrés"],
                 )
                 suggestion_title = "🌿 Parfait pour la perte de poids"
 
             elif "muscle" in self.current_profile.objectif_principal.lower():
                 # Aliments riches en protéines
                 suggestions = self.food_search.obtenir_top_aliments(
-                    critere="proteines_100g",
-                    limit=5
+                    critere="proteines_100g", limit=5
                 )
                 suggestion_title = "💪 Excellent pour la prise de muscle"
 
             else:
                 # Aliments équilibrés avec bon score healthy
                 suggestions = self.food_search.obtenir_top_aliments(
-                    critere="indice_healthy",
-                    limit=5
+                    critere="indice_healthy", limit=5
                 )
                 suggestion_title = "⭐ Recommandés pour vous"
 
@@ -509,7 +531,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             ctk.CTkLabel(
                 self.suggestions_content,
                 text=suggestion_title,
-                font=ctk.CTkFont(size=12, weight="bold")
+                font=ctk.CTkFont(size=12, weight="bold"),
             ).pack(anchor="w", padx=5, pady=(5, 10))
 
             # Affichage des suggestions
@@ -519,21 +541,22 @@ class ModernNutritionPage(ctk.CTkFrame):
         except Exception as e:
             print(f"Erreur lors du chargement des suggestions: {e}")
             ctk.CTkLabel(
-                self.suggestions_content,
-                text="Suggestions indisponibles"
+                self.suggestions_content, text="Suggestions indisponibles"
             ).pack(pady=10)
 
     def _create_suggestion_item(self, aliment: Aliment):
         """Crée un élément de suggestion"""
 
-        item_frame = ctk.CTkFrame(self.suggestions_content, fg_color=("gray85", "gray20"))
+        item_frame = ctk.CTkFrame(
+            self.suggestions_content, fg_color=("gray85", "gray20")
+        )
         item_frame.pack(fill="x", padx=5, pady=2)
 
         # Nom de l'aliment
         name_label = ctk.CTkLabel(
             item_frame,
             text=aliment.nom[:20] + ("..." if len(aliment.nom) > 20 else ""),
-            font=ctk.CTkFont(size=11, weight="bold")
+            font=ctk.CTkFont(size=11, weight="bold"),
         )
         name_label.pack(anchor="w", padx=8, pady=(5, 0))
 
@@ -543,7 +566,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             item_frame,
             text=info_text,
             font=ctk.CTkFont(size=10),
-            text_color=("gray60", "gray50")
+            text_color=("gray60", "gray50"),
         ).pack(anchor="w", padx=8, pady=(0, 5))
 
         # Clic pour ajouter
@@ -560,7 +583,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             return
 
         # Recherche avec délai pour éviter trop de requêtes
-        self.after_cancel(getattr(self, '_search_job', None))
+        self.after_cancel(getattr(self, "_search_job", None))
         self._search_job = self.after(300, lambda: self._perform_search(query))
 
     def _perform_search(self, query: str):
@@ -570,8 +593,10 @@ class ModernNutritionPage(ctk.CTkFrame):
             # Construction du filtre basé sur l'UI
             filtre = FiltreRecherche(
                 nom=query,
-                categories=None if self.category_var.get() == "Toutes" else [self.category_var.get()],
-                limit=10
+                categories=None
+                if self.category_var.get() == "Toutes"
+                else [self.category_var.get()],
+                limit=10,
             )
 
             # Ajustement du filtre selon l'objectif sélectionné
@@ -612,7 +637,7 @@ class ModernNutritionPage(ctk.CTkFrame):
                 self.results_frame,
                 text="Aucun résultat trouvé.\nEssayez d'élargir vos critères.",
                 justify="center",
-                text_color=("gray60", "gray50")
+                text_color=("gray60", "gray50"),
             ).pack(pady=20)
             return
 
@@ -634,9 +659,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         name_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=(8, 2))
 
         ctk.CTkLabel(
-            name_frame,
-            text=aliment.nom,
-            font=ctk.CTkFont(size=12, weight="bold")
+            name_frame, text=aliment.nom, font=ctk.CTkFont(size=12, weight="bold")
         ).pack(anchor="w")
 
         if aliment.categorie:
@@ -644,7 +667,7 @@ class ModernNutritionPage(ctk.CTkFrame):
                 name_frame,
                 text=aliment.categorie,
                 font=ctk.CTkFont(size=10),
-                text_color=("gray60", "gray50")
+                text_color=("gray60", "gray50"),
             ).pack(anchor="w")
 
         # Informations nutritionnelles
@@ -656,7 +679,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             nutrition_frame,
             text=nutrition_text,
             font=ctk.CTkFont(size=9),
-            text_color=("gray70", "gray40")
+            text_color=("gray70", "gray40"),
         ).pack(anchor="w")
 
         # Score de qualité nutritionnelle
@@ -666,7 +689,7 @@ class ModernNutritionPage(ctk.CTkFrame):
                 nutrition_frame,
                 text=score_text,
                 font=ctk.CTkFont(size=9),
-                text_color=("green", "light_green")
+                text_color=("green", "light_green"),
             ).pack(anchor="w")
 
         # Bouton d'ajout
@@ -676,7 +699,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             width=80,
             height=28,
             font=ctk.CTkFont(size=10),
-            command=lambda: self._add_food_to_meal(aliment)
+            command=lambda: self._add_food_to_meal(aliment),
         )
         add_btn.grid(row=0, rowspan=2, column=1, padx=(5, 10), pady=8)
 
@@ -699,7 +722,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         if not self.current_profile:
             messagebox.showwarning(
                 "Profil requis",
-                "Veuillez d'abord configurer votre profil nutritionnel."
+                "Veuillez d'abord configurer votre profil nutritionnel.",
             )
             self._open_profile_config()
             return
@@ -709,7 +732,7 @@ class ModernNutritionPage(ctk.CTkFrame):
             plan = self.meal_generator.generer_plan_automatique(
                 client_id=self.client_id,
                 duree_jours=1,  # Plan d'une journée pour commencer
-                nom_plan=f"Plan auto {datetime.now().strftime('%d/%m')}"
+                nom_plan=f"Plan auto {datetime.now().strftime('%d/%m')}",
             )
 
             self.current_plan = plan
@@ -717,7 +740,7 @@ class ModernNutritionPage(ctk.CTkFrame):
 
             messagebox.showinfo(
                 "Succès",
-                "Plan alimentaire généré automatiquement !\nPersonnalisez-le en ajoutant/supprimant des aliments."
+                "Plan alimentaire généré automatiquement !\nPersonnalisez-le en ajoutant/supprimant des aliments.",
             )
 
         except Exception as e:
@@ -730,7 +753,7 @@ class ModernNutritionPage(ctk.CTkFrame):
         # TODO: Créer un modal de configuration de profil complet
         messagebox.showinfo(
             "Configuration du profil",
-            "Interface de configuration du profil à implémenter.\nPour l'instant, utilisez la génération automatique."
+            "Interface de configuration du profil à implémenter.\nPour l'instant, utilisez la génération automatique.",
         )
 
     def _add_food_to_meal(self, aliment: Aliment):
@@ -738,8 +761,7 @@ class ModernNutritionPage(ctk.CTkFrame):
 
         if not self.current_plan or not self.current_plan.repas:
             messagebox.showwarning(
-                "Plan requis",
-                "Veuillez d'abord générer un plan alimentaire."
+                "Plan requis", "Veuillez d'abord générer un plan alimentaire."
             )
             return
 
@@ -758,7 +780,7 @@ class ModernNutritionPage(ctk.CTkFrame):
                 repas_id=repas.id,
                 aliment_id=aliment.id,
                 portion_id=1,  # Portion par défaut
-                quantite=100.0  # Quantité par défaut
+                quantite=100.0,  # Quantité par défaut
             )
 
             # Ajout de propriétés d'affichage
@@ -806,4 +828,3 @@ if __name__ == "__main__":
     page.pack(fill="both", expand=True)
 
     app.mainloop()
-
