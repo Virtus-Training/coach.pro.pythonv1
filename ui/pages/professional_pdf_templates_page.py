@@ -5,13 +5,11 @@ Commercial-grade templates with advanced customization
 
 from __future__ import annotations
 
-import json
 import os
 import tempfile
-import tkinter as tk
 from pathlib import Path
 from tkinter import filedialog, messagebox
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 import customtkinter as ctk
 
@@ -83,7 +81,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text="4 Templates Professionnels\nGénération <3s • Cache Intelligent",
             font=ctk.CTkFont(size=12),
             text_color="#475569",
-            justify="right"
+            justify="right",
         )
         self.stats_label.pack()
 
@@ -122,25 +120,17 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
 
         # Workout templates category
         self._create_category_section(
-            categories_frame,
-            "💪 PROGRAMMES D'ENTRAÎNEMENT",
-            "workout_programs",
-            0, 0
+            categories_frame, "💪 PROGRAMMES D'ENTRAÎNEMENT", "workout_programs", 0, 0
         )
 
         # Nutrition templates category
         self._create_category_section(
-            categories_frame,
-            "🥗 PLANS ALIMENTAIRES",
-            "nutrition_plans",
-            0, 1
+            categories_frame, "🥗 PLANS ALIMENTAIRES", "nutrition_plans", 0, 1
         )
 
         # Template details panel
         self.details_panel = ctk.CTkScrollableFrame(
-            showcase_panel,
-            label_text="📋 Détails Template",
-            height=300
+            showcase_panel, label_text="📋 Détails Template", height=300
         )
         self.details_panel.grid(row=2, column=0, sticky="nsew", padx=20, pady=15)
         showcase_panel.grid_rowconfigure(2, weight=1)
@@ -163,19 +153,46 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
         # Template cards based on category
         if category == "workout_programs":
             templates = [
-                ("workout_elite", "🏆 Elite Performance", "#1a365d", "Premium minimalist"),
-                ("workout_motivation", "🔥 Motivation+", "#e53e3e", "Gamification énergique"),
-                ("workout_medical", "🏥 Medical Pro", "#2b6cb0", "Compliance médicale")
+                (
+                    "workout_elite",
+                    "🏆 Elite Performance",
+                    "#1a365d",
+                    "Premium minimalist",
+                ),
+                (
+                    "workout_motivation",
+                    "🔥 Motivation+",
+                    "#e53e3e",
+                    "Gamification énergique",
+                ),
+                ("workout_medical", "🏥 Medical Pro", "#2b6cb0", "Compliance médicale"),
             ]
         else:  # nutrition_plans
             templates = [
-                ("nutrition_science", "🔬 Nutrition Science", "#1a202c", "Data-driven précision"),
-                ("nutrition_wellness", "🌿 Lifestyle Wellness", "#744210", "Lifestyle photography"),
-                ("nutrition_therapeutic", "⚕️ Therapeutic Diet", "#2b6cb0", "Medical compliance")
+                (
+                    "nutrition_science",
+                    "🔬 Nutrition Science",
+                    "#1a202c",
+                    "Data-driven précision",
+                ),
+                (
+                    "nutrition_wellness",
+                    "🌿 Lifestyle Wellness",
+                    "#744210",
+                    "Lifestyle photography",
+                ),
+                (
+                    "nutrition_therapeutic",
+                    "⚕️ Therapeutic Diet",
+                    "#2b6cb0",
+                    "Medical compliance",
+                ),
             ]
 
         for template_id, name, color, description in templates:
-            self._create_template_card(category_frame, template_id, name, color, description)
+            self._create_template_card(
+                category_frame, template_id, name, color, description
+            )
 
     def _create_template_card(self, parent, template_id, name, color, description):
         """Create a professional template card"""
@@ -276,9 +293,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
     def _create_customization_controls(self, parent):
         """Create customization controls"""
         custom_frame = ctk.CTkScrollableFrame(
-            parent,
-            label_text="🎨 Personnalisation",
-            height=200
+            parent, label_text="🎨 Personnalisation", height=200
         )
         custom_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=(0, 15))
         parent.grid_rowconfigure(2, weight=1)
@@ -287,13 +302,15 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
         color_frame = ctk.CTkFrame(custom_frame, fg_color="transparent")
         color_frame.pack(fill="x", pady=5)
 
-        ctk.CTkLabel(color_frame, text="Couleur principale:", font=ctk.CTkFont(size=10)).pack(anchor="w")
+        ctk.CTkLabel(
+            color_frame, text="Couleur principale:", font=ctk.CTkFont(size=10)
+        ).pack(anchor="w")
         self.primary_color_var = ctk.StringVar(value="#2563EB")
         self.primary_color_entry = ctk.CTkEntry(
             color_frame,
             textvariable=self.primary_color_var,
             placeholder_text="#RRGGBB",
-            height=25
+            height=25,
         )
         self.primary_color_entry.pack(fill="x", pady=2)
 
@@ -301,13 +318,15 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
         logo_frame = ctk.CTkFrame(custom_frame, fg_color="transparent")
         logo_frame.pack(fill="x", pady=5)
 
-        ctk.CTkLabel(logo_frame, text="Logo personnalisé:", font=ctk.CTkFont(size=10)).pack(anchor="w")
+        ctk.CTkLabel(
+            logo_frame, text="Logo personnalisé:", font=ctk.CTkFont(size=10)
+        ).pack(anchor="w")
         self.logo_btn = ctk.CTkButton(
             logo_frame,
             text="📁 Choisir Logo",
             command=self._select_logo,
             height=25,
-            font=ctk.CTkFont(size=10)
+            font=ctk.CTkFont(size=10),
         )
         self.logo_btn.pack(fill="x", pady=2)
 
@@ -317,7 +336,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             custom_frame,
             text="Mode White-label",
             variable=self.white_label_var,
-            font=ctk.CTkFont(size=10)
+            font=ctk.CTkFont(size=10),
         )
         self.white_label_cb.pack(anchor="w", pady=5)
 
@@ -346,7 +365,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text="👀 Aperçu Rapide",
             command=self._generate_preview,
             height=35,
-            fg_color="gray"
+            fg_color="gray",
         )
         self.preview_btn.pack(fill="x", padx=15, pady=2)
 
@@ -355,7 +374,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text="💾 Exporter PDF",
             command=self._export_pdf,
             height=35,
-            fg_color="#059669"
+            fg_color="#059669",
         )
         self.export_btn.pack(fill="x", padx=15, pady=(2, 15))
 
@@ -383,7 +402,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text="🔄 Actualiser",
             command=self._refresh_performance_stats,
             height=25,
-            font=ctk.CTkFont(size=10)
+            font=ctk.CTkFont(size=10),
         )
         self.refresh_stats_btn.pack(fill="x", padx=15, pady=(0, 15))
 
@@ -393,7 +412,9 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             self.professional_templates = self.controller.get_professional_templates()
             self._refresh_performance_stats()
         except Exception as e:
-            messagebox.showerror("Erreur", f"Impossible de charger les templates: {str(e)}")
+            messagebox.showerror(
+                "Erreur", f"Impossible de charger les templates: {str(e)}"
+            )
 
     def _select_template(self, template_id):
         """Select a template for customization"""
@@ -417,9 +438,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
 
             if not found_template:
                 ctk.CTkLabel(
-                    self.details_panel,
-                    text="Template non trouvé",
-                    text_color="red"
+                    self.details_panel, text="Template non trouvé", text_color="red"
                 ).pack(pady=20)
                 return
 
@@ -440,7 +459,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text=template_info.get("description", "Aucune description"),
             font=ctk.CTkFont(size=12),
             wraplength=300,
-            justify="center"
+            justify="center",
         )
         desc_label.pack(pady=(0, 15))
 
@@ -478,7 +497,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             text=template_info.get("target", "Tous types de coaches"),
             font=ctk.CTkFont(size=10),
             wraplength=300,
-            justify="left"
+            justify="left",
         ).pack(anchor="w", padx=20)
 
     def _update_current_template_display(self, template_id):
@@ -489,7 +508,7 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             "workout_medical": "Medical Pro\nCompliance médicale",
             "nutrition_science": "Nutrition Science\nData-driven précision",
             "nutrition_wellness": "Lifestyle Wellness\nLifestyle photography",
-            "nutrition_therapeutic": "Therapeutic Diet\nMedical compliance"
+            "nutrition_therapeutic": "Therapeutic Diet\nMedical compliance",
         }
 
         display_text = template_names.get(template_id, template_id)
@@ -503,8 +522,8 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
                 ("Images", "*.png *.jpg *.jpeg *.gif"),
                 ("PNG files", "*.png"),
                 ("JPEG files", "*.jpg *.jpeg"),
-                ("All files", "*.*")
-            ]
+                ("All files", "*.*"),
+            ],
         )
         if file_path:
             self.logo_btn.configure(text=f"📁 {Path(file_path).name}")
@@ -517,10 +536,14 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             # Create sample data based on template type
             if self.current_template_type.startswith("workout_"):
                 sample_data = self._get_sample_workout_data()
-                style = self.current_template_type.split("_")[1]  # elite, motivation, medical
+                style = self.current_template_type.split("_")[
+                    1
+                ]  # elite, motivation, medical
 
                 # Generate PDF
-                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".pdf", delete=False
+                ) as temp_file:
                     temp_path = temp_file.name
 
                 result = self.controller.generate_professional_workout_pdf(
@@ -529,9 +552,13 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
 
             elif self.current_template_type.startswith("nutrition_"):
                 sample_data = self._get_sample_nutrition_data()
-                style = self.current_template_type.split("_")[1]  # science, wellness, therapeutic
+                style = self.current_template_type.split("_")[
+                    1
+                ]  # science, wellness, therapeutic
 
-                with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
+                with tempfile.NamedTemporaryFile(
+                    suffix=".pdf", delete=False
+                ) as temp_file:
                     temp_path = temp_file.name
 
                 result = self.controller.generate_professional_nutrition_pdf(
@@ -541,7 +568,10 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
             if result.get("success"):
                 # Open PDF
                 os.startfile(temp_path)  # Windows
-                messagebox.showinfo("Succès", f"PDF généré avec succès !\nTemps: {result.get('generation_time', 0):.2f}s")
+                messagebox.showinfo(
+                    "Succès",
+                    f"PDF généré avec succès !\nTemps: {result.get('generation_time', 0):.2f}s",
+                )
             else:
                 messagebox.showerror("Erreur", result.get("error", "Erreur inconnue"))
 
@@ -552,14 +582,16 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
 
     def _generate_preview(self):
         """Generate quick preview"""
-        messagebox.showinfo("Info", "Génération d'aperçu rapide en cours de développement...")
+        messagebox.showinfo(
+            "Info", "Génération d'aperçu rapide en cours de développement..."
+        )
 
     def _export_pdf(self):
         """Export PDF with current settings"""
         file_path = filedialog.asksaveasfilename(
             title="Exporter PDF",
             filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")],
-            defaultextension=".pdf"
+            defaultextension=".pdf",
         )
 
         if file_path:
@@ -581,7 +613,9 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
                 if result.get("success"):
                     messagebox.showinfo("Succès", f"PDF exporté vers:\n{file_path}")
                 else:
-                    messagebox.showerror("Erreur", result.get("error", "Erreur inconnue"))
+                    messagebox.showerror(
+                        "Erreur", result.get("error", "Erreur inconnue")
+                    )
 
             except Exception as e:
                 messagebox.showerror("Erreur", f"Erreur lors de l'export: {str(e)}")
@@ -591,9 +625,9 @@ class ProfessionalPdfTemplatesPage(ctk.CTkFrame):
         try:
             stats = self.controller.get_performance_stats()
 
-            stats_text = f"""Docs: {stats.get('total_documents', 0)}
-Temps moy: {stats.get('average_time', 0):.2f}s
-Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
+            stats_text = f"""Docs: {stats.get("total_documents", 0)}
+Temps moy: {stats.get("average_time", 0):.2f}s
+Cache: {stats.get("cache_stats", {}).get("hit_rate", 0):.1%}"""
 
             self.perf_label.configure(text=stats_text)
 
@@ -610,12 +644,12 @@ Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
                 "duration_weeks": 8,
                 "sessions_per_week": 4,
                 "intensity_level": "Élevé",
-                "target_areas": ["Poitrine", "Dos", "Jambes"]
+                "target_areas": ["Poitrine", "Dos", "Jambes"],
             },
             "performance_metrics": {
                 "strength_progress": 85,
                 "endurance_progress": 70,
-                "flexibility_progress": 60
+                "flexibility_progress": 60,
             },
             "target_muscle_groups": ["chest", "shoulders", "legs"],
             "workout_blocks": [
@@ -626,10 +660,10 @@ Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
                     "exercises": [
                         {"name": "Squat", "reps": "5x3", "notes": "90% 1RM"},
                         {"name": "Développé couché", "reps": "5x3", "notes": "85% 1RM"},
-                        {"name": "Soulevé de terre", "reps": "4x2", "notes": "95% 1RM"}
-                    ]
+                        {"name": "Soulevé de terre", "reps": "4x2", "notes": "95% 1RM"},
+                    ],
                 }
-            ]
+            ],
         }
 
     def _get_sample_nutrition_data(self) -> Dict[str, Any]:
@@ -642,7 +676,7 @@ Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
                 "weight": 65.5,
                 "height": 170,
                 "body_fat": 22.5,
-                "lean_mass": 50.8
+                "lean_mass": 50.8,
             },
             "nutrition_analytics": {
                 "tdee": 2100,
@@ -651,7 +685,7 @@ Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
                 "carbs_g": 180,
                 "fat_g": 70,
                 "fiber_target": 28,
-                "water_target": 33
+                "water_target": 33,
             },
             "micronutrient_analysis": {
                 "vit_d": 18,
@@ -659,8 +693,8 @@ Cache: {stats.get('cache_stats', {}).get('hit_rate', 0):.1%}"""
                 "iron": 12,
                 "magnesium": 280,
                 "zinc": 9.5,
-                "omega3": 1.8
-            }
+                "omega3": 1.8,
+            },
         }
 
 

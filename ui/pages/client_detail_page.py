@@ -40,9 +40,7 @@ class ClientDetailPage(ctk.CTkFrame):
             width=100,
         ).pack(side="left")
 
-        title = (
-            f"{client.prenom} {client.nom}" if client else "Client introuvable"
-        )
+        title = f"{client.prenom} {client.nom}" if client else "Client introuvable"
         hero = HeroBanner(
             self,
             title=title,
@@ -80,4 +78,3 @@ class ClientDetailPage(ctk.CTkFrame):
                 tabview.set(default_tab)
         except Exception:
             pass
-

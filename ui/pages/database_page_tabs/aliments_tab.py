@@ -37,10 +37,18 @@ class AlimentForm(ctk.CTkToplevel):
 
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
         btn_row.pack(fill="x", pady=(8, 0))
-        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="right")
-        ctk.CTkButton(btn_row, text="Enregistrer", command=self._submit, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
-            side="right", padx=(0, 8)
-        )
+        ctk.CTkButton(
+            btn_row,
+            text="Annuler",
+            command=self.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right")
+        ctk.CTkButton(
+            btn_row,
+            text="Enregistrer",
+            command=self._submit,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right", padx=(0, 8))
 
         if aliment:
             self.in_nom.set_value(aliment.nom)
@@ -93,13 +101,28 @@ class AlimentsTab(ctk.CTkFrame):
         self.search_entry.pack(side="left", fill="x", expand=True)
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        self.btn_add = ctk.CTkButton(toolbar, text="Ajouter", command=self._on_add, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        self.btn_add = ctk.CTkButton(
+            toolbar,
+            text="Ajouter",
+            command=self._on_add,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_add.pack(side="right", padx=(8, 0))
         self.btn_edit = ctk.CTkButton(
-            toolbar, text="Modifier", command=self._on_edit, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+            toolbar,
+            text="Modifier",
+            command=self._on_edit,
+            state="disabled",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_edit.pack(side="right", padx=(8, 0))
         self.btn_del = ctk.CTkButton(
-            toolbar, text="Supprimer", command=self._on_delete, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+            toolbar,
+            text="Supprimer",
+            command=self._on_delete,
+            state="disabled",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_del.pack(side="right")
 
         self.selected_name: Optional[str] = None
@@ -190,9 +213,12 @@ class AlimentsTab(ctk.CTkFrame):
             confirm.destroy()
             self._load()
 
-        ctk.CTkButton(row, text="Annuler", command=confirm.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
-            side="left", padx=8
-        )
+        ctk.CTkButton(
+            row,
+            text="Annuler",
+            command=confirm.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left", padx=8)
         ctk.CTkButton(
             row,
             text="Supprimer",
@@ -201,4 +227,3 @@ class AlimentsTab(ctk.CTkFrame):
             command=do_del,
             font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
         ).pack(side="left")
-

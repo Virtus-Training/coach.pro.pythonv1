@@ -3,13 +3,12 @@ Modern UI Kit - Composants d'interface avancés avec animations et effects
 Inspiré de Discord, Notion, VS Code et Figma
 """
 
-
 import customtkinter as ctk
 
 
 # ===== Utils: Couleurs sûres pour tkinter (pas de RGBA) =====
 def _hex_to_rgb(hex_color: str) -> tuple:
-    h = hex_color.lstrip('#')
+    h = hex_color.lstrip("#")
     return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
 
 
@@ -21,7 +20,9 @@ def _rgb_to_hex(rgb: tuple) -> str:
 def _get_app_bg_color() -> str:
     """Retourne la couleur d'arrière‑plan principale selon le thème courant."""
     try:
-        fg = ctk.ThemeManager.theme.get("CTk", {}).get("fg_color", ["#111827", "#111827"])  # [light, dark]
+        fg = ctk.ThemeManager.theme.get("CTk", {}).get(
+            "fg_color", ["#111827", "#111827"]
+        )  # [light, dark]
         if isinstance(fg, (list, tuple)) and len(fg) >= 2:
             mode = ctk.get_appearance_mode()
             idx = 0 if str(mode).lower() == "light" else 1
@@ -59,7 +60,7 @@ class AnimatedButton(ctk.CTkButton):
             "border_width": 0,
             "height": 44,
             "font": ctk.CTkFont(size=14, weight="bold"),
-            "cursor": "hand2"
+            "cursor": "hand2",
         }
 
         # Merge avec les kwargs
@@ -116,7 +117,9 @@ class AnimatedButton(ctk.CTkButton):
                 # Simulate scale effect with padding
                 if entering:
                     # 25% de teinte primaire (token si dispo)
-                    border_col = ctk.ThemeManager.theme["color"].get("primary_t25", _tint_primary(0.25))
+                    border_col = ctk.ThemeManager.theme["color"].get(
+                        "primary_t25", _tint_primary(0.25)
+                    )
                     self.configure(border_width=1, border_color=border_col)
                 else:
                     self.configure(border_width=0)
@@ -131,10 +134,13 @@ class AnimatedButton(ctk.CTkButton):
 
     def _animate_click(self):
         """Effet de pulse au click."""
+
         def pulse():
             try:
                 # 50% de teinte primaire (token si dispo)
-                border_col = ctk.ThemeManager.theme["color"].get("primary_t50", _tint_primary(0.5))
+                border_col = ctk.ThemeManager.theme["color"].get(
+                    "primary_t50", _tint_primary(0.5)
+                )
                 self.configure(border_width=2, border_color=border_col)
                 self.after(100, lambda: self.configure(border_width=0))
             except Exception:
@@ -151,8 +157,12 @@ class GlassCard(ctk.CTkFrame):
         glass_defaults = {
             "corner_radius": 16,
             "border_width": 1,
-            "border_color": ctk.ThemeManager.theme["color"].get("subtle_border", "#334155"),
-            "fg_color": ctk.ThemeManager.theme["color"].get("surface_elevated", "#2D2F5F")
+            "border_color": ctk.ThemeManager.theme["color"].get(
+                "subtle_border", "#334155"
+            ),
+            "fg_color": ctk.ThemeManager.theme["color"].get(
+                "surface_elevated", "#2D2F5F"
+            ),
         }
 
         for key, value in glass_defaults.items():
@@ -169,7 +179,12 @@ class GlassCard(ctk.CTkFrame):
         # Container pour le contenu
         self.content_frame = ctk.CTkFrame(self, fg_color="transparent")
         padding = 20 if title else 16
-        self.content_frame.pack(fill="both", expand=True, padx=padding, pady=(0 if title else padding, padding))
+        self.content_frame.pack(
+            fill="both",
+            expand=True,
+            padx=padding,
+            pady=(0 if title else padding, padding),
+        )
 
         # Hover effects
         self.bind("<Enter>", self._on_enter)
@@ -184,7 +199,7 @@ class GlassCard(ctk.CTkFrame):
             header_frame,
             text=self.title,
             font=ctk.CTkFont(size=16, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         title_label.pack(anchor="w")
 
@@ -192,7 +207,7 @@ class GlassCard(ctk.CTkFrame):
         divider = ctk.CTkFrame(
             header_frame,
             height=2,
-            fg_color=ctk.ThemeManager.theme["color"].get("primary", "#6366F1")
+            fg_color=ctk.ThemeManager.theme["color"].get("primary", "#6366F1"),
         )
         divider.pack(fill="x", pady=(8, 0))
 
@@ -201,8 +216,10 @@ class GlassCard(ctk.CTkFrame):
         if not self._hover_active:
             self._hover_active = True
             self.configure(
-                border_color=ctk.ThemeManager.theme["color"].get("primary_light", "#A5B4FC"),
-                border_width=2
+                border_color=ctk.ThemeManager.theme["color"].get(
+                    "primary_light", "#A5B4FC"
+                ),
+                border_width=2,
             )
 
     def _on_leave(self, event):
@@ -210,8 +227,10 @@ class GlassCard(ctk.CTkFrame):
         if self._hover_active:
             self._hover_active = False
             self.configure(
-                border_color=ctk.ThemeManager.theme["color"].get("subtle_border", "#334155"),
-                border_width=1
+                border_color=ctk.ThemeManager.theme["color"].get(
+                    "subtle_border", "#334155"
+                ),
+                border_width=1,
             )
 
 
@@ -230,7 +249,7 @@ class ModernTabView(ctk.CTkFrame):
             self,
             height=60,
             fg_color=ctk.ThemeManager.theme["color"].get("surface_light", "#252651"),
-            corner_radius=12
+            corner_radius=12,
         )
         self.tab_header.pack(fill="x", pady=(0, 16))
         self.tab_header.pack_propagate(False)
@@ -248,8 +267,7 @@ class ModernTabView(ctk.CTkFrame):
         # Bouton de tab
         # Couleur de hover sans alpha (simule un léger overlay clair)
         safe_hover_overlay = ctk.ThemeManager.theme["color"].get(
-            "overlay_low",
-            _blend_hex(_get_app_bg_color(), "#FFFFFF", 0.04)
+            "overlay_low", _blend_hex(_get_app_bg_color(), "#FFFFFF", 0.04)
         )
 
         tab_button = AnimatedButton(
@@ -260,7 +278,7 @@ class ModernTabView(ctk.CTkFrame):
             fg_color="transparent",
             text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
             hover_color=safe_hover_overlay,
-            command=lambda: self.set_active_tab(name)
+            command=lambda: self.set_active_tab(name),
         )
         tab_button.pack(side="left", padx=(0, 8))
         self._tab_buttons[name] = tab_button
@@ -286,7 +304,7 @@ class ModernTabView(ctk.CTkFrame):
             # Reset button style
             self._tab_buttons[self._active_tab].configure(
                 fg_color="transparent",
-                text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+                text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
             )
 
         # Show new tab with animation
@@ -295,8 +313,7 @@ class ModernTabView(ctk.CTkFrame):
 
         # Update button style
         self._tab_buttons[name].configure(
-            fg_color=ctk.ThemeManager.theme["color"]["primary"],
-            text_color="white"
+            fg_color=ctk.ThemeManager.theme["color"]["primary"], text_color="white"
         )
 
         # Subtle animation effect
@@ -310,8 +327,7 @@ class ModernTabView(ctk.CTkFrame):
             try:
                 # Simulate fade in with alpha changes
                 local_overlay = ctk.ThemeManager.theme["color"].get(
-                    "overlay_low",
-                    _blend_hex(_get_app_bg_color(), "#FFFFFF", 0.04)
+                    "overlay_low", _blend_hex(_get_app_bg_color(), "#FFFFFF", 0.04)
                 )
                 tab_frame.configure(fg_color=local_overlay)
                 self.after(150, lambda: tab_frame.configure(fg_color="transparent"))
@@ -330,7 +346,7 @@ class StatusIndicator(ctk.CTkFrame):
             "warning": ctk.ThemeManager.theme["color"].get("warning", "#F59E0B"),
             "error": ctk.ThemeManager.theme["color"].get("error", "#EF4444"),
             "info": ctk.ThemeManager.theme["color"].get("primary", "#6366F1"),
-            "neutral": ctk.ThemeManager.theme["color"].get("muted_text", "#64748B")
+            "neutral": ctk.ThemeManager.theme["color"].get("muted_text", "#64748B"),
         }
 
         super().__init__(
@@ -338,7 +354,7 @@ class StatusIndicator(ctk.CTkFrame):
             fg_color=self.status_colors.get(status, self.status_colors["neutral"]),
             corner_radius=12,
             height=32,
-            **kwargs
+            **kwargs,
         )
         self.pack_propagate(False)
 
@@ -352,10 +368,7 @@ class StatusIndicator(ctk.CTkFrame):
 
         # Status dot
         dot = ctk.CTkLabel(
-            content_frame,
-            text="●",
-            font=ctk.CTkFont(size=16),
-            text_color="white"
+            content_frame, text="●", font=ctk.CTkFont(size=16), text_color="white"
         )
         dot.pack(side="left")
 
@@ -364,7 +377,7 @@ class StatusIndicator(ctk.CTkFrame):
                 content_frame,
                 text=text,
                 font=ctk.CTkFont(size=12, weight="bold"),
-                text_color="white"
+                text_color="white",
             )
             text_label.pack(side="left", padx=(4, 0))
 
@@ -389,7 +402,10 @@ class StatusIndicator(ctk.CTkFrame):
             for widget in self.winfo_children():
                 if isinstance(widget, ctk.CTkFrame):
                     for child in widget.winfo_children():
-                        if isinstance(child, ctk.CTkLabel) and child.cget("text") != "●":
+                        if (
+                            isinstance(child, ctk.CTkLabel)
+                            and child.cget("text") != "●"
+                        ):
                             child.configure(text=text)
                             break
 
@@ -405,8 +421,10 @@ class FloatingActionButton(ctk.CTkButton):
             "text": icon_text,
             "font": ctk.CTkFont(size=20),
             "fg_color": ctk.ThemeManager.theme["color"]["primary"],
-            "hover_color": ctk.ThemeManager.theme["color"].get("primary_hover", "#4F46E5"),
-            "cursor": "hand2"
+            "hover_color": ctk.ThemeManager.theme["color"].get(
+                "primary_hover", "#4F46E5"
+            ),
+            "cursor": "hand2",
         }
 
         for key, value in fab_defaults.items():
@@ -420,19 +438,11 @@ class FloatingActionButton(ctk.CTkButton):
 
     def _on_hover_enter(self, event):
         """Scale up effect on hover."""
-        self.configure(
-            width=60,
-            height=60,
-            corner_radius=30
-        )
+        self.configure(width=60, height=60, corner_radius=30)
 
     def _on_hover_leave(self, event):
         """Scale back to normal."""
-        self.configure(
-            width=56,
-            height=56,
-            corner_radius=28
-        )
+        self.configure(width=56, height=56, corner_radius=28)
 
 
 class ModernProgressBar(ctk.CTkFrame):
@@ -444,7 +454,7 @@ class ModernProgressBar(ctk.CTkFrame):
             height=8,
             fg_color=ctk.ThemeManager.theme["color"].get("surface_light", "#252651"),
             corner_radius=4,
-            **kwargs
+            **kwargs,
         )
 
         self.max_value = max_value
@@ -455,7 +465,7 @@ class ModernProgressBar(ctk.CTkFrame):
             self,
             height=8,
             fg_color=ctk.ThemeManager.theme["color"]["primary"],
-            corner_radius=4
+            corner_radius=4,
         )
 
         self.pack_propagate(False)
@@ -525,14 +535,12 @@ class NotificationToast(ctk.CTkToplevel):
             "success": ctk.ThemeManager.theme["color"]["success"],
             "warning": ctk.ThemeManager.theme["color"]["warning"],
             "error": ctk.ThemeManager.theme["color"]["error"],
-            "info": ctk.ThemeManager.theme["color"]["primary"]
+            "info": ctk.ThemeManager.theme["color"]["primary"],
         }
 
         # Frame principal
         main_frame = GlassCard(
-            self,
-            fg_color=colors.get(type_, colors["info"]),
-            corner_radius=12
+            self, fg_color=colors.get(type_, colors["info"]), corner_radius=12
         )
         main_frame.pack(padx=8, pady=8)
 
@@ -542,7 +550,7 @@ class NotificationToast(ctk.CTkToplevel):
             text=message,
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="white",
-            wraplength=300
+            wraplength=300,
         )
         message_label.pack(pady=(8, 8))
 
@@ -561,7 +569,7 @@ class NotificationToast(ctk.CTkToplevel):
         height = self.winfo_reqheight()
 
         screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
+        self.winfo_screenheight()
 
         x = screen_width - width - 20
         y = 60
@@ -584,6 +592,7 @@ class NotificationToast(ctk.CTkToplevel):
 
     def _hide_with_animation(self):
         """Animation de disparition."""
+
         def fade_out(alpha=1.0):
             if alpha > 0.0:
                 alpha -= 0.1

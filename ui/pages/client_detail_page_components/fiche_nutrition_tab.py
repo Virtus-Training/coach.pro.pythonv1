@@ -49,7 +49,7 @@ class FicheNutritionTab(ctk.CTkFrame):
         for w in self.display.winfo_children():
             w.destroy()
         colors = ctk.ThemeManager.theme["color"]
-        fonts = ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"])._kwargs
+        ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"])._kwargs
         if not self.fiche:
             message = (
                 "Aucune fiche nutritionnelle n'a encore été générée pour ce client."
@@ -196,7 +196,9 @@ class GenerateFicheModal(ctk.CTkToplevel):
         self.prot_value_lbl.pack(anchor="e", pady=(0, 8))
         self.prot_var.trace_add(
             "write",
-            lambda *_: self.prot_value_lbl.configure(text=f"{float(self.prot_var.get()):.1f}"),
+            lambda *_: self.prot_value_lbl.configure(
+                text=f"{float(self.prot_var.get()):.1f}"
+            ),
         )
 
         ctk.CTkLabel(
@@ -286,9 +288,16 @@ class GenerateFicheModal(ctk.CTkToplevel):
             import os
             import subprocess
             import sys
-            prenom = (self.prenom_var.get() or getattr(self.parent.client, "prenom", "") or "").strip()
-            nom = (self.nom_var.get() or getattr(self.parent.client, "nom", "") or "").strip()
-            default_name = f"Fiche_Nutrition_{prenom}_{nom}_{datetime.date.today().isoformat()}.pdf".replace(" ", "_")
+
+            prenom = (
+                self.prenom_var.get() or getattr(self.parent.client, "prenom", "") or ""
+            ).strip()
+            nom = (
+                self.nom_var.get() or getattr(self.parent.client, "nom", "") or ""
+            ).strip()
+            default_name = f"Fiche_Nutrition_{prenom}_{nom}_{datetime.date.today().isoformat()}.pdf".replace(
+                " ", "_"
+            )
             path = filedialog.asksaveasfilename(
                 defaultextension=".pdf",
                 initialfile=default_name,
@@ -300,7 +309,9 @@ class GenerateFicheModal(ctk.CTkToplevel):
                     self.parent.client.nom = nom or self.parent.client.nom
                 except Exception:
                     pass
-                self.parent.nutrition_controller.export_sheet_to_pdf(asdict(fiche), self.parent.client, path)
+                self.parent.nutrition_controller.export_sheet_to_pdf(
+                    asdict(fiche), self.parent.client, path
+                )
                 try:
                     if os.name == "nt":
                         os.startfile(path)  # type: ignore[attr-defined]
@@ -318,4 +329,3 @@ class GenerateFicheModal(ctk.CTkToplevel):
         except Exception:
             pass
         self.destroy()
-

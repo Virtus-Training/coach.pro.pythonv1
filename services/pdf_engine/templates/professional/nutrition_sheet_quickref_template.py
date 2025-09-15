@@ -5,19 +5,14 @@ Concise and actionable format for quick reference and daily use
 
 from __future__ import annotations
 
-from io import BytesIO
 from typing import Any, Dict, List, Optional
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY, TA_LEFT, TA_RIGHT
-from reportlab.lib.pagesizes import A4, letter
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import cm, inch, mm
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.units import cm, mm
 from reportlab.platypus import (
     Flowable,
-    FrameBreak,
-    Image,
-    PageBreak,
     Paragraph,
     Spacer,
     Table,
@@ -25,12 +20,6 @@ from reportlab.platypus import (
 )
 
 from ..base_template import BaseTemplate
-from ...components.professional_components import (
-    ProgressBarComponent,
-    MacronutrientWheelComponent,
-    WorkoutBlockComponent,
-    DataVisualizationComponent,
-)
 
 
 class NutritionSheetQuickRefTemplate(BaseTemplate):
@@ -62,20 +51,20 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
             "visual_shortcuts": True,
             "memorable_format": True,
             "emergency_info": True,
-            **self.config.get("quickref_config", {})
+            **self.config.get("quickref_config", {}),
         }
 
         # Quick reference color scheme - High contrast and memorable
         self.colors = {
-            "primary": colors.Color(0.85, 0.11, 0.14),       # Emergency red
-            "secondary": colors.Color(0.11, 0.56, 0.25),     # Action green
-            "accent": colors.Color(1.0, 0.65, 0.0),          # Warning orange
-            "background": colors.Color(0.95, 0.95, 0.95),    # Light grey
-            "text": colors.Color(0.1, 0.1, 0.1),             # Nearly black
-            "highlight": colors.Color(1.0, 1.0, 0.7),        # Yellow highlight
-            "urgent": colors.Color(0.8, 0.0, 0.0),           # Urgent red
-            "good": colors.Color(0.0, 0.6, 0.0),             # Good green
-            **self.config.get("colors", {})
+            "primary": colors.Color(0.85, 0.11, 0.14),  # Emergency red
+            "secondary": colors.Color(0.11, 0.56, 0.25),  # Action green
+            "accent": colors.Color(1.0, 0.65, 0.0),  # Warning orange
+            "background": colors.Color(0.95, 0.95, 0.95),  # Light grey
+            "text": colors.Color(0.1, 0.1, 0.1),  # Nearly black
+            "highlight": colors.Color(1.0, 1.0, 0.7),  # Yellow highlight
+            "urgent": colors.Color(0.8, 0.0, 0.0),  # Urgent red
+            "good": colors.Color(0.0, 0.6, 0.0),  # Good green
+            **self.config.get("colors", {}),
         }
 
         # Quick reference typography - Bold and scannable
@@ -87,7 +76,7 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
             "caption": ("Helvetica", 9),
             "emphasis": ("Helvetica-Bold", 11),
             "large": ("Helvetica-Bold", 16),
-            **self.config.get("fonts", {})
+            **self.config.get("fonts", {}),
         }
 
         # Content validation
@@ -96,8 +85,11 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
     def _validate_quickref_data(self) -> None:
         """Validate that quick reference specific data is present"""
         required_fields = [
-            "title", "quick_actions", "emergency_tips",
-            "daily_reminders", "key_numbers"
+            "title",
+            "quick_actions",
+            "emergency_tips",
+            "daily_reminders",
+            "key_numbers",
         ]
 
         for field in required_fields:
@@ -109,30 +101,82 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
         defaults = {
             "title": "Aide-Mémoire Nutrition",
             "quick_actions": [
-                {"action": "Boire 1 verre d'eau", "trigger": "Avant chaque repas", "benefit": "Satiété"},
-                {"action": "Manger 1 fruit", "trigger": "Entre les repas", "benefit": "Vitamines"},
-                {"action": "Prendre 10 respirations", "trigger": "Avant de manger", "benefit": "Mindfulness"},
-                {"action": "Mastiquer 20 fois", "trigger": "Chaque bouchée", "benefit": "Digestion"}
+                {
+                    "action": "Boire 1 verre d'eau",
+                    "trigger": "Avant chaque repas",
+                    "benefit": "Satiété",
+                },
+                {
+                    "action": "Manger 1 fruit",
+                    "trigger": "Entre les repas",
+                    "benefit": "Vitamines",
+                },
+                {
+                    "action": "Prendre 10 respirations",
+                    "trigger": "Avant de manger",
+                    "benefit": "Mindfulness",
+                },
+                {
+                    "action": "Mastiquer 20 fois",
+                    "trigger": "Chaque bouchée",
+                    "benefit": "Digestion",
+                },
             ],
             "emergency_tips": [
-                {"situation": "Fringale sucrée", "solution": "Pomme + 10 amandes", "why": "Fibres + protéines"},
-                {"situation": "Fatigue après-midi", "solution": "Thé vert + carré chocolat", "why": "Théine + antioxydants"},
-                {"situation": "Repas manqué", "solution": "Smoothie protéiné", "why": "Récupération rapide"},
-                {"situation": "Restaurant", "solution": "Légumes d'abord", "why": "Contrôle portions"}
+                {
+                    "situation": "Fringale sucrée",
+                    "solution": "Pomme + 10 amandes",
+                    "why": "Fibres + protéines",
+                },
+                {
+                    "situation": "Fatigue après-midi",
+                    "solution": "Thé vert + carré chocolat",
+                    "why": "Théine + antioxydants",
+                },
+                {
+                    "situation": "Repas manqué",
+                    "solution": "Smoothie protéiné",
+                    "why": "Récupération rapide",
+                },
+                {
+                    "situation": "Restaurant",
+                    "solution": "Légumes d'abord",
+                    "why": "Contrôle portions",
+                },
             ],
             "daily_reminders": [
                 "💧 8 verres d'eau minimum",
                 "🥬 5 portions fruits/légumes",
                 "🥗 Légumes à chaque repas",
                 "🍎 Collation si > 4h entre repas",
-                "⏰ Arrêter de manger 3h avant coucher"
+                "⏰ Arrêter de manger 3h avant coucher",
             ],
             "key_numbers": [
-                {"metric": "Eau", "value": "35ml", "unit": "par kg de poids", "note": "Base hydratation"},
-                {"metric": "Protéines", "value": "1.2g", "unit": "par kg de poids", "note": "Sédentaires"},
-                {"metric": "Fibres", "value": "25-30g", "unit": "par jour", "note": "Digestif"},
-                {"metric": "Omega-3", "value": "2-3g", "unit": "par semaine", "note": "Poissons gras"}
-            ]
+                {
+                    "metric": "Eau",
+                    "value": "35ml",
+                    "unit": "par kg de poids",
+                    "note": "Base hydratation",
+                },
+                {
+                    "metric": "Protéines",
+                    "value": "1.2g",
+                    "unit": "par kg de poids",
+                    "note": "Sédentaires",
+                },
+                {
+                    "metric": "Fibres",
+                    "value": "25-30g",
+                    "unit": "par jour",
+                    "note": "Digestif",
+                },
+                {
+                    "metric": "Omega-3",
+                    "value": "2-3g",
+                    "unit": "par semaine",
+                    "note": "Poissons gras",
+                },
+            ],
         }
 
         return defaults.get(field, "")
@@ -143,23 +187,23 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
         # Compact header with emergency contact style
         content.append(self._build_quickref_header())
-        content.append(Spacer(1, 8*mm))
+        content.append(Spacer(1, 8 * mm))
 
         # Quick actions in emergency card format
         content.append(self._build_quick_actions_section())
-        content.append(Spacer(1, 6*mm))
+        content.append(Spacer(1, 6 * mm))
 
         # Emergency situations and solutions
         content.append(self._build_emergency_section())
-        content.append(Spacer(1, 6*mm))
+        content.append(Spacer(1, 6 * mm))
 
         # Daily reminders checklist
         content.append(self._build_daily_reminders())
-        content.append(Spacer(1, 6*mm))
+        content.append(Spacer(1, 6 * mm))
 
         # Key numbers reference table
         content.append(self._build_key_numbers_section())
-        content.append(Spacer(1, 6*mm))
+        content.append(Spacer(1, 6 * mm))
 
         # Quick decision flowchart
         content.append(self._build_decision_flowchart())
@@ -175,44 +219,59 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
         # Emergency contact card style header
         header_data = [
             [
-                Paragraph(f"<b>🆘 {title.upper()}</b>", ParagraphStyle(
-                    'EmergencyTitle',
-                    fontSize=self.fonts["title"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER,
-                    spaceAfter=3
-                ))
+                Paragraph(
+                    f"<b>🆘 {title.upper()}</b>",
+                    ParagraphStyle(
+                        "EmergencyTitle",
+                        fontSize=self.fonts["title"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                        spaceAfter=3,
+                    ),
+                )
             ],
             [
-                Paragraph(subtitle, ParagraphStyle(
-                    'EmergencySubtitle',
-                    fontSize=self.fonts["caption"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                ))
-            ]
+                Paragraph(
+                    subtitle,
+                    ParagraphStyle(
+                        "EmergencySubtitle",
+                        fontSize=self.fonts["caption"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                )
+            ],
         ]
 
         if date:
-            header_data.append([
-                Paragraph(f"Édition: {date}", ParagraphStyle(
-                    'Date',
-                    fontSize=self.fonts["caption"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                ))
-            ])
+            header_data.append(
+                [
+                    Paragraph(
+                        f"Édition: {date}",
+                        ParagraphStyle(
+                            "Date",
+                            fontSize=self.fonts["caption"][1],
+                            textColor=colors.white,
+                            alignment=TA_CENTER,
+                        ),
+                    )
+                ]
+            )
 
-        header_table = Table(header_data, colWidths=[18*cm])
-        header_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), self.colors["primary"]),
-            ('BORDER', (0, 0), (-1, -1), 3, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 10),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ]))
+        header_table = Table(header_data, colWidths=[18 * cm])
+        header_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), self.colors["primary"]),
+                    ("BORDER", (0, 0), (-1, -1), 3, colors.black),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                    ("TOPPADDING", (0, 0), (-1, -1), 8),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ]
+            )
+        )
 
         return header_table
 
@@ -222,20 +281,23 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
         action_data = [
             [
-                Paragraph("<b>⚡ ACTIONS RAPIDES - EN CAS DE BESOIN</b>", ParagraphStyle(
-                    'ActionTitle',
-                    fontSize=self.fonts["subtitle"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                )),
-                ""
+                Paragraph(
+                    "<b>⚡ ACTIONS RAPIDES - EN CAS DE BESOIN</b>",
+                    ParagraphStyle(
+                        "ActionTitle",
+                        fontSize=self.fonts["subtitle"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                ),
+                "",
             ]
         ]
 
         # Split actions into two columns for space efficiency
         for i in range(0, len(actions), 2):
             left_action = actions[i] if i < len(actions) else None
-            right_action = actions[i+1] if i+1 < len(actions) else None
+            right_action = actions[i + 1] if i + 1 < len(actions) else None
 
             left_text = ""
             right_text = ""
@@ -252,35 +314,47 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
                 benefit = right_action.get("benefit", "")
                 right_text = f"<b>🎯 {action_text}</b><br/><i>Quand:</i> {trigger}<br/><i>Bénéfice:</i> {benefit}"
 
-            action_data.append([
-                Paragraph(left_text, ParagraphStyle(
-                    'QuickAction',
-                    fontSize=self.fonts["caption"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    spaceAfter=4
-                )),
-                Paragraph(right_text, ParagraphStyle(
-                    'QuickAction',
-                    fontSize=self.fonts["caption"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    spaceAfter=4
-                ))
-            ])
+            action_data.append(
+                [
+                    Paragraph(
+                        left_text,
+                        ParagraphStyle(
+                            "QuickAction",
+                            fontSize=self.fonts["caption"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            spaceAfter=4,
+                        ),
+                    ),
+                    Paragraph(
+                        right_text,
+                        ParagraphStyle(
+                            "QuickAction",
+                            fontSize=self.fonts["caption"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            spaceAfter=4,
+                        ),
+                    ),
+                ]
+            )
 
-        action_table = Table(action_data, colWidths=[9*cm, 9*cm])
-        action_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), self.colors["secondary"]),
-            ('BACKGROUND', (0, 1), (-1, -1), self.colors["background"]),
-            ('SPAN', (0, 0), (1, 0)),  # Span header across both columns
-            ('BORDER', (0, 0), (-1, -1), 1, self.colors["secondary"]),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
+        action_table = Table(action_data, colWidths=[9 * cm, 9 * cm])
+        action_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), self.colors["secondary"]),
+                    ("BACKGROUND", (0, 1), (-1, -1), self.colors["background"]),
+                    ("SPAN", (0, 0), (1, 0)),  # Span header across both columns
+                    ("BORDER", (0, 0), (-1, -1), 1, self.colors["secondary"]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         return action_table
 
@@ -290,12 +364,15 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
         emergency_data = [
             [
-                Paragraph("<b>🚨 SITUATIONS D'URGENCE - SOLUTIONS IMMÉDIATES</b>", ParagraphStyle(
-                    'EmergencyHeader',
-                    fontSize=self.fonts["subtitle"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                ))
+                Paragraph(
+                    "<b>🚨 SITUATIONS D'URGENCE - SOLUTIONS IMMÉDIATES</b>",
+                    ParagraphStyle(
+                        "EmergencyHeader",
+                        fontSize=self.fonts["subtitle"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                )
             ]
         ]
 
@@ -304,30 +381,41 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
             solution = emergency.get("solution", "")
             why = emergency.get("why", "")
 
-            emergency_text = f"<b>⚠️ {situation.upper()}</b><br/>→ <b>{solution}</b> <i>({why})</i>"
+            emergency_text = (
+                f"<b>⚠️ {situation.upper()}</b><br/>→ <b>{solution}</b> <i>({why})</i>"
+            )
 
-            emergency_data.append([
-                Paragraph(emergency_text, ParagraphStyle(
-                    'Emergency',
-                    fontSize=self.fonts["body"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    leftIndent=10,
-                    spaceAfter=4
-                ))
-            ])
+            emergency_data.append(
+                [
+                    Paragraph(
+                        emergency_text,
+                        ParagraphStyle(
+                            "Emergency",
+                            fontSize=self.fonts["body"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            leftIndent=10,
+                            spaceAfter=4,
+                        ),
+                    )
+                ]
+            )
 
-        emergency_table = Table(emergency_data, colWidths=[18*cm])
-        emergency_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), self.colors["urgent"]),
-            ('BACKGROUND', (0, 1), (0, -1), self.colors["highlight"]),
-            ('BORDER', (0, 0), (-1, -1), 2, self.colors["urgent"]),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
+        emergency_table = Table(emergency_data, colWidths=[18 * cm])
+        emergency_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (0, 0), self.colors["urgent"]),
+                    ("BACKGROUND", (0, 1), (0, -1), self.colors["highlight"]),
+                    ("BORDER", (0, 0), (-1, -1), 2, self.colors["urgent"]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         return emergency_table
 
@@ -337,50 +425,65 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
         reminder_data = [
             [
-                Paragraph("<b>✅ RAPPELS QUOTIDIENS - COCHEZ VOS PROGRÈS</b>", ParagraphStyle(
-                    'ReminderTitle',
-                    fontSize=self.fonts["subtitle"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                )),
-                ""
+                Paragraph(
+                    "<b>✅ RAPPELS QUOTIDIENS - COCHEZ VOS PROGRÈS</b>",
+                    ParagraphStyle(
+                        "ReminderTitle",
+                        fontSize=self.fonts["subtitle"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                ),
+                "",
             ]
         ]
 
         # Split reminders into two columns
         for i in range(0, len(reminders), 2):
             left_reminder = reminders[i] if i < len(reminders) else ""
-            right_reminder = reminders[i+1] if i+1 < len(reminders) else ""
+            right_reminder = reminders[i + 1] if i + 1 < len(reminders) else ""
 
-            reminder_data.append([
-                Paragraph(f"☐ {left_reminder}", ParagraphStyle(
-                    'Reminder',
-                    fontSize=self.fonts["body"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    spaceAfter=3
-                )),
-                Paragraph(f"☐ {right_reminder}" if right_reminder else "", ParagraphStyle(
-                    'Reminder',
-                    fontSize=self.fonts["body"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    spaceAfter=3
-                ))
-            ])
+            reminder_data.append(
+                [
+                    Paragraph(
+                        f"☐ {left_reminder}",
+                        ParagraphStyle(
+                            "Reminder",
+                            fontSize=self.fonts["body"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            spaceAfter=3,
+                        ),
+                    ),
+                    Paragraph(
+                        f"☐ {right_reminder}" if right_reminder else "",
+                        ParagraphStyle(
+                            "Reminder",
+                            fontSize=self.fonts["body"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            spaceAfter=3,
+                        ),
+                    ),
+                ]
+            )
 
-        reminder_table = Table(reminder_data, colWidths=[9*cm, 9*cm])
-        reminder_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), self.colors["good"]),
-            ('BACKGROUND', (0, 1), (-1, -1), self.colors["background"]),
-            ('SPAN', (0, 0), (1, 0)),
-            ('BORDER', (0, 0), (-1, -1), 1, self.colors["good"]),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
+        reminder_table = Table(reminder_data, colWidths=[9 * cm, 9 * cm])
+        reminder_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), self.colors["good"]),
+                    ("BACKGROUND", (0, 1), (-1, -1), self.colors["background"]),
+                    ("SPAN", (0, 0), (1, 0)),
+                    ("BORDER", (0, 0), (-1, -1), 1, self.colors["good"]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         return reminder_table
 
@@ -390,12 +493,15 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
         numbers_data = [
             [
-                Paragraph("<b>📊 CHIFFRES CLÉS - MÉMORISER</b>", ParagraphStyle(
-                    'NumbersTitle',
-                    fontSize=self.fonts["subtitle"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                ))
+                Paragraph(
+                    "<b>📊 CHIFFRES CLÉS - MÉMORISER</b>",
+                    ParagraphStyle(
+                        "NumbersTitle",
+                        fontSize=self.fonts["subtitle"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                )
             ]
         ]
 
@@ -407,48 +513,79 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
 
             number_text = f"<b>{metric}:</b> <b style='color: red'>{value}</b> {unit} <i>({note})</i>"
 
-            numbers_data.append([
-                Paragraph(number_text, ParagraphStyle(
-                    'KeyNumber',
-                    fontSize=self.fonts["body"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    leftIndent=15,
-                    spaceAfter=3
-                ))
-            ])
+            numbers_data.append(
+                [
+                    Paragraph(
+                        number_text,
+                        ParagraphStyle(
+                            "KeyNumber",
+                            fontSize=self.fonts["body"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            leftIndent=15,
+                            spaceAfter=3,
+                        ),
+                    )
+                ]
+            )
 
-        numbers_table = Table(numbers_data, colWidths=[18*cm])
-        numbers_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), self.colors["accent"]),
-            ('BACKGROUND', (0, 1), (0, -1), self.colors["background"]),
-            ('BORDER', (0, 0), (-1, -1), 1, self.colors["accent"]),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
+        numbers_table = Table(numbers_data, colWidths=[18 * cm])
+        numbers_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (0, 0), self.colors["accent"]),
+                    ("BACKGROUND", (0, 1), (0, -1), self.colors["background"]),
+                    ("BORDER", (0, 0), (-1, -1), 1, self.colors["accent"]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         return numbers_table
 
     def _build_decision_flowchart(self) -> Table:
         """Build quick decision making flowchart"""
-        decision_flow = self.data.get("decision_flow", [
-            {"question": "J'ai faim", "yes": "Depuis >3h?", "no": "Boire eau + attendre 20min"},
-            {"question": "Depuis >3h?", "yes": "Collation saine", "no": "Activité ou distraction"},
-            {"question": "Envie sucrée", "yes": "Fruit disponible?", "no": "Identifier émotion"},
-            {"question": "Fruit disponible?", "yes": "Prendre le fruit", "no": "Carré chocolat noir"},
-        ])
+        decision_flow = self.data.get(
+            "decision_flow",
+            [
+                {
+                    "question": "J'ai faim",
+                    "yes": "Depuis >3h?",
+                    "no": "Boire eau + attendre 20min",
+                },
+                {
+                    "question": "Depuis >3h?",
+                    "yes": "Collation saine",
+                    "no": "Activité ou distraction",
+                },
+                {
+                    "question": "Envie sucrée",
+                    "yes": "Fruit disponible?",
+                    "no": "Identifier émotion",
+                },
+                {
+                    "question": "Fruit disponible?",
+                    "yes": "Prendre le fruit",
+                    "no": "Carré chocolat noir",
+                },
+            ],
+        )
 
         flowchart_data = [
             [
-                Paragraph("<b>🤔 ARBRE DE DÉCISION - QUE FAIRE?</b>", ParagraphStyle(
-                    'FlowchartTitle',
-                    fontSize=self.fonts["subtitle"][1],
-                    textColor=colors.white,
-                    alignment=TA_CENTER
-                ))
+                Paragraph(
+                    "<b>🤔 ARBRE DE DÉCISION - QUE FAIRE?</b>",
+                    ParagraphStyle(
+                        "FlowchartTitle",
+                        fontSize=self.fonts["subtitle"][1],
+                        textColor=colors.white,
+                        alignment=TA_CENTER,
+                    ),
+                )
             ]
         ]
 
@@ -457,30 +594,41 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
             yes_path = flow.get("yes", "")
             no_path = flow.get("no", "")
 
-            flow_text = f"<b>❓ {question}</b><br/>✅ OUI → {yes_path}<br/>❌ NON → {no_path}"
+            flow_text = (
+                f"<b>❓ {question}</b><br/>✅ OUI → {yes_path}<br/>❌ NON → {no_path}"
+            )
 
-            flowchart_data.append([
-                Paragraph(flow_text, ParagraphStyle(
-                    'DecisionFlow',
-                    fontSize=self.fonts["caption"][1],
-                    textColor=self.colors["text"],
-                    alignment=TA_LEFT,
-                    leftIndent=10,
-                    spaceAfter=5
-                ))
-            ])
+            flowchart_data.append(
+                [
+                    Paragraph(
+                        flow_text,
+                        ParagraphStyle(
+                            "DecisionFlow",
+                            fontSize=self.fonts["caption"][1],
+                            textColor=self.colors["text"],
+                            alignment=TA_LEFT,
+                            leftIndent=10,
+                            spaceAfter=5,
+                        ),
+                    )
+                ]
+            )
 
-        flowchart_table = Table(flowchart_data, colWidths=[18*cm])
-        flowchart_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), self.colors["primary"]),
-            ('BACKGROUND', (0, 1), (0, -1), self.colors["highlight"]),
-            ('BORDER', (0, 0), (-1, -1), 1, self.colors["primary"]),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-        ]))
+        flowchart_table = Table(flowchart_data, colWidths=[18 * cm])
+        flowchart_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (0, 0), self.colors["primary"]),
+                    ("BACKGROUND", (0, 1), (0, -1), self.colors["highlight"]),
+                    ("BORDER", (0, 0), (-1, -1), 1, self.colors["primary"]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]
+            )
+        )
 
         return flowchart_table
 
@@ -497,7 +645,7 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
                 "Solutions d'urgence",
                 "Rappels quotidiens",
                 "Chiffres clés mémorisables",
-                "Arbre de décision rapide"
+                "Arbre de décision rapide",
             ],
             "color_scheme": "High contrast emergency colors (red, green, orange)",
             "typography": "Bold Helvetica for quick scanning",
@@ -505,13 +653,16 @@ class NutritionSheetQuickRefTemplate(BaseTemplate):
             "complexity": "Simple",
             "page_count": "1 page maximum",
             "data_requirements": [
-                "title", "quick_actions", "emergency_tips",
-                "daily_reminders", "key_numbers"
+                "title",
+                "quick_actions",
+                "emergency_tips",
+                "daily_reminders",
+                "key_numbers",
             ],
             "customization_options": [
                 "Emergency color intensity",
                 "Content density level",
                 "Action prioritization",
-                "Decision flow complexity"
-            ]
+                "Decision flow complexity",
+            ],
         }

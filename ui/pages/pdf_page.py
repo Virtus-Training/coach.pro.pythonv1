@@ -55,9 +55,9 @@ class PdfPage(ctk.CTkFrame):
         SecondaryButton(btns, text="Nouveau", command=self._on_new).pack(
             side="left", padx=4
         )
-        SecondaryButton(btns, text="Définir par défaut", command=self._on_set_default).pack(
-            side="left", padx=4
-        )
+        SecondaryButton(
+            btns, text="Définir par défaut", command=self._on_set_default
+        ).pack(side="left", padx=4)
         SecondaryButton(btns, text="Supprimer", command=self._on_delete).pack(
             side="left", padx=4
         )
@@ -139,7 +139,7 @@ class PdfPage(ctk.CTkFrame):
 
     # --- Actions
     def _on_new(self):
-        name = f"Template {len(self._templates)+1}"
+        name = f"Template {len(self._templates) + 1}"
         try:
             style = self.controller.get_session_style(None)
             _ = self.controller.save_session_template(
@@ -160,7 +160,9 @@ class PdfPage(ctk.CTkFrame):
         try:
             style_txt = self.editor.get("1.0", "end").strip()
             _ = json.loads(style_txt)  # validate
-            self.controller.save_session_template("", style_txt, self._selected_id, True)
+            self.controller.save_session_template(
+                "", style_txt, self._selected_id, True
+            )
             self._refresh_list()
         except Exception as e:
             messagebox.showerror("Erreur", f"Echec: {e}")
@@ -189,7 +191,9 @@ class PdfPage(ctk.CTkFrame):
             self._refresh_list()
             messagebox.showinfo("OK", "Template sauvegardé.")
         except Exception as e:
-            messagebox.showerror("Erreur", f"JSON invalide ou erreur de sauvegarde: {e}")
+            messagebox.showerror(
+                "Erreur", f"JSON invalide ou erreur de sauvegarde: {e}"
+            )
 
     def _on_preview(self):
         style_txt = self.editor.get("1.0", "end").strip()

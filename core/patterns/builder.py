@@ -14,12 +14,12 @@ from typing import Any, Dict, List, Optional, TypeVar
 
 from domain.entities import (
     Client,
+    ExerciseSet,
+    FitnessGoals,
     PersonalInfo,
     PhysicalProfile,
-    FitnessGoals,
-    WorkoutSession,
     SessionExercise,
-    ExerciseSet,
+    WorkoutSession,
 )
 
 T = TypeVar("T")
@@ -163,7 +163,9 @@ class ClientBuilder(IBuilder):
         self._goal_notes = notes
         return self
 
-    def with_weight_loss_goal(self, target_weight_kg: float, target_date: Optional[datetime] = None) -> ClientBuilder:
+    def with_weight_loss_goal(
+        self, target_weight_kg: float, target_date: Optional[datetime] = None
+    ) -> ClientBuilder:
         """Set weight loss goal."""
         return self.with_goal(
             primary_goal="weight_loss",
@@ -171,7 +173,9 @@ class ClientBuilder(IBuilder):
             target_date=target_date,
         )
 
-    def with_muscle_gain_goal(self, target_weight_kg: float, target_date: Optional[datetime] = None) -> ClientBuilder:
+    def with_muscle_gain_goal(
+        self, target_weight_kg: float, target_date: Optional[datetime] = None
+    ) -> ClientBuilder:
         """Set muscle gain goal."""
         return self.with_goal(
             primary_goal="muscle_gain",
@@ -215,7 +219,14 @@ class ClientBuilder(IBuilder):
         )
 
         # Add physical profile if any physical data provided
-        if any([self._height_cm, self._weight_kg, self._body_fat_percentage, self._muscle_mass_kg]):
+        if any(
+            [
+                self._height_cm,
+                self._weight_kg,
+                self._body_fat_percentage,
+                self._muscle_mass_kg,
+            ]
+        ):
             physical_profile = PhysicalProfile(
                 height_cm=self._height_cm,
                 weight_kg=self._weight_kg,
@@ -328,8 +339,7 @@ class SessionBuilder(IBuilder):
     ) -> SessionBuilder:
         """Add a strength exercise with rep/weight pairs."""
         sets = [
-            ExerciseSet(reps=reps, weight_kg=weight_kg)
-            for reps, weight_kg in sets_data
+            ExerciseSet(reps=reps, weight_kg=weight_kg) for reps, weight_kg in sets_data
         ]
         return self.add_exercise(exercise_id, sets, notes)
 
@@ -494,13 +504,16 @@ class WorkoutPlanBuilder(IBuilder):
 
             for template in self._session_templates:
                 for day in range(template["days_per_week"]):
-                    session_date = week_start + timedelta(days=day * 2)  # Every other day
+                    session_date = week_start + timedelta(
+                        days=day * 2
+                    )  # Every other day
 
                     session_builder = SessionBuilder()
-                    session_builder = (session_builder
-                        .for_client(self._client_id)
+                    session_builder = (
+                        session_builder.for_client(self._client_id)
                         .named(f"{template['name']} - Week {week + 1}")
-                        .on_date(session_date))
+                        .on_date(session_date)
+                    )
 
                     # Add exercises from template
                     for exercise_data in template["exercises"]:
@@ -623,7 +636,9 @@ class NutritionPlanBuilder(IBuilder):
         """Add dinner meal."""
         return self.add_meal("Dinner", foods)
 
-    def add_snack(self, foods: List[Dict[str, Any]], snack_name: str = "Snack") -> NutritionPlanBuilder:
+    def add_snack(
+        self, foods: List[Dict[str, Any]], snack_name: str = "Snack"
+    ) -> NutritionPlanBuilder:
         """Add snack meal."""
         return self.add_meal(snack_name, foods)
 
@@ -636,13 +651,18 @@ class NutritionPlanBuilder(IBuilder):
 
         # Calculate macro targets if calories are provided
         macro_targets = None
-        if self._target_calories and all([
-            self._protein_percentage,
-            self._carb_percentage,
-            self._fat_percentage,
-        ]):
+        if self._target_calories and all(
+            [
+                self._protein_percentage,
+                self._carb_percentage,
+                self._fat_percentage,
+            ]
+        ):
             macro_targets = {
-                "protein_grams": (self._target_calories * self._protein_percentage / 100) / 4,
+                "protein_grams": (
+                    self._target_calories * self._protein_percentage / 100
+                )
+                / 4,
                 "carb_grams": (self._target_calories * self._carb_percentage / 100) / 4,
                 "fat_grams": (self._target_calories * self._fat_percentage / 100) / 9,
             }

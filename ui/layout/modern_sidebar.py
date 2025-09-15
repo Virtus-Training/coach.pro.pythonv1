@@ -19,13 +19,13 @@ class ModernSidebar(ctk.CTkFrame):
         parent,
         switch_page_callback: Callable,
         page_registry: Dict[str, Dict],
-        active_module: str = "dashboard"
+        active_module: str = "dashboard",
     ):
         super().__init__(
             parent,
             width=280,
             corner_radius=0,
-            fg_color=ctk.ThemeManager.theme["color"]["surface_dark"]
+            fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
         )
 
         self.switch_page_callback = switch_page_callback
@@ -56,11 +56,7 @@ class ModernSidebar(ctk.CTkFrame):
 
     def _create_header(self):
         """Crée la section header avec logo et titre."""
-        header_frame = ctk.CTkFrame(
-            self,
-            fg_color="transparent",
-            height=88
-        )
+        header_frame = ctk.CTkFrame(self, fg_color="transparent", height=88)
         header_frame.grid(row=0, column=0, sticky="ew", padx=12, pady=(12, 0))
         header_frame.grid_propagate(False)
 
@@ -71,10 +67,7 @@ class ModernSidebar(ctk.CTkFrame):
         try:
             logo = load_square_image("assets/Logo.png", 64)
             logo_label = ctk.CTkLabel(
-                logo_container,
-                image=logo,
-                text="",
-                cursor="hand2"
+                logo_container, image=logo, text="", cursor="hand2"
             )
             logo_label.pack(pady=(8, 6))
 
@@ -85,10 +78,7 @@ class ModernSidebar(ctk.CTkFrame):
         except Exception:
             # Fallback si logo introuvable
             fallback_logo = ctk.CTkLabel(
-                logo_container,
-                text="💪",
-                font=ctk.CTkFont(size=32),
-                cursor="hand2"
+                logo_container, text="💪", font=ctk.CTkFont(size=32), cursor="hand2"
             )
             fallback_logo.pack(pady=(8, 6))
 
@@ -97,7 +87,7 @@ class ModernSidebar(ctk.CTkFrame):
             logo_container,
             text="CoachPro",
             font=ctk.CTkFont(size=18, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         title_label.pack()
 
@@ -105,25 +95,20 @@ class ModernSidebar(ctk.CTkFrame):
             logo_container,
             text="Virtus Training",
             font=ctk.CTkFont(size=12),
-            text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
         )
         subtitle_label.pack()
 
         # Ligne décorative avec gradient
         divider = ctk.CTkFrame(
-            header_frame,
-            height=2,
-            fg_color=ctk.ThemeManager.theme["color"]["primary"]
+            header_frame, height=2, fg_color=ctk.ThemeManager.theme["color"]["primary"]
         )
         divider.pack(fill="x", pady=(8, 0), padx=8)
 
     def _create_navigation(self):
         """Crée la section de navigation principale."""
         # Utiliser une frame simple (pas de scroll interne) afin d'afficher tous les boutons
-        nav_frame = ctk.CTkFrame(
-            self,
-            fg_color="transparent"
-        )
+        nav_frame = ctk.CTkFrame(self, fg_color="transparent")
         nav_frame.grid(row=1, column=0, sticky="nsew", padx=12, pady=16)
 
         # Titre de section
@@ -132,13 +117,15 @@ class ModernSidebar(ctk.CTkFrame):
             text="NAVIGATION",
             font=ctk.CTkFont(size=10, weight="bold"),
             text_color=ctk.ThemeManager.theme["color"]["muted_text"],
-            anchor="w"
+            anchor="w",
         )
         section_title.pack(fill="x", padx=8, pady=(0, 12))
 
         # Création des boutons de navigation
         for item_id, data in self.page_registry.items():
-            button = self._create_nav_button(nav_frame, item_id, data["label"], data["icon"])
+            button = self._create_nav_button(
+                nav_frame, item_id, data["label"], data["icon"]
+            )
             self._button_map[item_id] = button
 
         # Spacer pour séparer les sections
@@ -148,7 +135,9 @@ class ModernSidebar(ctk.CTkFrame):
         # Section utilitaires (si nécessaire)
         self._create_utility_section(nav_frame)
 
-    def _create_nav_button(self, parent, item_id: str, label: str, icon_name: str) -> AnimatedButton:
+    def _create_nav_button(
+        self, parent, item_id: str, label: str, icon_name: str
+    ) -> AnimatedButton:
         """Crée un bouton de navigation moderne."""
         try:
             icon = load_icon(icon_name, 20)
@@ -168,7 +157,7 @@ class ModernSidebar(ctk.CTkFrame):
             text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
             font=ctk.CTkFont(size=14, weight="normal"),
             border_spacing=12,
-            command=lambda i=item_id: self._on_nav_click(i)
+            command=lambda i=item_id: self._on_nav_click(i),
         )
         button.pack(fill="x", padx=6, pady=2)
 
@@ -182,12 +171,14 @@ class ModernSidebar(ctk.CTkFrame):
             text="OUTILS",
             font=ctk.CTkFont(size=10, weight="bold"),
             text_color=ctk.ThemeManager.theme["color"]["muted_text"],
-            anchor="w"
+            anchor="w",
         )
         util_title.pack(fill="x", padx=8, pady=(16, 12))
 
         # Status indicator
-        status_card = GlassCard(parent, fg_color=ctk.ThemeManager.theme["color"]["surface_light"])
+        status_card = GlassCard(
+            parent, fg_color=ctk.ThemeManager.theme["color"]["surface_light"]
+        )
         status_card.pack(fill="x", padx=4, pady=2)
 
         status_frame = ctk.CTkFrame(status_card.content_frame, fg_color="transparent")
@@ -197,13 +188,11 @@ class ModernSidebar(ctk.CTkFrame):
             status_frame,
             text="Système",
             font=ctk.CTkFont(size=12, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         ).pack(anchor="w")
 
         status_indicator = StatusIndicator(
-            status_frame,
-            status="success",
-            text="Opérationnel"
+            status_frame, status="success", text="Opérationnel"
         )
         status_indicator.pack(anchor="w", pady=(4, 0))
 
@@ -213,7 +202,7 @@ class ModernSidebar(ctk.CTkFrame):
             self,
             fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
             corner_radius=16,
-            height=56
+            height=56,
         )
         user_frame.grid(row=3, column=0, sticky="ew", padx=12, pady=(0, 12))
         user_frame.grid_propagate(False)
@@ -236,7 +225,7 @@ class ModernSidebar(ctk.CTkFrame):
             text="👤" if not user_icon else "",
             image=user_icon,
             font=ctk.CTkFont(size=20),
-            text_color=ctk.ThemeManager.theme["color"]["primary"]
+            text_color=ctk.ThemeManager.theme["color"]["primary"],
         )
         avatar_label.pack(side="left", padx=(0, 12))
 
@@ -249,7 +238,7 @@ class ModernSidebar(ctk.CTkFrame):
             text="Coach Pro",
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color=ctk.ThemeManager.theme["color"]["primary_text"],
-            anchor="w"
+            anchor="w",
         )
         name_label.pack(anchor="w")
 
@@ -258,7 +247,7 @@ class ModernSidebar(ctk.CTkFrame):
             text="En ligne",
             font=ctk.CTkFont(size=11),
             text_color=ctk.ThemeManager.theme["color"]["success"],
-            anchor="w"
+            anchor="w",
         )
         status_label.pack(anchor="w")
 
@@ -271,7 +260,7 @@ class ModernSidebar(ctk.CTkFrame):
             fg_color="transparent",
             hover_color=ctk.ThemeManager.theme["color"]["surface_dark"],
             font=ctk.CTkFont(size=16, weight="bold"),
-            command=self._show_user_menu
+            command=self._show_user_menu,
         )
         menu_button.pack(side="right")
 
@@ -286,7 +275,7 @@ class ModernSidebar(ctk.CTkFrame):
             fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             hover_color=ctk.ThemeManager.theme["color"]["primary"],
             font=ctk.CTkFont(size=12, weight="bold"),
-            command=self._toggle_collapse
+            command=self._toggle_collapse,
         )
         # Positionner en haut à droite
         collapse_btn.place(relx=1.0, x=-12, y=12, anchor="ne")
@@ -305,7 +294,7 @@ class ModernSidebar(ctk.CTkFrame):
             old_button = self._button_map[self.active_module]
             old_button.configure(
                 fg_color="transparent",
-                text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+                text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
             )
 
         # Active le nouveau bouton avec animation
@@ -316,7 +305,7 @@ class ModernSidebar(ctk.CTkFrame):
             def highlight():
                 new_button.configure(
                     fg_color=ctk.ThemeManager.theme["color"]["primary"],
-                    text_color="white"
+                    text_color="white",
                 )
 
                 # Pulse effect

@@ -14,22 +14,21 @@ FAANG-level event processing with:
 from __future__ import annotations
 
 import asyncio
-import time
 import logging
-from typing import Any, Dict, List, Optional, Type, Callable, Awaitable, Union
-from dataclasses import dataclass, field
+import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
-from abc import ABC, abstractmethod
-from functools import wraps
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Type
 
+from core.event_store import AsyncEventStore, EventStatus
 from core.events import Event, IEventBus
-from core.event_store import AsyncEventStore, EventStatus, EventPriority
 from core.exceptions import (
-    EventHandlerError,
-    CircuitBreakerOpenError,
     BackpressureError,
-    EventOrderingError
+    CircuitBreakerOpenError,
+    EventHandlerError,
+    EventOrderingError,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 class HandlerStatus(Enum):
     """Event handler status states."""
+
     IDLE = "idle"
     PROCESSING = "processing"
     OVERLOADED = "overloaded"
@@ -48,6 +48,7 @@ class HandlerStatus(Enum):
 
 class RetryStrategy(Enum):
     """Retry strategy types."""
+
     EXPONENTIAL_BACKOFF = "exponential_backoff"
     FIXED_INTERVAL = "fixed_interval"
     LINEAR_BACKOFF = "linear_backoff"
@@ -98,7 +99,7 @@ class HandlerMetrics:
     total_processing_time_ms: float = 0.0
     avg_processing_time_ms: float = 0.0
     max_processing_time_ms: float = 0.0
-    min_processing_time_ms: float = float('inf')
+    min_processing_time_ms: float = float("inf")
 
     circuit_breaker_trips: int = 0
     backpressure_events: int = 0
@@ -169,8 +170,12 @@ class HandlerMetrics:
         if total_events > 0:
             self.avg_processing_time_ms = self.total_processing_time_ms / total_events
 
-        self.max_processing_time_ms = max(self.max_processing_time_ms, processing_time_ms)
-        self.min_processing_time_ms = min(self.min_processing_time_ms, processing_time_ms)
+        self.max_processing_time_ms = max(
+            self.max_processing_time_ms, processing_time_ms
+        )
+        self.min_processing_time_ms = min(
+            self.min_processing_time_ms, processing_time_ms
+        )
 
 
 class CircuitBreaker:
@@ -190,11 +195,11 @@ class CircuitBreaker:
                 self.state = "half-open"
                 self.half_open_calls = 0
             else:
-                raise CircuitBreakerOpenError(f"Circuit breaker is open")
+                raise CircuitBreakerOpenError("Circuit breaker is open")
 
         if self.state == "half-open":
             if self.half_open_calls >= self.config.half_open_max_calls:
-                raise CircuitBreakerOpenError(f"Half-open call limit exceeded")
+                raise CircuitBreakerOpenError("Half-open call limit exceeded")
             self.half_open_calls += 1
 
         try:
@@ -202,7 +207,7 @@ class CircuitBreaker:
             await self._on_success()
             return result
 
-        except Exception as e:
+        except Exception:
             await self._on_failure()
             raise
 
@@ -226,7 +231,9 @@ class CircuitBreaker:
         if not self.last_failure_time:
             return False
 
-        recovery_time = self.last_failure_time + timedelta(seconds=self.config.recovery_timeout_seconds)
+        recovery_time = self.last_failure_time + timedelta(
+            seconds=self.config.recovery_timeout_seconds
+        )
         return datetime.now() >= recovery_time
 
 
@@ -300,7 +307,7 @@ class RetryManager:
         non_retryable_errors = [
             EventOrderingError,
             ValueError,  # Business logic errors
-            TypeError    # Code errors
+            TypeError,  # Code errors
         ]
 
         return not any(isinstance(error, err_type) for err_type in non_retryable_errors)
@@ -315,7 +322,9 @@ class RetryManager:
             return min(delay_ms, self.config.max_retry_delay_ms) / 1000.0
 
         elif self.config.retry_strategy == RetryStrategy.EXPONENTIAL_BACKOFF:
-            delay_ms = self.config.initial_retry_delay_ms * (self.config.backoff_multiplier ** attempt)
+            delay_ms = self.config.initial_retry_delay_ms * (
+                self.config.backoff_multiplier**attempt
+            )
             return min(delay_ms, self.config.max_retry_delay_ms) / 1000.0
 
         return 0.0
@@ -351,16 +360,22 @@ class BaseEventHandler(IEventHandler):
         self.status = HandlerStatus.IDLE
 
         # Control systems
-        self.circuit_breaker = CircuitBreaker(self.config) if self.config.circuit_breaker_enabled else None
+        self.circuit_breaker = (
+            CircuitBreaker(self.config) if self.config.circuit_breaker_enabled else None
+        )
         self.backpressure_controller = BackpressureController(self.config)
         self.retry_manager = RetryManager(self.config)
 
         # Event queue for ordered processing
-        self.event_queue: asyncio.Queue = asyncio.Queue(maxsize=self.config.max_queue_size)
+        self.event_queue: asyncio.Queue = asyncio.Queue(
+            maxsize=self.config.max_queue_size
+        )
         self.processing_tasks: List[asyncio.Task] = []
 
         # Ordering support
-        self.ordering_controller = EventOrderingController() if self.config.preserve_order else None
+        self.ordering_controller = (
+            EventOrderingController() if self.config.preserve_order else None
+        )
 
     @property
     def handler_name(self) -> str:
@@ -381,13 +396,15 @@ class BaseEventHandler(IEventHandler):
             if self.config.preserve_order and self.ordering_controller:
                 ordering_key = self._get_ordering_key(event)
                 if ordering_key:
-                    lock = await self.ordering_controller.acquire_ordering_lock(ordering_key)
+                    lock = await self.ordering_controller.acquire_ordering_lock(
+                        ordering_key
+                    )
                     async with lock:
                         return await self._execute_with_retry(event, start_time)
 
             return await self._execute_with_retry(event, start_time)
 
-        except Exception as e:
+        except Exception:
             processing_time_ms = (time.perf_counter() - start_time) * 1000
             self.metrics.record_failure(processing_time_ms)
             raise
@@ -406,7 +423,9 @@ class BaseEventHandler(IEventHandler):
 
                 # Execute with circuit breaker if enabled
                 if self.circuit_breaker:
-                    result = await self.circuit_breaker.call(self._handle_with_timeout, event)
+                    result = await self.circuit_breaker.call(
+                        self._handle_with_timeout, event
+                    )
                 else:
                     result = await self._handle_with_timeout(event)
 
@@ -437,17 +456,20 @@ class BaseEventHandler(IEventHandler):
 
         # All retries exhausted
         self.metrics.record_dead_letter()
-        raise EventHandlerError(f"Handler {self.name} failed after {attempt} attempts: {last_error}") from last_error
+        raise EventHandlerError(
+            f"Handler {self.name} failed after {attempt} attempts: {last_error}"
+        ) from last_error
 
     async def _handle_with_timeout(self, event: Event) -> Any:
         """Execute handler with timeout."""
         try:
             return await asyncio.wait_for(
-                self.handle(event),
-                timeout=self.config.processing_timeout_seconds
+                self.handle(event), timeout=self.config.processing_timeout_seconds
             )
         except asyncio.TimeoutError:
-            raise EventHandlerError(f"Handler {self.name} timed out after {self.config.processing_timeout_seconds} seconds")
+            raise EventHandlerError(
+                f"Handler {self.name} timed out after {self.config.processing_timeout_seconds} seconds"
+            )
 
     def _get_ordering_key(self, event: Event) -> Optional[str]:
         """Extract ordering key from event."""
@@ -502,7 +524,9 @@ class BaseEventHandler(IEventHandler):
     def get_metrics(self) -> HandlerMetrics:
         """Get handler performance metrics."""
         self.metrics.queue_size = self.event_queue.qsize()
-        self.metrics.concurrent_processing = self.backpressure_controller.concurrent_processing
+        self.metrics.concurrent_processing = (
+            self.backpressure_controller.concurrent_processing
+        )
         return self.metrics
 
 
@@ -527,7 +551,9 @@ class EventHandlerRegistry:
             if handler_name in handler_names:
                 handler_names.remove(handler_name)
 
-    def register_event_mapping(self, event_type: Type[Event], handler_name: str) -> None:
+    def register_event_mapping(
+        self, event_type: Type[Event], handler_name: str
+    ) -> None:
         """Register mapping between event type and handler."""
         if event_type not in self._event_type_mappings:
             self._event_type_mappings[event_type] = []
@@ -572,7 +598,7 @@ class EventProcessor:
         self,
         event_store: AsyncEventStore,
         handler_registry: EventHandlerRegistry,
-        event_bus: Optional[IEventBus] = None
+        event_bus: Optional[IEventBus] = None,
     ):
         self.event_store = event_store
         self.handler_registry = handler_registry
@@ -614,8 +640,7 @@ class EventProcessor:
             try:
                 # Get pending events from store
                 events = await self.event_store.get_events(
-                    from_date=datetime.now() - timedelta(minutes=5),
-                    limit=100
+                    from_date=datetime.now() - timedelta(minutes=5), limit=100
                 )
 
                 for stored_event in events:
@@ -633,7 +658,6 @@ class EventProcessor:
         """Process a stored event through appropriate handlers."""
         try:
             # Deserialize event (simplified)
-            event_type = stored_event.metadata.event_type
             # This would require proper event type registry
             # event = self._deserialize_event(stored_event)
 
@@ -649,7 +673,9 @@ class EventProcessor:
             stored_event.metadata.processed_at = datetime.now()
 
         except Exception as e:
-            logger.error(f"Error processing stored event {stored_event.metadata.event_id}: {e}")
+            logger.error(
+                f"Error processing stored event {stored_event.metadata.event_id}: {e}"
+            )
             stored_event.metadata.status = EventStatus.FAILED
 
 
@@ -657,9 +683,10 @@ class EventProcessor:
 def event_handler(
     event_type: Type[Event],
     name: Optional[str] = None,
-    config: Optional[HandlerConfig] = None
+    config: Optional[HandlerConfig] = None,
 ):
     """Decorator to create event handlers from functions."""
+
     def decorator(func: Callable[[Event], Awaitable[Any]]):
         handler_name = name or f"{func.__name__}_handler"
 
@@ -685,11 +712,12 @@ class ClientEventHandler(BaseEventHandler):
     """Handler for client-related events."""
 
     def __init__(self):
-        super().__init__("client_handler", HandlerConfig(
-            max_concurrent_events=5,
-            preserve_order=True,
-            ordering_key="client_id"
-        ))
+        super().__init__(
+            "client_handler",
+            HandlerConfig(
+                max_concurrent_events=5, preserve_order=True, ordering_key="client_id"
+            ),
+        )
 
     async def handle(self, event: Event) -> Any:
         """Handle client events."""
@@ -699,7 +727,10 @@ class ClientEventHandler(BaseEventHandler):
         # Simulate processing
         await asyncio.sleep(0.1)
 
-        return {"status": "processed", "event_id": getattr(event, 'event_id', 'unknown')}
+        return {
+            "status": "processed",
+            "event_id": getattr(event, "event_id", "unknown"),
+        }
 
     def can_handle(self, event_type: Type[Event]) -> bool:
         """Check if this handler can handle the event type."""
@@ -710,11 +741,14 @@ class SessionEventHandler(BaseEventHandler):
     """Handler for session-related events."""
 
     def __init__(self):
-        super().__init__("session_handler", HandlerConfig(
-            max_concurrent_events=10,
-            circuit_breaker_enabled=True,
-            failure_threshold=3
-        ))
+        super().__init__(
+            "session_handler",
+            HandlerConfig(
+                max_concurrent_events=10,
+                circuit_breaker_enabled=True,
+                failure_threshold=3,
+            ),
+        )
 
     async def handle(self, event: Event) -> Any:
         """Handle session events."""
@@ -723,7 +757,10 @@ class SessionEventHandler(BaseEventHandler):
         # Simulate processing
         await asyncio.sleep(0.05)
 
-        return {"status": "processed", "event_id": getattr(event, 'event_id', 'unknown')}
+        return {
+            "status": "processed",
+            "event_id": getattr(event, "event_id", "unknown"),
+        }
 
     def can_handle(self, event_type: Type[Event]) -> bool:
         """Check if this handler can handle the event type."""

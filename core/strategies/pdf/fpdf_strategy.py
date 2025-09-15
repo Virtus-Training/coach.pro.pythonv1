@@ -6,18 +6,23 @@ Optimized for simple documents and emergency fallback.
 """
 
 import time
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 
 try:
     from fpdf import FPDF
+
     FPDF_AVAILABLE = True
 except ImportError:
     FPDF_AVAILABLE = False
 
 from ..base import BaseStrategy, StrategyConfig, StrategyPriority
 from .base import (
-    PDFStrategyContext, PDFStrategyResult, PDFGenerationContext,
-    PDFGenerationResult, PDFQualityMetrics, PDFQuality, PDFFormat, PDFComplexity
+    PDFComplexity,
+    PDFGenerationContext,
+    PDFGenerationResult,
+    PDFQualityMetrics,
+    PDFStrategyContext,
+    PDFStrategyResult,
 )
 
 
@@ -30,58 +35,65 @@ class CustomFPDF(FPDF):
 
     def header(self):
         """Page header"""
-        if hasattr(self, 'doc_title'):
-            self.set_font('Arial', 'B', 16)
-            self.cell(0, 10, self.doc_title, 0, 1, 'C')
+        if hasattr(self, "doc_title"):
+            self.set_font("Arial", "B", 16)
+            self.cell(0, 10, self.doc_title, 0, 1, "C")
             self.ln(10)
 
     def footer(self):
         """Page footer"""
         self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}", 0, 0, "C")
 
     def chapter_title(self, title: str):
         """Add chapter title"""
-        self.set_font('Arial', 'B', 14)
+        self.set_font("Arial", "B", 14)
         self.set_fill_color(52, 152, 219)
         self.set_text_color(255, 255, 255)
-        self.cell(0, 10, title, 0, 1, 'L', True)
+        self.cell(0, 10, title, 0, 1, "L", True)
         self.set_text_color(0, 0, 0)
         self.ln(5)
 
     def section_title(self, title: str):
         """Add section title"""
-        self.set_font('Arial', 'B', 12)
+        self.set_font("Arial", "B", 12)
         self.set_text_color(41, 128, 185)
-        self.cell(0, 8, title, 0, 1, 'L')
+        self.cell(0, 8, title, 0, 1, "L")
         self.set_text_color(0, 0, 0)
         self.ln(3)
 
     def body_text(self, text: str):
         """Add body text"""
-        self.set_font('Arial', '', 10)
+        self.set_font("Arial", "", 10)
         # Handle text wrapping
-        lines = text.split('\n')
+        lines = text.split("\n")
         for line in lines:
-            self.cell(0, 6, line.encode('latin-1', 'replace').decode('latin-1'), 0, 1, 'L')
+            self.cell(
+                0, 6, line.encode("latin-1", "replace").decode("latin-1"), 0, 1, "L"
+            )
 
-    def add_table(self, headers: List[str], data: List[List[str]], col_widths: Optional[List[int]] = None):
+    def add_table(
+        self,
+        headers: List[str],
+        data: List[List[str]],
+        col_widths: Optional[List[int]] = None,
+    ):
         """Add a table"""
         if not col_widths:
             col_widths = [190 // len(headers)] * len(headers)
 
         # Table header
-        self.set_font('Arial', 'B', 9)
+        self.set_font("Arial", "B", 9)
         self.set_fill_color(52, 152, 219)
         self.set_text_color(255, 255, 255)
 
         for i, header in enumerate(headers):
-            self.cell(col_widths[i], 8, header, 1, 0, 'C', True)
+            self.cell(col_widths[i], 8, header, 1, 0, "C", True)
         self.ln()
 
         # Table data
-        self.set_font('Arial', '', 9)
+        self.set_font("Arial", "", 9)
         self.set_text_color(0, 0, 0)
         fill = False
 
@@ -95,7 +107,7 @@ class CustomFPDF(FPDF):
                 if i < len(col_widths):
                     # Ensure text fits in cell
                     cell_text = str(cell)[:20]  # Truncate if too long
-                    self.cell(col_widths[i], 6, cell_text, 1, 0, 'C', True)
+                    self.cell(col_widths[i], 6, cell_text, 1, 0, "C", True)
             self.ln()
             fill = not fill
 
@@ -103,11 +115,13 @@ class CustomFPDF(FPDF):
         """Add highlighted text box"""
         self.set_fill_color(236, 240, 241)
         self.set_draw_color(189, 195, 199)
-        self.rect(self.get_x(), self.get_y(), 190, 15, 'DF')
+        self.rect(self.get_x(), self.get_y(), 190, 15, "DF")
 
-        self.set_font('Arial', '', 10)
+        self.set_font("Arial", "", 10)
         self.set_text_color(39, 174, 96)
-        self.cell(190, 15, text.encode('latin-1', 'replace').decode('latin-1'), 0, 1, 'L')
+        self.cell(
+            190, 15, text.encode("latin-1", "replace").decode("latin-1"), 0, 1, "L"
+        )
         self.set_text_color(0, 0, 0)
         self.ln(5)
 
@@ -131,7 +145,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
             priority=StrategyPriority.FALLBACK,
             timeout_seconds=20.0,
             cache_enabled=True,
-            cache_ttl_seconds=3600  # 1 hour
+            cache_ttl_seconds=3600,  # 1 hour
         )
         super().__init__(config)
 
@@ -146,9 +160,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
         """Execute PDF generation with FPDF"""
         if not self.available:
             return PDFStrategyResult(
-                data=None,
-                success=False,
-                error_message="FPDF library not available"
+                data=None, success=False, error_message="FPDF library not available"
             )
 
         start_time = time.time()
@@ -164,7 +176,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
             self._build_document_content(pdf, pdf_context)
 
             # Get PDF data
-            pdf_data = pdf.output(dest='S').encode('latin-1')
+            pdf_data = pdf.output(dest="S").encode("latin-1")
 
             # Calculate metrics
             generation_time = (time.time() - start_time) * 1000
@@ -174,7 +186,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 page_count=pdf.page_no(),
                 image_quality_score=50.0,  # Limited image support
                 text_readability_score=70.0,  # Basic typography
-                layout_consistency_score=75.0  # Simple but consistent
+                layout_consistency_score=75.0,  # Simple but consistent
             )
             quality_metrics.calculate_overall_score()
 
@@ -184,7 +196,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 quality_metrics=quality_metrics,
                 generation_engine="FPDF",
                 template_used=pdf_context.template.name,
-                success=True
+                success=True,
             )
 
             return PDFStrategyResult(
@@ -192,7 +204,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 success=True,
                 execution_time_ms=generation_time,
                 strategy_name=self.name,
-                strategy_version=self.version
+                strategy_version=self.version,
             )
 
         except Exception as e:
@@ -202,7 +214,7 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 success=False,
                 execution_time_ms=generation_time,
                 strategy_name=self.name,
-                error_message=f"FPDF PDF generation failed: {str(e)}"
+                error_message=f"FPDF PDF generation failed: {str(e)}",
             )
 
     def _build_document_content(self, pdf: CustomFPDF, context: PDFGenerationContext):
@@ -222,162 +234,178 @@ class FPDFStrategy(BaseStrategy[PDFGenerationContext]):
         else:
             self._build_generic_document(pdf, data, context)
 
-    def _build_workout_document(self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext):
+    def _build_workout_document(
+        self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext
+    ):
         """Build workout session document"""
         # Title
-        title = data.get('title', 'Séance d\'Entraînement')
+        title = data.get("title", "Séance d'Entraînement")
         pdf.chapter_title(title)
 
         # Session info
-        session_info = data.get('session_info', {})
+        session_info = data.get("session_info", {})
         if session_info:
             pdf.section_title("Informations de la séance")
 
-            info_text = f"""Date: {session_info.get('date', 'N/A')}
-Durée: {session_info.get('duration', 'N/A')} minutes
-Type: {session_info.get('type', 'N/A')}
-Coach: {session_info.get('coach', 'N/A')}"""
+            info_text = f"""Date: {session_info.get("date", "N/A")}
+Durée: {session_info.get("duration", "N/A")} minutes
+Type: {session_info.get("type", "N/A")}
+Coach: {session_info.get("coach", "N/A")}"""
 
             pdf.body_text(info_text)
             pdf.ln(10)
 
         # Exercises
-        exercises = data.get('exercises', [])
+        exercises = data.get("exercises", [])
         if exercises:
             pdf.section_title("Exercices")
 
             for i, exercise in enumerate(exercises, 1):
-                exercise_name = exercise.get('name', 'Exercice sans nom')
-                pdf.set_font('Arial', 'B', 11)
-                pdf.cell(0, 8, f"{i}. {exercise_name}", 0, 1, 'L')
+                exercise_name = exercise.get("name", "Exercice sans nom")
+                pdf.set_font("Arial", "B", 11)
+                pdf.cell(0, 8, f"{i}. {exercise_name}", 0, 1, "L")
 
-                sets = exercise.get('sets', [])
+                sets = exercise.get("sets", [])
                 if sets:
                     # Create sets table
-                    headers = ['Série', 'Reps', 'Poids', 'Repos']
+                    headers = ["Série", "Reps", "Poids", "Repos"]
                     table_data = []
 
                     for j, set_data in enumerate(sets, 1):
-                        table_data.append([
-                            str(j),
-                            str(set_data.get('reps', '-')),
-                            str(set_data.get('weight', '-')),
-                            str(set_data.get('rest', '-'))
-                        ])
+                        table_data.append(
+                            [
+                                str(j),
+                                str(set_data.get("reps", "-")),
+                                str(set_data.get("weight", "-")),
+                                str(set_data.get("rest", "-")),
+                            ]
+                        )
 
                     pdf.add_table(headers, table_data, [30, 40, 40, 40])
 
                 # Exercise notes
-                notes = exercise.get('notes', '')
+                notes = exercise.get("notes", "")
                 if notes:
                     pdf.ln(3)
-                    pdf.set_font('Arial', 'I', 9)
-                    pdf.cell(0, 6, f"Notes: {notes[:100]}", 0, 1, 'L')  # Truncate long notes
+                    pdf.set_font("Arial", "I", 9)
+                    pdf.cell(
+                        0, 6, f"Notes: {notes[:100]}", 0, 1, "L"
+                    )  # Truncate long notes
 
                 pdf.ln(8)
 
         # Coach notes
-        notes = data.get('notes', '')
+        notes = data.get("notes", "")
         if notes:
             pdf.section_title("Notes du Coach")
             pdf.add_highlight_box(notes[:200])  # Truncate if too long
 
-    def _build_nutrition_document(self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext):
+    def _build_nutrition_document(
+        self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext
+    ):
         """Build nutrition plan document"""
         # Title
-        title = data.get('title', 'Plan Nutritionnel')
+        title = data.get("title", "Plan Nutritionnel")
         pdf.chapter_title(title)
 
         # Client info
-        client_info = data.get('client_info', {})
+        client_info = data.get("client_info", {})
         if client_info:
             pdf.section_title("Informations Client")
 
-            info_text = f"""Nom: {client_info.get('first_name', '')} {client_info.get('last_name', '')}
-Objectif: {client_info.get('goal', 'N/A')}
-Calories: {client_info.get('target_calories', 'N/A')} kcal/jour
-Protéines: {client_info.get('target_protein', 'N/A')} g/jour
-Glucides: {client_info.get('target_carbs', 'N/A')} g/jour
-Lipides: {client_info.get('target_fats', 'N/A')} g/jour"""
+            info_text = f"""Nom: {client_info.get("first_name", "")} {client_info.get("last_name", "")}
+Objectif: {client_info.get("goal", "N/A")}
+Calories: {client_info.get("target_calories", "N/A")} kcal/jour
+Protéines: {client_info.get("target_protein", "N/A")} g/jour
+Glucides: {client_info.get("target_carbs", "N/A")} g/jour
+Lipides: {client_info.get("target_fats", "N/A")} g/jour"""
 
             pdf.body_text(info_text)
             pdf.ln(10)
 
         # Meals
-        meals = data.get('meals', [])
+        meals = data.get("meals", [])
         if meals:
             pdf.section_title("Plan Alimentaire")
 
             for meal in meals:
-                meal_name = meal.get('name', 'Repas')
-                meal_time = meal.get('time', '')
+                meal_name = meal.get("name", "Repas")
+                meal_time = meal.get("time", "")
 
                 header_text = meal_name
                 if meal_time:
                     header_text += f" - {meal_time}"
 
-                pdf.set_font('Arial', 'B', 11)
-                pdf.cell(0, 8, header_text, 0, 1, 'L')
+                pdf.set_font("Arial", "B", 11)
+                pdf.cell(0, 8, header_text, 0, 1, "L")
 
-                foods = meal.get('foods', [])
+                foods = meal.get("foods", [])
                 if foods:
                     # Simplified food table
-                    headers = ['Aliment', 'Quantité', 'Cal', 'Prot']
+                    headers = ["Aliment", "Quantité", "Cal", "Prot"]
                     food_data = []
 
                     total_calories = 0
                     total_protein = 0
 
                     for food in foods[:5]:  # Limit to 5 foods per meal
-                        calories = food.get('calories', 0)
-                        protein = food.get('protein', 0)
+                        calories = food.get("calories", 0)
+                        protein = food.get("protein", 0)
 
-                        food_data.append([
-                            food.get('name', '')[:15],  # Truncate name
-                            food.get('quantity', '')[:10],
-                            str(calories),
-                            str(protein)
-                        ])
+                        food_data.append(
+                            [
+                                food.get("name", "")[:15],  # Truncate name
+                                food.get("quantity", "")[:10],
+                                str(calories),
+                                str(protein),
+                            ]
+                        )
 
                         total_calories += calories
                         total_protein += protein
 
                     # Add totals
-                    food_data.append(['TOTAL', '', str(total_calories), str(total_protein)])
+                    food_data.append(
+                        ["TOTAL", "", str(total_calories), str(total_protein)]
+                    )
 
                     pdf.add_table(headers, food_data, [80, 40, 30, 30])
 
                 pdf.ln(8)
 
-    def _build_progress_document(self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext):
+    def _build_progress_document(
+        self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext
+    ):
         """Build progress report document"""
         # Title
-        title = data.get('title', 'Rapport de Progression')
+        title = data.get("title", "Rapport de Progression")
         pdf.chapter_title(title)
 
         # Metrics
-        metrics = data.get('metrics', {})
+        metrics = data.get("metrics", {})
         if metrics:
             pdf.section_title("Métriques de Progression")
 
             # Display metrics in a simple format
             for key, value in list(metrics.items())[:10]:  # Limit to 10 metrics
-                formatted_key = key.replace('_', ' ').title()
+                formatted_key = key.replace("_", " ").title()
                 pdf.body_text(f"{formatted_key}: {value}")
 
             pdf.ln(10)
 
-    def _build_generic_document(self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext):
+    def _build_generic_document(
+        self, pdf: CustomFPDF, data: Dict[str, Any], context: PDFGenerationContext
+    ):
         """Build generic document"""
         # Title
-        title = data.get('title', 'Document')
+        title = data.get("title", "Document")
         pdf.chapter_title(title)
 
         # Sections
-        sections = data.get('sections', [])
+        sections = data.get("sections", [])
         for section in sections[:5]:  # Limit to 5 sections
-            section_title = section.get('title', '')
-            section_content = section.get('content', '')
+            section_title = section.get("title", "")
+            section_content = section.get("content", "")
 
             if section_title:
                 pdf.section_title(section_title)
@@ -408,7 +436,9 @@ Lipides: {client_info.get('target_fats', 'N/A')} g/jour"""
 
         # FPDF works best with simple content
         if pdf_context.complexity == PDFComplexity.ADVANCED:
-            errors.append("FPDF strategy is not suitable for advanced complexity documents")
+            errors.append(
+                "FPDF strategy is not suitable for advanced complexity documents"
+            )
 
         return errors
 

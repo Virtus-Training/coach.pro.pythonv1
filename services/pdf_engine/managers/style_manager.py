@@ -18,7 +18,9 @@ class StyleManager:
     """
 
     def __init__(self, config_path: Optional[str] = None):
-        self.config_path = Path(config_path) if config_path else self._get_default_config_path()
+        self.config_path = (
+            Path(config_path) if config_path else self._get_default_config_path()
+        )
         self.themes = self._load_themes()
         self.brand_settings = self._load_brand_settings()
 
@@ -216,7 +218,7 @@ class StyleManager:
         """Load themes from configuration file"""
         if self.config_path.exists():
             try:
-                with open(self.config_path, 'r') as f:
+                with open(self.config_path, "r") as f:
                     return json.load(f)
             except Exception:
                 pass
@@ -226,7 +228,7 @@ class StyleManager:
     def _save_themes(self) -> None:
         """Save themes to configuration file"""
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, "w") as f:
             json.dump(self.themes, f, indent=2)
 
     def _load_brand_settings(self) -> Dict[str, Any]:
@@ -234,7 +236,7 @@ class StyleManager:
         brand_path = self.config_path.parent / "brand_settings.json"
         if brand_path.exists():
             try:
-                with open(brand_path, 'r') as f:
+                with open(brand_path, "r") as f:
                     return json.load(f)
             except Exception:
                 pass
@@ -242,7 +244,12 @@ class StyleManager:
 
     def _get_default_config_path(self) -> Path:
         """Get default configuration path"""
-        return Path(__file__).parent.parent.parent.parent / "data" / "config" / "pdf_themes.json"
+        return (
+            Path(__file__).parent.parent.parent.parent
+            / "data"
+            / "config"
+            / "pdf_themes.json"
+        )
 
     def _get_default_themes(self) -> Dict[str, Any]:
         """Get default theme configurations"""

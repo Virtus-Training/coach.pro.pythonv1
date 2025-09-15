@@ -21,7 +21,12 @@ from services.workout_config_service import WorkoutConfigService
 class SmartWorkoutGenerator:
     """Générateur de séances avec intelligence métier avancée."""
 
-    def __init__(self, exercise_service=None, config_service: Optional[WorkoutConfigService] = None, exercise_repo: Optional[ExerciseRepository] = None):
+    def __init__(
+        self,
+        exercise_service=None,
+        config_service: Optional[WorkoutConfigService] = None,
+        exercise_repo: Optional[ExerciseRepository] = None,
+    ):
         self.config_service = config_service or WorkoutConfigService()
         self.repo = exercise_repo or ExerciseRepository()
         self.exercise_service = exercise_service
@@ -38,10 +43,10 @@ class SmartWorkoutGenerator:
 
         # Obtenir recommandations basées sur historique
         context = {
-            'course_type': smart_params['course_type'],
-            'format': smart_params.get('primary_format', 'AMRAP'),
-            'duration': smart_params['duration_min'],
-            'equipment': smart_params.get('equipment', []),
+            "course_type": smart_params["course_type"],
+            "format": smart_params.get("primary_format", "AMRAP"),
+            "duration": smart_params["duration_min"],
+            "equipment": smart_params.get("equipment", []),
         }
         recommendations = self.config_service.get_smart_recommendations(context)
 
@@ -49,16 +54,20 @@ class SmartWorkoutGenerator:
         pool = self._build_intelligent_exercise_pool(smart_params, recommendations)
 
         if not pool:
-            raise ValueError("Impossible de générer une séance : pool d'exercices insuffisant.")
+            raise ValueError(
+                "Impossible de générer une séance : pool d'exercices insuffisant."
+            )
 
         # Configurer randomisation
-        variabilite = smart_params.get('variabilite', 50)
+        variabilite = smart_params.get("variabilite", 50)
         seed = 42 if variabilite <= 10 else int(time.time())
         rng = random.Random(seed)
         entropy = self._calculate_entropy(variabilite)
 
         # Générer structure de séance avec règles métier
-        session_structure = self._design_smart_session_structure(smart_params, rng, entropy)
+        session_structure = self._design_smart_session_structure(
+            smart_params, rng, entropy
+        )
 
         # Construire blocs avec contraintes physiologiques
         blocks = self._build_physiological_blocks(
@@ -102,7 +111,9 @@ class SmartWorkoutGenerator:
                 smart_params["variabilite"] = 50
         if "continuum" in smart_params and "continuum_cardio_renfo" not in smart_params:
             try:
-                smart_params["continuum_cardio_renfo"] = int(smart_params.get("continuum", 0))
+                smart_params["continuum_cardio_renfo"] = int(
+                    smart_params.get("continuum", 0)
+                )
             except Exception:
                 smart_params["continuum_cardio_renfo"] = 0
         if "objective" in smart_params and "objectif" not in smart_params:
@@ -127,9 +138,15 @@ class SmartWorkoutGenerator:
         smart_params["intensity_numeric"] = intensity_map.get(intensity, 6)
 
         # Formats enabled avec validation
-        enabled_formats = smart_params.get("enabled_formats", smart_params.get("formats", []))
-        allowed_formats = self._get_allowed_formats_for_course(smart_params["course_type"])
-        smart_params["validated_formats"] = [f for f in enabled_formats if f in allowed_formats] or allowed_formats
+        enabled_formats = smart_params.get(
+            "enabled_formats", smart_params.get("formats", [])
+        )
+        allowed_formats = self._get_allowed_formats_for_course(
+            smart_params["course_type"]
+        )
+        smart_params["validated_formats"] = [
+            f for f in enabled_formats if f in allowed_formats
+        ] or allowed_formats
 
         # Équipement disponible
         equipment = smart_params.get("equipment", [])
@@ -144,10 +161,12 @@ class SmartWorkoutGenerator:
         """Construit un pool d'exercices avec pondération intelligente."""
 
         config = self.config_service.get_config()
-        restrictions = self.config_service.get_exercise_restrictions_for_generation()
+        self.config_service.get_exercise_restrictions_for_generation()
 
         # Filtrage initial
-        equipment = params.get("equipment", [])  # Corrigé : utiliser la clé correcte du formulaire
+        equipment = params.get(
+            "equipment", []
+        )  # Corrigé : utiliser la clé correcte du formulaire
         course_type = params.get("course_type", "Cross-Training")
 
         self.logger.info(f"Filtrage avec équipement: {equipment}")
@@ -158,11 +177,15 @@ class SmartWorkoutGenerator:
         # Récupérer exercices depuis repo
         exercises = self.repo.filter(equipment=equipment, tags=course_tags)
 
-        self.logger.info(f"Exercices trouvés avec équipement {equipment}: {len(exercises)}")
+        self.logger.info(
+            f"Exercices trouvés avec équipement {equipment}: {len(exercises)}"
+        )
 
         # Si pas d'exercices avec l'équipement spécifique, fallback plus intelligent
         if not exercises and equipment:
-            self.logger.info("Peu d'exercices avec l'équipement spécifié, ajout du poids du corps")
+            self.logger.info(
+                "Peu d'exercices avec l'équipement spécifié, ajout du poids du corps"
+            )
             # Ajouter "Poids du corps" si pas déjà présent
             extended_equipment = equipment.copy()
             if "Poids du corps" not in extended_equipment:
@@ -170,11 +193,15 @@ class SmartWorkoutGenerator:
             exercises = self.repo.filter(equipment=extended_equipment, tags=course_tags)
 
         if not exercises:
-            self.logger.info("Aucun exercice avec équipement étendu, fallback vers tags uniquement")
+            self.logger.info(
+                "Aucun exercice avec équipement étendu, fallback vers tags uniquement"
+            )
             exercises = self.repo.filter(tags=course_tags)
 
         if not exercises:
-            self.logger.info("Aucun exercice avec tags, utilisation de tous les exercices")
+            self.logger.info(
+                "Aucun exercice avec tags, utilisation de tous les exercices"
+            )
             exercises = self.repo.list_all()
 
         # Filtrer selon restrictions
@@ -182,11 +209,15 @@ class SmartWorkoutGenerator:
         user_level = params.get("user_level", "beginner")
 
         for ex in exercises:
-            if self.config_service.validate_exercise_for_context(ex.nom, course_type, user_level):
+            if self.config_service.validate_exercise_for_context(
+                ex.nom, course_type, user_level
+            ):
                 valid_exercises.append(ex)
 
         if not valid_exercises:
-            self.logger.info("Aucun exercice valide trouvé après validation, utilisation du pool complet")
+            self.logger.info(
+                "Aucun exercice valide trouvé après validation, utilisation du pool complet"
+            )
             # Fallback amélioré respectant l'équipement
             if equipment:
                 # Essayer d'abord avec l'équipement demandé
@@ -199,7 +230,9 @@ class SmartWorkoutGenerator:
                 if fallback_exercises:
                     valid_exercises = fallback_exercises[:50]
                 else:
-                    self.logger.warning("Impossible de respecter l'équipement, utilisation pool complet")
+                    self.logger.warning(
+                        "Impossible de respecter l'équipement, utilisation pool complet"
+                    )
                     valid_exercises = self.repo.list_all()[:50]
             else:
                 valid_exercises = self.repo.list_all()[:50]
@@ -207,14 +240,18 @@ class SmartWorkoutGenerator:
         # Pondération intelligente
         weighted_pool = []
         for ex in valid_exercises:
-            weight = self._calculate_intelligent_weight(ex, params, recommendations, config)
+            weight = self._calculate_intelligent_weight(
+                ex, params, recommendations, config
+            )
             if weight > 0.1:  # Seuil minimal
                 weighted_pool.append((ex, weight))
 
         # Trier par poids décroissant
         weighted_pool.sort(key=lambda x: x[1], reverse=True)
 
-        self.logger.info(f"Pool d'exercices construit: {len(weighted_pool)} exercices valides")
+        self.logger.info(
+            f"Pool d'exercices construit: {len(weighted_pool)} exercices valides"
+        )
         return weighted_pool
 
     def _calculate_intelligent_weight(
@@ -222,22 +259,26 @@ class SmartWorkoutGenerator:
         exercise: Exercise,
         params: Dict[str, Any],
         recommendations: Dict[str, Any],
-        config
+        config,
     ) -> float:
         """Calcule un poids intelligent pour un exercice selon contexte."""
 
         weight = 1.0
         ex_tags = [t.strip().lower() for t in (exercise.tags or "").split(",")]
         pattern = (exercise.movement_pattern or "").lower()
-        muscle_group = (exercise.groupe_musculaire_principal or "").lower()
+        (exercise.groupe_musculaire_principal or "").lower()
 
         # === BONUS SELON OBJECTIF ===
         objectif = (params.get("objectif") or "").lower()
         if objectif in ["force", "strength"] and exercise.est_chargeable:
             weight *= 1.4
-        elif objectif in ["cardio", "conditioning"] and any(tag in ex_tags for tag in ["cardio", "conditioning"]):
+        elif objectif in ["cardio", "conditioning"] and any(
+            tag in ex_tags for tag in ["cardio", "conditioning"]
+        ):
             weight *= 1.3
-        elif objectif in ["technique", "skill"] and any(tag in ex_tags for tag in ["technique", "skill"]):
+        elif objectif in ["technique", "skill"] and any(
+            tag in ex_tags for tag in ["technique", "skill"]
+        ):
             weight *= 1.2
 
         # === BONUS SELON CONTINUUM CARDIO-RENFO ===
@@ -280,7 +321,7 @@ class SmartWorkoutGenerator:
         if exercise.nom in limited_freq:
             # Réduire poids selon restriction (0.3 = 30% max -> poids * 0.7)
             freq_limit = limited_freq[exercise.nom]
-            weight *= (1 - freq_limit + 0.1)  # +0.1 pour éviter poids = 0
+            weight *= 1 - freq_limit + 0.1  # +0.1 pour éviter poids = 0
 
         # === BONUS SELON RECOMMANDATIONS HISTORIQUES ===
         suggested = recommendations.get("suggested_exercises", [])
@@ -321,17 +362,21 @@ class SmartWorkoutGenerator:
                 elif dur_min >= 20:
                     items = max(3, min(base_items + 1, 5))  # Séances longues: 3-5 exos
                 else:
-                    items = max(2, min(base_items, 5))      # Séances normales: 2-5 selon format
+                    items = max(
+                        2, min(base_items, 5)
+                    )  # Séances normales: 2-5 selon format
                 # Calculer rounds intelligemment selon le format et la durée
                 rounds = self._calculate_intelligent_rounds(fmt, dur_min, items)
 
-                smart_structure.append({
-                    "slot": "custom",
-                    "type": fmt,
-                    "duration_sec": max(60, dur_min * 60),
-                    "items": items,
-                    "rounds": rounds,
-                })
+                smart_structure.append(
+                    {
+                        "slot": "custom",
+                        "type": fmt,
+                        "duration_sec": max(60, dur_min * 60),
+                        "items": items,
+                        "rounds": rounds,
+                    }
+                )
             return smart_structure
 
         duration_min = params["duration_min"]
@@ -349,7 +394,7 @@ class SmartWorkoutGenerator:
         include_mapping = {
             "Échauffement": "warmup",
             "Finisher": "finisher",
-            "Retour au calme": "cooldown"
+            "Retour au calme": "cooldown",
         }
 
         for slot in base_template:
@@ -377,7 +422,7 @@ class SmartWorkoutGenerator:
                 smart_slot["rounds"] = self._calculate_intelligent_rounds(
                     smart_slot.get("type", "Circuit"),
                     smart_slot["duration_sec"] // 60,
-                    smart_slot["items"]
+                    smart_slot["items"],
                 )
 
             # === AMÉLIORATION MAIN ===
@@ -389,7 +434,9 @@ class SmartWorkoutGenerator:
                 smart_slot["type"] = optimal_format
 
                 # Ajuster nombre d'exercices selon format
-                format_rules = self.config_service.get_config().format_rules.get(optimal_format, {})
+                format_rules = self.config_service.get_config().format_rules.get(
+                    optimal_format, {}
+                )
                 base_items = format_rules.get("optimal_exercises", 4)
 
                 # Ajustement intelligent 2-5 exercices selon durée et format
@@ -398,13 +445,21 @@ class SmartWorkoutGenerator:
                 if optimal_format == "TABATA":
                     items = 1  # Tabata reste à 1 exercice
                 elif optimal_format == "AMRAP":
-                    items = max(3, min(5, 3 + (slot_duration_min // 8)))  # 3-5 selon durée
+                    items = max(
+                        3, min(5, 3 + (slot_duration_min // 8))
+                    )  # 3-5 selon durée
                 elif optimal_format == "EMOM":
-                    items = max(2, min(4, 2 + (slot_duration_min // 6)))  # 2-4 pour EMOM
+                    items = max(
+                        2, min(4, 2 + (slot_duration_min // 6))
+                    )  # 2-4 pour EMOM
                 elif optimal_format == "For Time":
-                    items = max(3, min(5, 4 + (slot_duration_min // 10))) # 3-5 pour For Time
+                    items = max(
+                        3, min(5, 4 + (slot_duration_min // 10))
+                    )  # 3-5 pour For Time
                 elif optimal_format == "Skill":
-                    items = max(1, min(3, 1 + (slot_duration_min // 5)))  # 1-3 pour Skill
+                    items = max(
+                        1, min(3, 1 + (slot_duration_min // 5))
+                    )  # 1-3 pour Skill
                 else:
                     items = max(2, min(5, base_items))  # 2-5 par défaut
 
@@ -419,13 +474,12 @@ class SmartWorkoutGenerator:
                 smart_slot["rounds"] = self._calculate_intelligent_rounds(
                     optimal_format,
                     smart_slot["duration_sec"] // 60,
-                    smart_slot["items"]
+                    smart_slot["items"],
                 )
 
             # === AMÉLIORATION FINISHER ===
             elif slot.get("slot") == "finisher":
                 # Choisir format finisher approprié
-                finisher_formats = ["Tabata", "EMOM", "Max Effort"]
                 if entropy >= 0.3 and "Tabata" in validated_formats:
                     smart_slot["type"] = "Tabata"
                 elif "EMOM" in validated_formats:
@@ -442,7 +496,7 @@ class SmartWorkoutGenerator:
                 smart_slot["rounds"] = self._calculate_intelligent_rounds(
                     smart_slot["type"],
                     smart_slot["duration_sec"] // 60,
-                    smart_slot["items"]
+                    smart_slot["items"],
                 )
 
             smart_structure.append(smart_slot)
@@ -455,7 +509,7 @@ class SmartWorkoutGenerator:
         course_type: str,
         params: Dict[str, Any],
         rng: random.Random,
-        entropy: float
+        entropy: float,
     ) -> str:
         """Choisit le format optimal selon le contexte."""
 
@@ -520,7 +574,7 @@ class SmartWorkoutGenerator:
         rng: random.Random,
         entropy: float,
         params: Dict[str, Any],
-        recommendations: Dict[str, Any]
+        recommendations: Dict[str, Any],
     ) -> List[Block]:
         """Construit des blocs avec contraintes physiologiques."""
 
@@ -534,9 +588,16 @@ class SmartWorkoutGenerator:
 
         for slot in structure:
             block = self._build_physiological_block(
-                slot, pool, rng, entropy, params,
-                used_exercises, muscle_usage_count, last_patterns,
-                physiological_rules, recommendations
+                slot,
+                pool,
+                rng,
+                entropy,
+                params,
+                used_exercises,
+                muscle_usage_count,
+                last_patterns,
+                physiological_rules,
+                recommendations,
             )
             blocks.append(block)
 
@@ -567,7 +628,7 @@ class SmartWorkoutGenerator:
         muscle_usage_count: defaultdict,
         last_patterns: List[str],
         physiological_rules: Dict[str, Any],
-        recommendations: Dict[str, Any]
+        recommendations: Dict[str, Any],
     ) -> Block:
         """Construit un bloc avec contraintes physiologiques avancées."""
 
@@ -581,7 +642,9 @@ class SmartWorkoutGenerator:
         slot_focus = slot.get("focus", "general")
 
         # Contraintes physiologiques
-        max_consecutive = physiological_rules["fatigue_management"]["max_consecutive_high_intensity"]
+        max_consecutive = physiological_rules["fatigue_management"][
+            "max_consecutive_high_intensity"
+        ]
 
         selected_exercises = []
         consecutive_high_intensity = 0
@@ -589,9 +652,14 @@ class SmartWorkoutGenerator:
         for i in range(n_items):
             # Construire pool candidat avec contraintes
             candidate_pool = self._build_candidate_pool(
-                pool, slot_focus, used_exercises, muscle_usage_count,
-                last_patterns, consecutive_high_intensity, max_consecutive,
-                physiological_rules
+                pool,
+                slot_focus,
+                used_exercises,
+                muscle_usage_count,
+                last_patterns,
+                consecutive_high_intensity,
+                max_consecutive,
+                physiological_rules,
             )
 
             if not candidate_pool:
@@ -599,8 +667,12 @@ class SmartWorkoutGenerator:
                 candidate_pool = pool
 
             # Sélection avec entropy et anti-répétition
-            used_exercise_names = {ex.nom for ex in selected_exercises}  # Exercices déjà dans ce bloc
-            exercise = self._weighted_choice_entropy(rng, candidate_pool, entropy, used_exercise_names)
+            used_exercise_names = {
+                ex.nom for ex in selected_exercises
+            }  # Exercices déjà dans ce bloc
+            exercise = self._weighted_choice_entropy(
+                rng, candidate_pool, entropy, used_exercise_names
+            )
             selected_exercises.append(exercise)
 
             # Mise Ã  jour des contraintes pour prochaine itération
@@ -622,10 +694,9 @@ class SmartWorkoutGenerator:
                 exercise, slot, params, recommendations
             )
 
-            block.items.append(BlockItem(
-                exercise_id=exercise.id,
-                prescription=prescription
-            ))
+            block.items.append(
+                BlockItem(exercise_id=exercise.id, prescription=prescription)
+            )
 
         return block
 
@@ -638,7 +709,7 @@ class SmartWorkoutGenerator:
         last_patterns: List[str],
         consecutive_high_intensity: int,
         max_consecutive: int,
-        physiological_rules: Dict[str, Any]
+        physiological_rules: Dict[str, Any],
     ) -> List[Tuple[Exercise, float]]:
         """Construit un pool de candidats selon contraintes physiologiques."""
 
@@ -663,15 +734,21 @@ class SmartWorkoutGenerator:
 
             # Gestion fatigue/intensité
             ex_tags = [t.strip().lower() for t in (exercise.tags or "").split(",")]
-            is_high_intensity = any(tag in ex_tags for tag in ["high_intensity", "explosive", "cardio"])
+            is_high_intensity = any(
+                tag in ex_tags for tag in ["high_intensity", "explosive", "cardio"]
+            )
 
             if consecutive_high_intensity >= max_consecutive and is_high_intensity:
                 weight *= 0.1  # Éviter surcharge
 
             # Bonus selon focus du slot
-            if slot_focus == "activation" and any(tag in ex_tags for tag in ["mobility", "activation"]):
+            if slot_focus == "activation" and any(
+                tag in ex_tags for tag in ["mobility", "activation"]
+            ):
                 weight *= 1.3
-            elif slot_focus == "metabolic" and any(tag in ex_tags for tag in ["cardio", "metabolic"]):
+            elif slot_focus == "metabolic" and any(
+                tag in ex_tags for tag in ["cardio", "metabolic"]
+            ):
                 weight *= 1.4
 
             if weight > 0.05:  # Seuil minimal
@@ -684,7 +761,7 @@ class SmartWorkoutGenerator:
         exercise: Exercise,
         slot: Dict[str, Any],
         params: Dict[str, Any],
-        recommendations: Dict[str, Any]
+        recommendations: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Crée une prescription intelligente pour l'exercice."""
 
@@ -733,15 +810,17 @@ class SmartWorkoutGenerator:
             # Pour le travail technique, privilégier la qualité
             prescription = {
                 "reps": max(3, min(8, final_reps - 3)),  # Moins de reps pour la qualité
-                "rest_sec": max(60, base_rest * 2),      # Plus de repos pour récupération
-                "focus": "qualité",                     # Indication spéciale
+                "rest_sec": max(60, base_rest * 2),  # Plus de repos pour récupération
+                "focus": "qualité",  # Indication spéciale
             }
         else:
             prescription = {"reps": final_reps}
 
         # Ajouts spéciaux pour exercices chargés
         if exercise.est_chargeable:
-            prescription["weight_suggestion"] = self._suggest_weight_percentage(exercise, intensity)
+            prescription["weight_suggestion"] = self._suggest_weight_percentage(
+                exercise, intensity
+            )
 
         return prescription
 
@@ -756,7 +835,9 @@ class SmartWorkoutGenerator:
         else:
             return "moderate"
 
-    def _calculate_smart_rest(self, intensity: int, exercise: Exercise, timing_rules: Dict[str, Any]) -> int:
+    def _calculate_smart_rest(
+        self, intensity: int, exercise: Exercise, timing_rules: Dict[str, Any]
+    ) -> int:
         """Calcule un temps de repos intelligent."""
 
         base_rest = timing_rules.get("transition_time_sec", 30)
@@ -770,7 +851,9 @@ class SmartWorkoutGenerator:
         # Ajuster selon type d'exercice
         ex_tags = [t.strip().lower() for t in (exercise.tags or "").split(",")]
 
-        if exercise.est_chargeable or any(tag in ex_tags for tag in ["strength", "heavy"]):
+        if exercise.est_chargeable or any(
+            tag in ex_tags for tag in ["strength", "heavy"]
+        ):
             base_rest += 30  # Plus de repos pour exercices lourds
         elif any(tag in ex_tags for tag in ["cardio", "light", "bodyweight"]):
             base_rest = max(15, base_rest - 15)  # Moins de repos pour cardio
@@ -782,20 +865,23 @@ class SmartWorkoutGenerator:
 
         # Mapping intensité -> pourcentage 1RM approximatif
         intensity_to_percent = {
-            4: "60-65%",   # Faible
-            5: "65-70%",   # Faible-moyenne
-            6: "70-75%",   # Moyenne
-            7: "75-80%",   # Moyenne-haute
-            8: "80-85%",   # Haute
-            9: "85-90%",   # Très haute
+            4: "60-65%",  # Faible
+            5: "65-70%",  # Faible-moyenne
+            6: "70-75%",  # Moyenne
+            7: "75-80%",  # Moyenne-haute
+            8: "80-85%",  # Haute
+            9: "85-90%",  # Très haute
             10: "90-95%",  # Maximale
         }
 
         return intensity_to_percent.get(intensity, "70-75%")
 
     def _weighted_choice_entropy(
-        self, rng: random.Random, items: List[Tuple[Exercise, float]], entropy: float,
-        used_exercises: Optional[Set[str]] = None
+        self,
+        rng: random.Random,
+        items: List[Tuple[Exercise, float]],
+        entropy: float,
+        used_exercises: Optional[Set[str]] = None,
     ) -> Exercise:
         """Sélection pondérée avec entropy et anti-répétition."""
         if not items:
@@ -805,7 +891,9 @@ class SmartWorkoutGenerator:
         if used_exercises:
             unused_items = [(ex, w) for ex, w in items if ex.nom not in used_exercises]
             # Si il reste des exercices non utilisés, les privilégier
-            if unused_items and len(unused_items) >= len(items) * 0.3:  # Au moins 30% de nouveau
+            if (
+                unused_items and len(unused_items) >= len(items) * 0.3
+            ):  # Au moins 30% de nouveau
                 items = unused_items
                 # Booster le poids des exercices non utilisés
                 items = [(ex, w * 1.5) for ex, w in items]
@@ -818,7 +906,9 @@ class SmartWorkoutGenerator:
             exercises, weights = zip(*items)
             return rng.choices(exercises, weights=weights)[0]
 
-    def _validate_and_adjust_session(self, blocks: List[Block], params: Dict[str, Any]) -> List[Block]:
+    def _validate_and_adjust_session(
+        self, blocks: List[Block], params: Dict[str, Any]
+    ) -> List[Block]:
         """Valide et ajuste la séance selon contraintes finales."""
 
         config = self.config_service.get_config()
@@ -841,7 +931,15 @@ class SmartWorkoutGenerator:
         # Vérification ratios
         if total_exercises > 0:
             # Push/Pull ratio
-            push_keys = {"poitrine", "épaules", "epaules", "deltoides", "deltoids", "chest", "triceps"}
+            push_keys = {
+                "poitrine",
+                "épaules",
+                "epaules",
+                "deltoides",
+                "deltoids",
+                "chest",
+                "triceps",
+            }
             pull_keys = {"dos", "back", "biceps"}
             push_count = sum(muscle_counts.get(k, 0) for k in push_keys)
             pull_count = sum(muscle_counts.get(k, 0) for k in pull_keys)
@@ -851,7 +949,9 @@ class SmartWorkoutGenerator:
                 target_ratio = balance_rules.get("push_pull_ratio", 0.6)
 
                 if abs(actual_ratio - target_ratio) > 0.3:
-                    self.logger.debug(f"Déséquilibre push/pull détecté: {actual_ratio:.2f} vs {target_ratio:.2f}")
+                    self.logger.debug(
+                        f"Déséquilibre push/pull détecté: {actual_ratio:.2f} vs {target_ratio:.2f}"
+                    )
 
         # Ajustements temporels
         total_planned = sum(block.duration_sec for block in blocks)
@@ -862,7 +962,9 @@ class SmartWorkoutGenerator:
             for block in blocks:
                 block.duration_sec = int(block.duration_sec * adjustment_factor)
 
-            self.logger.info(f"Ajustement temporel appliqué: facteur {adjustment_factor:.2f}")
+            self.logger.info(
+                f"Ajustement temporel appliqué: facteur {adjustment_factor:.2f}"
+            )
 
         return blocks
 
@@ -904,7 +1006,9 @@ class SmartWorkoutGenerator:
         else:
             return f"{course_type} {duration}' - {intensity}"
 
-    def _build_session_metadata(self, params: Dict[str, Any], recommendations: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_session_metadata(
+        self, params: Dict[str, Any], recommendations: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Construit les métadonnées de la séance."""
         return {
             "intensity": params.get("intensity", "Moyenne"),
@@ -947,7 +1051,9 @@ class SmartWorkoutGenerator:
             self.logger.error(f"Erreur validation params: {e}")
             return False
 
-    def _apply_professional_optimizations(self, blocks: List[Block], params: Dict[str, Any]) -> List[Block]:
+    def _apply_professional_optimizations(
+        self, blocks: List[Block], params: Dict[str, Any]
+    ) -> List[Block]:
         """Applique des optimisations professionnelles comme dans MyFitnessPal/Nike Training."""
         optimized_blocks = []
 
@@ -963,7 +1069,9 @@ class SmartWorkoutGenerator:
 
         return optimized_blocks
 
-    def _optimize_single_block(self, block: Block, position: int, total_blocks: int, params: Dict[str, Any]) -> Block:
+    def _optimize_single_block(
+        self, block: Block, position: int, total_blocks: int, params: Dict[str, Any]
+    ) -> Block:
         """Optimise un bloc individuel selon sa position dans la séance."""
         intensity = params.get("intensity", "Moyenne")
 
@@ -972,7 +1080,7 @@ class SmartWorkoutGenerator:
             "Légère": 0.8,
             "Moyenne": 1.0,
             "Élevée": 1.2,
-            "Maximale": 1.5
+            "Maximale": 1.5,
         }.get(intensity, 1.0)
 
         # Position multiplier (début plus conservateur, fin plus intense)
@@ -981,12 +1089,18 @@ class SmartWorkoutGenerator:
         for item in block.items:
             if item.prescription and "rest_sec" in item.prescription:
                 current_rest = item.prescription["rest_sec"]
-                adjusted_rest = int(current_rest * intensity_multiplier * position_factor)
-                item.prescription["rest_sec"] = max(15, min(120, adjusted_rest))  # Entre 15s et 2min
+                adjusted_rest = int(
+                    current_rest * intensity_multiplier * position_factor
+                )
+                item.prescription["rest_sec"] = max(
+                    15, min(120, adjusted_rest)
+                )  # Entre 15s et 2min
 
         return block
 
-    def _balance_session_intensity(self, blocks: List[Block], params: Dict[str, Any]) -> List[Block]:
+    def _balance_session_intensity(
+        self, blocks: List[Block], params: Dict[str, Any]
+    ) -> List[Block]:
         """Assure un profil d'intensité équilibré sur la séance."""
         if len(blocks) <= 1:
             return blocks
@@ -996,13 +1110,17 @@ class SmartWorkoutGenerator:
 
         if course_type == "Hyrox":
             # Pattern équilibré avec pic au milieu
-            intensity_pattern = [0.7, 0.9, 1.0, 0.8] if len(blocks) >= 4 else [0.8, 1.0, 0.8]
+            intensity_pattern = (
+                [0.7, 0.9, 1.0, 0.8] if len(blocks) >= 4 else [0.8, 1.0, 0.8]
+            )
         elif course_type == "CAF":
             # Pattern progressif
             intensity_pattern = [0.6, 0.8, 1.0]
         else:
             # Pattern classique
-            intensity_pattern = [0.7, 1.0, 0.9, 0.7] if len(blocks) >= 4 else [0.8, 1.0, 0.8]
+            intensity_pattern = (
+                [0.7, 1.0, 0.9, 0.7] if len(blocks) >= 4 else [0.8, 1.0, 0.8]
+            )
 
         # Appliquer le pattern
         for i, block in enumerate(blocks):
@@ -1010,8 +1128,10 @@ class SmartWorkoutGenerator:
             factor = intensity_pattern[pattern_index]
 
             # Ajuster la durée selon le facteur d'intensité
-            if hasattr(block, 'duration_sec'):
-                block.duration_sec = max(300, int(block.duration_sec * factor))  # Min 5min
+            if hasattr(block, "duration_sec"):
+                block.duration_sec = max(
+                    300, int(block.duration_sec * factor)
+                )  # Min 5min
 
         return blocks
 
@@ -1049,7 +1169,9 @@ class SmartWorkoutGenerator:
 
         return muscle_groups
 
-    def _log_generation_metrics(self, session: Session, params: Dict[str, Any], recommendations: Dict[str, Any]) -> None:
+    def _log_generation_metrics(
+        self, session: Session, params: Dict[str, Any], recommendations: Dict[str, Any]
+    ) -> None:
         """Log des métriques pour l'amélioration continue du système."""
         metrics = {
             "session_duration": session.duration_sec // 60,
@@ -1067,7 +1189,9 @@ class SmartWorkoutGenerator:
         # Ici on pourrait envoyer à un service d'analytics pour amélioration continue
         # analytics_service.track_generation(metrics)
 
-    def _calculate_intelligent_rounds(self, format_type: str, duration_min: int, items: int) -> int:
+    def _calculate_intelligent_rounds(
+        self, format_type: str, duration_min: int, items: int
+    ) -> int:
         """Calcule un nombre de tours intelligent selon le format et la durée."""
 
         format_upper = format_type.upper()
@@ -1112,5 +1236,3 @@ class SmartWorkoutGenerator:
 
         # Format non reconnu, retour par défaut
         return max(2, min(5, duration_min // 4))
-
-

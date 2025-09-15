@@ -11,27 +11,15 @@ This module provides a comprehensive strategy pattern implementation with:
 
 from .base import (
     BaseStrategy,
-    StrategyContext,
-    StrategyResult,
     StrategyConfig,
+    StrategyContext,
+    StrategyError,
     StrategyMetrics,
-    StrategyError
+    StrategyResult,
 )
-from .registry import (
-    StrategyRegistry,
-    StrategySelector,
-    StrategyManager
-)
-from .monitoring import (
-    PerformanceMonitor,
-    ABTestingFramework,
-    MetricsCollector
-)
-from .circuit_breaker import (
-    CircuitBreaker,
-    CircuitBreakerState,
-    FallbackManager
-)
+from .circuit_breaker import CircuitBreaker, CircuitBreakerState, FallbackManager
+from .monitoring import ABTestingFramework, MetricsCollector, PerformanceMonitor
+from .registry import StrategyManager, StrategyRegistry, StrategySelector
 
 __all__ = [
     # Base Strategy Framework
@@ -41,17 +29,14 @@ __all__ = [
     "StrategyConfig",
     "StrategyMetrics",
     "StrategyError",
-
     # Strategy Management
     "StrategyRegistry",
     "StrategySelector",
     "StrategyManager",
-
     # Monitoring & Testing
     "PerformanceMonitor",
     "ABTestingFramework",
     "MetricsCollector",
-
     # Resilience Patterns
     "CircuitBreaker",
     "CircuitBreakerState",

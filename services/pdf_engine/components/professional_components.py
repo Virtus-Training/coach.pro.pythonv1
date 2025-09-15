@@ -5,27 +5,35 @@ Includes data visualizations, progress indicators, and premium layouts
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Tuple
-from io import BytesIO
-from reportlab.lib.colors import Color, HexColor
-from reportlab.lib.units import cm, inch
-from reportlab.platypus import Flowable, Paragraph, Table, TableStyle
+from typing import Any, Dict, List
+
+from reportlab.lib.colors import HexColor
+from reportlab.platypus import Flowable
+
 try:
-    from reportlab.graphics.charts.piecharts import Pie
     from reportlab.graphics.charts.barcharts import VerticalBarChart
     from reportlab.graphics.charts.lineplots import LinePlot
+    from reportlab.graphics.charts.piecharts import Pie
+
     CHARTS_AVAILABLE = True
 except ImportError:
     CHARTS_AVAILABLE = False
-from reportlab.graphics.shapes import Drawing, Rect, Circle, String
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.graphics.shapes import Drawing
 
 
 class ProgressBarComponent(Flowable):
     """Premium progress bar with gradient and labels"""
 
-    def __init__(self, value: float, max_value: float = 100, width: float = 200, height: float = 20,
-                 color_start: str = "#4CAF50", color_end: str = "#81C784", bg_color: str = "#E0E0E0"):
+    def __init__(
+        self,
+        value: float,
+        max_value: float = 100,
+        width: float = 200,
+        height: float = 20,
+        color_start: str = "#4CAF50",
+        color_end: str = "#81C784",
+        bg_color: str = "#E0E0E0",
+    ):
         self.value = value
         self.max_value = max_value
         self.width = width
@@ -35,7 +43,9 @@ class ProgressBarComponent(Flowable):
         self.bg_color = HexColor(bg_color)
 
     def draw(self):
-        progress_width = (self.value / self.max_value) * self.width if self.max_value > 0 else 0
+        progress_width = (
+            (self.value / self.max_value) * self.width if self.max_value > 0 else 0
+        )
 
         # Background
         self.canv.setFillColor(self.bg_color)
@@ -47,17 +57,27 @@ class ProgressBarComponent(Flowable):
             self.canv.roundRect(0, 0, progress_width, self.height, 5, fill=1, stroke=0)
 
         # Text overlay
-        percentage = f"{(self.value/self.max_value)*100:.1f}%" if self.max_value > 0 else "0%"
+        percentage = (
+            f"{(self.value / self.max_value) * 100:.1f}%"
+            if self.max_value > 0
+            else "0%"
+        )
         self.canv.setFillColor(HexColor("#FFFFFF"))
         self.canv.setFont("Helvetica-Bold", 10)
-        self.canv.drawCentredText(self.width/2, self.height/2 - 3, percentage)
+        self.canv.drawCentredText(self.width / 2, self.height / 2 - 3, percentage)
 
 
 class MacronutrientWheelComponent(Flowable):
     """Premium macronutrient pie chart with custom styling"""
 
-    def __init__(self, protein: float, carbs: float, fat: float,
-                 width: float = 150, height: float = 150):
+    def __init__(
+        self,
+        protein: float,
+        carbs: float,
+        fat: float,
+        width: float = 150,
+        height: float = 150,
+    ):
         self.protein = protein
         self.carbs = carbs
         self.fat = fat
@@ -73,16 +93,22 @@ class MacronutrientWheelComponent(Flowable):
             # Fallback to simple text representation
             self.canv.setFillColor(HexColor("#000000"))
             self.canv.setFont("Helvetica-Bold", 12)
-            self.canv.drawCentredText(self.width/2, self.height/2 + 10, "MACROS")
+            self.canv.drawCentredText(self.width / 2, self.height / 2 + 10, "MACROS")
 
             self.canv.setFont("Helvetica", 10)
             protein_pct = (self.protein / self.total * 100) if self.total > 0 else 0
             carbs_pct = (self.carbs / self.total * 100) if self.total > 0 else 0
             fat_pct = (self.fat / self.total * 100) if self.total > 0 else 0
 
-            self.canv.drawCentredText(self.width/2, self.height/2 - 10, f"P: {protein_pct:.0f}%")
-            self.canv.drawCentredText(self.width/2, self.height/2 - 25, f"C: {carbs_pct:.0f}%")
-            self.canv.drawCentredText(self.width/2, self.height/2 - 40, f"L: {fat_pct:.0f}%")
+            self.canv.drawCentredText(
+                self.width / 2, self.height / 2 - 10, f"P: {protein_pct:.0f}%"
+            )
+            self.canv.drawCentredText(
+                self.width / 2, self.height / 2 - 25, f"C: {carbs_pct:.0f}%"
+            )
+            self.canv.drawCentredText(
+                self.width / 2, self.height / 2 - 40, f"L: {fat_pct:.0f}%"
+            )
             return
 
         drawing = Drawing(self.width, self.height)
@@ -96,7 +122,7 @@ class MacronutrientWheelComponent(Flowable):
 
         # Data and colors
         pie.data = [self.protein, self.carbs, self.fat]
-        pie.labels = ['Protéines', 'Glucides', 'Lipides']
+        pie.labels = ["Protéines", "Glucides", "Lipides"]
         pie.slices.strokeColor = HexColor("#FFFFFF")
         pie.slices.strokeWidth = 2
 
@@ -112,7 +138,12 @@ class MacronutrientWheelComponent(Flowable):
 class WorkoutBlockComponent(Flowable):
     """Premium workout block with exercise visualization"""
 
-    def __init__(self, block_data: Dict[str, Any], width: float = 400, theme: str = "professional"):
+    def __init__(
+        self,
+        block_data: Dict[str, Any],
+        width: float = 400,
+        theme: str = "professional",
+    ):
         self.block_data = block_data
         self.width = width
         self.theme = theme
@@ -140,13 +171,13 @@ class WorkoutBlockComponent(Flowable):
         """Draw premium block header with gradient"""
         # Header background
         self.canv.setFillColor(HexColor("#2563EB"))
-        self.canv.roundRect(0, y-30, self.width, 30, 5, fill=1, stroke=0)
+        self.canv.roundRect(0, y - 30, self.width, 30, 5, fill=1, stroke=0)
 
         # Title
         self.canv.setFillColor(HexColor("#FFFFFF"))
         self.canv.setFont("Helvetica-Bold", 14)
         title = self.block_data.get("title", "Bloc d'exercices")
-        self.canv.drawString(15, y-20, title)
+        self.canv.drawString(15, y - 20, title)
 
         # Duration/Format info
         duration = self.block_data.get("duration", "")
@@ -155,32 +186,32 @@ class WorkoutBlockComponent(Flowable):
 
         if info:
             self.canv.setFont("Helvetica", 10)
-            self.canv.drawRightString(self.width - 15, y-20, info)
+            self.canv.drawRightString(self.width - 15, y - 20, info)
 
     def _draw_exercise_row(self, exercise: Dict[str, Any], y: float):
         """Draw individual exercise with professional styling"""
         # Alternating row background
-        if hasattr(self, '_row_counter'):
+        if hasattr(self, "_row_counter"):
             self._row_counter += 1
         else:
             self._row_counter = 0
 
         if self._row_counter % 2 == 0:
             self.canv.setFillColor(HexColor("#F8FAFC"))
-            self.canv.rect(0, y-25, self.width, 25, fill=1, stroke=0)
+            self.canv.rect(0, y - 25, self.width, 25, fill=1, stroke=0)
 
         # Exercise name
         self.canv.setFillColor(HexColor("#1F2937"))
         self.canv.setFont("Helvetica-Bold", 11)
         name = exercise.get("name", "Exercise")
-        self.canv.drawString(15, y-15, name)
+        self.canv.drawString(15, y - 15, name)
 
         # Reps/Sets
         reps = exercise.get("reps", "")
         if reps:
             self.canv.setFont("Helvetica", 10)
             self.canv.setFillColor(HexColor("#6B7280"))
-            self.canv.drawString(self.width * 0.6, y-15, reps)
+            self.canv.drawString(self.width * 0.6, y - 15, reps)
 
         # Notes
         notes = exercise.get("notes", "")
@@ -190,8 +221,8 @@ class WorkoutBlockComponent(Flowable):
             # Truncate long notes
             max_chars = int((self.width * 0.35) / 5)  # Approximate character width
             if len(notes) > max_chars:
-                notes = notes[:max_chars-3] + "..."
-            self.canv.drawString(15, y-5, notes)
+                notes = notes[: max_chars - 3] + "..."
+            self.canv.drawString(15, y - 5, notes)
 
 
 class NutritionFactsComponent(Flowable):
@@ -224,7 +255,7 @@ class NutritionFactsComponent(Flowable):
 
         # Thick line
         self.canv.setLineWidth(3)
-        self.canv.line(5, y_pos, self.width-5, y_pos)
+        self.canv.line(5, y_pos, self.width - 5, y_pos)
         y_pos -= 15
 
         # Calories
@@ -240,7 +271,7 @@ class NutritionFactsComponent(Flowable):
             ("Lipides", self.nutrition_data.get("fat", 0), "g"),
             ("Fibres", self.nutrition_data.get("fiber", 0), "g"),
             ("Sucres", self.nutrition_data.get("sugar", 0), "g"),
-            ("Sodium", self.nutrition_data.get("sodium", 0), "mg")
+            ("Sodium", self.nutrition_data.get("sodium", 0), "mg"),
         ]
 
         for name, value, unit in nutrients:
@@ -252,7 +283,9 @@ class NutritionFactsComponent(Flowable):
 class MotivationalBadgeComponent(Flowable):
     """Gamification badges for motivation templates"""
 
-    def __init__(self, badge_type: str, value: str = "", width: float = 80, height: float = 80):
+    def __init__(
+        self, badge_type: str, value: str = "", width: float = 80, height: float = 80
+    ):
         self.badge_type = badge_type
         self.value = value
         self.width = width
@@ -262,16 +295,20 @@ class MotivationalBadgeComponent(Flowable):
         self.badges = {
             "achievement": {"color": "#FFD700", "symbol": "★", "label": "Achievement"},
             "streak": {"color": "#FF6B35", "symbol": "🔥", "label": "Streak"},
-            "personal_best": {"color": "#6B5B95", "symbol": "🏆", "label": "Personal Best"},
-            "consistency": {"color": "#88D8B0", "symbol": "✓", "label": "Consistent"}
+            "personal_best": {
+                "color": "#6B5B95",
+                "symbol": "🏆",
+                "label": "Personal Best",
+            },
+            "consistency": {"color": "#88D8B0", "symbol": "✓", "label": "Consistent"},
         }
 
     def draw(self):
         badge_config = self.badges.get(self.badge_type, self.badges["achievement"])
 
         # Badge circle
-        center_x, center_y = self.width/2, self.height/2
-        radius = min(self.width, self.height)/2 - 5
+        center_x, center_y = self.width / 2, self.height / 2
+        radius = min(self.width, self.height) / 2 - 5
 
         self.canv.setFillColor(HexColor(badge_config["color"]))
         self.canv.setStrokeColor(HexColor("#FFFFFF"))
@@ -293,7 +330,9 @@ class MotivationalBadgeComponent(Flowable):
 class AnatomyZoneComponent(Flowable):
     """Muscle group highlighting for elite workout templates"""
 
-    def __init__(self, target_muscles: List[str], width: float = 150, height: float = 200):
+    def __init__(
+        self, target_muscles: List[str], width: float = 150, height: float = 200
+    ):
         self.target_muscles = target_muscles
         self.width = width
         self.height = height
@@ -307,7 +346,7 @@ class AnatomyZoneComponent(Flowable):
         self.canv.setLineWidth(1)
 
         # Head
-        head_x, head_y = self.width/2, self.height - 30
+        head_x, head_y = self.width / 2, self.height - 30
         self.canv.circle(head_x, head_y, 15, fill=0, stroke=1)
 
         # Torso
@@ -323,10 +362,10 @@ class AnatomyZoneComponent(Flowable):
     def _highlight_muscle_group(self, muscle: str):
         """Highlight specific muscle groups"""
         highlights = {
-            "chest": (self.width/2, self.height - 80, 25),
-            "shoulders": (self.width/2, self.height - 60, 20),
-            "arms": (self.width/2 + 35, self.height - 90, 15),
-            "legs": (self.width/2, self.height - 160, 30)
+            "chest": (self.width / 2, self.height - 80, 25),
+            "shoulders": (self.width / 2, self.height - 60, 20),
+            "arms": (self.width / 2 + 35, self.height - 90, 15),
+            "legs": (self.width / 2, self.height - 160, 30),
         }
 
         if muscle.lower() in highlights:
@@ -339,8 +378,13 @@ class AnatomyZoneComponent(Flowable):
 class DataVisualizationComponent(Flowable):
     """Advanced data visualization for science-based templates"""
 
-    def __init__(self, data: Dict[str, Any], chart_type: str = "bar",
-                 width: float = 300, height: float = 200):
+    def __init__(
+        self,
+        data: Dict[str, Any],
+        chart_type: str = "bar",
+        width: float = 300,
+        height: float = 200,
+    ):
         self.data = data
         self.chart_type = chart_type
         self.width = width
@@ -367,7 +411,7 @@ class DataVisualizationComponent(Flowable):
         spacing = self.width / len(values) * 0.2
 
         for i, (value, label) in enumerate(zip(values, labels)):
-            x = i * (bar_width + spacing) + spacing/2
+            x = i * (bar_width + spacing) + spacing / 2
             bar_height = (value / max_value) * (self.height - 40)
 
             # Bar
@@ -377,10 +421,10 @@ class DataVisualizationComponent(Flowable):
             # Value label
             self.canv.setFillColor(HexColor("#000000"))
             self.canv.setFont("Helvetica", 8)
-            self.canv.drawCentredText(x + bar_width/2, bar_height + 25, str(value))
+            self.canv.drawCentredText(x + bar_width / 2, bar_height + 25, str(value))
 
             # Axis label
-            self.canv.drawCentredText(x + bar_width/2, 10, label[:8])
+            self.canv.drawCentredText(x + bar_width / 2, 10, label[:8])
 
     def _draw_line_chart(self):
         """Draw professional line chart for progress tracking"""
@@ -397,7 +441,7 @@ class DataVisualizationComponent(Flowable):
         self.canv.setStrokeColor(HexColor("#000000"))
         self.canv.setLineWidth(1)
         self.canv.line(30, 20, 30, self.height - 20)  # Y axis
-        self.canv.line(30, 20, self.width - 20, 20)   # X axis
+        self.canv.line(30, 20, self.width - 20, 20)  # X axis
 
         # Plot line
         self.canv.setStrokeColor(HexColor("#2196F3"))
@@ -450,8 +494,14 @@ class QRCodeComponent(Flowable):
 class PremiumHeaderComponent(Flowable):
     """Luxury header with branding and premium styling"""
 
-    def __init__(self, title: str, subtitle: str = "", logo_path: str = "",
-                 width: float = 400, height: float = 80):
+    def __init__(
+        self,
+        title: str,
+        subtitle: str = "",
+        logo_path: str = "",
+        width: float = 400,
+        height: float = 80,
+    ):
         self.title = title
         self.subtitle = subtitle
         self.logo_path = logo_path
@@ -482,4 +532,6 @@ class PremiumHeaderComponent(Flowable):
 
             self.canv.setStrokeColor(HexColor("#FFFFFF"))
             self.canv.rect(logo_x, logo_y, logo_size, logo_size, fill=0, stroke=1)
-            self.canv.drawCentredText(logo_x + logo_size/2, logo_y + logo_size/2, "LOGO")
+            self.canv.drawCentredText(
+                logo_x + logo_size / 2, logo_y + logo_size / 2, "LOGO"
+            )

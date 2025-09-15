@@ -20,11 +20,9 @@ from typing import (
     Callable,
     Dict,
     Generic,
-    List,
     Optional,
     Type,
     TypeVar,
-    Union,
     get_type_hints,
 )
 
@@ -161,7 +159,9 @@ class DIContainer(IServiceProvider):
         """Get required service instance, raise if not found."""
         descriptor = self._services.get(service_type)
         if descriptor is None:
-            raise ServiceNotFoundError(f"Service {service_type.__name__} not registered")
+            raise ServiceNotFoundError(
+                f"Service {service_type.__name__} not registered"
+            )
 
         # Handle singleton lifetime
         if descriptor.lifetime == ServiceLifetime.SINGLETON:
@@ -201,7 +201,7 @@ class DIContainer(IServiceProvider):
         # Resolve constructor parameters
         kwargs = {}
         for param_name, param in signature.parameters.items():
-            if param_name == 'self':
+            if param_name == "self":
                 continue
 
             param_type = type_hints.get(param_name)
@@ -250,7 +250,9 @@ class ServiceProvider(IServiceProvider):
         """Get required service instance, raise if not found."""
         descriptor = self._services.get(service_type)
         if descriptor is None:
-            raise ServiceNotFoundError(f"Service {service_type.__name__} not registered")
+            raise ServiceNotFoundError(
+                f"Service {service_type.__name__} not registered"
+            )
 
         # Handle singleton
         if descriptor.lifetime == ServiceLifetime.SINGLETON:
@@ -285,6 +287,7 @@ def inject(service_type: Type[T]) -> T:
         def handle_request(user_service: IUserService):
             return user_service.get_users()
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -298,33 +301,40 @@ def inject(service_type: Type[T]) -> T:
             # Inject the service
             service = container.get_required_service(service_type)
             return func(service, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 # Exceptions
 class DIContainerError(Exception):
     """Base exception for DI container errors."""
+
     pass
 
 
 class ServiceNotFoundError(DIContainerError):
     """Service not found in container."""
+
     pass
 
 
 class CircularDependencyError(DIContainerError):
     """Circular dependency detected."""
+
     pass
 
 
 class DependencyResolutionError(DIContainerError):
     """Failed to resolve dependency."""
+
     pass
 
 
 class ContainerNotFoundError(DIContainerError):
     """No active container found."""
+
     pass
 
 

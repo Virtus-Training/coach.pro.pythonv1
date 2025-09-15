@@ -12,33 +12,36 @@ Enterprise-grade async repository for Client entities with:
 
 from __future__ import annotations
 
-import json
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from domain.entities import Client
-from domain.value_objects import PersonalInfo, PhysicalProfile
-from domain.events import ClientCreatedEvent, ClientUpdatedEvent, ClientArchivedEvent
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
-from infrastructure.cache import CacheManager, get_cache_manager, cache_get, cache_set, cache_delete
-from repositories.interfaces import (
-    IAsyncClientRepository,
-    QueryResult,
-    QueryOptions,
-    RepositoryMetrics,
-    ISpecification,
-    ActiveEntitySpecification,
-    DateRangeSpecification,
-    TextSearchSpecification,
-    PaginationSpecification,
-)
 from core.events import IEventBus
 from core.exceptions import (
-    EntityNotFoundError,
     DuplicateEntityError,
+    EntityNotFoundError,
     RepositoryError,
     ValidationError,
+)
+from domain.entities import Client
+from domain.events import ClientArchivedEvent, ClientCreatedEvent, ClientUpdatedEvent
+from domain.value_objects import PersonalInfo, PhysicalProfile
+from infrastructure.cache import (
+    CacheManager,
+    cache_delete,
+    cache_get,
+    cache_set,
+    get_cache_manager,
+)
+from infrastructure.database import AsyncDatabaseManager, get_database_manager
+from repositories.interfaces import (
+    ActiveEntitySpecification,
+    IAsyncClientRepository,
+    ISpecification,
+    PaginationSpecification,
+    QueryOptions,
+    QueryResult,
+    RepositoryMetrics,
 )
 
 
@@ -58,14 +61,22 @@ class ClientEmailSpecification(ISpecification[Client]):
 class ClientNameSpecification(ISpecification[Client]):
     """Specification for finding clients by name."""
 
-    def __init__(self, first_name: Optional[str] = None, last_name: Optional[str] = None):
+    def __init__(
+        self, first_name: Optional[str] = None, last_name: Optional[str] = None
+    ):
         self.first_name = first_name.lower() if first_name else None
         self.last_name = last_name.lower() if last_name else None
 
     def is_satisfied_by(self, entity: Client) -> bool:
-        if self.first_name and self.first_name not in entity.personal_info.first_name.lower():
+        if (
+            self.first_name
+            and self.first_name not in entity.personal_info.first_name.lower()
+        ):
             return False
-        if self.last_name and self.last_name not in entity.personal_info.last_name.lower():
+        if (
+            self.last_name
+            and self.last_name not in entity.personal_info.last_name.lower()
+        ):
             return False
         return True
 
@@ -99,13 +110,16 @@ class ClientsWithSessionsSpecification(ISpecification[Client]):
         return True
 
     def to_sql_where(self) -> tuple[str, tuple[Any, ...]]:
-        return """
+        return (
+            """
         EXISTS (
             SELECT 1 FROM seances s
             WHERE s.client_id = clients.id
             AND s.date_seance BETWEEN ? AND ?
         )
-        """, (self.start_date, self.end_date)
+        """,
+            (self.start_date, self.end_date),
+        )
 
 
 class AsyncClientRepository(IAsyncClientRepository):
@@ -141,9 +155,7 @@ class AsyncClientRepository(IAsyncClientRepository):
     # Core CRUD Operations
 
     async def get_by_id(
-        self,
-        entity_id: int,
-        options: Optional[QueryOptions] = None
+        self, entity_id: int, options: Optional[QueryOptions] = None
     ) -> Optional[Client]:
         """Get client by ID with caching."""
         options = options or QueryOptions()
@@ -183,7 +195,11 @@ class AsyncClientRepository(IAsyncClientRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_client(client), options.cache_ttl or self._default_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_client(client),
+                        options.cache_ttl or self._default_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return client
@@ -193,8 +209,7 @@ class AsyncClientRepository(IAsyncClientRepository):
             raise RepositoryError(f"Failed to get client {entity_id}: {str(e)}") from e
 
     async def get_all(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[Client]:
         """Get all clients with pagination and caching."""
         options = options or QueryOptions()
@@ -223,7 +238,9 @@ class AsyncClientRepository(IAsyncClientRepository):
             FROM clients
             """
 
-            where_clause = "WHERE is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            where_clause = (
+                "WHERE is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            )
 
             # Add sorting
             order_clause = ""
@@ -263,7 +280,11 @@ class AsyncClientRepository(IAsyncClientRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_query_result(result), self._list_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_query_result(result),
+                        self._list_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return result
@@ -275,7 +296,7 @@ class AsyncClientRepository(IAsyncClientRepository):
     async def find(
         self,
         specification: ISpecification[Client],
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Client]:
         """Find clients matching specification."""
         options = options or QueryOptions()
@@ -348,7 +369,9 @@ class AsyncClientRepository(IAsyncClientRepository):
             # Validate unique email
             existing = await self.find_by_email(entity.personal_info.email)
             if existing:
-                raise DuplicateEntityError(f"Client with email {entity.personal_info.email} already exists")
+                raise DuplicateEntityError(
+                    f"Client with email {entity.personal_info.email} already exists"
+                )
 
             query = """
             INSERT INTO clients (
@@ -367,7 +390,9 @@ class AsyncClientRepository(IAsyncClientRepository):
                 entity.personal_info.gender,
                 entity.physical_profile.weight_kg if entity.physical_profile else None,
                 entity.physical_profile.height_cm if entity.physical_profile else None,
-                entity.physical_profile.activity_level if entity.physical_profile else None,
+                entity.physical_profile.activity_level
+                if entity.physical_profile
+                else None,
                 entity.goals,
                 entity.notes,
                 datetime.now(),
@@ -385,11 +410,13 @@ class AsyncClientRepository(IAsyncClientRepository):
 
             # Publish domain event
             if self._event_bus:
-                await self._event_bus.publish(ClientCreatedEvent(
-                    client_id=entity.id,
-                    email=entity.personal_info.email,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    ClientCreatedEvent(
+                        client_id=entity.id,
+                        email=entity.personal_info.email,
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return entity
@@ -425,7 +452,9 @@ class AsyncClientRepository(IAsyncClientRepository):
                 entity.personal_info.gender,
                 entity.physical_profile.weight_kg if entity.physical_profile else None,
                 entity.physical_profile.height_cm if entity.physical_profile else None,
-                entity.physical_profile.activity_level if entity.physical_profile else None,
+                entity.physical_profile.activity_level
+                if entity.physical_profile
+                else None,
                 entity.goals,
                 entity.notes,
                 datetime.now(),
@@ -437,7 +466,9 @@ class AsyncClientRepository(IAsyncClientRepository):
                 await conn.commit()
 
                 if cursor.rowcount == 0:
-                    raise EntityNotFoundError(f"Client {entity.id} not found or inactive")
+                    raise EntityNotFoundError(
+                        f"Client {entity.id} not found or inactive"
+                    )
 
             # Invalidate caches
             await self._invalidate_client_caches(entity.id)
@@ -445,11 +476,13 @@ class AsyncClientRepository(IAsyncClientRepository):
 
             # Publish domain event
             if self._event_bus:
-                await self._event_bus.publish(ClientUpdatedEvent(
-                    client_id=entity.id,
-                    email=entity.personal_info.email,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    ClientUpdatedEvent(
+                        client_id=entity.id,
+                        email=entity.personal_info.email,
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return entity
@@ -458,7 +491,9 @@ class AsyncClientRepository(IAsyncClientRepository):
             self._update_metrics(start_time, False)
             if isinstance(e, (EntityNotFoundError, ValidationError)):
                 raise
-            raise RepositoryError(f"Failed to update client {entity.id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to update client {entity.id}: {str(e)}"
+            ) from e
 
     async def delete(self, entity_id: int) -> bool:
         """Hard delete client."""
@@ -482,7 +517,9 @@ class AsyncClientRepository(IAsyncClientRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to delete client {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to delete client {entity_id}: {str(e)}"
+            ) from e
 
     async def soft_delete(self, entity_id: int) -> bool:
         """Soft delete client by marking inactive."""
@@ -511,7 +548,9 @@ class AsyncClientRepository(IAsyncClientRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to soft delete client {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to soft delete client {entity_id}: {str(e)}"
+            ) from e
 
     # Domain-Specific Operations
 
@@ -522,17 +561,14 @@ class AsyncClientRepository(IAsyncClientRepository):
         return result.data[0] if result.data else None
 
     async def find_by_name(
-        self,
-        first_name: Optional[str] = None,
-        last_name: Optional[str] = None
+        self, first_name: Optional[str] = None, last_name: Optional[str] = None
     ) -> QueryResult[Client]:
         """Find clients by name with partial matching."""
         spec = ClientNameSpecification(first_name, last_name)
         return await self.find(spec)
 
     async def find_active_clients(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[Client]:
         """Find all active clients."""
         spec = ActiveEntitySpecification()
@@ -542,7 +578,7 @@ class AsyncClientRepository(IAsyncClientRepository):
         self,
         start_date: datetime,
         end_date: datetime,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Client]:
         """Find clients with sessions in date range."""
         spec = ClientsWithSessionsSpecification(start_date, end_date)
@@ -574,14 +610,19 @@ class AsyncClientRepository(IAsyncClientRepository):
                     raise EntityNotFoundError(f"Client {client_id} not found")
 
                 stats = {
-                    'client_id': row['id'],
-                    'total_sessions': row['total_sessions'] or 0,
-                    'sessions_last_30_days': row['sessions_last_30_days'] or 0,
-                    'first_session_date': row['first_session_date'],
-                    'last_session_date': row['last_session_date'],
-                    'completion_rate': round(row['completion_rate'] or 0, 2),
-                    'is_active_client': (row['sessions_last_30_days'] or 0) > 0,
-                    'days_since_last_session': (datetime.now().date() - datetime.fromisoformat(row['last_session_date']).date()).days if row['last_session_date'] else None,
+                    "client_id": row["id"],
+                    "total_sessions": row["total_sessions"] or 0,
+                    "sessions_last_30_days": row["sessions_last_30_days"] or 0,
+                    "first_session_date": row["first_session_date"],
+                    "last_session_date": row["last_session_date"],
+                    "completion_rate": round(row["completion_rate"] or 0, 2),
+                    "is_active_client": (row["sessions_last_30_days"] or 0) > 0,
+                    "days_since_last_session": (
+                        datetime.now().date()
+                        - datetime.fromisoformat(row["last_session_date"]).date()
+                    ).days
+                    if row["last_session_date"]
+                    else None,
                 }
 
             self._update_metrics(start_time, True)
@@ -598,76 +639,86 @@ class AsyncClientRepository(IAsyncClientRepository):
     def _map_row_to_client(self, row) -> Client:
         """Map database row to Client entity."""
         personal_info = PersonalInfo(
-            first_name=row['prenom'],
-            last_name=row['nom'],
-            email=row['email'],
-            phone=row['telephone'],
-            birth_date=datetime.fromisoformat(row['date_naissance']).date() if row['date_naissance'] else None,
-            gender=row['sexe']
+            first_name=row["prenom"],
+            last_name=row["nom"],
+            email=row["email"],
+            phone=row["telephone"],
+            birth_date=datetime.fromisoformat(row["date_naissance"]).date()
+            if row["date_naissance"]
+            else None,
+            gender=row["sexe"],
         )
 
         physical_profile = None
-        if row['poids'] or row['taille'] or row['niveau_activite']:
+        if row["poids"] or row["taille"] or row["niveau_activite"]:
             physical_profile = PhysicalProfile(
-                weight_kg=row['poids'],
-                height_cm=row['taille'],
-                activity_level=row['niveau_activite']
+                weight_kg=row["poids"],
+                height_cm=row["taille"],
+                activity_level=row["niveau_activite"],
             )
 
         return Client(
             personal_info=personal_info,
             physical_profile=physical_profile,
-            goals=row['objectifs'],
-            notes=row['notes'],
-            id=row['id']
+            goals=row["objectifs"],
+            notes=row["notes"],
+            id=row["id"],
         )
 
     def _serialize_client(self, client: Client) -> Dict[str, Any]:
         """Serialize client for cache storage."""
         return {
-            'id': client.id,
-            'personal_info': {
-                'first_name': client.personal_info.first_name,
-                'last_name': client.personal_info.last_name,
-                'email': client.personal_info.email,
-                'phone': client.personal_info.phone,
-                'birth_date': client.personal_info.birth_date.isoformat() if client.personal_info.birth_date else None,
-                'gender': client.personal_info.gender
+            "id": client.id,
+            "personal_info": {
+                "first_name": client.personal_info.first_name,
+                "last_name": client.personal_info.last_name,
+                "email": client.personal_info.email,
+                "phone": client.personal_info.phone,
+                "birth_date": client.personal_info.birth_date.isoformat()
+                if client.personal_info.birth_date
+                else None,
+                "gender": client.personal_info.gender,
             },
-            'physical_profile': {
-                'weight_kg': client.physical_profile.weight_kg,
-                'height_cm': client.physical_profile.height_cm,
-                'activity_level': client.physical_profile.activity_level
-            } if client.physical_profile else None,
-            'goals': client.goals,
-            'notes': client.notes
+            "physical_profile": {
+                "weight_kg": client.physical_profile.weight_kg,
+                "height_cm": client.physical_profile.height_cm,
+                "activity_level": client.physical_profile.activity_level,
+            }
+            if client.physical_profile
+            else None,
+            "goals": client.goals,
+            "notes": client.notes,
         }
 
     def _deserialize_client(self, data: Dict[str, Any]) -> Client:
         """Deserialize client from cache data."""
         personal_info = PersonalInfo(
-            first_name=data['personal_info']['first_name'],
-            last_name=data['personal_info']['last_name'],
-            email=data['personal_info']['email'],
-            phone=data['personal_info']['phone'],
-            birth_date=datetime.fromisoformat(data['personal_info']['birth_date']).date() if data['personal_info']['birth_date'] else None,
-            gender=data['personal_info']['gender']
+            first_name=data["personal_info"]["first_name"],
+            last_name=data["personal_info"]["last_name"],
+            email=data["personal_info"]["email"],
+            phone=data["personal_info"]["phone"],
+            birth_date=datetime.fromisoformat(
+                data["personal_info"]["birth_date"]
+            ).date()
+            if data["personal_info"]["birth_date"]
+            else None,
+            gender=data["personal_info"]["gender"],
         )
 
         physical_profile = None
-        if data['physical_profile']:
+        if data["physical_profile"]:
             physical_profile = PhysicalProfile(
-                weight_kg=data['physical_profile']['weight_kg'],
-                height_cm=data['physical_profile']['height_cm'],
-                activity_level=data['physical_profile']['activity_level']
+                weight_kg=data["physical_profile"]["weight_kg"],
+                height_cm=data["physical_profile"]["height_cm"],
+                activity_level=data["physical_profile"]["activity_level"],
             )
 
         return Client(
             personal_info=personal_info,
             physical_profile=physical_profile,
-            goals=data['goals'],
-            notes=data['notes'],
-            id=data['id']
+            goals=data["goals"],
+            notes=data["notes"],
+            id=data["id"],
         )
 
     async def _invalidate_client_caches(self, client_id: int) -> None:
@@ -696,9 +747,9 @@ class AsyncClientRepository(IAsyncClientRepository):
             self._metrics.avg_query_time_ms = execution_time
         else:
             self._metrics.avg_query_time_ms = (
-                (self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1) + execution_time)
-                / self._metrics.total_queries
-            )
+                self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1)
+                + execution_time
+            ) / self._metrics.total_queries
 
     # Interface Implementation
 
@@ -708,8 +759,7 @@ class AsyncClientRepository(IAsyncClientRepository):
         return client is not None
 
     async def count(
-        self,
-        specification: Optional[ISpecification[Client]] = None
+        self, specification: Optional[ISpecification[Client]] = None
     ) -> int:
         """Count clients matching specification."""
         if specification:
@@ -717,13 +767,18 @@ class AsyncClientRepository(IAsyncClientRepository):
             query = f"SELECT COUNT(*) FROM clients WHERE ({where_condition}) AND is_active = 1"
             return await self._db_manager.execute_scalar(query, where_params) or 0
         else:
-            return await self._db_manager.execute_scalar("SELECT COUNT(*) FROM clients WHERE is_active = 1") or 0
+            return (
+                await self._db_manager.execute_scalar(
+                    "SELECT COUNT(*) FROM clients WHERE is_active = 1"
+                )
+                or 0
+            )
 
     async def batch_create(self, entities: List[Client]) -> List[Client]:
         """Create multiple clients in batch."""
         created_clients = []
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity in entities:
                 created_client = await self.create(entity)
                 created_clients.append(created_client)
@@ -735,7 +790,7 @@ class AsyncClientRepository(IAsyncClientRepository):
         """Update multiple clients in batch."""
         updated_clients = []
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity in entities:
                 updated_client = await self.update(entity)
                 updated_clients.append(updated_client)
@@ -747,7 +802,7 @@ class AsyncClientRepository(IAsyncClientRepository):
         """Delete multiple clients in batch."""
         deleted_count = 0
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity_id in entity_ids:
                 if await self.delete(entity_id):
                     deleted_count += 1
@@ -767,9 +822,7 @@ class AsyncClientRepository(IAsyncClientRepository):
             await self._cache_manager.clear_cache(f"{self._cache_prefix}*")
 
     async def update_physical_profile(
-        self,
-        client_id: int,
-        physical_profile: PhysicalProfile
+        self, client_id: int, physical_profile: PhysicalProfile
     ) -> bool:
         """Update client's physical profile."""
         start_time = time.perf_counter()
@@ -831,41 +884,47 @@ class AsyncClientRepository(IAsyncClientRepository):
 
                 # Publish domain events for archived clients
                 if self._event_bus:
-                    await self._event_bus.publish(ClientArchivedEvent(
-                        archived_count=archived_count,
-                        days_inactive=days_inactive,
-                        timestamp=datetime.now()
-                    ))
+                    await self._event_bus.publish(
+                        ClientArchivedEvent(
+                            archived_count=archived_count,
+                            days_inactive=days_inactive,
+                            timestamp=datetime.now(),
+                        )
+                    )
 
             self._update_metrics(start_time, True)
             return archived_count
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to archive inactive clients: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to archive inactive clients: {str(e)}"
+            ) from e
 
     def _serialize_query_result(self, result: QueryResult[Client]) -> Dict[str, Any]:
         """Serialize query result for caching."""
         return {
-            'data': [self._serialize_client(client) for client in result.data],
-            'total_count': result.total_count,
-            'page': result.page,
-            'page_size': result.page_size,
-            'has_next': result.has_next,
-            'has_previous': result.has_previous,
-            'execution_time_ms': result.execution_time_ms,
-            'cache_hit': result.cache_hit
+            "data": [self._serialize_client(client) for client in result.data],
+            "total_count": result.total_count,
+            "page": result.page,
+            "page_size": result.page_size,
+            "has_next": result.has_next,
+            "has_previous": result.has_previous,
+            "execution_time_ms": result.execution_time_ms,
+            "cache_hit": result.cache_hit,
         }
 
     def _deserialize_query_result(self, data: Dict[str, Any]) -> QueryResult[Client]:
         """Deserialize query result from cache."""
         return QueryResult(
-            data=[self._deserialize_client(client_data) for client_data in data['data']],
-            total_count=data['total_count'],
-            page=data['page'],
-            page_size=data['page_size'],
-            has_next=data['has_next'],
-            has_previous=data['has_previous'],
-            execution_time_ms=data['execution_time_ms'],
-            cache_hit=True
+            data=[
+                self._deserialize_client(client_data) for client_data in data["data"]
+            ],
+            total_count=data["total_count"],
+            page=data["page"],
+            page_size=data["page_size"],
+            has_next=data["has_next"],
+            has_previous=data["has_previous"],
+            execution_time_ms=data["execution_time_ms"],
+            cache_hit=True,
         )

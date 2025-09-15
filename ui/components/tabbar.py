@@ -68,4 +68,3 @@ class CustomTabBar(ctk.CTkFrame):
             if tab_id == self.active_tab
             else colors["surface_dark"]
         )
-

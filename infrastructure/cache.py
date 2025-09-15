@@ -13,7 +13,7 @@ import pickle
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, TypeVar, Union
+from typing import Any, Dict, List, Optional, TypeVar
 
 T = TypeVar("T")
 
@@ -260,7 +260,9 @@ class AsyncMemoryCache(ICache):
         """Get detailed cache information."""
         async with self._lock:
             total_entries = len(self._cache)
-            expired_entries = sum(1 for entry in self._cache.values() if entry.is_expired)
+            expired_entries = sum(
+                1 for entry in self._cache.values() if entry.is_expired
+            )
 
             return {
                 "total_entries": total_entries,
@@ -271,7 +273,9 @@ class AsyncMemoryCache(ICache):
                 "metrics": self._metrics,
             }
 
-    async def warm_cache(self, warm_data: Dict[str, Any], ttl: Optional[int] = None) -> None:
+    async def warm_cache(
+        self, warm_data: Dict[str, Any], ttl: Optional[int] = None
+    ) -> None:
         """Warm cache with initial data."""
         for key, value in warm_data.items():
             await self.set(key, value, ttl)
@@ -280,7 +284,7 @@ class AsyncMemoryCache(ICache):
         """Serialize value for storage."""
         if self.config.serialization_method == "json":
             try:
-                return json.dumps(value).encode('utf-8')
+                return json.dumps(value).encode("utf-8")
             except (TypeError, ValueError):
                 # Fallback to pickle for non-JSON serializable objects
                 return pickle.dumps(value)
@@ -291,7 +295,7 @@ class AsyncMemoryCache(ICache):
         """Deserialize value from storage."""
         if self.config.serialization_method == "json":
             try:
-                return json.loads(data.decode('utf-8'))
+                return json.loads(data.decode("utf-8"))
             except (json.JSONDecodeError, UnicodeDecodeError):
                 # Fallback to pickle
                 return pickle.loads(data)
@@ -350,9 +354,9 @@ class AsyncMemoryCache(ICache):
         else:
             # Running average
             self._metrics.avg_access_time_ms = (
-                (self._metrics.avg_access_time_ms * (self._metrics.total_operations - 1) + access_time_ms)
-                / self._metrics.total_operations
-            )
+                self._metrics.avg_access_time_ms * (self._metrics.total_operations - 1)
+                + access_time_ms
+            ) / self._metrics.total_operations
 
     async def close(self) -> None:
         """Close cache and cleanup resources."""
@@ -494,12 +498,15 @@ class CacheManager:
 # Cache decorators for easy use
 def cache_result(cache_key_func, ttl: Optional[int] = None):
     """Decorator to cache function results."""
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             # This would implement caching logic
             # For now, just call the function
             return await func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 

@@ -34,7 +34,7 @@ class ModernDashboardPage(ctk.CTkFrame):
         self.main_container = ctk.CTkScrollableFrame(
             self,
             fg_color="transparent",
-            scrollbar_button_color=ctk.ThemeManager.theme["color"]["surface_light"]
+            scrollbar_button_color=ctk.ThemeManager.theme["color"]["surface_light"],
         )
         self.main_container.pack(fill="both", expand=True)
 
@@ -56,11 +56,13 @@ class ModernDashboardPage(ctk.CTkFrame):
         # En remplacement: utiliser une couleur de surface élevée du thème
         welcome_card = GlassCard(
             self.main_container,
-            fg_color=ctk.ThemeManager.theme["color"].get("surface_elevated", "#2D2F5F")
+            fg_color=ctk.ThemeManager.theme["color"].get("surface_elevated", "#2D2F5F"),
         )
         welcome_card.pack(fill="x", padx=16, pady=(8, 12))
 
-        welcome_content = ctk.CTkFrame(welcome_card.content_frame, fg_color="transparent")
+        welcome_content = ctk.CTkFrame(
+            welcome_card.content_frame, fg_color="transparent"
+        )
         welcome_content.pack(fill="both", expand=True)
 
         # Grid layout pour welcome
@@ -75,7 +77,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             left_frame,
             text="👋 Bonjour Coach !",
             font=ctk.CTkFont(size=24, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         greeting_label.pack(anchor="w")
 
@@ -83,7 +85,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             left_frame,
             text="Voici un aperçu de votre activité aujourd'hui",
             font=ctk.CTkFont(size=14),
-            text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
         )
         date_label.pack(anchor="w", pady=(4, 0))
 
@@ -96,7 +98,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             text="➕ Nouveau client",
             fg_color=ctk.ThemeManager.theme["color"]["primary"],
             hover_color=ctk.ThemeManager.theme["color"]["primary_hover"],
-            command=lambda: show_toast(self, "Nouveau client", "info")
+            command=lambda: show_toast(self, "Nouveau client", "info"),
         )
         new_client_btn.pack(side="left", padx=(0, 8))
 
@@ -105,7 +107,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             text="🏃 Nouvelle séance",
             fg_color=ctk.ThemeManager.theme["color"]["secondary"],
             hover_color="#059669",
-            command=lambda: show_toast(self, "Nouvelle séance", "info")
+            command=lambda: show_toast(self, "Nouvelle séance", "info"),
         )
         new_session_btn.pack(side="left")
 
@@ -114,9 +116,7 @@ class ModernDashboardPage(ctk.CTkFrame):
         right_frame.grid(row=0, column=1, sticky="e")
 
         system_status = StatusIndicator(
-            right_frame,
-            status="success",
-            text="Système actif"
+            right_frame, status="success", text="Système actif"
         )
         system_status.pack()
 
@@ -131,10 +131,34 @@ class ModernDashboardPage(ctk.CTkFrame):
 
         # Métriques factices (à remplacer par vraies données)
         metrics_data = [
-            {"title": "Clients actifs", "value": "42", "change": "+5", "color": "primary", "icon": "👥"},
-            {"title": "Séances cette semaine", "value": "18", "change": "+3", "color": "secondary", "icon": "🏃"},
-            {"title": "Revenus du mois", "value": "2.4k€", "change": "+12%", "color": "accent", "icon": "💰"},
-            {"title": "Taux de satisfaction", "value": "98%", "change": "+2%", "color": "success", "icon": "⭐"}
+            {
+                "title": "Clients actifs",
+                "value": "42",
+                "change": "+5",
+                "color": "primary",
+                "icon": "👥",
+            },
+            {
+                "title": "Séances cette semaine",
+                "value": "18",
+                "change": "+3",
+                "color": "secondary",
+                "icon": "🏃",
+            },
+            {
+                "title": "Revenus du mois",
+                "value": "2.4k€",
+                "change": "+12%",
+                "color": "accent",
+                "icon": "💰",
+            },
+            {
+                "title": "Taux de satisfaction",
+                "value": "98%",
+                "change": "+2%",
+                "color": "success",
+                "icon": "⭐",
+            },
         ]
 
         for i, metric in enumerate(metrics_data):
@@ -147,7 +171,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             "primary": ctk.ThemeManager.theme["color"]["primary"],
             "secondary": ctk.ThemeManager.theme["color"]["secondary"],
             "accent": ctk.ThemeManager.theme["color"]["accent"],
-            "success": ctk.ThemeManager.theme["color"]["success"]
+            "success": ctk.ThemeManager.theme["color"]["success"],
         }
 
         card = GlassCard(parent)
@@ -163,14 +187,12 @@ class ModernDashboardPage(ctk.CTkFrame):
             text=metric_data["title"],
             font=ctk.CTkFont(size=12),
             text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
-            anchor="w"
+            anchor="w",
         )
         title_label.grid(row=0, column=0, sticky="w")
 
         icon_label = ctk.CTkLabel(
-            header_frame,
-            text=metric_data["icon"],
-            font=ctk.CTkFont(size=18)
+            header_frame, text=metric_data["icon"], font=ctk.CTkFont(size=18)
         )
         icon_label.grid(row=0, column=1, sticky="e")
 
@@ -179,7 +201,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             content,
             text=metric_data["value"],
             font=ctk.CTkFont(size=28, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         value_label.pack(anchor="w", pady=(0, 4))
 
@@ -189,7 +211,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             content,
             text=f"↗ {metric_data['change']}",
             font=ctk.CTkFont(size=11, weight="bold"),
-            text_color=change_color
+            text_color=change_color,
         )
         change_label.pack(anchor="w")
 
@@ -250,11 +272,36 @@ class ModernDashboardPage(ctk.CTkFrame):
 
         # Liste d'activités
         activities = [
-            {"icon": "👤", "text": "Nouveau client: Marie Dubois", "time": "Il y a 2h", "type": "success"},
-            {"icon": "🏃", "text": "Séance terminée avec Jean Martin", "time": "Il y a 3h", "type": "info"},
-            {"icon": "📊", "text": "Rapport mensuel généré", "time": "Il y a 1 jour", "type": "neutral"},
-            {"icon": "💰", "text": "Paiement reçu - 85€", "time": "Il y a 1 jour", "type": "success"},
-            {"icon": "📅", "text": "Séance planifiée pour demain", "time": "Il y a 2 jours", "type": "info"}
+            {
+                "icon": "👤",
+                "text": "Nouveau client: Marie Dubois",
+                "time": "Il y a 2h",
+                "type": "success",
+            },
+            {
+                "icon": "🏃",
+                "text": "Séance terminée avec Jean Martin",
+                "time": "Il y a 3h",
+                "type": "info",
+            },
+            {
+                "icon": "📊",
+                "text": "Rapport mensuel généré",
+                "time": "Il y a 1 jour",
+                "type": "neutral",
+            },
+            {
+                "icon": "💰",
+                "text": "Paiement reçu - 85€",
+                "time": "Il y a 1 jour",
+                "type": "success",
+            },
+            {
+                "icon": "📅",
+                "text": "Séance planifiée pour demain",
+                "time": "Il y a 2 jours",
+                "type": "info",
+            },
         ]
 
         for activity in activities:
@@ -266,7 +313,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             parent,
             fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             corner_radius=8,
-            height=60
+            height=60,
         )
         item_frame.pack(fill="x", pady=4)
         item_frame.pack_propagate(False)
@@ -274,9 +321,7 @@ class ModernDashboardPage(ctk.CTkFrame):
 
         # Icône
         icon_label = ctk.CTkLabel(
-            item_frame,
-            text=activity["icon"],
-            font=ctk.CTkFont(size=20)
+            item_frame, text=activity["icon"], font=ctk.CTkFont(size=20)
         )
         icon_label.grid(row=0, column=0, padx=(12, 8), pady=12)
 
@@ -289,7 +334,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             text=activity["text"],
             font=ctk.CTkFont(size=13, weight="bold"),
             text_color=ctk.ThemeManager.theme["color"]["primary_text"],
-            anchor="w"
+            anchor="w",
         )
         text_label.pack(anchor="w")
 
@@ -298,7 +343,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             text=activity["time"],
             font=ctk.CTkFont(size=11),
             text_color=ctk.ThemeManager.theme["color"]["muted_text"],
-            anchor="w"
+            anchor="w",
         )
         time_label.pack(anchor="w")
 
@@ -312,7 +357,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             stats_card.content_frame,
             fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
             corner_radius=12,
-            height=300
+            height=300,
         )
         chart_placeholder.pack(fill="both", expand=True, pady=8)
 
@@ -320,7 +365,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             chart_placeholder,
             text="📊\nGraphiques de performance\n(Intégration avec matplotlib à venir)",
             font=ctk.CTkFont(size=16),
-            text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
         )
         placeholder_label.pack(expand=True)
 
@@ -338,7 +383,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 planning_card.content_frame,
                 fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
                 corner_radius=8,
-                height=50
+                height=50,
             )
             day_frame.pack(fill="x", pady=2)
             day_frame.pack_propagate(False)
@@ -346,21 +391,22 @@ class ModernDashboardPage(ctk.CTkFrame):
 
             # Jour
             day_label = ctk.CTkLabel(
-                day_frame,
-                text=day,
-                font=ctk.CTkFont(size=12, weight="bold"),
-                width=40
+                day_frame, text=day, font=ctk.CTkFont(size=12, weight="bold"), width=40
             )
             day_label.grid(row=0, column=0, padx=12, pady=12)
 
             # Nombre de séances
-            sessions_text = f"{session_count} séance{'s' if session_count > 1 else ''}" if session_count > 0 else "Libre"
+            sessions_text = (
+                f"{session_count} séance{'s' if session_count > 1 else ''}"
+                if session_count > 0
+                else "Libre"
+            )
             sessions_label = ctk.CTkLabel(
                 day_frame,
                 text=sessions_text,
                 font=ctk.CTkFont(size=11),
                 text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
-                anchor="w"
+                anchor="w",
             )
             sessions_label.grid(row=0, column=1, sticky="w", padx=(0, 12))
 
@@ -380,7 +426,7 @@ class ModernDashboardPage(ctk.CTkFrame):
         clients_today = [
             {"name": "Marie Dubois", "time": "09:00", "type": "Musculation"},
             {"name": "Jean Martin", "time": "14:30", "type": "Cardio"},
-            {"name": "Sophie Leroux", "time": "17:00", "type": "Pilates"}
+            {"name": "Sophie Leroux", "time": "17:00", "type": "Pilates"},
         ]
 
         for client in clients_today:
@@ -388,7 +434,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 clients_card.content_frame,
                 fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
                 corner_radius=6,
-                height=40
+                height=40,
             )
             client_frame.pack(fill="x", pady=2)
             client_frame.pack_propagate(False)
@@ -398,7 +444,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text=client["time"],
                 font=ctk.CTkFont(size=11, weight="bold"),
                 text_color=ctk.ThemeManager.theme["color"]["primary"],
-                width=50
+                width=50,
             )
             time_label.pack(side="left", padx=(8, 4), pady=8)
 
@@ -409,7 +455,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 info_frame,
                 text=client["name"],
                 font=ctk.CTkFont(size=12, weight="bold"),
-                anchor="w"
+                anchor="w",
             )
             name_label.pack(anchor="w")
 
@@ -418,7 +464,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text=client["type"],
                 font=ctk.CTkFont(size=10),
                 text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
-                anchor="w"
+                anchor="w",
             )
             type_label.pack(anchor="w")
 
@@ -430,7 +476,7 @@ class ModernDashboardPage(ctk.CTkFrame):
         quick_stats = [
             {"label": "Objectifs atteints", "value": "87%", "color": "success"},
             {"label": "Taux de présence", "value": "94%", "color": "primary"},
-            {"label": "Satisfaction moyenne", "value": "4.8/5", "color": "accent"}
+            {"label": "Satisfaction moyenne", "value": "4.8/5", "color": "accent"},
         ]
 
         for stat in quick_stats:
@@ -443,7 +489,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text=stat["label"],
                 font=ctk.CTkFont(size=11),
                 text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
-                anchor="w"
+                anchor="w",
             )
             label.grid(row=0, column=0, sticky="w")
 
@@ -452,7 +498,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text=stat["value"],
                 font=ctk.CTkFont(size=13, weight="bold"),
                 text_color=ctk.ThemeManager.theme["color"][stat["color"]],
-                anchor="e"
+                anchor="e",
             )
             value.grid(row=0, column=1, sticky="e")
 
@@ -464,7 +510,7 @@ class ModernDashboardPage(ctk.CTkFrame):
         notifications = [
             {"text": "Rappel: Séance avec Marie à 9h", "type": "warning"},
             {"text": "Paiement en attente - Jean Martin", "type": "info"},
-            {"text": "Nouveau message reçu", "type": "success"}
+            {"text": "Nouveau message reçu", "type": "success"},
         ]
 
         for notif in notifications:
@@ -472,7 +518,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 notif_card.content_frame,
                 fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
                 corner_radius=6,
-                height=35
+                height=35,
             )
             notif_frame.pack(fill="x", pady=1)
             notif_frame.pack_propagate(False)
@@ -481,7 +527,7 @@ class ModernDashboardPage(ctk.CTkFrame):
             colors = {
                 "success": ctk.ThemeManager.theme["color"]["success"],
                 "warning": ctk.ThemeManager.theme["color"]["warning"],
-                "info": ctk.ThemeManager.theme["color"]["primary"]
+                "info": ctk.ThemeManager.theme["color"]["primary"],
             }
 
             dot = ctk.CTkLabel(
@@ -489,7 +535,7 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text="●",
                 font=ctk.CTkFont(size=12),
                 text_color=colors.get(notif["type"], colors["info"]),
-                width=20
+                width=20,
             )
             dot.pack(side="left", padx=(8, 4), pady=8)
 
@@ -498,16 +544,14 @@ class ModernDashboardPage(ctk.CTkFrame):
                 text=notif["text"],
                 font=ctk.CTkFont(size=10),
                 text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
-                anchor="w"
+                anchor="w",
             )
             text_label.pack(side="left", expand=True, fill="x", padx=(0, 8), pady=8)
 
     def _create_fab(self):
         """Floating Action Button pour actions rapides."""
         fab = FloatingActionButton(
-            self,
-            icon_text="➕",
-            command=self._show_quick_actions
+            self, icon_text="➕", command=self._show_quick_actions
         )
         fab.place(relx=1.0, rely=1.0, x=-80, y=-80, anchor="center")
 

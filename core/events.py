@@ -21,7 +21,6 @@ from typing import (
     Awaitable,
     Callable,
     Dict,
-    Generic,
     List,
     Optional,
     Type,
@@ -168,10 +167,12 @@ class EventBus(IEventBus):
         """Add middleware to the event processing pipeline."""
         self._middleware.append(middleware)
 
-    def get_events(self,
-                  event_type: Optional[Type[Event]] = None,
-                  correlation_id: Optional[str] = None,
-                  limit: int = 100) -> List[Event]:
+    def get_events(
+        self,
+        event_type: Optional[Type[Event]] = None,
+        correlation_id: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Event]:
         """Get events from the event store with optional filtering."""
         events = self._event_store
 
@@ -183,9 +184,11 @@ class EventBus(IEventBus):
 
         return events[-limit:] if limit else events
 
-    async def replay_events(self,
-                           from_timestamp: Optional[datetime] = None,
-                           event_types: Optional[List[Type[Event]]] = None) -> None:
+    async def replay_events(
+        self,
+        from_timestamp: Optional[datetime] = None,
+        event_types: Optional[List[Type[Event]]] = None,
+    ) -> None:
         """Replay events from the event store."""
         events = self._event_store
 
@@ -213,13 +216,16 @@ class EventBus(IEventBus):
 
         # Inheritance-based handlers
         for registered_type, type_handlers in self._handlers.items():
-            if registered_type != event_type and issubclass(event_type, registered_type):
+            if registered_type != event_type and issubclass(
+                event_type, registered_type
+            ):
                 handlers.extend(type_handlers)
 
         return handlers
 
     async def _execute_middleware_pipeline(self, event: Event) -> None:
         """Execute middleware pipeline for event processing."""
+
         async def final_handler(e: Event):
             pass  # Final handler does nothing
 
@@ -229,7 +235,9 @@ class EventBus(IEventBus):
         for middleware in reversed(self._middleware):
             current_pipeline = pipeline
 
-            async def middleware_handler(e: Event, mw=middleware, next_handler=current_pipeline):
+            async def middleware_handler(
+                e: Event, mw=middleware, next_handler=current_pipeline
+            ):
                 if asyncio.iscoroutinefunction(mw):
                     await mw(e, next_handler)
                 else:
@@ -239,7 +247,9 @@ class EventBus(IEventBus):
 
         await pipeline(event)
 
-    async def _execute_handler_safely(self, handler: EventHandler, event: Event) -> None:
+    async def _execute_handler_safely(
+        self, handler: EventHandler, event: Event
+    ) -> None:
         """Execute a handler with error handling."""
         try:
             if asyncio.iscoroutinefunction(handler):
@@ -259,10 +269,14 @@ class EventBus(IEventBus):
         # Log error (in real implementation, use proper logging)
         print(f"Error publishing event {event.event_id}: {error}")
 
-    async def _handle_handler_error(self, handler: EventHandler, event: Event, error: Exception) -> None:
+    async def _handle_handler_error(
+        self, handler: EventHandler, event: Event, error: Exception
+    ) -> None:
         """Handle errors in event handlers."""
         # Log error (in real implementation, use proper logging)
-        print(f"Error in handler {handler.__name__} for event {event.event_id}: {error}")
+        print(
+            f"Error in handler {handler.__name__} for event {event.event_id}: {error}"
+        )
 
 
 @dataclass
@@ -329,9 +343,11 @@ def event_handler(event_bus: EventBus, event_type: Type[T]):
         async def send_welcome_email(event: UserCreatedEvent):
             await email_service.send_welcome(event.user_id)
     """
+
     def decorator(func: EventHandler[T]) -> EventHandler[T]:
         event_bus.subscribe(event_type, func)
         return func
+
     return decorator
 
 
@@ -349,6 +365,7 @@ class TimingMiddleware:
 
     async def __call__(self, event: Event, next_handler: Callable) -> None:
         import time
+
         start_time = time.time()
 
         await next_handler(event)

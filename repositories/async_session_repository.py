@@ -14,30 +14,38 @@ from __future__ import annotations
 
 import json
 import time
-from datetime import datetime, timedelta, date
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import date, datetime, timedelta
+from typing import Any, Dict, List, Optional
 
-from domain.entities import Session, Exercise
-from domain.events import SessionCreatedEvent, SessionUpdatedEvent, SessionCompletedEvent
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
-from infrastructure.cache import CacheManager, get_cache_manager, cache_get, cache_set, cache_delete
-from repositories.interfaces import (
-    IAsyncSessionRepository,
-    QueryResult,
-    QueryOptions,
-    RepositoryMetrics,
-    ISpecification,
-    ActiveEntitySpecification,
-    DateRangeSpecification,
-    PaginationSpecification,
-)
 from core.events import IEventBus
 from core.exceptions import (
+    BusinessRuleViolationError,
     EntityNotFoundError,
-    DuplicateEntityError,
     RepositoryError,
     ValidationError,
-    BusinessRuleViolationError,
+)
+from domain.entities import Session
+from domain.events import (
+    SessionCompletedEvent,
+    SessionCreatedEvent,
+    SessionUpdatedEvent,
+)
+from infrastructure.cache import (
+    CacheManager,
+    cache_delete,
+    cache_get,
+    cache_set,
+    get_cache_manager,
+)
+from infrastructure.database import AsyncDatabaseManager, get_database_manager
+from repositories.interfaces import (
+    DateRangeSpecification,
+    IAsyncSessionRepository,
+    ISpecification,
+    PaginationSpecification,
+    QueryOptions,
+    QueryResult,
+    RepositoryMetrics,
 )
 
 
@@ -76,7 +84,11 @@ class UpcomingSessionsSpecification(ISpecification[Session]):
         self.client_id = client_id
 
     def is_satisfied_by(self, entity: Session) -> bool:
-        session_date = entity.date_seance.date() if isinstance(entity.date_seance, datetime) else entity.date_seance
+        session_date = (
+            entity.date_seance.date()
+            if isinstance(entity.date_seance, datetime)
+            else entity.date_seance
+        )
         date_match = self.start_date <= session_date <= self.end_date
         client_match = self.client_id is None or entity.client_id == self.client_id
         return date_match and client_match
@@ -99,7 +111,7 @@ class CompletedSessionsSpecification(ISpecification[Session]):
         self.client_id = client_id
 
     def is_satisfied_by(self, entity: Session) -> bool:
-        status_match = entity.status == 'completed'
+        status_match = entity.status == "completed"
         client_match = self.client_id is None or entity.client_id == self.client_id
         return status_match and client_match
 
@@ -148,9 +160,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
     # Core CRUD Operations
 
     async def get_by_id(
-        self,
-        entity_id: int,
-        options: Optional[QueryOptions] = None
+        self, entity_id: int, options: Optional[QueryOptions] = None
     ) -> Optional[Session]:
         """Get session by ID with caching."""
         options = options or QueryOptions()
@@ -192,7 +202,11 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_session(session), options.cache_ttl or self._default_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_session(session),
+                        options.cache_ttl or self._default_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return session
@@ -202,8 +216,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             raise RepositoryError(f"Failed to get session {entity_id}: {str(e)}") from e
 
     async def get_all(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[Session]:
         """Get all sessions with pagination and caching."""
         options = options or QueryOptions()
@@ -234,7 +247,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             LEFT JOIN clients c ON s.client_id = c.id
             """
 
-            where_clause = "WHERE s.is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            where_clause = (
+                "WHERE s.is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            )
 
             # Add sorting (default by date descending)
             sort_field = options.sort_by or "s.date_seance"
@@ -273,7 +288,11 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_query_result(result), self._list_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_query_result(result),
+                        self._list_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return result
@@ -285,7 +304,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
     async def find(
         self,
         specification: ISpecification[Session],
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Session]:
         """Find sessions matching specification."""
         options = options or QueryOptions()
@@ -394,13 +413,15 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
             # Publish domain event
             if self._event_bus:
-                await self._event_bus.publish(SessionCreatedEvent(
-                    session_id=entity.id,
-                    client_id=entity.client_id,
-                    session_date=entity.date_seance,
-                    session_type=entity.type_seance,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    SessionCreatedEvent(
+                        session_id=entity.id,
+                        client_id=entity.client_id,
+                        session_date=entity.date_seance,
+                        session_type=entity.type_seance,
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return entity
@@ -422,9 +443,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             # Check if status changed to completed
             old_session = await self.get_by_id(entity.id)
             status_changed_to_completed = (
-                old_session and
-                old_session.status != 'completed' and
-                entity.status == 'completed'
+                old_session
+                and old_session.status != "completed"
+                and entity.status == "completed"
             )
 
             query = """
@@ -456,7 +477,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
                 await conn.commit()
 
                 if cursor.rowcount == 0:
-                    raise EntityNotFoundError(f"Session {entity.id} not found or inactive")
+                    raise EntityNotFoundError(
+                        f"Session {entity.id} not found or inactive"
+                    )
 
             # Invalidate caches
             await self._invalidate_single_session_cache(entity.id)
@@ -464,22 +487,26 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
             # Publish domain events
             if self._event_bus:
-                await self._event_bus.publish(SessionUpdatedEvent(
-                    session_id=entity.id,
-                    client_id=entity.client_id,
-                    session_date=entity.date_seance,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    SessionUpdatedEvent(
+                        session_id=entity.id,
+                        client_id=entity.client_id,
+                        session_date=entity.date_seance,
+                        timestamp=datetime.now(),
+                    )
+                )
 
                 # Publish completion event if status changed
                 if status_changed_to_completed:
-                    await self._event_bus.publish(SessionCompletedEvent(
-                        session_id=entity.id,
-                        client_id=entity.client_id,
-                        completion_date=datetime.now(),
-                        duration_minutes=self._calculate_session_duration(entity),
-                        timestamp=datetime.now()
-                    ))
+                    await self._event_bus.publish(
+                        SessionCompletedEvent(
+                            session_id=entity.id,
+                            client_id=entity.client_id,
+                            completion_date=datetime.now(),
+                            duration_minutes=self._calculate_session_duration(entity),
+                            timestamp=datetime.now(),
+                        )
+                    )
 
             self._update_metrics(start_time, True)
             return entity
@@ -488,14 +515,14 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             self._update_metrics(start_time, False)
             if isinstance(e, (EntityNotFoundError, ValidationError)):
                 raise
-            raise RepositoryError(f"Failed to update session {entity.id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to update session {entity.id}: {str(e)}"
+            ) from e
 
     # Domain-Specific Operations
 
     async def find_by_client(
-        self,
-        client_id: int,
-        options: Optional[QueryOptions] = None
+        self, client_id: int, options: Optional[QueryOptions] = None
     ) -> QueryResult[Session]:
         """Find sessions by client ID."""
         spec = SessionByClientSpecification(client_id)
@@ -506,10 +533,10 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         start_date: datetime,
         end_date: datetime,
         client_id: Optional[int] = None,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Session]:
         """Find sessions in date range."""
-        date_spec = DateRangeSpecification(start_date, end_date, 'date_seance')
+        date_spec = DateRangeSpecification(start_date, end_date, "date_seance")
 
         if client_id:
             client_spec = SessionByClientSpecification(client_id)
@@ -523,16 +550,14 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         self,
         client_id: Optional[int] = None,
         days_ahead: int = 7,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Session]:
         """Find upcoming sessions."""
         spec = UpcomingSessionsSpecification(days_ahead, client_id)
         return await self.find(spec, options)
 
     async def find_completed_sessions(
-        self,
-        client_id: Optional[int] = None,
-        options: Optional[QueryOptions] = None
+        self, client_id: Optional[int] = None, options: Optional[QueryOptions] = None
     ) -> QueryResult[Session]:
         """Find completed sessions."""
         spec = CompletedSessionsSpecification(client_id)
@@ -542,14 +567,16 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         self,
         client_id: Optional[int] = None,
         start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """Get comprehensive session analytics and metrics."""
         start_time = time.perf_counter()
 
         try:
             # Build cache key for analytics
-            cache_key = f"{self._cache_prefix}analytics:{client_id}:{start_date}:{end_date}"
+            cache_key = (
+                f"{self._cache_prefix}analytics:{client_id}:{start_date}:{end_date}"
+            )
 
             # Check cache
             cached_analytics = await cache_get(cache_key)
@@ -596,12 +623,16 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
                 # Calculate additional metrics
                 completion_rate = 0.0
-                if row['total_sessions'] > 0:
-                    completion_rate = (row['completed_sessions'] / row['total_sessions']) * 100
+                if row["total_sessions"] > 0:
+                    completion_rate = (
+                        row["completed_sessions"] / row["total_sessions"]
+                    ) * 100
 
                 cancellation_rate = 0.0
-                if row['total_sessions'] > 0:
-                    cancellation_rate = (row['cancelled_sessions'] / row['total_sessions']) * 100
+                if row["total_sessions"] > 0:
+                    cancellation_rate = (
+                        row["cancelled_sessions"] / row["total_sessions"]
+                    ) * 100
 
                 # Get most popular session times
                 time_query = f"""
@@ -617,7 +648,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
                 time_rows = await conn.fetchall(time_query, params)
                 popular_times = [
-                    {'hour': f"{row['hour']}:00", 'count': row['session_count']}
+                    {"hour": f"{row['hour']}:00", "count": row["session_count"]}
                     for row in time_rows
                 ]
 
@@ -633,42 +664,55 @@ class AsyncSessionRepository(IAsyncSessionRepository):
                 """
 
                 trends_rows = await conn.fetchall(trends_query, params)
-                day_names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                day_names = [
+                    "Sunday",
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                ]
                 weekly_trends = [
-                    {'day': day_names[int(row['day_of_week'])], 'count': row['session_count']}
+                    {
+                        "day": day_names[int(row["day_of_week"])],
+                        "count": row["session_count"],
+                    }
                     for row in trends_rows
                 ]
 
                 analytics = {
-                    'period': {
-                        'start_date': start_date.isoformat(),
-                        'end_date': end_date.isoformat(),
-                        'days': (end_date - start_date).days
+                    "period": {
+                        "start_date": start_date.isoformat(),
+                        "end_date": end_date.isoformat(),
+                        "days": (end_date - start_date).days,
                     },
-                    'totals': {
-                        'total_sessions': row['total_sessions'] or 0,
-                        'completed_sessions': row['completed_sessions'] or 0,
-                        'cancelled_sessions': row['cancelled_sessions'] or 0,
-                        'scheduled_sessions': row['scheduled_sessions'] or 0,
-                        'unique_clients': row['unique_clients'] or 0
+                    "totals": {
+                        "total_sessions": row["total_sessions"] or 0,
+                        "completed_sessions": row["completed_sessions"] or 0,
+                        "cancelled_sessions": row["cancelled_sessions"] or 0,
+                        "scheduled_sessions": row["scheduled_sessions"] or 0,
+                        "unique_clients": row["unique_clients"] or 0,
                     },
-                    'metrics': {
-                        'completion_rate': round(completion_rate, 2),
-                        'cancellation_rate': round(cancellation_rate, 2),
-                        'avg_session_duration_minutes': round(row['avg_session_duration_minutes'] or 0, 1)
+                    "metrics": {
+                        "completion_rate": round(completion_rate, 2),
+                        "cancellation_rate": round(cancellation_rate, 2),
+                        "avg_session_duration_minutes": round(
+                            row["avg_session_duration_minutes"] or 0, 1
+                        ),
                     },
-                    'session_types': {
-                        'individual_sessions': row['individual_sessions'] or 0,
-                        'group_sessions': row['group_sessions'] or 0
+                    "session_types": {
+                        "individual_sessions": row["individual_sessions"] or 0,
+                        "group_sessions": row["group_sessions"] or 0,
                     },
-                    'trends': {
-                        'popular_times': popular_times,
-                        'weekly_distribution': weekly_trends
+                    "trends": {
+                        "popular_times": popular_times,
+                        "weekly_distribution": weekly_trends,
                     },
-                    'date_range': {
-                        'first_session': row['first_session_date'],
-                        'last_session': row['last_session_date']
-                    }
+                    "date_range": {
+                        "first_session": row["first_session_date"],
+                        "last_session": row["last_session_date"],
+                    },
                 }
 
             # Cache analytics result
@@ -681,11 +725,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             self._update_metrics(start_time, False)
             raise RepositoryError(f"Failed to get session analytics: {str(e)}") from e
 
-    async def clone_session(
-        self,
-        session_id: int,
-        new_date: datetime
-    ) -> Session:
+    async def clone_session(self, session_id: int, new_date: datetime) -> Session:
         """Clone existing session for new date."""
         start_time = time.perf_counter()
 
@@ -698,13 +738,17 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             # Create cloned session
             cloned_session = Session(
                 client_id=original_session.client_id,
-                date_seance=new_date.date() if isinstance(new_date, datetime) else new_date,
+                date_seance=new_date.date()
+                if isinstance(new_date, datetime)
+                else new_date,
                 heure_debut=original_session.heure_debut,
                 heure_fin=original_session.heure_fin,
                 type_seance=original_session.type_seance,
-                exercices=original_session.exercices.copy() if original_session.exercices else None,
+                exercices=original_session.exercices.copy()
+                if original_session.exercices
+                else None,
                 notes=f"Cloned from session {session_id}. {original_session.notes or ''}".strip(),
-                status='scheduled'
+                status="scheduled",
             )
 
             # Save cloned session
@@ -717,13 +761,15 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             self._update_metrics(start_time, False)
             if isinstance(e, EntityNotFoundError):
                 raise
-            raise RepositoryError(f"Failed to clone session {session_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to clone session {session_id}: {str(e)}"
+            ) from e
 
     async def bulk_schedule_sessions(
         self,
         template_session_id: int,
         dates: List[datetime],
-        client_id: Optional[int] = None
+        client_id: Optional[int] = None,
     ) -> List[Session]:
         """Bulk schedule sessions from template."""
         start_time = time.perf_counter()
@@ -733,7 +779,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             # Get template session
             template_session = await self.get_by_id(template_session_id)
             if not template_session:
-                raise EntityNotFoundError(f"Template session {template_session_id} not found")
+                raise EntityNotFoundError(
+                    f"Template session {template_session_id} not found"
+                )
 
             # Use transaction for bulk operation
             async with self._db_manager.get_transaction() as transaction:
@@ -741,17 +789,23 @@ class AsyncSessionRepository(IAsyncSessionRepository):
                     # Create session from template
                     new_session = Session(
                         client_id=client_id or template_session.client_id,
-                        date_seance=session_date.date() if isinstance(session_date, datetime) else session_date,
+                        date_seance=session_date.date()
+                        if isinstance(session_date, datetime)
+                        else session_date,
                         heure_debut=template_session.heure_debut,
                         heure_fin=template_session.heure_fin,
                         type_seance=template_session.type_seance,
-                        exercices=template_session.exercices.copy() if template_session.exercices else None,
+                        exercices=template_session.exercices.copy()
+                        if template_session.exercices
+                        else None,
                         notes=f"Scheduled from template {template_session_id}",
-                        status='scheduled'
+                        status="scheduled",
                     )
 
                     # Create without individual transaction (using existing transaction)
-                    created_session = await self._create_session_in_transaction(new_session, transaction)
+                    created_session = await self._create_session_in_transaction(
+                        new_session, transaction
+                    )
                     created_sessions.append(created_session)
 
             # Invalidate caches after bulk operation
@@ -773,26 +827,28 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         """Map database row to Session entity."""
         # Deserialize exercises JSON
         exercices = None
-        if row['exercices_json']:
+        if row["exercices_json"]:
             try:
-                exercices = json.loads(row['exercices_json'])
+                exercices = json.loads(row["exercices_json"])
             except json.JSONDecodeError:
                 exercices = None
 
         session = Session(
-            client_id=row['client_id'],
-            date_seance=datetime.fromisoformat(row['date_seance']).date() if row['date_seance'] else None,
-            heure_debut=row['heure_debut'],
-            heure_fin=row['heure_fin'],
-            type_seance=row['type_seance'],
+            client_id=row["client_id"],
+            date_seance=datetime.fromisoformat(row["date_seance"]).date()
+            if row["date_seance"]
+            else None,
+            heure_debut=row["heure_debut"],
+            heure_fin=row["heure_fin"],
+            type_seance=row["type_seance"],
             exercices=exercices,
-            notes=row['notes'],
-            status=row['statut'],
-            id=row['id']
+            notes=row["notes"],
+            status=row["statut"],
+            id=row["id"],
         )
 
         # Add client info if available from JOIN
-        if 'client_prenom' in row and row['client_prenom']:
+        if "client_prenom" in row and row["client_prenom"]:
             session._client_name = f"{row['client_prenom']} {row['client_nom']}"
 
         return session
@@ -800,34 +856,38 @@ class AsyncSessionRepository(IAsyncSessionRepository):
     def _serialize_session(self, session: Session) -> Dict[str, Any]:
         """Serialize session for cache storage."""
         return {
-            'id': session.id,
-            'client_id': session.client_id,
-            'date_seance': session.date_seance.isoformat() if session.date_seance else None,
-            'heure_debut': session.heure_debut,
-            'heure_fin': session.heure_fin,
-            'type_seance': session.type_seance,
-            'exercices': session.exercices,
-            'notes': session.notes,
-            'status': session.status,
-            '_client_name': getattr(session, '_client_name', None)
+            "id": session.id,
+            "client_id": session.client_id,
+            "date_seance": session.date_seance.isoformat()
+            if session.date_seance
+            else None,
+            "heure_debut": session.heure_debut,
+            "heure_fin": session.heure_fin,
+            "type_seance": session.type_seance,
+            "exercices": session.exercices,
+            "notes": session.notes,
+            "status": session.status,
+            "_client_name": getattr(session, "_client_name", None),
         }
 
     def _deserialize_session(self, data: Dict[str, Any]) -> Session:
         """Deserialize session from cache data."""
         session = Session(
-            client_id=data['client_id'],
-            date_seance=datetime.fromisoformat(data['date_seance']).date() if data['date_seance'] else None,
-            heure_debut=data['heure_debut'],
-            heure_fin=data['heure_fin'],
-            type_seance=data['type_seance'],
-            exercices=data['exercices'],
-            notes=data['notes'],
-            status=data['status'],
-            id=data['id']
+            client_id=data["client_id"],
+            date_seance=datetime.fromisoformat(data["date_seance"]).date()
+            if data["date_seance"]
+            else None,
+            heure_debut=data["heure_debut"],
+            heure_fin=data["heure_fin"],
+            type_seance=data["type_seance"],
+            exercices=data["exercices"],
+            notes=data["notes"],
+            status=data["status"],
+            id=data["id"],
         )
 
-        if data.get('_client_name'):
-            session._client_name = data['_client_name']
+        if data.get("_client_name"):
+            session._client_name = data["_client_name"]
 
         return session
 
@@ -849,7 +909,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
                 entity.date_seance,
                 entity.heure_debut,
                 entity.heure_fin,
-                entity.client_id
+                entity.client_id,
             )
 
             if conflicts:
@@ -858,11 +918,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
                 )
 
     async def _check_scheduling_conflicts(
-        self,
-        session_date: date,
-        start_time: str,
-        end_time: str,
-        client_id: int
+        self, session_date: date, start_time: str, end_time: str, client_id: int
     ) -> bool:
         """Check for scheduling conflicts with existing sessions."""
         query = """
@@ -878,10 +934,14 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         """
 
         params = (
-            client_id, session_date,
-            end_time, start_time,  # Existing session starts before new ends and ends after new starts
-            start_time, end_time,  # Existing session starts before new ends and ends after new starts
-            start_time, end_time   # New session completely contains existing session
+            client_id,
+            session_date,
+            end_time,
+            start_time,  # Existing session starts before new ends and ends after new starts
+            start_time,
+            end_time,  # Existing session starts before new ends and ends after new starts
+            start_time,
+            end_time,  # New session completely contains existing session
         )
 
         conflict_count = await self._db_manager.execute_scalar(query, params)
@@ -904,7 +964,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         except ValueError:
             return 0
 
-    async def _create_session_in_transaction(self, entity: Session, transaction) -> Session:
+    async def _create_session_in_transaction(
+        self, entity: Session, transaction
+    ) -> Session:
         """Create session within existing transaction."""
         query = """
         INSERT INTO seances (
@@ -946,7 +1008,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
         # Invalidate analytics caches
         if client_id:
-            await self._cache_manager.clear_cache(f"{self._cache_prefix}analytics:{client_id}:*")
+            await self._cache_manager.clear_cache(
+                f"{self._cache_prefix}analytics:{client_id}:*"
+            )
         else:
             await self._cache_manager.clear_cache(f"{self._cache_prefix}analytics:*")
 
@@ -968,9 +1032,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             self._metrics.avg_query_time_ms = execution_time
         else:
             self._metrics.avg_query_time_ms = (
-                (self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1) + execution_time)
-                / self._metrics.total_queries
-            )
+                self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1)
+                + execution_time
+            ) / self._metrics.total_queries
 
     # Interface Implementation
 
@@ -980,8 +1044,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         return session is not None
 
     async def count(
-        self,
-        specification: Optional[ISpecification[Session]] = None
+        self, specification: Optional[ISpecification[Session]] = None
     ) -> int:
         """Count sessions matching specification."""
         if specification:
@@ -989,7 +1052,12 @@ class AsyncSessionRepository(IAsyncSessionRepository):
             query = f"SELECT COUNT(*) FROM seances WHERE ({where_condition}) AND is_active = 1"
             return await self._db_manager.execute_scalar(query, where_params) or 0
         else:
-            return await self._db_manager.execute_scalar("SELECT COUNT(*) FROM seances WHERE is_active = 1") or 0
+            return (
+                await self._db_manager.execute_scalar(
+                    "SELECT COUNT(*) FROM seances WHERE is_active = 1"
+                )
+                or 0
+            )
 
     async def delete(self, entity_id: int) -> bool:
         """Hard delete session."""
@@ -1016,7 +1084,9 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to delete session {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to delete session {entity_id}: {str(e)}"
+            ) from e
 
     async def soft_delete(self, entity_id: int) -> bool:
         """Soft delete session by marking inactive."""
@@ -1048,19 +1118,23 @@ class AsyncSessionRepository(IAsyncSessionRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to soft delete session {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to soft delete session {entity_id}: {str(e)}"
+            ) from e
 
     async def batch_create(self, entities: List[Session]) -> List[Session]:
         """Create multiple sessions in batch."""
         created_sessions = []
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity in entities:
                 created_session = await self.create(entity)
                 created_sessions.append(created_session)
 
         # Invalidate caches after bulk operation
-        unique_clients = set(session.client_id for session in created_sessions if session.client_id)
+        unique_clients = set(
+            session.client_id for session in created_sessions if session.client_id
+        )
         for client_id in unique_clients:
             await self._invalidate_session_caches(client_id)
 
@@ -1070,13 +1144,15 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         """Update multiple sessions in batch."""
         updated_sessions = []
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity in entities:
                 updated_session = await self.update(entity)
                 updated_sessions.append(updated_session)
 
         # Invalidate caches after bulk operation
-        unique_clients = set(session.client_id for session in updated_sessions if session.client_id)
+        unique_clients = set(
+            session.client_id for session in updated_sessions if session.client_id
+        )
         for client_id in unique_clients:
             await self._invalidate_session_caches(client_id)
 
@@ -1086,7 +1162,7 @@ class AsyncSessionRepository(IAsyncSessionRepository):
         """Delete multiple sessions in batch."""
         deleted_count = 0
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity_id in entity_ids:
                 if await self.delete(entity_id):
                     deleted_count += 1
@@ -1107,25 +1183,27 @@ class AsyncSessionRepository(IAsyncSessionRepository):
     def _serialize_query_result(self, result: QueryResult[Session]) -> Dict[str, Any]:
         """Serialize query result for caching."""
         return {
-            'data': [self._serialize_session(session) for session in result.data],
-            'total_count': result.total_count,
-            'page': result.page,
-            'page_size': result.page_size,
-            'has_next': result.has_next,
-            'has_previous': result.has_previous,
-            'execution_time_ms': result.execution_time_ms,
-            'cache_hit': result.cache_hit
+            "data": [self._serialize_session(session) for session in result.data],
+            "total_count": result.total_count,
+            "page": result.page,
+            "page_size": result.page_size,
+            "has_next": result.has_next,
+            "has_previous": result.has_previous,
+            "execution_time_ms": result.execution_time_ms,
+            "cache_hit": result.cache_hit,
         }
 
     def _deserialize_query_result(self, data: Dict[str, Any]) -> QueryResult[Session]:
         """Deserialize query result from cache."""
         return QueryResult(
-            data=[self._deserialize_session(session_data) for session_data in data['data']],
-            total_count=data['total_count'],
-            page=data['page'],
-            page_size=data['page_size'],
-            has_next=data['has_next'],
-            has_previous=data['has_previous'],
-            execution_time_ms=data['execution_time_ms'],
-            cache_hit=True
+            data=[
+                self._deserialize_session(session_data) for session_data in data["data"]
+            ],
+            total_count=data["total_count"],
+            page=data["page"],
+            page_size=data["page_size"],
+            has_next=data["has_next"],
+            has_previous=data["has_previous"],
+            execution_time_ms=data["execution_time_ms"],
+            cache_hit=True,
         )

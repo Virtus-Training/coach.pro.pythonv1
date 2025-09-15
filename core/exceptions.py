@@ -127,7 +127,9 @@ class CoachProException(Exception):
                 "request_id": self.context.request_id,
                 "metadata": self.context.metadata,
             },
-            "inner_exception": str(self.inner_exception) if self.inner_exception else None,
+            "inner_exception": str(self.inner_exception)
+            if self.inner_exception
+            else None,
         }
 
 
@@ -225,10 +227,12 @@ class NotFoundError(CoachProException):
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with resource information."""
         result = super().to_dict()
-        result.update({
-            "resource_type": self.resource_type,
-            "resource_id": self.resource_id,
-        })
+        result.update(
+            {
+                "resource_type": self.resource_type,
+                "resource_id": self.resource_id,
+            }
+        )
         return result
 
 
@@ -323,10 +327,12 @@ class DatabaseError(CoachProException):
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with database information."""
         result = super().to_dict()
-        result.update({
-            "operation": self.operation,
-            "table": self.table,
-        })
+        result.update(
+            {
+                "operation": self.operation,
+                "table": self.table,
+            }
+        )
         return result
 
 
@@ -358,10 +364,12 @@ class ExternalServiceError(CoachProException):
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary with service information."""
         result = super().to_dict()
-        result.update({
-            "service_name": self.service_name,
-            "status_code": self.status_code,
-        })
+        result.update(
+            {
+                "service_name": self.service_name,
+                "status_code": self.status_code,
+            }
+        )
         return result
 
 
@@ -422,7 +430,9 @@ class ExceptionHandler:
 
     def _log_coachpro_exception(self, exception: CoachProException) -> None:
         """Log CoachPro specific exceptions."""
-        print(f"[{exception.severity.value.upper()}] {exception.error_code}: {exception.message}")
+        print(
+            f"[{exception.severity.value.upper()}] {exception.error_code}: {exception.message}"
+        )
         if exception.context.correlation_id:
             print(f"Correlation ID: {exception.context.correlation_id}")
 

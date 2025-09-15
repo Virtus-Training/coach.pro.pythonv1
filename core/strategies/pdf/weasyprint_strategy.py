@@ -5,21 +5,23 @@ HTML/CSS-based PDF generation using WeasyPrint library.
 Optimized for web-like layouts and modern CSS styling.
 """
 
-import io
 import time
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List
 
 try:
-    import weasyprint
-    from weasyprint import HTML, CSS
+    from weasyprint import CSS, HTML
+
     WEASYPRINT_AVAILABLE = True
 except ImportError:
     WEASYPRINT_AVAILABLE = False
 
 from ..base import BaseStrategy, StrategyConfig, StrategyPriority
 from .base import (
-    PDFStrategyContext, PDFStrategyResult, PDFGenerationContext,
-    PDFGenerationResult, PDFQualityMetrics, PDFQuality, PDFFormat, PDFComplexity
+    PDFGenerationContext,
+    PDFGenerationResult,
+    PDFQualityMetrics,
+    PDFStrategyContext,
+    PDFStrategyResult,
 )
 
 
@@ -42,7 +44,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
             priority=StrategyPriority.NORMAL,
             timeout_seconds=45.0,
             cache_enabled=True,
-            cache_ttl_seconds=1800
+            cache_ttl_seconds=1800,
         )
         super().__init__(config)
 
@@ -59,7 +61,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
             return PDFStrategyResult(
                 data=None,
                 success=False,
-                error_message="WeasyPrint library not available"
+                error_message="WeasyPrint library not available",
             )
 
         start_time = time.time()
@@ -76,7 +78,9 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
             css_styles = CSS(string=css_content) if css_content else None
 
             # Generate PDF
-            pdf_bytes = html_doc.write_pdf(stylesheets=[css_styles] if css_styles else None)
+            pdf_bytes = html_doc.write_pdf(
+                stylesheets=[css_styles] if css_styles else None
+            )
 
             # Calculate metrics
             generation_time = (time.time() - start_time) * 1000
@@ -86,7 +90,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 page_count=self._estimate_page_count(pdf_bytes),
                 image_quality_score=80.0,  # Good image quality
                 text_readability_score=95.0,  # Excellent typography with CSS
-                layout_consistency_score=90.0  # Very good layout consistency
+                layout_consistency_score=90.0,  # Very good layout consistency
             )
             quality_metrics.calculate_overall_score()
 
@@ -96,7 +100,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 quality_metrics=quality_metrics,
                 generation_engine="WeasyPrint",
                 template_used=pdf_context.template.name,
-                success=True
+                success=True,
             )
 
             return PDFStrategyResult(
@@ -104,7 +108,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 success=True,
                 execution_time_ms=generation_time,
                 strategy_name=self.name,
-                strategy_version=self.version
+                strategy_version=self.version,
             )
 
         except Exception as e:
@@ -114,7 +118,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 success=False,
                 execution_time_ms=generation_time,
                 strategy_name=self.name,
-                error_message=f"WeasyPrint PDF generation failed: {str(e)}"
+                error_message=f"WeasyPrint PDF generation failed: {str(e)}",
             )
 
     def _generate_html_content(self, context: PDFGenerationContext) -> str:
@@ -131,12 +135,14 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
         else:
             return self._generate_generic_html(data, context)
 
-    def _generate_workout_html(self, data: Dict[str, Any], context: PDFGenerationContext) -> str:
+    def _generate_workout_html(
+        self, data: Dict[str, Any], context: PDFGenerationContext
+    ) -> str:
         """Generate HTML for workout session"""
-        title = data.get('title', 'Séance d\'Entraînement')
-        session_info = data.get('session_info', {})
-        exercises = data.get('exercises', [])
-        notes = data.get('notes', '')
+        title = data.get("title", "Séance d'Entraînement")
+        session_info = data.get("session_info", {})
+        exercises = data.get("exercises", [])
+        notes = data.get("notes", "")
 
         html = f"""
         <!DOCTYPE html>
@@ -153,19 +159,19 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                         <div class="info-grid">
                             <div class="info-item">
                                 <span class="label">Date:</span>
-                                <span class="value">{session_info.get('date', 'N/A')}</span>
+                                <span class="value">{session_info.get("date", "N/A")}</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Durée:</span>
-                                <span class="value">{session_info.get('duration', 'N/A')} minutes</span>
+                                <span class="value">{session_info.get("duration", "N/A")} minutes</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Type:</span>
-                                <span class="value">{session_info.get('type', 'N/A')}</span>
+                                <span class="value">{session_info.get("type", "N/A")}</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Coach:</span>
-                                <span class="value">{session_info.get('coach', 'N/A')}</span>
+                                <span class="value">{session_info.get("coach", "N/A")}</span>
                             </div>
                         </div>
                     </div>
@@ -178,9 +184,9 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
 
         # Add exercises
         for i, exercise in enumerate(exercises, 1):
-            exercise_name = exercise.get('name', 'Exercice sans nom')
-            sets = exercise.get('sets', [])
-            exercise_notes = exercise.get('notes', '')
+            exercise_name = exercise.get("name", "Exercice sans nom")
+            sets = exercise.get("sets", [])
+            exercise_notes = exercise.get("notes", "")
 
             html += f"""
                         <div class="exercise">
@@ -205,9 +211,9 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                     html += f"""
                                     <tr>
                                         <td>{j}</td>
-                                        <td>{set_data.get('reps', '-')}</td>
-                                        <td>{set_data.get('weight', '-')}</td>
-                                        <td>{set_data.get('rest', '-')}</td>
+                                        <td>{set_data.get("reps", "-")}</td>
+                                        <td>{set_data.get("weight", "-")}</td>
+                                        <td>{set_data.get("rest", "-")}</td>
                                     </tr>
                     """
 
@@ -248,11 +254,13 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
 
         return html
 
-    def _generate_nutrition_html(self, data: Dict[str, Any], context: PDFGenerationContext) -> str:
+    def _generate_nutrition_html(
+        self, data: Dict[str, Any], context: PDFGenerationContext
+    ) -> str:
         """Generate HTML for nutrition plan"""
-        title = data.get('title', 'Plan Nutritionnel')
-        client_info = data.get('client_info', {})
-        meals = data.get('meals', [])
+        title = data.get("title", "Plan Nutritionnel")
+        client_info = data.get("client_info", {})
+        meals = data.get("meals", [])
 
         html = f"""
         <!DOCTYPE html>
@@ -283,23 +291,23 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                             </div>
                             <div class="info-item">
                                 <span class="label">Objectif:</span>
-                                <span class="value">{client_info.get('goal', 'N/A')}</span>
+                                <span class="value">{client_info.get("goal", "N/A")}</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Calories cibles:</span>
-                                <span class="value">{client_info.get('target_calories', 'N/A')} kcal/jour</span>
+                                <span class="value">{client_info.get("target_calories", "N/A")} kcal/jour</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Protéines:</span>
-                                <span class="value">{client_info.get('target_protein', 'N/A')} g/jour</span>
+                                <span class="value">{client_info.get("target_protein", "N/A")} g/jour</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Glucides:</span>
-                                <span class="value">{client_info.get('target_carbs', 'N/A')} g/jour</span>
+                                <span class="value">{client_info.get("target_carbs", "N/A")} g/jour</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Lipides:</span>
-                                <span class="value">{client_info.get('target_fats', 'N/A')} g/jour</span>
+                                <span class="value">{client_info.get("target_fats", "N/A")} g/jour</span>
                             </div>
                         </div>
                     </section>
@@ -313,9 +321,9 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
             """
 
             for meal in meals:
-                meal_name = meal.get('name', 'Repas')
-                meal_time = meal.get('time', '')
-                foods = meal.get('foods', [])
+                meal_name = meal.get("name", "Repas")
+                meal_time = meal.get("time", "")
+                foods = meal.get("foods", [])
 
                 html += f"""
                         <div class="meal">
@@ -349,15 +357,15 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                     total_fats = 0
 
                     for food in foods:
-                        calories = food.get('calories', 0)
-                        protein = food.get('protein', 0)
-                        carbs = food.get('carbs', 0)
-                        fats = food.get('fats', 0)
+                        calories = food.get("calories", 0)
+                        protein = food.get("protein", 0)
+                        carbs = food.get("carbs", 0)
+                        fats = food.get("fats", 0)
 
                         html += f"""
                                     <tr>
-                                        <td>{food.get('name', '')}</td>
-                                        <td>{food.get('quantity', '')}</td>
+                                        <td>{food.get("name", "")}</td>
+                                        <td>{food.get("quantity", "")}</td>
                                         <td>{calories}</td>
                                         <td>{protein}</td>
                                         <td>{carbs}</td>
@@ -401,10 +409,12 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
 
         return html
 
-    def _generate_progress_html(self, data: Dict[str, Any], context: PDFGenerationContext) -> str:
+    def _generate_progress_html(
+        self, data: Dict[str, Any], context: PDFGenerationContext
+    ) -> str:
         """Generate HTML for progress report"""
-        title = data.get('title', 'Rapport de Progression')
-        metrics = data.get('metrics', {})
+        title = data.get("title", "Rapport de Progression")
+        metrics = data.get("metrics", {})
 
         html = f"""
         <!DOCTYPE html>
@@ -426,7 +436,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
         """
 
         for key, value in metrics.items():
-            formatted_key = key.replace('_', ' ').title()
+            formatted_key = key.replace("_", " ").title()
             html += f"""
                             <div class="metric-item">
                                 <span class="metric-label">{formatted_key}:</span>
@@ -445,10 +455,12 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
 
         return html
 
-    def _generate_generic_html(self, data: Dict[str, Any], context: PDFGenerationContext) -> str:
+    def _generate_generic_html(
+        self, data: Dict[str, Any], context: PDFGenerationContext
+    ) -> str:
         """Generate HTML for generic document"""
-        title = data.get('title', 'Document')
-        sections = data.get('sections', [])
+        title = data.get("title", "Document")
+        sections = data.get("sections", [])
 
         html = f"""
         <!DOCTYPE html>
@@ -467,8 +479,8 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
         """
 
         for section in sections:
-            section_title = section.get('title', '')
-            section_content = section.get('content', '')
+            section_title = section.get("title", "")
+            section_content = section.get("content", "")
 
             if section_title:
                 html += f"""
@@ -668,7 +680,7 @@ class WeasyPrintPDFStrategy(BaseStrategy[PDFGenerationContext]):
                 return 3
             else:
                 return max(1, int(size_kb / 100))
-        except:
+        except Exception:
             return 1
 
     def validate_context(self, context: PDFStrategyContext) -> List[str]:

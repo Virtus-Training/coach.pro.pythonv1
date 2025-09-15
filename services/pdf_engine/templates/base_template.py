@@ -8,13 +8,11 @@ from __future__ import annotations
 import time
 from abc import ABC, abstractmethod
 from io import BytesIO
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 from reportlab.lib.colors import Color, HexColor
 from reportlab.lib.pagesizes import A4, LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import cm
 from reportlab.platypus import SimpleDocTemplate
 
 from ..components.footer import FooterComponent
@@ -55,15 +53,11 @@ class BaseTemplate(ABC):
 
         if isinstance(output, str):
             doc = SimpleDocTemplate(
-                output,
-                pagesize=self._get_page_size(),
-                **self._get_doc_margins()
+                output, pagesize=self._get_page_size(), **self._get_doc_margins()
             )
         else:
             doc = SimpleDocTemplate(
-                output,
-                pagesize=self._get_page_size(),
-                **self._get_doc_margins()
+                output, pagesize=self._get_page_size(), **self._get_doc_margins()
             )
 
         # Build document elements
@@ -74,9 +68,7 @@ class BaseTemplate(ABC):
 
         # Build PDF
         doc.build(
-            elements,
-            onFirstPage=self._on_first_page,
-            onLaterPages=self._on_later_pages
+            elements, onFirstPage=self._on_first_page, onLaterPages=self._on_later_pages
         )
 
         # Update page count
@@ -105,7 +97,7 @@ class BaseTemplate(ABC):
                 "title": {"type": "string"},
                 "created_at": {"type": "string", "format": "date-time"},
             },
-            "required": ["title"]
+            "required": ["title"],
         }
 
     def set_preview_mode(self, enabled: bool, max_pages: int = 3) -> None:
@@ -135,7 +127,7 @@ class BaseTemplate(ABC):
         base_styles = getSampleStyleSheet()
 
         # Extract style configuration
-        style_config = self.merged_config.get("styles", {})
+        self.merged_config.get("styles", {})
         colors = self.merged_config.get("colors", {})
         fonts = self.merged_config.get("fonts", {})
 
@@ -146,7 +138,7 @@ class BaseTemplate(ABC):
                 "primary": "#2563EB",
                 "secondary": "#7C3AED",
                 "text_primary": "#1F2937",
-                "text_secondary": "#6B7280"
+                "text_secondary": "#6B7280",
             }
 
         # Create custom styles
@@ -233,11 +225,7 @@ class BaseTemplate(ABC):
         canvas.saveState()
         canvas.setFont("Helvetica", 9)
         canvas.setFillColorRGB(0.5, 0.5, 0.5)
-        canvas.drawRightString(
-            doc.pagesize[0] - 50,
-            30,
-            text
-        )
+        canvas.drawRightString(doc.pagesize[0] - 50, 30, text)
         canvas.restoreState()
 
     def _hex_to_color(self, hex_color: str) -> Color:

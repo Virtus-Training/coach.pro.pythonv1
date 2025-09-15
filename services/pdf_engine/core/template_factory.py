@@ -8,11 +8,11 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Type
 
 from ..templates.base_template import BaseTemplate
+from ..templates.meal_plan_template import MealPlanTemplate
 from ..templates.nutrition_template import NutritionTemplate
 from ..templates.program_template import ProgramTemplate
-from ..templates.session_template import SessionTemplate
-from ..templates.meal_plan_template import MealPlanTemplate
 from ..templates.progress_report_template import ProgressReportTemplate
+from ..templates.session_template import SessionTemplate
 
 
 class TemplateFactory:
@@ -75,7 +75,7 @@ class TemplateFactory:
             raise ValueError(f"Unknown template type: {template_type}")
 
         template_class = self._template_registry[template_type]
-        if hasattr(template_class, 'get_data_schema'):
+        if hasattr(template_class, "get_data_schema"):
             return template_class.get_data_schema()
 
         return {"type": "object", "properties": {}}
@@ -104,10 +104,22 @@ class TemplateFactory:
                 "simple": {"show_recipes": False, "show_shopping_list": False},
             },
             "progress_report": {
-                "comprehensive": {"show_charts": True, "show_photos": True, "show_measurements": True},
-                "visual": {"show_charts": True, "show_photos": True, "show_measurements": False},
-                "data": {"show_charts": True, "show_photos": False, "show_measurements": True},
-            }
+                "comprehensive": {
+                    "show_charts": True,
+                    "show_photos": True,
+                    "show_measurements": True,
+                },
+                "visual": {
+                    "show_charts": True,
+                    "show_photos": True,
+                    "show_measurements": False,
+                },
+                "data": {
+                    "show_charts": True,
+                    "show_photos": False,
+                    "show_measurements": True,
+                },
+            },
         }
         return variants
 

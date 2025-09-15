@@ -75,7 +75,9 @@ class NutritionPage(ctk.CTkFrame):
 
     # Right panel
     def _create_right_panel(self) -> None:
-        self.search_bar = FoodSearchBar(self, self.controller, self._on_food_selected, client_id=self.client_id)
+        self.search_bar = FoodSearchBar(
+            self, self.controller, self._on_food_selected, client_id=self.client_id
+        )
         self.search_bar.grid(row=1, column=2, sticky="nsew", padx=5, pady=5)
 
     def _create_top_bar(self) -> None:
@@ -93,29 +95,29 @@ class NutritionPage(ctk.CTkFrame):
         hero.grid(row=0, column=0, columnspan=3, sticky="ew", padx=8, pady=(6, 6))
         bar = ctk.CTkFrame(self, fg_color="transparent")
         bar.grid(row=0, column=0, columnspan=3, sticky="e", padx=16, pady=(0, 0))
-        
+
         # Nouvelles fonctionnalités intelligentes
         PrimaryButton(
-            bar, 
-            text="🤖 Générer Plan Auto", 
+            bar,
+            text="🤖 Générer Plan Auto",
             command=self._generate_automatic_plan,
-            width=180
+            width=180,
         ).pack(side="right", padx=(0, 8))
-        
+
         SecondaryButton(
             bar,
             text="📊 Analyser Plan",
             command=self._analyze_plan,
             width=140,
         ).pack(side="right", padx=(0, 8))
-        
+
         SecondaryButton(
             bar,
             text="Fiche nutrition",
             command=self._open_fiche_modal,
             width=160,
         ).pack(side="right", padx=(0, 8))
-        
+
         PrimaryButton(bar, text="Exporter en PDF", command=self._export_pdf).pack(
             side="right"
         )
@@ -143,6 +145,7 @@ class NutritionPage(ctk.CTkFrame):
         popup.grab_set()
         try:
             from utils.ui_helpers import bring_to_front
+
             bring_to_front(popup, make_modal=True)
         except Exception:
             pass
@@ -240,61 +243,65 @@ class NutritionPage(ctk.CTkFrame):
         self.fat_lbl.configure(text=f"Lipides: {totals['lipides']:.1f} / {cible_l}")
 
     # --- Nouvelles fonctionnalités intelligentes ---
-    
+
     def _generate_automatic_plan(self) -> None:
         """Génère automatiquement un plan alimentaire intelligent"""
         try:
             # Confirmation avec l'utilisateur
             import tkinter.messagebox as messagebox
-            
+
             confirm = messagebox.askyesno(
                 "Génération automatique",
                 "Cette action va générer un plan alimentaire personnalisé basé sur votre profil.\n\n"
-                "Voulez-vous continuer ?"
+                "Voulez-vous continuer ?",
             )
-            
+
             if not confirm:
                 return
-            
+
             # Génération via le contrôleur
             self.plan = self.controller.generate_automatic_meal_plan(
                 client_id=self.client_id,
-                nom_plan=f"Plan auto pour {self.client.prenom} {self.client.nom}" if self.client else "Plan automatique"
+                nom_plan=f"Plan auto pour {self.client.prenom} {self.client.nom}"
+                if self.client
+                else "Plan automatique",
             )
-            
+
             # Mise à jour de l'interface
             self._refresh()
-            
+
             messagebox.showinfo(
                 "Succès",
                 "Plan alimentaire généré avec succès !\n\n"
-                "Vous pouvez maintenant personnaliser ce plan en ajoutant/supprimant des aliments."
+                "Vous pouvez maintenant personnaliser ce plan en ajoutant/supprimant des aliments.",
             )
-            
+
         except Exception as e:
             import tkinter.messagebox as messagebox
+
             print(f"Erreur génération automatique: {e}")
             messagebox.showerror(
-                "Erreur", 
+                "Erreur",
                 f"Impossible de générer le plan automatique :\n{e}\n\n"
-                "Assurez-vous que la base d'aliments contient suffisamment de données."
+                "Assurez-vous que la base d'aliments contient suffisamment de données.",
             )
-    
+
     def _analyze_plan(self) -> None:
         """Analyse le plan alimentaire actuel"""
         try:
             # Analyse via le contrôleur
             analyse = self.controller.analyze_current_plan(self.client_id)
-            
+
             if "erreur" in analyse:
                 import tkinter.messagebox as messagebox
+
                 messagebox.showerror("Erreur d'analyse", analyse["erreur"])
                 return
-            
+
             # Formatage des résultats
             totaux = analyse.get("totaux", {})
             score = analyse.get("score_equilibre", 0)
-            
+
             # Détermination de la couleur du score
             if score >= 80:
                 score_status = "Excellent 🟢"
@@ -302,18 +309,18 @@ class NutritionPage(ctk.CTkFrame):
                 score_status = "Bon 🟡"
             else:
                 score_status = "À améliorer 🔴"
-            
+
             # Affichage des résultats
             result_message = f"""📊 ANALYSE NUTRITIONNELLE
-            
-🔥 Calories totales: {totaux.get('kcal', 0):.0f} kcal
-🥩 Protéines: {totaux.get('proteines', 0):.1f}g
-🌾 Glucides: {totaux.get('glucides', 0):.1f}g  
-🧈 Lipides: {totaux.get('lipides', 0):.1f}g
-🌿 Fibres: {totaux.get('fibres', 0):.1f}g
+
+🔥 Calories totales: {totaux.get("kcal", 0):.0f} kcal
+🥩 Protéines: {totaux.get("proteines", 0):.1f}g
+🌾 Glucides: {totaux.get("glucides", 0):.1f}g
+🧈 Lipides: {totaux.get("lipides", 0):.1f}g
+🌿 Fibres: {totaux.get("fibres", 0):.1f}g
 
 📈 Score d'équilibre: {score}/100 - {score_status}
-🍽️ Nombre de repas: {analyse.get('nombre_repas', 0)}
+🍽️ Nombre de repas: {analyse.get("nombre_repas", 0)}
 
 💡 Recommandations:
 • Ajoutez plus d'aliments variés pour améliorer l'équilibre
@@ -321,22 +328,24 @@ class NutritionPage(ctk.CTkFrame):
 • Équilibrez les sources de protéines"""
 
             import tkinter.messagebox as messagebox
+
             messagebox.showinfo("Analyse du Plan", result_message)
-            
+
         except Exception as e:
             import tkinter.messagebox as messagebox
+
             print(f"Erreur analyse: {e}")
             messagebox.showerror("Erreur", f"Impossible d'analyser le plan :\n{e}")
-    
+
     def _show_nutritional_profile(self) -> None:
         """Affiche ou crée le profil nutritionnel du client"""
         try:
             profil = self.controller.get_nutritional_profile(self.client_id)
-            
+
             if profil:
                 # Affichage du profil existant
                 profile_info = f"""👤 PROFIL NUTRITIONNEL
-                
+
 Informations de base:
 • Âge: {profil.age} ans
 • Sexe: {profil.sexe}
@@ -352,27 +361,30 @@ Besoins calculés:
 • Métabolisme basal: {profil.metabolism_basal or 0:.0f} kcal
 • Besoins totaux: {profil.besoins_caloriques or 0:.0f} kcal/jour
 
-Dernière mise à jour: {profil.date_mise_a_jour.strftime('%d/%m/%Y') if profil.date_mise_a_jour else 'N/A'}"""
-                
+Dernière mise à jour: {profil.date_mise_a_jour.strftime("%d/%m/%Y") if profil.date_mise_a_jour else "N/A"}"""
+
                 import tkinter.messagebox as messagebox
+
                 messagebox.showinfo("Profil Nutritionnel", profile_info)
             else:
                 # Proposition de créer un profil
                 import tkinter.messagebox as messagebox
+
                 create_profile = messagebox.askyesno(
                     "Profil non trouvé",
                     "Aucun profil nutritionnel trouvé pour ce client.\n\n"
-                    "Souhaitez-vous créer un profil pour des recommandations personnalisées ?"
+                    "Souhaitez-vous créer un profil pour des recommandations personnalisées ?",
                 )
-                
+
                 if create_profile:
                     self._create_basic_profile()
-                    
+
         except Exception as e:
             import tkinter.messagebox as messagebox
+
             print(f"Erreur profil: {e}")
             messagebox.showerror("Erreur", f"Impossible d'accéder au profil :\n{e}")
-    
+
     def _create_basic_profile(self) -> None:
         """Crée un profil nutritionnel basique via une interface simple"""
         try:
@@ -381,7 +393,7 @@ Dernière mise à jour: {profil.date_mise_a_jour.strftime('%d/%m/%Y') if profil.
             profile_modal.title("Création Profil Nutritionnel")
             profile_modal.geometry("400x500")
             profile_modal.grab_set()
-            
+
             # Variables pour la saisie
             age_var = ctk.StringVar(value="30")
             sexe_var = ctk.StringVar(value="M")
@@ -389,46 +401,73 @@ Dernière mise à jour: {profil.date_mise_a_jour.strftime('%d/%m/%Y') if profil.
             taille_var = ctk.StringVar(value="175")
             objectif_var = ctk.StringVar(value="Maintenance")
             activite_var = ctk.StringVar(value="Activité modérée")
-            
+
             # Interface de saisie
-            ctk.CTkLabel(profile_modal, text="Création du Profil Nutritionnel", font=("Arial", 16, "bold")).pack(pady=10)
-            
+            ctk.CTkLabel(
+                profile_modal,
+                text="Création du Profil Nutritionnel",
+                font=("Arial", 16, "bold"),
+            ).pack(pady=10)
+
             # Âge
             ctk.CTkLabel(profile_modal, text="Âge:").pack(anchor="w", padx=20)
             ctk.CTkEntry(profile_modal, textvariable=age_var, width=100).pack(pady=5)
-            
+
             # Sexe
-            ctk.CTkLabel(profile_modal, text="Sexe:").pack(anchor="w", padx=20, pady=(10,0))
-            ctk.CTkOptionMenu(profile_modal, variable=sexe_var, values=["M", "F"]).pack(pady=5)
-            
+            ctk.CTkLabel(profile_modal, text="Sexe:").pack(
+                anchor="w", padx=20, pady=(10, 0)
+            )
+            ctk.CTkOptionMenu(profile_modal, variable=sexe_var, values=["M", "F"]).pack(
+                pady=5
+            )
+
             # Poids
-            ctk.CTkLabel(profile_modal, text="Poids (kg):").pack(anchor="w", padx=20, pady=(10,0))
+            ctk.CTkLabel(profile_modal, text="Poids (kg):").pack(
+                anchor="w", padx=20, pady=(10, 0)
+            )
             ctk.CTkEntry(profile_modal, textvariable=poids_var, width=100).pack(pady=5)
-            
+
             # Taille
-            ctk.CTkLabel(profile_modal, text="Taille (cm):").pack(anchor="w", padx=20, pady=(10,0))
+            ctk.CTkLabel(profile_modal, text="Taille (cm):").pack(
+                anchor="w", padx=20, pady=(10, 0)
+            )
             ctk.CTkEntry(profile_modal, textvariable=taille_var, width=100).pack(pady=5)
-            
+
             # Objectif
-            ctk.CTkLabel(profile_modal, text="Objectif principal:").pack(anchor="w", padx=20, pady=(10,0))
+            ctk.CTkLabel(profile_modal, text="Objectif principal:").pack(
+                anchor="w", padx=20, pady=(10, 0)
+            )
             ctk.CTkOptionMenu(
-                profile_modal, 
-                variable=objectif_var, 
-                values=["Perte de poids", "Prise de muscle", "Maintenance", "Performance sportive"]
+                profile_modal,
+                variable=objectif_var,
+                values=[
+                    "Perte de poids",
+                    "Prise de muscle",
+                    "Maintenance",
+                    "Performance sportive",
+                ],
             ).pack(pady=5)
-            
+
             # Niveau d'activité
-            ctk.CTkLabel(profile_modal, text="Niveau d'activité:").pack(anchor="w", padx=20, pady=(10,0))
+            ctk.CTkLabel(profile_modal, text="Niveau d'activité:").pack(
+                anchor="w", padx=20, pady=(10, 0)
+            )
             ctk.CTkOptionMenu(
-                profile_modal, 
-                variable=activite_var, 
-                values=["Sédentaire", "Activité légère", "Activité modérée", "Activité intense", "Très intense"]
+                profile_modal,
+                variable=activite_var,
+                values=[
+                    "Sédentaire",
+                    "Activité légère",
+                    "Activité modérée",
+                    "Activité intense",
+                    "Très intense",
+                ],
             ).pack(pady=5)
-            
+
             # Boutons
             button_frame = ctk.CTkFrame(profile_modal, fg_color="transparent")
             button_frame.pack(pady=20)
-            
+
             def save_profile():
                 try:
                     profile_data = {
@@ -438,28 +477,41 @@ Dernière mise à jour: {profil.date_mise_a_jour.strftime('%d/%m/%Y') if profil.
                         "taille_cm": float(taille_var.get()),
                         "objectif_principal": objectif_var.get(),
                         "niveau_activite": activite_var.get(),
-                        "nombre_repas_souhaite": 3
+                        "nombre_repas_souhaite": 3,
                     }
-                    
-                    profil = self.controller.create_or_update_nutritional_profile(self.client_id, profile_data)
-                    
+
+                    profil = self.controller.create_or_update_nutritional_profile(
+                        self.client_id, profile_data
+                    )
+
                     if profil:
                         profile_modal.destroy()
                         import tkinter.messagebox as messagebox
-                        messagebox.showinfo("Succès", "Profil nutritionnel créé avec succès !")
+
+                        messagebox.showinfo(
+                            "Succès", "Profil nutritionnel créé avec succès !"
+                        )
                     else:
                         import tkinter.messagebox as messagebox
+
                         messagebox.showerror("Erreur", "Impossible de créer le profil.")
-                        
-                except ValueError as e:
+
+                except ValueError:
                     import tkinter.messagebox as messagebox
-                    messagebox.showerror("Erreur de saisie", "Veuillez vérifier les valeurs saisies.")
-            
-            ctk.CTkButton(button_frame, text="Créer", command=save_profile).pack(side="left", padx=10)
-            ctk.CTkButton(button_frame, text="Annuler", command=profile_modal.destroy).pack(side="left")
-            
+
+                    messagebox.showerror(
+                        "Erreur de saisie", "Veuillez vérifier les valeurs saisies."
+                    )
+
+            ctk.CTkButton(button_frame, text="Créer", command=save_profile).pack(
+                side="left", padx=10
+            )
+            ctk.CTkButton(
+                button_frame, text="Annuler", command=profile_modal.destroy
+            ).pack(side="left")
+
         except Exception as e:
             import tkinter.messagebox as messagebox
+
             print(f"Erreur création profil: {e}")
             messagebox.showerror("Erreur", f"Impossible de créer le profil :\n{e}")
-

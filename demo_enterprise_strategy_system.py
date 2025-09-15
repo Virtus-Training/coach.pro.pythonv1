@@ -10,33 +10,29 @@ This demo showcases the complete strategy pattern implementation with:
 """
 
 import asyncio
-import json
 import logging
-from datetime import datetime
-from typing import Dict, Any
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
 
 # Strategy framework imports
-from core.strategies import (
-    StrategyRegistry, StrategySelector, StrategyManager,
-    MetricsCollector, PerformanceMonitor, ABTestingFramework,
-    CircuitBreaker, FallbackManager, FallbackConfig
-)
 
 # PDF strategies
 from core.strategies.pdf import (
-    PDFStrategyManager, PDFGenerationRequest, PDFGenerationContext,
-    PDFTemplate, PDFQuality, PDFFormat, PDFComplexity, PDFGenerationStrategy
+    PDFComplexity,
+    PDFFormat,
+    PDFGenerationContext,
+    PDFGenerationRequest,
+    PDFGenerationStrategy,
+    PDFQuality,
+    PDFStrategyManager,
+    PDFTemplate,
 )
 
 # Nutrition strategies
-from core.strategies.nutrition import (
-    NutritionStrategyManager, NutritionContext, PersonalMetrics,
-    Gender, ActivityLevel, NutritionGoal, NutritionPreferences
-)
 
 
 class EnterpriseStrategyDemo:
@@ -90,34 +86,34 @@ class EnterpriseStrategyDemo:
 
         # Create sample workout data
         workout_data = {
-            'title': 'Séance Force - Jour 1',
-            'session_info': {
-                'date': '2024-01-15',
-                'duration': 75,
-                'type': 'Musculation',
-                'coach': 'Marie Fitness'
+            "title": "Séance Force - Jour 1",
+            "session_info": {
+                "date": "2024-01-15",
+                "duration": 75,
+                "type": "Musculation",
+                "coach": "Marie Fitness",
             },
-            'exercises': [
+            "exercises": [
                 {
-                    'name': 'Squat',
-                    'sets': [
-                        {'reps': 8, 'weight': 100, 'rest': 120},
-                        {'reps': 8, 'weight': 105, 'rest': 120},
-                        {'reps': 6, 'weight': 110, 'rest': 180}
+                    "name": "Squat",
+                    "sets": [
+                        {"reps": 8, "weight": 100, "rest": 120},
+                        {"reps": 8, "weight": 105, "rest": 120},
+                        {"reps": 6, "weight": 110, "rest": 180},
                     ],
-                    'notes': 'Concentrez-vous sur la profondeur du mouvement'
+                    "notes": "Concentrez-vous sur la profondeur du mouvement",
                 },
                 {
-                    'name': 'Développé Couché',
-                    'sets': [
-                        {'reps': 10, 'weight': 80, 'rest': 90},
-                        {'reps': 8, 'weight': 85, 'rest': 90},
-                        {'reps': 6, 'weight': 90, 'rest': 120}
+                    "name": "Développé Couché",
+                    "sets": [
+                        {"reps": 10, "weight": 80, "rest": 90},
+                        {"reps": 8, "weight": 85, "rest": 90},
+                        {"reps": 6, "weight": 90, "rest": 120},
                     ],
-                    'notes': 'Contrôlez la descente de la barre'
-                }
+                    "notes": "Contrôlez la descente de la barre",
+                },
             ],
-            'notes': 'Excellent travail aujourd\'hui! Augmentez les charges la semaine prochaine.'
+            "notes": "Excellent travail aujourd'hui! Augmentez les charges la semaine prochaine.",
         }
 
         # Create PDF template
@@ -126,7 +122,7 @@ class EnterpriseStrategyDemo:
             template_type="workout",
             layout="standard",
             styles={"theme": "professional"},
-            sections=["header", "exercises", "notes"]
+            sections=["header", "exercises", "notes"],
         )
 
         # Create PDF context
@@ -135,7 +131,7 @@ class EnterpriseStrategyDemo:
             data=workout_data,
             quality=PDFQuality.HIGH,
             format=PDFFormat.A4_PORTRAIT,
-            complexity=PDFComplexity.MEDIUM
+            complexity=PDFComplexity.MEDIUM,
         )
 
         # Test different strategies
@@ -143,7 +139,7 @@ class EnterpriseStrategyDemo:
             PDFGenerationStrategy.AUTO,
             PDFGenerationStrategy.REPORTLAB,
             PDFGenerationStrategy.WEASYPRINT,
-            PDFGenerationStrategy.FPDF
+            PDFGenerationStrategy.FPDF,
         ]
 
         for strategy in strategies_to_test:
@@ -154,15 +150,19 @@ class EnterpriseStrategyDemo:
                     context=pdf_context,
                     preferred_strategy=strategy,
                     quality_threshold=70.0,
-                    enable_fallback=True
+                    enable_fallback=True,
                 )
 
                 result = await self.pdf_manager.generate_pdf(request)
 
                 print(f"  ✅ Success with {result.generation_engine}")
                 print(f"  📏 File size: {result.file_size_mb:.2f} MB")
-                print(f"  ⏱️  Generation time: {result.quality_metrics.generation_time_ms:.0f}ms")
-                print(f"  🎯 Quality score: {result.quality_metrics.overall_quality_score:.1f}/100")
+                print(
+                    f"  ⏱️  Generation time: {result.quality_metrics.generation_time_ms:.0f}ms"
+                )
+                print(
+                    f"  🎯 Quality score: {result.quality_metrics.overall_quality_score:.1f}/100"
+                )
 
                 if result.warnings:
                     print(f"  ⚠️  Warnings: {', '.join(result.warnings)}")
@@ -178,22 +178,24 @@ class EnterpriseStrategyDemo:
         # Get performance report
         report = self.pdf_manager.get_performance_report()
 
-        print(f"📊 System Health:")
+        print("📊 System Health:")
         print(f"  Total strategies: {report['total_strategies']}")
         print(f"  Enabled strategies: {report['enabled_strategies']}")
         print(f"  System health: {report['system_health']['health_percentage']:.1f}%")
 
-        print(f"\n🔧 Strategy Health:")
-        for strategy_name, health in report['strategy_health'].items():
+        print("\n🔧 Strategy Health:")
+        for strategy_name, health in report["strategy_health"].items():
             print(f"  {strategy_name}:")
             print(f"    Health: {'✅' if health['healthy'] else '❌'}")
             print(f"    Performance: {health['performance_score']:.1f}/100")
             print(f"    Success rate: {health['success_rate']:.2%}")
             print(f"    Executions: {health['execution_count']}")
 
-        print(f"\n💾 Fallback Status:")
-        fallback_status = report['fallback_status']
-        print(f"  Degraded mode: {'❌' if not fallback_status['degraded_mode_active'] else '⚠️ ACTIVE'}")
+        print("\n💾 Fallback Status:")
+        fallback_status = report["fallback_status"]
+        print(
+            f"  Degraded mode: {'❌' if not fallback_status['degraded_mode_active'] else '⚠️ ACTIVE'}"
+        )
         print(f"  Fallback strategies: {fallback_status['total_fallback_strategies']}")
         print(f"  Cache size: {fallback_status['cache_size']}")
 
@@ -208,51 +210,46 @@ class EnterpriseStrategyDemo:
                 test_name="PDF Engine Comparison",
                 strategies=[
                     PDFGenerationStrategy.REPORTLAB,
-                    PDFGenerationStrategy.WEASYPRINT
+                    PDFGenerationStrategy.WEASYPRINT,
                 ],
-                traffic_split={
-                    "reportlab_pdf": 50.0,
-                    "weasyprint_pdf": 50.0
-                }
+                traffic_split={"reportlab_pdf": 50.0, "weasyprint_pdf": 50.0},
             )
 
             print(f"🧪 Started A/B test: {test_id}")
 
             # Simulate some test traffic
             test_data = {
-                'title': 'A/B Test Document',
-                'sections': [
+                "title": "A/B Test Document",
+                "sections": [
                     {
-                        'title': 'Test Section',
-                        'content': 'This is test content for A/B testing.'
+                        "title": "Test Section",
+                        "content": "This is test content for A/B testing.",
                     }
-                ]
+                ],
             }
 
             template = PDFTemplate(
-                name="AB Test Template",
-                template_type="generic",
-                layout="simple"
+                name="AB Test Template", template_type="generic", layout="simple"
             )
 
             # Run multiple generations to collect data
             for i in range(5):
                 context = PDFGenerationContext(
-                    template=template,
-                    data=test_data,
-                    quality=PDFQuality.STANDARD
+                    template=template, data=test_data, quality=PDFQuality.STANDARD
                 )
 
                 request = PDFGenerationRequest(
                     context=context,
                     preferred_strategy=PDFGenerationStrategy.AUTO,
-                    enable_ab_testing=True
+                    enable_ab_testing=True,
                 )
 
                 result = await self.pdf_manager.generate_pdf(request)
-                print(f"  Test run {i+1}: {result.generation_engine} ({result.quality_metrics.generation_time_ms:.0f}ms)")
+                print(
+                    f"  Test run {i + 1}: {result.generation_engine} ({result.quality_metrics.generation_time_ms:.0f}ms)"
+                )
 
-            print(f"✅ A/B test data collected for analysis")
+            print("✅ A/B test data collected for analysis")
 
         except Exception as e:
             print(f"❌ A/B testing demo failed: {e}")
@@ -264,26 +261,24 @@ class EnterpriseStrategyDemo:
 
         # Create a problematic context to trigger fallbacks
         problematic_data = {
-            'title': 'Fallback Test Document',
-            'sections': [
+            "title": "Fallback Test Document",
+            "sections": [
                 {
-                    'title': 'Test Section',
-                    'content': 'Testing fallback mechanisms with complex data.'
+                    "title": "Test Section",
+                    "content": "Testing fallback mechanisms with complex data.",
                 }
-            ]
+            ],
         }
 
         template = PDFTemplate(
-            name="Fallback Test Template",
-            template_type="generic",
-            layout="complex"
+            name="Fallback Test Template", template_type="generic", layout="complex"
         )
 
         context = PDFGenerationContext(
             template=template,
             data=problematic_data,
             quality=PDFQuality.HIGH,
-            complexity=PDFComplexity.ADVANCED
+            complexity=PDFComplexity.ADVANCED,
         )
 
         # Test with fallback enabled
@@ -292,7 +287,7 @@ class EnterpriseStrategyDemo:
             context=context,
             preferred_strategy=PDFGenerationStrategy.AUTO,
             enable_fallback=True,
-            quality_threshold=90.0  # High threshold to potentially trigger fallbacks
+            quality_threshold=90.0,  # High threshold to potentially trigger fallbacks
         )
 
         try:
@@ -306,11 +301,11 @@ class EnterpriseStrategyDemo:
 
         # Show circuit breaker status
         report = self.pdf_manager.get_performance_report()
-        fallback_strategies = report['fallback_status']['fallback_strategies']
+        fallback_strategies = report["fallback_status"]["fallback_strategies"]
 
-        print(f"\n🔌 Circuit Breaker Status:")
+        print("\n🔌 Circuit Breaker Status:")
         for strategy in fallback_strategies:
-            cb_status = strategy['circuit_breaker']
+            cb_status = strategy["circuit_breaker"]
             print(f"  {strategy['strategy_name']}:")
             print(f"    State: {cb_status['state']}")
             print(f"    Success rate: {cb_status['recent_success_rate']:.2%}")
@@ -328,21 +323,19 @@ class EnterpriseStrategyDemo:
 
         # Strategy performance comparison
         performances = {}
-        for strategy_name, metrics in report['performance_metrics'].items():
-            if 'overall_metrics' in metrics:
-                overall = metrics['overall_metrics']
+        for strategy_name, metrics in report["performance_metrics"].items():
+            if "overall_metrics" in metrics:
+                overall = metrics["overall_metrics"]
                 performances[strategy_name] = {
-                    'score': overall.get('performance_score', 0),
-                    'executions': overall.get('total_executions', 0),
-                    'success_rate': overall.get('success_rate', 0),
-                    'avg_time': overall.get('average_execution_time', 0)
+                    "score": overall.get("performance_score", 0),
+                    "executions": overall.get("total_executions", 0),
+                    "success_rate": overall.get("success_rate", 0),
+                    "avg_time": overall.get("average_execution_time", 0),
                 }
 
         # Sort by performance score
         sorted_strategies = sorted(
-            performances.items(),
-            key=lambda x: x[1]['score'],
-            reverse=True
+            performances.items(), key=lambda x: x[1]["score"], reverse=True
         )
 
         print("\n🏆 Strategy Performance Ranking:")
@@ -358,10 +351,10 @@ class EnterpriseStrategyDemo:
         optimization_result = await self.pdf_manager.optimize_strategies()
 
         print("Optimization Results:")
-        for action in optimization_result['actions_taken']:
+        for action in optimization_result["actions_taken"]:
             print(f"  ✅ {action}")
 
-        for recommendation in optimization_result['recommendations']:
+        for recommendation in optimization_result["recommendations"]:
             print(f"  💡 {recommendation}")
 
         # Show available strategies and capabilities
@@ -371,10 +364,12 @@ class EnterpriseStrategyDemo:
         for strategy in strategies:
             print(f"  📄 {strategy['name']} v{strategy['version']}")
             print(f"     Priority: {strategy['priority']}")
-            print(f"     Status: {'✅ Enabled' if strategy['enabled'] else '❌ Disabled'}")
+            print(
+                f"     Status: {'✅ Enabled' if strategy['enabled'] else '❌ Disabled'}"
+            )
 
-            if 'capabilities' in strategy:
-                caps = strategy['capabilities']
+            if "capabilities" in strategy:
+                caps = strategy["capabilities"]
                 print(f"     Quality: {caps['quality_level']}")
                 print(f"     Charts: {'✅' if caps['supports_charts'] else '❌'}")
                 print(f"     Images: {'✅' if caps['supports_images'] else '❌'}")

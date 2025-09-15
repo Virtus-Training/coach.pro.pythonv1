@@ -33,7 +33,11 @@ class PdfTemplateController:
         return self.service.get_style(t, template_id)
 
     def save_session_template(
-        self, name: str, style_json: str, template_id: Optional[int] = None, set_default: bool = False
+        self,
+        name: str,
+        style_json: str,
+        template_id: Optional[int] = None,
+        set_default: bool = False,
     ) -> int:
         style = json.loads(style_json)
         return self.service.save_session_template(name, style, template_id, set_default)
@@ -52,10 +56,11 @@ class PdfTemplateController:
     def delete_template(self, template_id: int) -> None:
         self.service.delete_template(template_id)
 
-    def export_preview(self, session_dto: dict, file_path: str, template_id: Optional[int] = None) -> None:
+    def export_preview(
+        self, session_dto: dict, file_path: str, template_id: Optional[int] = None
+    ) -> None:
         style = self.get_session_style(template_id)
         generate_session_pdf_with_style(session_dto, None, file_path, style)
 
 
 __all__ = ["PdfTemplateController"]
-

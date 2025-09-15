@@ -20,7 +20,7 @@ class ModernHeader(ctk.CTkFrame):
             height=56,
             corner_radius=0,
             fg_color=ctk.ThemeManager.theme["color"]["surface_light"],
-            **kwargs
+            **kwargs,
         )
 
         # Empêcher la frame header de grandir selon ses enfants (grid)
@@ -61,7 +61,7 @@ class ModernHeader(ctk.CTkFrame):
             self.left_frame,
             text="Tableau de bord",
             font=ctk.CTkFont(size=24, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         self.page_title.pack(anchor="w", pady=(2, 0))
 
@@ -75,7 +75,7 @@ class ModernHeader(ctk.CTkFrame):
             self.center_frame,
             fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
             corner_radius=18,
-            height=36
+            height=36,
         )
         search_container.pack(expand=True, pady=4)
         search_container.pack_propagate(False)
@@ -90,7 +90,7 @@ class ModernHeader(ctk.CTkFrame):
             search_container,
             text="🔍" if not search_icon else "",
             image=search_icon,
-            text_color=ctk.ThemeManager.theme["color"]["muted_text"]
+            text_color=ctk.ThemeManager.theme["color"]["muted_text"],
         )
         search_icon_label.pack(side="left", padx=(16, 8), pady=8)
 
@@ -101,9 +101,11 @@ class ModernHeader(ctk.CTkFrame):
             border_width=0,
             fg_color="transparent",
             font=ctk.CTkFont(size=14),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
-        self.search_entry.pack(side="left", expand=True, fill="both", pady=8, padx=(0, 16))
+        self.search_entry.pack(
+            side="left", expand=True, fill="both", pady=8, padx=(0, 16)
+        )
 
         # Raccourci clavier
         self.search_entry.bind("<Return>", self._on_search)
@@ -116,7 +118,8 @@ class ModernHeader(ctk.CTkFrame):
             text_color=ctk.ThemeManager.theme["color"]["muted_text"],
             fg_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             corner_radius=4,
-            padx=6, pady=2
+            padx=6,
+            pady=2,
         )
         shortcut_label.pack(side="right", padx=(0, 12), pady=8)
 
@@ -129,7 +132,7 @@ class ModernHeader(ctk.CTkFrame):
         toolbar = ctk.CTkFrame(
             self.right_frame,
             fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
-            corner_radius=12
+            corner_radius=12,
         )
         toolbar.pack(side="left", padx=(0, 16))
 
@@ -143,7 +146,7 @@ class ModernHeader(ctk.CTkFrame):
             fg_color="transparent",
             hover_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             font=ctk.CTkFont(size=16),
-            command=self._show_notifications
+            command=self._show_notifications,
         )
         notif_btn.pack(side="left", padx=4, pady=4)
 
@@ -157,7 +160,7 @@ class ModernHeader(ctk.CTkFrame):
             fg_color="transparent",
             hover_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             font=ctk.CTkFont(size=16),
-            command=self._show_status
+            command=self._show_status,
         )
         status_btn.pack(side="left", padx=4, pady=4)
 
@@ -171,7 +174,7 @@ class ModernHeader(ctk.CTkFrame):
             fg_color="transparent",
             hover_color=ctk.ThemeManager.theme["color"]["surface_elevated"],
             font=ctk.CTkFont(size=16),
-            command=self._show_settings
+            command=self._show_settings,
         )
         settings_btn.pack(side="left", padx=4, pady=4)
 
@@ -184,7 +187,7 @@ class ModernHeader(ctk.CTkFrame):
             self.right_frame,
             fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
             corner_radius=18,
-            height=36
+            height=36,
         )
         profile_frame.pack(side="left")
         profile_frame.pack_propagate(False)
@@ -199,7 +202,7 @@ class ModernHeader(ctk.CTkFrame):
             fg_color=ctk.ThemeManager.theme["color"]["primary"],
             hover_color=ctk.ThemeManager.theme["color"]["primary_hover"],
             font=ctk.CTkFont(size=14),
-            command=self._show_profile_menu
+            command=self._show_profile_menu,
         )
         avatar_btn.pack(side="left", padx=(8, 4), pady=8)
 
@@ -211,16 +214,12 @@ class ModernHeader(ctk.CTkFrame):
             user_info_frame,
             text="Coach Pro",
             font=ctk.CTkFont(size=13, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         name_label.pack(anchor="w")
 
         # Status en ligne
-        online_indicator = StatusIndicator(
-            user_info_frame,
-            status="success",
-            text=""
-        )
+        online_indicator = StatusIndicator(user_info_frame, status="success", text="")
         online_indicator.pack(anchor="w")
         online_indicator.configure(width=8, height=8)
 
@@ -259,7 +258,7 @@ class ModernHeader(ctk.CTkFrame):
                 hover_color=ctk.ThemeManager.theme["color"]["glass_overlay"],
                 text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
                 font=ctk.CTkFont(size=11),
-                command=lambda c=crumb: self._on_breadcrumb_click(c)
+                command=lambda c=crumb: self._on_breadcrumb_click(c),
             )
             crumb_btn.pack(side="left", padx=2)
 
@@ -269,18 +268,23 @@ class ModernHeader(ctk.CTkFrame):
                     self.breadcrumbs_frame,
                     text="›",
                     font=ctk.CTkFont(size=12),
-                    text_color=ctk.ThemeManager.theme["color"]["muted_text"]
+                    text_color=ctk.ThemeManager.theme["color"]["muted_text"],
                 )
                 separator.pack(side="left", padx=4)
 
     def _animate_page_change(self):
         """Animation lors du changement de page."""
+
         # Subtle fade effect on title
         def fade_effect():
             try:
                 original_color = self.page_title.cget("text_color")
-                self.page_title.configure(text_color=ctk.ThemeManager.theme["color"]["primary"])
-                self.after(200, lambda: self.page_title.configure(text_color=original_color))
+                self.page_title.configure(
+                    text_color=ctk.ThemeManager.theme["color"]["primary"]
+                )
+                self.after(
+                    200, lambda: self.page_title.configure(text_color=original_color)
+                )
             except Exception:
                 pass
 
@@ -326,11 +330,12 @@ class ModernHeader(ctk.CTkFrame):
 # Fonction utilitaire pour les raccourcis clavier globaux
 def setup_global_shortcuts(app):
     """Configure les raccourcis clavier globaux."""
+
     def on_ctrl_k(event):
         # Focus sur la recherche
         try:
-            header = getattr(app, 'header', None)
-            if header and hasattr(header, 'focus_search'):
+            header = getattr(app, "header", None)
+            if header and hasattr(header, "focus_search"):
                 header.focus_search()
         except Exception:
             pass

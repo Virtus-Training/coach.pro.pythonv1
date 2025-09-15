@@ -2,25 +2,26 @@
 Base classes for PDF generation strategies
 """
 
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
 import base64
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from ..base import StrategyContext, StrategyResult
 
 
 class PDFQuality(Enum):
     """PDF quality levels"""
-    DRAFT = "draft"          # Fast generation, basic formatting
-    STANDARD = "standard"    # Good balance of quality and speed
-    HIGH = "high"           # High quality, slower generation
-    PRINT_READY = "print"   # Print-ready quality, slowest
+
+    DRAFT = "draft"  # Fast generation, basic formatting
+    STANDARD = "standard"  # Good balance of quality and speed
+    HIGH = "high"  # High quality, slower generation
+    PRINT_READY = "print"  # Print-ready quality, slowest
 
 
 class PDFFormat(Enum):
     """PDF output formats"""
+
     A4_PORTRAIT = "a4_portrait"
     A4_LANDSCAPE = "a4_landscape"
     LETTER_PORTRAIT = "letter_portrait"
@@ -30,15 +31,17 @@ class PDFFormat(Enum):
 
 class PDFComplexity(Enum):
     """PDF content complexity levels"""
-    SIMPLE = "simple"        # Text only, minimal formatting
-    MEDIUM = "medium"        # Text + basic graphics/tables
-    COMPLEX = "complex"      # Rich formatting, charts, images
-    ADVANCED = "advanced"    # Complex layouts, advanced graphics
+
+    SIMPLE = "simple"  # Text only, minimal formatting
+    MEDIUM = "medium"  # Text + basic graphics/tables
+    COMPLEX = "complex"  # Rich formatting, charts, images
+    ADVANCED = "advanced"  # Complex layouts, advanced graphics
 
 
 @dataclass
 class PDFTemplate:
     """PDF template configuration"""
+
     name: str
     template_type: str  # workout, nutrition, report, etc.
     layout: str
@@ -51,6 +54,7 @@ class PDFTemplate:
 @dataclass
 class PDFGenerationContext:
     """Context for PDF generation"""
+
     template: PDFTemplate
     data: Dict[str, Any]
     quality: PDFQuality = PDFQuality.STANDARD
@@ -78,6 +82,7 @@ class PDFGenerationContext:
 @dataclass
 class PDFQualityMetrics:
     """Quality assessment metrics for generated PDF"""
+
     file_size_kb: float
     generation_time_ms: float
     page_count: int
@@ -91,7 +96,7 @@ class PDFQualityMetrics:
         scores = [
             self.image_quality_score,
             self.text_readability_score,
-            self.layout_consistency_score
+            self.layout_consistency_score,
         ]
 
         valid_scores = [s for s in scores if s > 0]
@@ -104,6 +109,7 @@ class PDFQualityMetrics:
 @dataclass
 class PDFGenerationResult:
     """Result of PDF generation"""
+
     pdf_data: bytes
     quality_metrics: PDFQualityMetrics
     generation_engine: str
@@ -116,7 +122,7 @@ class PDFGenerationResult:
     @property
     def pdf_base64(self) -> str:
         """Get PDF data as base64 string"""
-        return base64.b64encode(self.pdf_data).decode('utf-8')
+        return base64.b64encode(self.pdf_data).decode("utf-8")
 
     @property
     def file_size_mb(self) -> float:
@@ -126,7 +132,7 @@ class PDFGenerationResult:
     def save_to_file(self, filepath: str) -> bool:
         """Save PDF to file"""
         try:
-            with open(filepath, 'wb') as f:
+            with open(filepath, "wb") as f:
                 f.write(self.pdf_data)
             return True
         except Exception as e:

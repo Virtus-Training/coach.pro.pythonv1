@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from reportlab.lib.units import cm
-from reportlab.platypus import Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.platypus import PageBreak, Paragraph, Spacer, Table, TableStyle
 
 from .base_template import BaseTemplate
 
@@ -90,16 +90,16 @@ class MealPlanTemplate(BaseTemplate):
                                             "properties": {
                                                 "protein": {"type": "number"},
                                                 "carbs": {"type": "number"},
-                                                "fat": {"type": "number"}
-                                            }
-                                        }
+                                                "fat": {"type": "number"},
+                                            },
+                                        },
                                     },
-                                    "required": ["type", "name"]
-                                }
-                            }
+                                    "required": ["type", "name"],
+                                },
+                            },
                         },
-                        "required": ["day", "meals"]
-                    }
+                        "required": ["day", "meals"],
+                    },
                 },
                 "shopping_list": {
                     "type": "array",
@@ -107,9 +107,9 @@ class MealPlanTemplate(BaseTemplate):
                         "type": "object",
                         "properties": {
                             "category": {"type": "string"},
-                            "items": {"type": "array"}
-                        }
-                    }
+                            "items": {"type": "array"},
+                        },
+                    },
                 },
                 "recipes": {
                     "type": "array",
@@ -120,12 +120,12 @@ class MealPlanTemplate(BaseTemplate):
                             "ingredients": {"type": "array"},
                             "instructions": {"type": "array"},
                             "prep_time": {"type": "number"},
-                            "servings": {"type": "number"}
-                        }
-                    }
-                }
+                            "servings": {"type": "number"},
+                        },
+                    },
+                },
             },
-            "required": ["title", "daily_meals"]
+            "required": ["title", "daily_meals"],
         }
 
     def _build_content(self) -> List[Any]:
@@ -152,14 +152,12 @@ class MealPlanTemplate(BaseTemplate):
             elements.append(Spacer(1, 0.4 * cm))
 
         # Shopping list
-        if (self.merged_config.get("show_shopping_list", True) and
-            not self.preview_mode):
+        if self.merged_config.get("show_shopping_list", True) and not self.preview_mode:
             elements.extend(self._build_shopping_list())
             elements.append(PageBreak())
 
         # Recipes
-        if (self.merged_config.get("show_recipes", True) and
-            not self.preview_mode):
+        if self.merged_config.get("show_recipes", True) and not self.preview_mode:
             elements.extend(self._build_recipes_section())
 
         return elements
@@ -172,7 +170,7 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🗓️ Aperçu de la semaine</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -204,15 +202,23 @@ class MealPlanTemplate(BaseTemplate):
                     else:
                         meal_types["snack"] = meal_name
 
-            summary_data.append([
-                day_name,
-                meal_types["breakfast"][:20] + ("..." if len(meal_types["breakfast"]) > 20 else ""),
-                meal_types["lunch"][:20] + ("..." if len(meal_types["lunch"]) > 20 else ""),
-                meal_types["dinner"][:20] + ("..." if len(meal_types["dinner"]) > 20 else ""),
-                meal_types["snack"][:20] + ("..." if len(meal_types["snack"]) > 20 else ""),
-            ])
+            summary_data.append(
+                [
+                    day_name,
+                    meal_types["breakfast"][:20]
+                    + ("..." if len(meal_types["breakfast"]) > 20 else ""),
+                    meal_types["lunch"][:20]
+                    + ("..." if len(meal_types["lunch"]) > 20 else ""),
+                    meal_types["dinner"][:20]
+                    + ("..." if len(meal_types["dinner"]) > 20 else ""),
+                    meal_types["snack"][:20]
+                    + ("..." if len(meal_types["snack"]) > 20 else ""),
+                ]
+            )
 
-        summary_table = Table(summary_data, colWidths=[2.5*cm, 3.5*cm, 3.5*cm, 3.5*cm, 4.5*cm])
+        summary_table = Table(
+            summary_data, colWidths=[2.5 * cm, 3.5 * cm, 3.5 * cm, 3.5 * cm, 4.5 * cm]
+        )
         summary_table.setStyle(self._get_overview_table_style())
 
         elements.append(summary_table)
@@ -235,7 +241,7 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📅 {day_title}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(day_header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -269,7 +275,7 @@ class MealPlanTemplate(BaseTemplate):
         # Add total row
         day_data.append(["", "Total journée", f"{daily_calories} kcal"])
 
-        day_table = Table(day_data, colWidths=[4*cm, 10*cm, 4*cm])
+        day_table = Table(day_data, colWidths=[4 * cm, 10 * cm, 4 * cm])
         day_table.setStyle(self._get_compact_day_style())
 
         elements.append(day_table)
@@ -298,14 +304,18 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
             f'size="{self.merged_config["fonts"]["body"]["size"]}" '
             f'color="white"><b>{meal_title}</b></font>',
-            self.styles["body"]
+            self.styles["body"],
         )
 
         # Meal content
         content_parts = [f"<b>{meal_name}</b>"]
 
         if ingredients:
-            ingredients_text = ", ".join(ingredients) if isinstance(ingredients, list) else str(ingredients)
+            ingredients_text = (
+                ", ".join(ingredients)
+                if isinstance(ingredients, list)
+                else str(ingredients)
+            )
             content_parts.append(f"Ingrédients: {ingredients_text}")
 
         if calories:
@@ -327,23 +337,32 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
             f'size="{self.merged_config["fonts"]["body"]["size"]}" '
             f'color="{self.merged_config["colors"]["text_primary"]}">{"<br/>".join(content_parts)}</font>',
-            self.styles["body"]
+            self.styles["body"],
         )
 
         # Create meal card
         card_data = [[meal_header], [meal_content]]
-        card_table = Table(card_data, colWidths=[18*cm])
-        card_table.setStyle(TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(meal_color)),
-            ('PADDING', (0, 0), (-1, 0), 8),
-
-            # Content
-            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-            ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('PADDING', (0, 1), (-1, -1), 12),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ]))
+        card_table = Table(card_data, colWidths=[18 * cm])
+        card_table.setStyle(
+            TableStyle(
+                [
+                    # Header
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(meal_color)),
+                    ("PADDING", (0, 0), (-1, 0), 8),
+                    # Content
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+                    (
+                        "BORDER",
+                        (0, 0),
+                        (-1, -1),
+                        1,
+                        colors.HexColor(self.merged_config["colors"]["border"]),
+                    ),
+                    ("PADDING", (0, 1), (-1, -1), 12),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]
+            )
+        )
 
         elements.append(card_table)
         return elements
@@ -361,7 +380,7 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🛒 Liste de courses</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.4 * cm))
@@ -379,7 +398,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}"><b>{category}</b></font>',
-                self.styles["heading"]
+                self.styles["heading"],
             )
             elements.append(category_header)
             elements.append(Spacer(1, 0.2 * cm))
@@ -394,7 +413,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{items_content}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
 
             elements.append(items_paragraph)
@@ -415,7 +434,7 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>👨‍🍳 Recettes</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.4 * cm))
@@ -448,7 +467,7 @@ class MealPlanTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>{recipe_header_text}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(recipe_header)
         elements.append(Spacer(1, 0.2 * cm))
@@ -459,7 +478,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}"><b>Ingrédients:</b></font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(ingredients_header)
 
@@ -472,7 +491,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{ingredients_content}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(ingredients_paragraph)
             elements.append(Spacer(1, 0.2 * cm))
@@ -483,7 +502,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}"><b>Préparation:</b></font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(instructions_header)
 
@@ -496,7 +515,7 @@ class MealPlanTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{instructions_content}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(instructions_paragraph)
 
@@ -534,54 +553,136 @@ class MealPlanTemplate(BaseTemplate):
 
     def _get_overview_table_style(self) -> TableStyle:
         """Get styling for overview table"""
-        return TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-
-            # Body
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["caption"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["caption"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-
-            # Alternating backgrounds
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(self.merged_config["colors"]["surface"])]),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        return TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                # Body
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["caption"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["caption"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                # Alternating backgrounds
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ],
+                ),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
 
     def _get_compact_day_style(self) -> TableStyle:
         """Get styling for compact day table"""
-        return TableStyle([
-            # First row (day header)
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["surface"])),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-            ('SPAN', (0, 0), (2, 0)),  # Span day name across columns
-
-            # Body rows
-            ('FONTNAME', (0, 1), (-1, -2), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -2), self.merged_config["fonts"]["body"]["size"]),
-
-            # Total row
-            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
-            ('FONTNAME', (0, -1), (-1, -1), self.merged_config["fonts"]["subheading"]["name"]),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        return TableStyle(
+            [
+                # First row (day header)
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["surface"]),
+                ),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                ("SPAN", (0, 0), (2, 0)),  # Span day name across columns
+                # Body rows
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -2),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -2),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                # Total row
+                (
+                    "BACKGROUND",
+                    (0, -1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, -1), (-1, -1), colors.white),
+                (
+                    "FONTNAME",
+                    (0, -1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )

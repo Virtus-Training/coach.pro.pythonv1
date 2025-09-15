@@ -7,28 +7,31 @@ selection, quality assessment, and intelligent fallback mechanisms.
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from ..base import StrategyContext
-from ..registry import StrategyRegistry, StrategySelector, StrategyManager
-from ..monitoring import MetricsCollector, PerformanceMonitor, ABTestingFramework
-from ..circuit_breaker import FallbackManager, FallbackConfig
-
+from ..circuit_breaker import FallbackConfig, FallbackManager
+from ..monitoring import ABTestingFramework, MetricsCollector, PerformanceMonitor
+from ..registry import StrategyManager, StrategyRegistry, StrategySelector
 from .base import (
-    PDFGenerationContext, PDFGenerationResult, PDFQuality,
-    PDFComplexity, PDFFormat, PDFQualityMetrics
+    PDFComplexity,
+    PDFGenerationContext,
+    PDFGenerationResult,
+    PDFQuality,
+    PDFQualityMetrics,
 )
+from .fpdf_strategy import FPDFStrategy
 from .reportlab_strategy import ReportLabPDFStrategy
 from .weasyprint_strategy import WeasyPrintPDFStrategy
-from .fpdf_strategy import FPDFStrategy
 
 logger = logging.getLogger(__name__)
 
 
 class PDFGenerationStrategy(Enum):
     """Available PDF generation strategies"""
+
     REPORTLAB = "reportlab_pdf"
     WEASYPRINT = "weasyprint_pdf"
     FPDF = "fpdf_pdf"
@@ -38,6 +41,7 @@ class PDFGenerationStrategy(Enum):
 @dataclass
 class PDFGenerationRequest:
     """Request for PDF generation"""
+
     context: PDFGenerationContext
     preferred_strategy: Optional[PDFGenerationStrategy] = PDFGenerationStrategy.AUTO
     quality_threshold: float = 70.0  # Minimum quality score
@@ -73,16 +77,28 @@ class PDFStrategyManager:
             max_fallback_attempts=3,
             fallback_timeout=15.0,
             prefer_cached_result=True,
-            degraded_mode_enabled=True
+            degraded_mode_enabled=True,
         )
         self.fallback_manager = FallbackManager(fallback_config)
 
         # Strategy configurations
         self._strategy_preferences = {
-            PDFComplexity.SIMPLE: [PDFGenerationStrategy.FPDF, PDFGenerationStrategy.REPORTLAB],
-            PDFComplexity.MEDIUM: [PDFGenerationStrategy.REPORTLAB, PDFGenerationStrategy.WEASYPRINT],
-            PDFComplexity.COMPLEX: [PDFGenerationStrategy.REPORTLAB, PDFGenerationStrategy.WEASYPRINT],
-            PDFComplexity.ADVANCED: [PDFGenerationStrategy.REPORTLAB, PDFGenerationStrategy.WEASYPRINT]
+            PDFComplexity.SIMPLE: [
+                PDFGenerationStrategy.FPDF,
+                PDFGenerationStrategy.REPORTLAB,
+            ],
+            PDFComplexity.MEDIUM: [
+                PDFGenerationStrategy.REPORTLAB,
+                PDFGenerationStrategy.WEASYPRINT,
+            ],
+            PDFComplexity.COMPLEX: [
+                PDFGenerationStrategy.REPORTLAB,
+                PDFGenerationStrategy.WEASYPRINT,
+            ],
+            PDFComplexity.ADVANCED: [
+                PDFGenerationStrategy.REPORTLAB,
+                PDFGenerationStrategy.WEASYPRINT,
+            ],
         }
 
         # Initialize strategies
@@ -97,7 +113,7 @@ class PDFStrategyManager:
                 reportlab_strategy.__class__,
                 reportlab_strategy.config,
                 "pdf_generation",
-                {"professional", "complex_layouts", "high_performance"}
+                {"professional", "complex_layouts", "high_performance"},
             )
 
             # Add as fallback
@@ -116,11 +132,13 @@ class PDFStrategyManager:
                     weasyprint_strategy.__class__,
                     weasyprint_strategy.config,
                     "pdf_generation",
-                    {"html_css", "modern_layouts", "responsive"}
+                    {"html_css", "modern_layouts", "responsive"},
                 )
 
                 # Add as fallback
-                self.fallback_manager.add_fallback_strategy(weasyprint_strategy, priority=2)
+                self.fallback_manager.add_fallback_strategy(
+                    weasyprint_strategy, priority=2
+                )
 
                 logger.info("Registered WeasyPrint PDF strategy")
             else:
@@ -137,7 +155,7 @@ class PDFStrategyManager:
                     fpdf_strategy.__class__,
                     fpdf_strategy.config,
                     "pdf_generation",
-                    {"lightweight", "fallback", "simple"}
+                    {"lightweight", "fallback", "simple"},
                 )
 
                 # Add as emergency fallback
@@ -168,17 +186,21 @@ class PDFStrategyManager:
                 data=request.context,
                 request_id=f"pdf_{start_time}",
                 metadata={
-                    "preferred_strategy": request.preferred_strategy.value if request.preferred_strategy else None,
+                    "preferred_strategy": request.preferred_strategy.value
+                    if request.preferred_strategy
+                    else None,
                     "quality_threshold": request.quality_threshold,
-                    "max_generation_time": request.max_generation_time_ms
-                }
+                    "max_generation_time": request.max_generation_time_ms,
+                },
             )
 
             # Select strategy
             if request.preferred_strategy == PDFGenerationStrategy.AUTO:
                 strategy = self._select_optimal_strategy(request.context)
             else:
-                strategy = self.registry.get_strategy("pdf_generation", request.preferred_strategy.value)
+                strategy = self.registry.get_strategy(
+                    "pdf_generation", request.preferred_strategy.value
+                )
 
             if not strategy:
                 # Use fallback if no strategy found
@@ -190,9 +212,7 @@ class PDFStrategyManager:
             # Generate with selected strategy and fallback support
             if request.enable_fallback:
                 result = await self.fallback_manager.execute_with_fallback(
-                    strategy,
-                    strategy_context,
-                    enable_cache=True
+                    strategy, strategy_context, enable_cache=True
                 )
             else:
                 result = await strategy.execute_with_monitoring(strategy_context)
@@ -202,7 +222,10 @@ class PDFStrategyManager:
                 pdf_result = result.data
 
                 # Quality assessment
-                if pdf_result.quality_metrics.overall_quality_score < request.quality_threshold:
+                if (
+                    pdf_result.quality_metrics.overall_quality_score
+                    < request.quality_threshold
+                ):
                     logger.warning(
                         f"PDF quality ({pdf_result.quality_metrics.overall_quality_score:.1f}) "
                         f"below threshold ({request.quality_threshold})"
@@ -211,9 +234,7 @@ class PDFStrategyManager:
                     # Try better strategy if available
                     if request.enable_fallback:
                         better_result = await self._try_better_quality_strategy(
-                            strategy_context,
-                            request.quality_threshold,
-                            strategy.name
+                            strategy_context, request.quality_threshold, strategy.name
                         )
                         if better_result:
                             pdf_result = better_result
@@ -223,7 +244,9 @@ class PDFStrategyManager:
 
                 # A/B testing if enabled
                 if request.enable_ab_testing:
-                    await self._record_ab_test_result(strategy_context, strategy, result)
+                    await self._record_ab_test_result(
+                        strategy_context, strategy, result
+                    )
 
                 return pdf_result
             else:
@@ -245,8 +268,7 @@ class PDFStrategyManager:
         """Select optimal strategy based on document characteristics"""
         # Get preferred strategies for complexity level
         preferred_strategies = self._strategy_preferences.get(
-            context.complexity,
-            [PDFGenerationStrategy.REPORTLAB]
+            context.complexity, [PDFGenerationStrategy.REPORTLAB]
         )
 
         # Try to get the first available preferred strategy
@@ -265,11 +287,13 @@ class PDFStrategyManager:
 
         return None
 
-    def _is_strategy_suitable(self, strategy: Any, context: PDFGenerationContext) -> bool:
+    def _is_strategy_suitable(
+        self, strategy: Any, context: PDFGenerationContext
+    ) -> bool:
         """Check if strategy is suitable for the given context"""
         try:
             # Check if strategy can handle the complexity
-            if hasattr(strategy, 'max_complexity'):
+            if hasattr(strategy, "max_complexity"):
                 if context.complexity.value > strategy.max_complexity:
                     return False
 
@@ -295,16 +319,16 @@ class PDFStrategyManager:
             logger.debug(f"Error checking strategy suitability: {e}")
             return True  # Default to allowing the strategy
 
-    async def _generate_with_fallback(self, context: StrategyContext) -> PDFGenerationResult:
+    async def _generate_with_fallback(
+        self, context: StrategyContext
+    ) -> PDFGenerationResult:
         """Generate PDF using fallback mechanisms"""
         # Try to get best strategy first
         best_strategy = self.selector.select_best_strategy("pdf_generation", context)
 
         if best_strategy:
             result = await self.fallback_manager.execute_with_fallback(
-                best_strategy,
-                context,
-                enable_cache=True
+                best_strategy, context, enable_cache=True
             )
 
             if result.is_success and result.data:
@@ -314,10 +338,7 @@ class PDFStrategyManager:
         return await self._emergency_fallback(context.data)
 
     async def _try_better_quality_strategy(
-        self,
-        context: StrategyContext,
-        quality_threshold: float,
-        exclude_strategy: str
+        self, context: StrategyContext, quality_threshold: float, exclude_strategy: str
     ) -> Optional[PDFGenerationResult]:
         """Try a different strategy for better quality"""
         try:
@@ -332,8 +353,12 @@ class PDFStrategyManager:
                 if strategy.name in ["reportlab_pdf", "weasyprint_pdf"]:
                     result = await strategy.execute_with_monitoring(context)
 
-                    if (result.is_success and result.data and
-                        result.data.quality_metrics.overall_quality_score >= quality_threshold):
+                    if (
+                        result.is_success
+                        and result.data
+                        and result.data.quality_metrics.overall_quality_score
+                        >= quality_threshold
+                    ):
                         logger.info(f"Improved quality with {strategy.name}")
                         return result.data
 
@@ -342,7 +367,9 @@ class PDFStrategyManager:
 
         return None
 
-    async def _emergency_fallback(self, context: PDFGenerationContext) -> PDFGenerationResult:
+    async def _emergency_fallback(
+        self, context: PDFGenerationContext
+    ) -> PDFGenerationResult:
         """Emergency fallback for critical failures"""
         logger.warning("Using emergency fallback for PDF generation")
 
@@ -353,10 +380,14 @@ class PDFStrategyManager:
             emergency_strategy = FPDFStrategy()
             if emergency_strategy.available:
                 emergency_context = StrategyContext(data=context)
-                result = await emergency_strategy.execute_with_monitoring(emergency_context)
+                result = await emergency_strategy.execute_with_monitoring(
+                    emergency_context
+                )
 
                 if result.is_success and result.data:
-                    result.data.warnings.append("Generated using emergency fallback - limited functionality")
+                    result.data.warnings.append(
+                        "Generated using emergency fallback - limited functionality"
+                    )
                     return result.data
         except Exception as e:
             logger.error(f"Emergency fallback failed: {e}")
@@ -369,12 +400,12 @@ class PDFStrategyManager:
                 file_size_kb=len(minimal_pdf) / 1024,
                 generation_time_ms=100,
                 page_count=1,
-                overall_quality_score=30.0
+                overall_quality_score=30.0,
             ),
             generation_engine="Emergency",
             template_used="minimal",
             success=True,
-            warnings=["Minimal PDF generated due to system failures"]
+            warnings=["Minimal PDF generated due to system failures"],
         )
 
     def _create_minimal_pdf(self, context: PDFGenerationContext) -> bytes:
@@ -415,9 +446,11 @@ class PDFStrategyManager:
         285
         %%EOF
         """
-        return minimal_content.encode('utf-8')
+        return minimal_content.encode("utf-8")
 
-    async def _record_ab_test_result(self, context: StrategyContext, strategy: Any, result: Any):
+    async def _record_ab_test_result(
+        self, context: StrategyContext, strategy: Any, result: Any
+    ):
         """Record result for A/B testing"""
         try:
             # This would integrate with the A/B testing framework
@@ -428,8 +461,8 @@ class PDFStrategyManager:
                 {
                     "strategy": strategy.name,
                     "complexity": context.data.complexity.value,
-                    "quality": context.data.quality.value
-                }
+                    "quality": context.data.quality.value,
+                },
             )
         except Exception as e:
             logger.debug(f"Failed to record A/B test result: {e}")
@@ -438,7 +471,7 @@ class PDFStrategyManager:
         self,
         test_name: str,
         strategies: List[PDFGenerationStrategy],
-        traffic_split: Dict[str, float]
+        traffic_split: Dict[str, float],
     ) -> str:
         """Start A/B test for PDF strategies"""
         from ..monitoring import ABTestConfig
@@ -446,12 +479,12 @@ class PDFStrategyManager:
         config = ABTestConfig(
             test_id=f"pdf_test_{int(asyncio.get_event_loop().time())}",
             name=test_name,
-            description=f"A/B test for PDF generation strategies",
+            description="A/B test for PDF generation strategies",
             strategies=[s.value for s in strategies],
             traffic_split=traffic_split,
             success_metrics=["execution_time", "quality_score", "success_rate"],
             minimum_sample_size=50,
-            max_duration_days=7
+            max_duration_days=7,
         )
 
         return self.ab_testing.create_ab_test(config)
@@ -466,7 +499,7 @@ class PDFStrategyManager:
             "strategy_health": {},
             "performance_metrics": {},
             "fallback_status": self.fallback_manager.get_fallback_status(),
-            "system_health": self.strategy_manager.get_system_health()
+            "system_health": self.strategy_manager.get_system_health(),
         }
 
         # Get individual strategy reports
@@ -476,8 +509,10 @@ class PDFStrategyManager:
 
             if strategy:
                 report["strategy_health"][strategy_name] = strategy.get_health_status()
-                report["performance_metrics"][strategy_name] = self.performance_monitor.get_strategy_performance_report(
-                    f"{strategy_name}_v{strategy_info['version']}"
+                report["performance_metrics"][strategy_name] = (
+                    self.performance_monitor.get_strategy_performance_report(
+                        f"{strategy_name}_v{strategy_info['version']}"
+                    )
                 )
 
         return report
@@ -487,7 +522,7 @@ class PDFStrategyManager:
         optimization_results = {
             "actions_taken": [],
             "performance_improvements": {},
-            "recommendations": []
+            "recommendations": [],
         }
 
         try:
@@ -506,7 +541,9 @@ class PDFStrategyManager:
                 # Reset metrics if strategy is underperforming
                 if health["success_rate"] < 0.8:
                     strategy.reset_metrics()
-                    optimization_results["actions_taken"].append(f"Reset metrics for {strategy.name}")
+                    optimization_results["actions_taken"].append(
+                        f"Reset metrics for {strategy.name}"
+                    )
 
             # Clear caches for better performance
             for strategy in strategies:
@@ -525,13 +562,17 @@ class PDFStrategyManager:
         strategies = self.registry.list_strategies("pdf_generation")
 
         for strategy_info in strategies:
-            strategy = self.registry.get_strategy("pdf_generation", strategy_info["name"])
+            strategy = self.registry.get_strategy(
+                "pdf_generation", strategy_info["name"]
+            )
             if strategy:
                 strategy_info["capabilities"] = {
                     "max_complexity": getattr(strategy, "max_complexity", "unknown"),
                     "supports_charts": strategy_info["name"] != "fpdf_pdf",
                     "supports_images": True,
-                    "quality_level": "high" if strategy_info["name"] == "reportlab_pdf" else "medium"
+                    "quality_level": "high"
+                    if strategy_info["name"] == "reportlab_pdf"
+                    else "medium",
                 }
 
         return strategies

@@ -31,4 +31,3 @@ class DraggableList(ctk.CTkFrame):
                 "<ButtonPress-1>",
                 lambda e, sid=sess.session_id: self.on_drag_start(sid),
             )
-

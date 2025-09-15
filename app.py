@@ -122,7 +122,9 @@ class CoachApp(ctk.CTk):
             "saved_sessions": {
                 "label": "Mes Séances",
                 "icon": "chart.png",
-                "factory": lambda parent: SavedSessionsPage(parent, self.session_controller, self),
+                "factory": lambda parent: SavedSessionsPage(
+                    parent, self.session_controller, self
+                ),
             },
             "progress": {
                 "label": "Progression",
@@ -197,7 +199,9 @@ class CoachApp(ctk.CTk):
         active_name = page_name if page_name in self.page_registry else "dashboard"
         self.shell.sidebar.set_active(active_name)
 
-    def show_client_detail(self, client_id: int, default_tab: str | None = None) -> None:
+    def show_client_detail(
+        self, client_id: int, default_tab: str | None = None
+    ) -> None:
         page = ClientDetailPage(
             self.shell.content_area,
             self.client_controller,

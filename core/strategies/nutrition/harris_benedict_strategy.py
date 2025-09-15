@@ -6,13 +6,21 @@ Widely accepted and validated for general population use.
 """
 
 import time
-from typing import List, Dict, Any, Optional
+from typing import Dict, List
 
 from ..base import BaseStrategy, StrategyConfig, StrategyPriority
 from .base import (
-    NutritionStrategyContext, NutritionStrategyResult, NutritionContext,
-    NutritionResult, MacronutrientTargets, Gender, ActivityLevel, NutritionGoal,
-    ACTIVITY_MULTIPLIERS, GOAL_CALORIE_ADJUSTMENTS, MACRO_DISTRIBUTIONS
+    ACTIVITY_MULTIPLIERS,
+    GOAL_CALORIE_ADJUSTMENTS,
+    MACRO_DISTRIBUTIONS,
+    ActivityLevel,
+    Gender,
+    MacronutrientTargets,
+    NutritionContext,
+    NutritionGoal,
+    NutritionResult,
+    NutritionStrategyContext,
+    NutritionStrategyResult,
 )
 
 
@@ -35,7 +43,7 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
             priority=StrategyPriority.HIGH,
             timeout_seconds=5.0,
             cache_enabled=True,
-            cache_ttl_seconds=3600  # 1 hour
+            cache_ttl_seconds=3600,  # 1 hour
         )
         super().__init__(config)
 
@@ -43,7 +51,9 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
         self._strategy_category = "nutrition_calculation"
         self._strategy_tags = {"classic", "validated", "medical_grade", "conservative"}
 
-    async def execute_async(self, context: NutritionStrategyContext) -> NutritionStrategyResult:
+    async def execute_async(
+        self, context: NutritionStrategyContext
+    ) -> NutritionStrategyResult:
         """Execute Harris-Benedict nutrition calculation"""
         start_time = time.time()
 
@@ -60,7 +70,9 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
             target_calories = self._adjust_calories_for_goal(tdee, nutrition_context)
 
             # Calculate macronutrient targets
-            macro_targets = self._calculate_macronutrient_targets(target_calories, nutrition_context)
+            macro_targets = self._calculate_macronutrient_targets(
+                target_calories, nutrition_context
+            )
 
             # Create result
             nutrition_result = NutritionResult(
@@ -73,8 +85,8 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
                 accuracy_factors=[
                     "Classic equation with extensive validation",
                     "Suitable for general population",
-                    "Conservative estimates"
-                ]
+                    "Conservative estimates",
+                ],
             )
 
             # Add warnings and recommendations
@@ -87,7 +99,7 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
                 success=True,
                 execution_time_ms=execution_time,
                 strategy_name=self.name,
-                strategy_version=self.version
+                strategy_version=self.version,
             )
 
         except Exception as e:
@@ -97,7 +109,7 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
                 success=False,
                 execution_time_ms=execution_time,
                 strategy_name=self.name,
-                error_message=f"Harris-Benedict calculation failed: {str(e)}"
+                error_message=f"Harris-Benedict calculation failed: {str(e)}",
             )
 
     def _calculate_bmr_harris_benedict(self, context: NutritionContext) -> float:
@@ -106,10 +118,20 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
 
         if metrics.gender == Gender.MALE:
             # Male: BMR = 88.362 + (13.397 × weight in kg) + (4.799 × height in cm) - (5.677 × age in years)
-            bmr = 88.362 + (13.397 * metrics.weight_kg) + (4.799 * metrics.height_cm) - (5.677 * metrics.age)
+            bmr = (
+                88.362
+                + (13.397 * metrics.weight_kg)
+                + (4.799 * metrics.height_cm)
+                - (5.677 * metrics.age)
+            )
         else:
             # Female: BMR = 447.593 + (9.247 × weight in kg) + (3.098 × height in cm) - (4.330 × age in years)
-            bmr = 447.593 + (9.247 * metrics.weight_kg) + (3.098 * metrics.height_cm) - (4.330 * metrics.age)
+            bmr = (
+                447.593
+                + (9.247 * metrics.weight_kg)
+                + (3.098 * metrics.height_cm)
+                - (4.330 * metrics.age)
+            )
 
         return max(bmr, 800)  # Minimum safe BMR
 
@@ -124,7 +146,9 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
         if context.training_days_per_week > 0:
             # Additional calories for training
             training_calories_per_session = self._estimate_training_calories(context)
-            weekly_training_calories = training_calories_per_session * context.training_days_per_week
+            weekly_training_calories = (
+                training_calories_per_session * context.training_days_per_week
+            )
             daily_training_calories = weekly_training_calories / 7
 
             tdee += daily_training_calories
@@ -137,10 +161,12 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
             "low": 5,
             "moderate": 8,
             "high": 12,
-            "very_high": 15
+            "very_high": 15,
         }
 
-        calories_per_minute = base_calories_per_minute.get(context.training_intensity, 8)
+        calories_per_minute = base_calories_per_minute.get(
+            context.training_intensity, 8
+        )
         session_calories = calories_per_minute * context.training_duration_minutes
 
         # Adjust for body weight (heavier people burn more calories)
@@ -149,7 +175,9 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
 
         return session_calories
 
-    def _adjust_calories_for_goal(self, tdee: float, context: NutritionContext) -> float:
+    def _adjust_calories_for_goal(
+        self, tdee: float, context: NutritionContext
+    ) -> float:
         """Adjust TDEE based on nutrition goal"""
         adjustment = GOAL_CALORIE_ADJUSTMENTS.get(context.nutrition_goal, 0.0)
         target_calories = tdee * (1 + adjustment)
@@ -165,12 +193,14 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
 
         return target_calories
 
-    def _calculate_macronutrient_targets(self, target_calories: float, context: NutritionContext) -> MacronutrientTargets:
+    def _calculate_macronutrient_targets(
+        self, target_calories: float, context: NutritionContext
+    ) -> MacronutrientTargets:
         """Calculate macronutrient targets"""
         # Get base distribution
         distribution = MACRO_DISTRIBUTIONS.get(
             context.preferences.preferred_macro_distribution,
-            MACRO_DISTRIBUTIONS["balanced"]
+            MACRO_DISTRIBUTIONS["balanced"],
         )
 
         # Adjust for goal and activity
@@ -193,10 +223,12 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
             protein_g=protein_g,
             carbohydrates_g=carbs_g,
             fat_g=fat_g,
-            fiber_g=fiber_g
+            fiber_g=fiber_g,
         )
 
-    def _adjust_macro_distribution(self, base_distribution: Dict[str, float], context: NutritionContext) -> Dict[str, float]:
+    def _adjust_macro_distribution(
+        self, base_distribution: Dict[str, float], context: NutritionContext
+    ) -> Dict[str, float]:
         """Adjust macro distribution based on goals and activity"""
         distribution = base_distribution.copy()
 
@@ -206,7 +238,9 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
             distribution["protein"] = min(0.35, distribution["protein"] + 0.05)
             # Adjust others proportionally
             remaining = 1.0 - distribution["protein"]
-            carbs_fat_ratio = distribution["carbs"] / (distribution["carbs"] + distribution["fat"])
+            carbs_fat_ratio = distribution["carbs"] / (
+                distribution["carbs"] + distribution["fat"]
+            )
             distribution["carbs"] = remaining * carbs_fat_ratio
             distribution["fat"] = remaining * (1 - carbs_fat_ratio)
 
@@ -219,46 +253,71 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
 
         # Ensure protein minimums
         min_protein_per_kg = 1.6  # grams per kg body weight
-        min_protein_calories = (min_protein_per_kg * context.personal_metrics.weight_kg * 4)
-        min_protein_percentage = min_protein_calories / (context.personal_metrics.weight_kg * 25 * 4)  # Estimate daily calories
+        min_protein_calories = (
+            min_protein_per_kg * context.personal_metrics.weight_kg * 4
+        )
+        min_protein_percentage = min_protein_calories / (
+            context.personal_metrics.weight_kg * 25 * 4
+        )  # Estimate daily calories
 
         if distribution["protein"] < min_protein_percentage:
             distribution["protein"] = min(0.40, min_protein_percentage)
             # Adjust others proportionally
             remaining = 1.0 - distribution["protein"]
-            carbs_fat_ratio = distribution["carbs"] / (distribution["carbs"] + distribution["fat"])
+            carbs_fat_ratio = distribution["carbs"] / (
+                distribution["carbs"] + distribution["fat"]
+            )
             distribution["carbs"] = remaining * carbs_fat_ratio
             distribution["fat"] = remaining * (1 - carbs_fat_ratio)
 
         return distribution
 
-    def _add_warnings_and_recommendations(self, result: NutritionResult, context: NutritionContext):
+    def _add_warnings_and_recommendations(
+        self, result: NutritionResult, context: NutritionContext
+    ):
         """Add warnings and specific recommendations"""
         # Age-related warnings
         if context.personal_metrics.age > 65:
-            result.warnings.append("Consider consulting healthcare provider for seniors-specific nutrition needs")
-            result.accuracy_factors.append("Age-adjusted calculations may need medical supervision")
+            result.warnings.append(
+                "Consider consulting healthcare provider for seniors-specific nutrition needs"
+            )
+            result.accuracy_factors.append(
+                "Age-adjusted calculations may need medical supervision"
+            )
 
         # BMI warnings
         bmi = context.personal_metrics.bmi
         if bmi < 18.5:
-            result.warnings.append("Underweight BMI detected - focus on healthy weight gain")
+            result.warnings.append(
+                "Underweight BMI detected - focus on healthy weight gain"
+            )
         elif bmi > 30:
-            result.warnings.append("Obesity BMI detected - consider gradual, sustainable approach")
+            result.warnings.append(
+                "Obesity BMI detected - consider gradual, sustainable approach"
+            )
 
         # Goal-specific recommendations
         if context.nutrition_goal == NutritionGoal.WEIGHT_LOSS:
-            result.accuracy_factors.append("Conservative approach recommended for sustainable weight loss")
+            result.accuracy_factors.append(
+                "Conservative approach recommended for sustainable weight loss"
+            )
             if result.target_calories < result.bmr * 1.1:
-                result.warnings.append("Very low calorie target - consider less aggressive deficit")
+                result.warnings.append(
+                    "Very low calorie target - consider less aggressive deficit"
+                )
 
         # Activity level considerations
-        if context.activity_level == ActivityLevel.VERY_ACTIVE and context.training_days_per_week < 6:
+        if (
+            context.activity_level == ActivityLevel.VERY_ACTIVE
+            and context.training_days_per_week < 6
+        ):
             result.warnings.append("Activity level may not match training frequency")
 
         # Hydration recommendations
         base_hydration = 35 * context.personal_metrics.weight_kg / 1000  # 35ml per kg
-        training_hydration = context.training_days_per_week * 0.5  # Extra 500ml per training day
+        training_hydration = (
+            context.training_days_per_week * 0.5
+        )  # Extra 500ml per training day
         result.hydration_target_liters = base_hydration + (training_hydration / 7)
 
         # Set weekly weight change target
@@ -290,10 +349,16 @@ class HarrisBenedictStrategy(BaseStrategy[NutritionContext]):
                 errors.append("Body fat percentage must be between 3% and 50%")
 
         # Validate training parameters
-        if nutrition_context.training_days_per_week < 0 or nutrition_context.training_days_per_week > 7:
+        if (
+            nutrition_context.training_days_per_week < 0
+            or nutrition_context.training_days_per_week > 7
+        ):
             errors.append("Training days per week must be between 0 and 7")
 
-        if nutrition_context.training_duration_minutes < 0 or nutrition_context.training_duration_minutes > 300:
+        if (
+            nutrition_context.training_duration_minutes < 0
+            or nutrition_context.training_duration_minutes > 300
+        ):
             errors.append("Training duration must be between 0 and 300 minutes")
 
         return errors

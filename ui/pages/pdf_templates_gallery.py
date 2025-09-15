@@ -19,7 +19,9 @@ from ui.components.design_system import (
 class _TemplateTile(ctk.CTkFrame):
     def __init__(self, master, name: str, is_default: bool, on_click, icon_path: str):
         colors = ctk.ThemeManager.theme["color"]
-        super().__init__(master, fg_color=colors.get("surface_light", "#111827"), corner_radius=8)
+        super().__init__(
+            master, fg_color=colors.get("surface_light", "#111827"), corner_radius=8
+        )
         self._on_click = on_click
         self._selected = False
         self.configure(cursor="hand2")
@@ -54,14 +56,20 @@ class _CreateTemplateModal(ctk.CTkToplevel):
         self.resizable(False, False)
         self._on_create = on_create
         self._t = t
-        ctk.CTkLabel(self, text="Nom du template").pack(anchor="w", padx=12, pady=(12, 4))
+        ctk.CTkLabel(self, text="Nom du template").pack(
+            anchor="w", padx=12, pady=(12, 4)
+        )
         self._name = ctk.CTkEntry(self)
         self._name.insert(0, "Nouveau template")
         self._name.pack(fill="x", padx=12)
         btns = ctk.CTkFrame(self, fg_color="transparent")
         btns.pack(pady=12)
-        SecondaryButton(btns, text="Annuler", command=self.destroy).pack(side="right", padx=6)
-        PrimaryButton(btns, text="Créer", command=self._create).pack(side="right", padx=6)
+        SecondaryButton(btns, text="Annuler", command=self.destroy).pack(
+            side="right", padx=6
+        )
+        PrimaryButton(btns, text="Créer", command=self._create).pack(
+            side="right", padx=6
+        )
         try:
             self._name.focus_set()
             self.bind("<Return>", lambda e: self._create())
@@ -70,6 +78,7 @@ class _CreateTemplateModal(ctk.CTkToplevel):
         # ensure on top and focused
         try:
             from utils.ui_helpers import bring_to_front  # local import to avoid cycles
+
             bring_to_front(self, make_modal=True)
         except Exception:
             pass
@@ -125,10 +134,22 @@ class PdfTemplatesPage(ctk.CTkFrame):
 
             bar = ctk.CTkFrame(frame, fg_color="transparent")
             bar.grid(row=0, column=0, sticky="ew")
-            SecondaryButton(bar, text="Nouveau", command=lambda typ=t: self._open_create_modal(typ)).pack(side="left")
-            SecondaryButton(bar, text="Définir par défaut", command=lambda typ=t: self._on_set_default(typ)).pack(side="left", padx=6)
-            SecondaryButton(bar, text="Supprimer", command=lambda typ=t: self._on_delete(typ)).pack(side="left", padx=6)
-            SecondaryButton(bar, text="Modèles types", command=lambda typ=t: self._open_presets_modal(typ)).pack(side="left", padx=6)
+            SecondaryButton(
+                bar, text="Nouveau", command=lambda typ=t: self._open_create_modal(typ)
+            ).pack(side="left")
+            SecondaryButton(
+                bar,
+                text="Définir par défaut",
+                command=lambda typ=t: self._on_set_default(typ),
+            ).pack(side="left", padx=6)
+            SecondaryButton(
+                bar, text="Supprimer", command=lambda typ=t: self._on_delete(typ)
+            ).pack(side="left", padx=6)
+            SecondaryButton(
+                bar,
+                text="Modèles types",
+                command=lambda typ=t: self._open_presets_modal(typ),
+            ).pack(side="left", padx=6)
 
             grid_wrap = ctk.CTkScrollableFrame(frame, fg_color="transparent")
             grid_wrap.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
@@ -143,7 +164,11 @@ class PdfTemplatesPage(ctk.CTkFrame):
         topbar.grid(row=0, column=0, sticky="ew")
         CardTitle(topbar, text="Éditeur de style").pack(side="left")
         try:
-            self.mode_switch = ctk.CTkSegmentedButton(topbar, values=["Visuel", "JSON"], command=lambda v: self._on_mode_change(v))
+            self.mode_switch = ctk.CTkSegmentedButton(
+                topbar,
+                values=["Visuel", "JSON"],
+                command=lambda v: self._on_mode_change(v),
+            )
             self.mode_switch.set("Visuel")
             self.mode_switch.pack(side="right")
         except Exception:
@@ -154,7 +179,9 @@ class PdfTemplatesPage(ctk.CTkFrame):
         self.visual_wrap.grid(row=1, column=0, sticky="nsew")
         self.visual_wrap.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(self.visual_wrap, text="Largeur logo").grid(row=0, column=0, sticky="w", padx=(0, 8))
+        ctk.CTkLabel(self.visual_wrap, text="Largeur logo").grid(
+            row=0, column=0, sticky="w", padx=(0, 8)
+        )
         self.ve_logo = ctk.CTkEntry(self.visual_wrap, width=80)
         self.ve_logo.grid(row=0, column=1, sticky="w")
 
@@ -169,16 +196,34 @@ class PdfTemplatesPage(ctk.CTkFrame):
         start_row = 1
         for i, (key, label) in enumerate(self._color_keys):
             r = start_row + i
-            ctk.CTkLabel(self.visual_wrap, text=label).grid(row=r, column=0, sticky="w", pady=2)
-            btn = ctk.CTkButton(self.visual_wrap, text="#000000", width=80, command=lambda k=key: self._pick_color(k))
+            ctk.CTkLabel(self.visual_wrap, text=label).grid(
+                row=r, column=0, sticky="w", pady=2
+            )
+            btn = ctk.CTkButton(
+                self.visual_wrap,
+                text="#000000",
+                width=80,
+                command=lambda k=key: self._pick_color(k),
+            )
             btn.grid(row=r, column=1, sticky="w")
             self._color_vars[key] = btn
 
-        ctk.CTkLabel(self.visual_wrap, text="Colonnes par défaut (ex: 250,60,120,60)").grid(
-            row=start_row + len(self._color_keys), column=0, columnspan=2, sticky="w", pady=(8, 2)
+        ctk.CTkLabel(
+            self.visual_wrap, text="Colonnes par défaut (ex: 250,60,120,60)"
+        ).grid(
+            row=start_row + len(self._color_keys),
+            column=0,
+            columnspan=2,
+            sticky="w",
+            pady=(8, 2),
         )
         self.ve_cols = ctk.CTkEntry(self.visual_wrap)
-        self.ve_cols.grid(row=start_row + len(self._color_keys) + 1, column=0, columnspan=2, sticky="ew")
+        self.ve_cols.grid(
+            row=start_row + len(self._color_keys) + 1,
+            column=0,
+            columnspan=2,
+            sticky="ew",
+        )
 
         # JSON editor
         self.json_wrap = ctk.CTkFrame(editor, fg_color="transparent")
@@ -189,8 +234,12 @@ class PdfTemplatesPage(ctk.CTkFrame):
 
         footer = ctk.CTkFrame(editor, fg_color="transparent")
         footer.grid(row=2, column=0, sticky="e", pady=(8, 0))
-        SecondaryButton(footer, text="Aperçu PDF", command=self._on_preview).pack(side="right", padx=6)
-        PrimaryButton(footer, text="Enregistrer", command=self._on_save).pack(side="right", padx=6)
+        SecondaryButton(footer, text="Aperçu PDF", command=self._on_preview).pack(
+            side="right", padx=6
+        )
+        PrimaryButton(footer, text="Enregistrer", command=self._on_save).pack(
+            side="right", padx=6
+        )
 
         self._selected_family = "session"
         self._refresh_all()
@@ -272,7 +321,11 @@ class PdfTemplatesPage(ctk.CTkFrame):
         base["colors"] = colors
         cols = base.get("column_widths", {}) or {}
         try:
-            vals = [int(x.strip()) for x in (self.ve_cols.get() or "").split(",") if x.strip()]
+            vals = [
+                int(x.strip())
+                for x in (self.ve_cols.get() or "").split(",")
+                if x.strip()
+            ]
             if vals:
                 cols["DEFAULT"] = vals
         except Exception:
@@ -329,8 +382,13 @@ class PdfTemplatesPage(ctk.CTkFrame):
         def handle_create(typ: str, name: str):
             try:
                 style = self.controller.get_style(typ, None)
-                self.controller.save_template(typ, name, json.dumps(style, ensure_ascii=False), None, False)
-                icon = next((ic for lbl, typ2, ic in self._families if typ2 == typ), "assets/icons/pdf.png")
+                self.controller.save_template(
+                    typ, name, json.dumps(style, ensure_ascii=False), None, False
+                )
+                icon = next(
+                    (ic for lbl, typ2, ic in self._families if typ2 == typ),
+                    "assets/icons/pdf.png",
+                )
                 self._refresh_grid(typ, icon)
             except Exception as e:
                 messagebox.showerror("Erreur", f"Impossible de créer: {e}")
@@ -347,15 +405,22 @@ class PdfTemplatesPage(ctk.CTkFrame):
         def add(name: str):
             try:
                 style = self._make_preset_style(t, name)
-                self.controller.save_template(t, name, json.dumps(style, ensure_ascii=False), None, False)
-                icon = next((ic for lbl, typ2, ic in self._families if typ2 == t), "assets/icons/pdf.png")
+                self.controller.save_template(
+                    t, name, json.dumps(style, ensure_ascii=False), None, False
+                )
+                icon = next(
+                    (ic for lbl, typ2, ic in self._families if typ2 == t),
+                    "assets/icons/pdf.png",
+                )
                 self._refresh_grid(t, icon)
                 win.destroy()
             except Exception as e:
                 messagebox.showerror("Erreur", f"Échec: {e}")
 
         for name in ["Basique sombre", "Basique clair", "Compact"]:
-            PrimaryButton(row, text=name, command=lambda n=name: add(n)).pack(side="left", padx=6)
+            PrimaryButton(row, text=name, command=lambda n=name: add(n)).pack(
+                side="left", padx=6
+            )
 
     def _make_preset_style(self, t: str, name: str) -> dict:
         if t == "session":
@@ -371,13 +436,15 @@ class PdfTemplatesPage(ctk.CTkFrame):
                 "column_widths": {"DEFAULT": [250, 60, 120, 60], "EMOM": [250, 180]},
             }
             if name == "Basique clair":
-                base["colors"].update({
-                    "table_header_bg": "#E5E7EB",
-                    "table_row_odd_bg": "#FFFFFF",
-                    "table_row_even_bg": "#F3F4F6",
-                    "table_grid": "#D1D5DB",
-                    "table_text": "#111827",
-                })
+                base["colors"].update(
+                    {
+                        "table_header_bg": "#E5E7EB",
+                        "table_row_odd_bg": "#FFFFFF",
+                        "table_row_even_bg": "#F3F4F6",
+                        "table_grid": "#D1D5DB",
+                        "table_text": "#111827",
+                    }
+                )
             if name == "Compact":
                 base["logo_width"] = 50
                 base["column_widths"]["DEFAULT"] = [220, 60, 100, 50]
@@ -424,7 +491,10 @@ class PdfTemplatesPage(ctk.CTkFrame):
             style_txt = self.editor.get("1.0", "end").strip()
             _ = json.loads(style_txt)
             self.controller.save_template(t, "", style_txt, tpl_id, True)
-            icon = next((ic for lbl, typ2, ic in self._families if typ2 == t), "assets/icons/pdf.png")
+            icon = next(
+                (ic for lbl, typ2, ic in self._families if typ2 == t),
+                "assets/icons/pdf.png",
+            )
             self._refresh_grid(t, icon)
         except Exception as e:
             messagebox.showerror("Erreur", f"Echec: {e}")
@@ -435,7 +505,10 @@ class PdfTemplatesPage(ctk.CTkFrame):
             return
         try:
             self.controller.delete_template(int(tpl_id))
-            icon = next((ic for lbl, typ2, ic in self._families if typ2 == t), "assets/icons/pdf.png")
+            icon = next(
+                (ic for lbl, typ2, ic in self._families if typ2 == t),
+                "assets/icons/pdf.png",
+            )
             self._refresh_grid(t, icon)
             self._load_selected_style()
         except Exception as e:
@@ -462,11 +535,16 @@ class PdfTemplatesPage(ctk.CTkFrame):
                 self.controller.save_template(fam, name, style_txt, None, False)
             else:
                 self.controller.save_template(fam, "", style_txt, int(tpl_id), False)
-            icon = next((ic for lbl, typ2, ic in self._families if typ2 == fam), "assets/icons/pdf.png")
+            icon = next(
+                (ic for lbl, typ2, ic in self._families if typ2 == fam),
+                "assets/icons/pdf.png",
+            )
             self._refresh_grid(fam, icon)
             messagebox.showinfo("OK", "Template sauvegardé.")
         except Exception as e:
-            messagebox.showerror("Erreur", f"JSON invalide ou erreur de sauvegarde: {e}")
+            messagebox.showerror(
+                "Erreur", f"JSON invalide ou erreur de sauvegarde: {e}"
+            )
 
     def _on_preview(self):
         style_txt = self.editor.get("1.0", "end").strip()
@@ -475,7 +553,9 @@ class PdfTemplatesPage(ctk.CTkFrame):
         except Exception as e:
             messagebox.showerror("Erreur", f"JSON invalide: {e}")
             return
-        path = filedialog.asksaveasfilename(defaultextension=".pdf", filetypes=[("PDF", "*.pdf")])
+        path = filedialog.asksaveasfilename(
+            defaultextension=".pdf", filetypes=[("PDF", "*.pdf")]
+        )
         if not path:
             return
         sample = {

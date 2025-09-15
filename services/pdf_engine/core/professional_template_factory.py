@@ -5,26 +5,36 @@ Creates 12 professional-grade templates with commercial design quality
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional
 
-from .template_factory import TemplateFactory
 from ..templates.base_template import BaseTemplate
+from ..templates.professional.nutrition_science_template import NutritionScienceTemplate
+from ..templates.professional.nutrition_sheet_education_template import (
+    NutritionSheetEducationTemplate,
+)
+from ..templates.professional.nutrition_sheet_quickref_template import (
+    NutritionSheetQuickRefTemplate,
+)
+from ..templates.professional.nutrition_sheet_scientific_template import (
+    NutritionSheetScientificTemplate,
+)
+from ..templates.professional.nutrition_therapeutic_template import (
+    NutritionTherapeuticTemplate,
+)
+from ..templates.professional.nutrition_wellness_template import (
+    NutritionWellnessTemplate,
+)
+from ..templates.professional.session_group_template import SessionGroupTemplate
+from ..templates.professional.session_home_template import SessionHomeTemplate
+from ..templates.professional.session_premium_template import SessionPremiumTemplate
 
 # Professional Templates - All 12 templates implemented
 from ..templates.professional.workout_elite_template import WorkoutEliteTemplate
-from ..templates.professional.workout_motivation_template import WorkoutMotivationTemplate
 from ..templates.professional.workout_medical_template import WorkoutMedicalTemplate
-from ..templates.professional.nutrition_science_template import NutritionScienceTemplate
-from ..templates.professional.nutrition_wellness_template import NutritionWellnessTemplate
-from ..templates.professional.nutrition_therapeutic_template import NutritionTherapeuticTemplate
-from ..templates.professional.nutrition_sheet_education_template import NutritionSheetEducationTemplate
-from ..templates.professional.nutrition_sheet_quickref_template import NutritionSheetQuickRefTemplate
-from ..templates.professional.nutrition_sheet_scientific_template import NutritionSheetScientificTemplate
-from ..templates.professional.session_premium_template import SessionPremiumTemplate
-from ..templates.professional.session_group_template import SessionGroupTemplate
-from ..templates.professional.session_home_template import SessionHomeTemplate
+from ..templates.professional.workout_motivation_template import (
+    WorkoutMotivationTemplate,
+)
+from .template_factory import TemplateFactory
 
 
 class ProfessionalTemplateFactory(TemplateFactory):
@@ -39,24 +49,21 @@ class ProfessionalTemplateFactory(TemplateFactory):
         # Professional Template Registry - All 12 Templates Implemented
         self._professional_registry = {
             # WORKOUT PROGRAMS (3 Templates)
-            "workout_elite": WorkoutEliteTemplate,        # Elite Performance - Premium minimalist
-            "workout_motivation": WorkoutMotivationTemplate, # Motivation+ - Energetic gamified
-            "workout_medical": WorkoutMedicalTemplate,    # Medical Pro - Clinical scientific
-
+            "workout_elite": WorkoutEliteTemplate,  # Elite Performance - Premium minimalist
+            "workout_motivation": WorkoutMotivationTemplate,  # Motivation+ - Energetic gamified
+            "workout_medical": WorkoutMedicalTemplate,  # Medical Pro - Clinical scientific
             # NUTRITION PLANS (3 Templates)
-            "nutrition_science": NutritionScienceTemplate,     # Data-driven precision
-            "nutrition_wellness": NutritionWellnessTemplate,   # Lifestyle wellness
-            "nutrition_therapeutic": NutritionTherapeuticTemplate, # Medical compliance
-
+            "nutrition_science": NutritionScienceTemplate,  # Data-driven precision
+            "nutrition_wellness": NutritionWellnessTemplate,  # Lifestyle wellness
+            "nutrition_therapeutic": NutritionTherapeuticTemplate,  # Medical compliance
             # NUTRITION SHEETS (3 Templates)
-            "nutrition_sheet_education": NutritionSheetEducationTemplate,   # Educational focus
-            "nutrition_sheet_quickref": NutritionSheetQuickRefTemplate,     # Quick reference
-            "nutrition_sheet_scientific": NutritionSheetScientificTemplate, # Scientific report
-
+            "nutrition_sheet_education": NutritionSheetEducationTemplate,  # Educational focus
+            "nutrition_sheet_quickref": NutritionSheetQuickRefTemplate,  # Quick reference
+            "nutrition_sheet_scientific": NutritionSheetScientificTemplate,  # Scientific report
             # SINGLE SESSIONS (3 Templates)
-            "session_premium": SessionPremiumTemplate,   # Premium luxury
-            "session_group": SessionGroupTemplate,       # Group energy
-            "session_home": SessionHomeTemplate,         # Home efficient
+            "session_premium": SessionPremiumTemplate,  # Premium luxury
+            "session_group": SessionGroupTemplate,  # Group energy
+            "session_home": SessionHomeTemplate,  # Home efficient
         }
 
         # Merge with existing registry
@@ -76,7 +83,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
         self,
         template_type: str,
         data: Dict[str, Any],
-        config: Optional[Dict[str, Any]] = None
+        config: Optional[Dict[str, Any]] = None,
     ) -> BaseTemplate:
         """
         Override parent create_template to use professional templates
@@ -92,7 +99,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
         template_type: str,
         data: Dict[str, Any],
         config: Optional[Dict[str, Any]] = None,
-        brand_config: Optional[Dict[str, Any]] = None
+        brand_config: Optional[Dict[str, Any]] = None,
     ) -> BaseTemplate:
         """
         Create professional template with brand customization
@@ -122,46 +129,62 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "name": "Elite Performance",
                     "description": "Premium minimalist design for high-end coaching",
                     "target": "Coachs haut de gamme, athlètes avancés",
-                    "features": ["Graphiques progression", "Zones anatomiques", "QR codes vidéos"],
-                    "style": "Premium, minimaliste, focus données"
+                    "features": [
+                        "Graphiques progression",
+                        "Zones anatomiques",
+                        "QR codes vidéos",
+                    ],
+                    "style": "Premium, minimaliste, focus données",
                 },
                 "motivation": {
                     "name": "Motivation+",
                     "description": "Énergique et gamifié pour engagement maximal",
                     "target": "Fitness grand public, débutants, groupe classes",
-                    "features": ["Citations motivantes", "Challenges", "Badges réussite"],
-                    "style": "Énergique, coloré, gamification"
+                    "features": [
+                        "Citations motivantes",
+                        "Challenges",
+                        "Badges réussite",
+                    ],
+                    "style": "Énergique, coloré, gamification",
                 },
                 "medical": {
                     "name": "Medical Pro",
                     "description": "Format médical pour rééducation et coaching thérapeutique",
                     "target": "Kinésithérapie, rééducation, coaching thérapeutique",
                     "features": ["Contre-indications", "Adaptations", "Suivi médical"],
-                    "style": "Médical, épuré, scientifique"
-                }
+                    "style": "Médical, épuré, scientifique",
+                },
             },
             "nutrition_plans": {
                 "science": {
                     "name": "Nutrition Science",
                     "description": "Data-driven avec graphiques avancés et précision",
                     "target": "Nutritionnistes, bodybuilders, athlètes performance",
-                    "features": ["Camemberts", "Histogrammes", "Tableaux nutritionnels"],
-                    "style": "Data-driven, graphiques avancés, précision"
+                    "features": [
+                        "Camemberts",
+                        "Histogrammes",
+                        "Tableaux nutritionnels",
+                    ],
+                    "style": "Data-driven, graphiques avancés, précision",
                 },
                 "wellness": {
                     "name": "Lifestyle Wellness",
                     "description": "Lifestyle photographique et inspirant",
                     "target": "Coaching wellness, perte de poids, grand public",
-                    "features": ["Photos HD repas", "Lifestyle tips", "Planification hebdo"],
-                    "style": "Lifestyle, photographique, inspirant"
+                    "features": [
+                        "Photos HD repas",
+                        "Lifestyle tips",
+                        "Planification hebdo",
+                    ],
+                    "style": "Lifestyle, photographique, inspirant",
                 },
                 "therapeutic": {
                     "name": "Therapeutic Diet",
                     "description": "Format médical avec compliance et traçabilité",
                     "target": "Diététiciens, pathologies, régimes stricts",
                     "features": ["Alertes allergènes", "Substitutions", "Monitoring"],
-                    "style": "Médical, compliance, traçabilité"
-                }
+                    "style": "Médical, compliance, traçabilité",
+                },
             },
             "nutrition_sheets": {
                 "education": {
@@ -169,22 +192,22 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "description": "Pédagogique avec infographies accessibles",
                     "target": "Éducation nutritionnelle, prévention, sensibilisation",
                     "features": ["Schémas", "Comparaisons", "Tips pratiques"],
-                    "style": "Pédagogique, infographique, accessible"
+                    "style": "Pédagogique, infographique, accessible",
                 },
                 "quickref": {
                     "name": "Quick Reference",
                     "description": "Concis et actionnable pour usage rapide",
                     "target": "Aide-mémoires, consultations rapides",
                     "features": ["Actions concrètes", "Rappels", "Résumés"],
-                    "style": "Concis, actionnable, mémorable"
+                    "style": "Concis, actionnable, mémorable",
                 },
                 "scientific": {
                     "name": "Scientific Report",
                     "description": "Format académique avec evidence-based",
                     "target": "Professionnels santé, recherche, formation",
                     "features": ["Bibliographie", "Études", "Analyses approfondies"],
-                    "style": "Académique, détaillé, evidence-based"
-                }
+                    "style": "Académique, détaillé, evidence-based",
+                },
             },
             "single_sessions": {
                 "premium": {
@@ -192,23 +215,23 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "description": "Luxe personnalisé pour personal training haut de gamme",
                     "target": "Personal training haut de gamme, séances privées",
                     "features": ["Coaching notes", "Adaptations temps réel"],
-                    "style": "Luxe, personnalisé, détaillé"
+                    "style": "Luxe, personnalisé, détaillé",
                 },
                 "group": {
                     "name": "Group Energy",
                     "description": "Dynamique pour cours collectifs et team training",
                     "target": "Cours collectifs, team training, événements",
                     "features": ["Playlist", "Variations niveaux", "Team building"],
-                    "style": "Dynamique, collectif, motivant"
+                    "style": "Dynamique, collectif, motivant",
                 },
                 "home": {
                     "name": "Home Efficient",
                     "description": "Pratique pour home training avec équipement minimal",
                     "target": "Home training, confinements, déplacements",
                     "features": ["Setup photos", "Substitutions matériel"],
-                    "style": "Pratique, équipement minimal, efficace"
-                }
-            }
+                    "style": "Pratique, équipement minimal, efficace",
+                },
+            },
         }
 
     def _load_professional_variants(self) -> Dict[str, Dict[str, Any]]:
@@ -220,28 +243,32 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "layout": "grid_structured",
                     "components": ["progress_graphs", "anatomy_zones", "qr_videos"],
                     "density": "high_data",
-                    "branding": "premium_minimal"
+                    "branding": "premium_minimal",
                 },
                 "executive": {
                     "theme": "executive_monochrome",
                     "layout": "executive_timeline",
                     "components": ["roi_metrics", "efficiency_scores"],
-                    "density": "ultra_condensed"
-                }
+                    "density": "ultra_condensed",
+                },
             },
             "workout_motivation": {
                 "default": {
                     "theme": "energetic_vibrant",
                     "layout": "card_dynamic",
-                    "components": ["motivational_quotes", "achievement_badges", "progress_bars"],
+                    "components": [
+                        "motivational_quotes",
+                        "achievement_badges",
+                        "progress_bars",
+                    ],
                     "gamification": True,
-                    "color_intensity": "high"
+                    "color_intensity": "high",
                 },
                 "youth": {
                     "theme": "playful_bright",
                     "components": ["emoji_rewards", "level_system", "team_challenges"],
-                    "gamification": True
-                }
+                    "gamification": True,
+                },
             },
             "workout_medical": {
                 "default": {
@@ -249,7 +276,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "layout": "medical_structured",
                     "components": ["contraindications", "adaptations", "medical_notes"],
                     "compliance": True,
-                    "documentation_level": "complete"
+                    "documentation_level": "complete",
                 }
             },
             "nutrition_science": {
@@ -258,7 +285,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "layout": "dashboard_analytics",
                     "components": ["macro_charts", "micro_breakdown", "biomarkers"],
                     "chart_types": ["pie", "bar", "line", "radar"],
-                    "precision": "scientific"
+                    "precision": "scientific",
                 }
             },
             "nutrition_wellness": {
@@ -266,7 +293,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "theme": "lifestyle_photography",
                     "layout": "instagram_grid",
                     "components": ["hd_photos", "lifestyle_tips", "weekly_planning"],
-                    "visual_emphasis": "photography"
+                    "visual_emphasis": "photography",
                 }
             },
             "nutrition_therapeutic": {
@@ -275,16 +302,20 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "layout": "clinical_format",
                     "components": ["allergen_alerts", "substitutions", "monitoring"],
                     "compliance": True,
-                    "allergen_tracking": True
+                    "allergen_tracking": True,
                 }
             },
             "nutrition_sheet_education": {
                 "default": {
                     "theme": "educational_accessible",
                     "layout": "pedagogical_cards",
-                    "components": ["infographics", "learning_objectives", "practical_tips"],
+                    "components": [
+                        "infographics",
+                        "learning_objectives",
+                        "practical_tips",
+                    ],
                     "accessibility_level": "high",
-                    "pedagogical_approach": "progressive"
+                    "pedagogical_approach": "progressive",
                 }
             },
             "nutrition_sheet_quickref": {
@@ -293,16 +324,20 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "layout": "ultra_concise",
                     "components": ["quick_actions", "emergency_tips", "key_numbers"],
                     "density": "ultra_high",
-                    "action_focused": True
+                    "action_focused": True,
                 }
             },
             "nutrition_sheet_scientific": {
                 "default": {
                     "theme": "academic_professional",
                     "layout": "journal_format",
-                    "components": ["bibliography", "statistical_analysis", "evidence_grading"],
+                    "components": [
+                        "bibliography",
+                        "statistical_analysis",
+                        "evidence_grading",
+                    ],
                     "citation_style": "apa",
-                    "peer_review_format": True
+                    "peer_review_format": True,
                 }
             },
             "session_premium": {
@@ -310,7 +345,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "theme": "luxury_personalized",
                     "layout": "vip_detailed",
                     "components": ["coach_notes", "real_time_adaptations"],
-                    "personalization": "maximum"
+                    "personalization": "maximum",
                 }
             },
             "session_group": {
@@ -318,7 +353,7 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "theme": "dynamic_collective",
                     "layout": "group_synchronized",
                     "components": ["playlist", "level_variations", "team_elements"],
-                    "group_features": True
+                    "group_features": True,
                 }
             },
             "session_home": {
@@ -326,9 +361,9 @@ class ProfessionalTemplateFactory(TemplateFactory):
                     "theme": "practical_efficient",
                     "layout": "space_adaptive",
                     "components": ["setup_photos", "equipment_substitutions"],
-                    "space_optimization": True
+                    "space_optimization": True,
                 }
-            }
+            },
         }
 
     def _load_brand_standards(self) -> Dict[str, Any]:
@@ -337,37 +372,45 @@ class ProfessionalTemplateFactory(TemplateFactory):
             "logo_placement": {
                 "header": {"position": "top_right", "max_height": 40},
                 "footer": {"position": "bottom_center", "max_height": 20},
-                "watermark": {"opacity": 0.1, "position": "center"}
+                "watermark": {"opacity": 0.1, "position": "center"},
             },
             "color_customization": {
                 "primary": "brand_primary",
                 "secondary": "brand_secondary",
                 "accent": "brand_accent",
-                "override_system": True
+                "override_system": True,
             },
             "typography": {
                 "custom_fonts": True,
                 "font_families": ["brand_primary", "brand_secondary"],
-                "fallback": ["Helvetica", "Arial"]
+                "fallback": ["Helvetica", "Arial"],
             },
             "compliance": {
                 "gdpr": True,
                 "healthcare": True,
-                "professional_standards": True
-            }
+                "professional_standards": True,
+            },
         }
 
-    def _apply_brand_config(self, config: Dict[str, Any], brand: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_brand_config(
+        self, config: Dict[str, Any], brand: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Apply brand configuration to template config"""
         branded_config = config.copy()
 
         # Apply brand colors
         if "colors" in brand:
-            branded_config["colors"] = {**branded_config.get("colors", {}), **brand["colors"]}
+            branded_config["colors"] = {
+                **branded_config.get("colors", {}),
+                **brand["colors"],
+            }
 
         # Apply brand fonts
         if "fonts" in brand:
-            branded_config["fonts"] = {**branded_config.get("fonts", {}), **brand["fonts"]}
+            branded_config["fonts"] = {
+                **branded_config.get("fonts", {}),
+                **brand["fonts"],
+            }
 
         # Apply logo configuration
         if "logo" in brand:
@@ -405,10 +448,14 @@ class ProfessionalTemplateFactory(TemplateFactory):
         return {
             "total_generations": total_usage,
             "template_breakdown": self._template_usage,
-            "most_popular": max(self._template_usage.items(), key=lambda x: x[1]) if self._template_usage else None
+            "most_popular": max(self._template_usage.items(), key=lambda x: x[1])
+            if self._template_usage
+            else None,
         }
 
-    def validate_professional_data(self, template_type: str, data: Dict[str, Any]) -> List[str]:
+    def validate_professional_data(
+        self, template_type: str, data: Dict[str, Any]
+    ) -> List[str]:
         """Validate data against professional template requirements"""
         errors = []
 
@@ -436,28 +483,48 @@ class ProfessionalTemplateFactory(TemplateFactory):
         """Get available themes optimized for each template type"""
         return {
             "elite_professional": {
-                "colors": {"primary": "#1a365d", "secondary": "#2d3748", "accent": "#3182ce"},
+                "colors": {
+                    "primary": "#1a365d",
+                    "secondary": "#2d3748",
+                    "accent": "#3182ce",
+                },
                 "fonts": {"primary": "Helvetica-Bold", "secondary": "Helvetica"},
-                "style": "Premium minimalist with data focus"
+                "style": "Premium minimalist with data focus",
             },
             "energetic_vibrant": {
-                "colors": {"primary": "#e53e3e", "secondary": "#fd6b00", "accent": "#38d9a9"},
+                "colors": {
+                    "primary": "#e53e3e",
+                    "secondary": "#fd6b00",
+                    "accent": "#38d9a9",
+                },
                 "fonts": {"primary": "Arial-Bold", "secondary": "Arial"},
-                "style": "High energy with gamification elements"
+                "style": "High energy with gamification elements",
             },
             "medical_clinical": {
-                "colors": {"primary": "#2b6cb0", "secondary": "#4a5568", "accent": "#48bb78"},
+                "colors": {
+                    "primary": "#2b6cb0",
+                    "secondary": "#4a5568",
+                    "accent": "#48bb78",
+                },
                 "fonts": {"primary": "Times-Bold", "secondary": "Times-Roman"},
-                "style": "Clinical professional with compliance focus"
+                "style": "Clinical professional with compliance focus",
             },
             "data_precision": {
-                "colors": {"primary": "#1a202c", "secondary": "#4a5568", "accent": "#0bc5ea"},
+                "colors": {
+                    "primary": "#1a202c",
+                    "secondary": "#4a5568",
+                    "accent": "#0bc5ea",
+                },
                 "fonts": {"primary": "Helvetica-Bold", "secondary": "Courier"},
-                "style": "Data-driven with advanced analytics"
+                "style": "Data-driven with advanced analytics",
             },
             "lifestyle_photography": {
-                "colors": {"primary": "#744210", "secondary": "#9c7346", "accent": "#68d391"},
+                "colors": {
+                    "primary": "#744210",
+                    "secondary": "#9c7346",
+                    "accent": "#68d391",
+                },
                 "fonts": {"primary": "Georgia-Bold", "secondary": "Georgia"},
-                "style": "Lifestyle focused with visual emphasis"
-            }
+                "style": "Lifestyle focused with visual emphasis",
+            },
         }

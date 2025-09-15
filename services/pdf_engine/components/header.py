@@ -8,10 +8,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List
 
-from reportlab.lib.units import cm
-from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.units import cm
+from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle
 
 
 class HeaderComponent:
@@ -21,7 +21,9 @@ class HeaderComponent:
 
     def __init__(self, config: Dict[str, Any]):
         self.config = config
-        self.default_logo_path = Path(__file__).parent.parent.parent.parent / "assets" / "Logo.png"
+        self.default_logo_path = (
+            Path(__file__).parent.parent.parent.parent / "assets" / "Logo.png"
+        )
 
     def build(self, data: Dict[str, Any], template_config: Dict[str, Any]) -> List[Any]:
         """Build header elements"""
@@ -58,14 +60,20 @@ class HeaderComponent:
         # Create colored rectangle using Table
         bar_data = [[""]]
         bar_table = Table(bar_data, colWidths=[18 * cm], rowHeights=[0.8 * cm])
-        bar_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(primary_color)),
-            ('GRID', (0, 0), (-1, -1), 0, colors.white),
-        ]))
+        bar_table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor(primary_color)),
+                    ("GRID", (0, 0), (-1, -1), 0, colors.white),
+                ]
+            )
+        )
 
         return [bar_table, Spacer(1, -0.5 * cm)]
 
-    def _build_header_table(self, data: Dict[str, Any], template_config: Dict[str, Any]) -> Any:
+    def _build_header_table(
+        self, data: Dict[str, Any], template_config: Dict[str, Any]
+    ) -> Any:
         """Build main header table with logo and title"""
         # Get configuration
         colors_config = template_config.get("colors", {})
@@ -125,13 +133,17 @@ class HeaderComponent:
         # Create and style table
         if header_data and col_widths:
             table = Table(header_data, colWidths=col_widths)
-            table.setStyle(TableStyle([
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('TOPPADDING', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-            ]))
+            table.setStyle(
+                TableStyle(
+                    [
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("TOPPADDING", (0, 0), (-1, -1), 10),
+                        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                    ]
+                )
+            )
             return table
 
         return None
@@ -154,7 +166,9 @@ class HeaderComponent:
 
         return None
 
-    def _get_title_element(self, data: Dict[str, Any], template_config: Dict[str, Any]) -> Any:
+    def _get_title_element(
+        self, data: Dict[str, Any], template_config: Dict[str, Any]
+    ) -> Any:
         """Get title element"""
         title = data.get("title", "Document")
         subtitle = data.get("subtitle", "")
@@ -169,24 +183,26 @@ class HeaderComponent:
             fonts_config = {}
 
         title_style = f"""
-        <font name="{fonts_config.get('title', {}).get('name', 'Helvetica-Bold')}"
-              size="{fonts_config.get('title', {}).get('size', 20)}"
-              color="{colors_config.get('text_primary', '#000000')}">
+        <font name="{fonts_config.get("title", {}).get("name", "Helvetica-Bold")}"
+              size="{fonts_config.get("title", {}).get("size", 20)}"
+              color="{colors_config.get("text_primary", "#000000")}">
         <b>{title}</b></font>
         """
 
         if subtitle:
             subtitle_style = f"""
-            <font name="{fonts_config.get('subtitle', {}).get('name', 'Helvetica')}"
-                  size="{fonts_config.get('subtitle', {}).get('size', 12)}"
-                  color="{colors_config.get('text_secondary', '#666666')}">
+            <font name="{fonts_config.get("subtitle", {}).get("name", "Helvetica")}"
+                  size="{fonts_config.get("subtitle", {}).get("size", 12)}"
+                  color="{colors_config.get("text_secondary", "#666666")}">
             {subtitle}</font>
             """
             title_style += f"<br/>{subtitle_style}"
 
-        return Paragraph(title_style, self._get_paragraph_style('left'))
+        return Paragraph(title_style, self._get_paragraph_style("left"))
 
-    def _get_info_element(self, data: Dict[str, Any], template_config: Dict[str, Any]) -> Any:
+    def _get_info_element(
+        self, data: Dict[str, Any], template_config: Dict[str, Any]
+    ) -> Any:
         """Get info element (client name, date, etc.)"""
         info_parts = []
 
@@ -202,7 +218,8 @@ class HeaderComponent:
                 # Format date string
                 try:
                     from datetime import datetime
-                    dt = datetime.fromisoformat(created_date.replace('Z', '+00:00'))
+
+                    dt = datetime.fromisoformat(created_date.replace("Z", "+00:00"))
                     formatted_date = dt.strftime("%d/%m/%Y")
                 except:
                     formatted_date = created_date
@@ -224,15 +241,17 @@ class HeaderComponent:
 
         info_text = " • ".join(info_parts)
         info_style = f"""
-        <font name="{fonts_config.get('body', {}).get('name', 'Helvetica')}"
-              size="{fonts_config.get('body', {}).get('size', 10)}"
-              color="{colors_config.get('text_secondary', '#666666')}">
+        <font name="{fonts_config.get("body", {}).get("name", "Helvetica")}"
+              size="{fonts_config.get("body", {}).get("size", 10)}"
+              color="{colors_config.get("text_secondary", "#666666")}">
         {info_text}</font>
         """
 
-        return Paragraph(info_style, self._get_paragraph_style('left'))
+        return Paragraph(info_style, self._get_paragraph_style("left"))
 
-    def _get_metadata_element(self, data: Dict[str, Any], template_config: Dict[str, Any]) -> Any:
+    def _get_metadata_element(
+        self, data: Dict[str, Any], template_config: Dict[str, Any]
+    ) -> Any:
         """Get metadata element (duration, type, etc.)"""
         metadata_parts = []
 
@@ -252,7 +271,11 @@ class HeaderComponent:
         # Status
         status = data.get("status")
         if status:
-            status_icons = {"draft": "D", "final": "F", "archived": "A"}  # Removed emojis
+            status_icons = {
+                "draft": "D",
+                "final": "F",
+                "archived": "A",
+            }  # Removed emojis
             status_icon = status_icons.get(status.lower(), "S")
             metadata_parts.append(f"{status_icon} {status}")
 
@@ -270,27 +293,27 @@ class HeaderComponent:
 
         metadata_text = "<br/>".join(metadata_parts)
         metadata_style = f"""
-        <font name="{fonts_config.get('caption', {}).get('name', 'Helvetica')}"
-              size="{fonts_config.get('caption', {}).get('size', 9)}"
-              color="{colors_config.get('text_secondary', '#666666')}">
+        <font name="{fonts_config.get("caption", {}).get("name", "Helvetica")}"
+              size="{fonts_config.get("caption", {}).get("size", 9)}"
+              color="{colors_config.get("text_secondary", "#666666")}">
         {metadata_text}</font>
         """
 
-        return Paragraph(metadata_style, self._get_paragraph_style('right'))
+        return Paragraph(metadata_style, self._get_paragraph_style("right"))
 
     def _get_paragraph_style(self, alignment: str):
         """Get paragraph style for text alignment"""
+        from reportlab.lib.enums import TA_LEFT
         from reportlab.lib.styles import ParagraphStyle
-        from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 
         align_map = {
-            'left': TA_LEFT,
-            'center': TA_CENTER,
-            'right': TA_RIGHT,
+            "left": TA_LEFT,
+            "center": TA_CENTER,
+            "right": TA_RIGHT,
         }
 
         return ParagraphStyle(
-            'HeaderStyle',
+            "HeaderStyle",
             alignment=align_map.get(alignment, TA_LEFT),
             spaceAfter=0,
         )

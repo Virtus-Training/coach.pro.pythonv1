@@ -8,21 +8,19 @@ that form the backbone of the CoachPro application.
 __version__ = "1.0.0"
 __author__ = "CoachPro Team"
 
-from .container import DIContainer, inject, Injectable
-from .events import EventBus, Event, EventHandler
-from .exceptions import CoachProException, ValidationError, BusinessRuleError
+from .container import DIContainer, Injectable, inject
+from .events import Event, EventBus, EventHandler
+from .exceptions import BusinessRuleError, CoachProException, ValidationError
 
 __all__ = [
     # Dependency Injection
     "DIContainer",
     "inject",
     "Injectable",
-
     # Event System
     "EventBus",
     "Event",
     "EventHandler",
-
     # Exceptions
     "CoachProException",
     "ValidationError",

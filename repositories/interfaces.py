@@ -12,12 +12,12 @@ Defines async interfaces for data access layer with enterprise patterns:
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, TypeVar, Generic, Union
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from domain.entities import Client, Session, Exercise
-from domain.value_objects import PersonalInfo, PhysicalProfile
+from domain.entities import Client, Exercise, Session
+from domain.value_objects import PhysicalProfile
 
 T = TypeVar("T")
 TEntity = TypeVar("TEntity")
@@ -72,7 +72,11 @@ class RepositoryMetrics:
     @property
     def success_rate(self) -> float:
         """Calculate success rate percentage."""
-        return (self.successful_queries / self.total_queries * 100) if self.total_queries > 0 else 0.0
+        return (
+            (self.successful_queries / self.total_queries * 100)
+            if self.total_queries > 0
+            else 0.0
+        )
 
     @property
     def cache_hit_rate(self) -> float:
@@ -168,17 +172,14 @@ class IAsyncRepository(ABC, Generic[TEntity, TId]):
 
     @abstractmethod
     async def get_by_id(
-        self,
-        entity_id: TId,
-        options: Optional[QueryOptions] = None
+        self, entity_id: TId, options: Optional[QueryOptions] = None
     ) -> Optional[TEntity]:
         """Get entity by ID with optional caching."""
         pass
 
     @abstractmethod
     async def get_all(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[TEntity]:
         """Get all entities with pagination and sorting."""
         pass
@@ -187,7 +188,7 @@ class IAsyncRepository(ABC, Generic[TEntity, TId]):
     async def find(
         self,
         specification: ISpecification[TEntity],
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[TEntity]:
         """Find entities matching specification."""
         pass
@@ -219,8 +220,7 @@ class IAsyncRepository(ABC, Generic[TEntity, TId]):
 
     @abstractmethod
     async def count(
-        self,
-        specification: Optional[ISpecification[TEntity]] = None
+        self, specification: Optional[ISpecification[TEntity]] = None
     ) -> int:
         """Count entities matching specification."""
         pass
@@ -263,17 +263,14 @@ class IAsyncClientRepository(IAsyncRepository[Client, int]):
 
     @abstractmethod
     async def find_by_name(
-        self,
-        first_name: Optional[str] = None,
-        last_name: Optional[str] = None
+        self, first_name: Optional[str] = None, last_name: Optional[str] = None
     ) -> QueryResult[Client]:
         """Find clients by name with partial matching."""
         pass
 
     @abstractmethod
     async def find_active_clients(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[Client]:
         """Find all active clients."""
         pass
@@ -283,7 +280,7 @@ class IAsyncClientRepository(IAsyncRepository[Client, int]):
         self,
         start_date: datetime,
         end_date: datetime,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Client]:
         """Find clients with sessions in date range."""
         pass
@@ -295,9 +292,7 @@ class IAsyncClientRepository(IAsyncRepository[Client, int]):
 
     @abstractmethod
     async def update_physical_profile(
-        self,
-        client_id: int,
-        physical_profile: PhysicalProfile
+        self, client_id: int, physical_profile: PhysicalProfile
     ) -> bool:
         """Update client's physical profile."""
         pass
@@ -315,9 +310,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
 
     @abstractmethod
     async def find_by_client(
-        self,
-        client_id: int,
-        options: Optional[QueryOptions] = None
+        self, client_id: int, options: Optional[QueryOptions] = None
     ) -> QueryResult[Session]:
         """Find sessions by client ID."""
         pass
@@ -328,7 +321,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         start_date: datetime,
         end_date: datetime,
         client_id: Optional[int] = None,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Session]:
         """Find sessions in date range."""
         pass
@@ -338,16 +331,14 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         self,
         client_id: Optional[int] = None,
         days_ahead: int = 7,
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Session]:
         """Find upcoming sessions."""
         pass
 
     @abstractmethod
     async def find_completed_sessions(
-        self,
-        client_id: Optional[int] = None,
-        options: Optional[QueryOptions] = None
+        self, client_id: Optional[int] = None, options: Optional[QueryOptions] = None
     ) -> QueryResult[Session]:
         """Find completed sessions."""
         pass
@@ -357,17 +348,13 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         self,
         client_id: Optional[int] = None,
         start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """Get session analytics and metrics."""
         pass
 
     @abstractmethod
-    async def clone_session(
-        self,
-        session_id: int,
-        new_date: datetime
-    ) -> Session:
+    async def clone_session(self, session_id: int, new_date: datetime) -> Session:
         """Clone existing session for new date."""
         pass
 
@@ -376,7 +363,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         self,
         template_session_id: int,
         dates: List[datetime],
-        client_id: Optional[int] = None
+        client_id: Optional[int] = None,
     ) -> List[Session]:
         """Bulk schedule sessions from template."""
         pass
@@ -389,70 +376,54 @@ class IAsyncExerciseRepository(IAsyncRepository[Exercise, int]):
 
     @abstractmethod
     async def find_by_category(
-        self,
-        category: str,
-        options: Optional[QueryOptions] = None
+        self, category: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by category."""
         pass
 
     @abstractmethod
     async def find_by_muscle_group(
-        self,
-        muscle_group: str,
-        options: Optional[QueryOptions] = None
+        self, muscle_group: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by muscle group."""
         pass
 
     @abstractmethod
     async def search_by_name(
-        self,
-        search_term: str,
-        options: Optional[QueryOptions] = None
+        self, search_term: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Search exercises by name."""
         pass
 
     @abstractmethod
     async def find_by_equipment(
-        self,
-        equipment: str,
-        options: Optional[QueryOptions] = None
+        self, equipment: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by equipment."""
         pass
 
     @abstractmethod
     async def find_popular_exercises(
-        self,
-        limit: int = 20,
-        days_back: int = 30
+        self, limit: int = 20, days_back: int = 30
     ) -> List[Exercise]:
         """Find most popular exercises."""
         pass
 
     @abstractmethod
-    async def get_exercise_usage_stats(
-        self,
-        exercise_id: int
-    ) -> Dict[str, Any]:
+    async def get_exercise_usage_stats(self, exercise_id: int) -> Dict[str, Any]:
         """Get usage statistics for an exercise."""
         pass
 
     @abstractmethod
     async def find_similar_exercises(
-        self,
-        exercise_id: int,
-        limit: int = 5
+        self, exercise_id: int, limit: int = 5
     ) -> List[Exercise]:
         """Find similar exercises based on muscle groups and movement patterns."""
         pass
 
     @abstractmethod
     async def bulk_import_exercises(
-        self,
-        exercise_data: List[Dict[str, Any]]
+        self, exercise_data: List[Dict[str, Any]]
     ) -> List[Exercise]:
         """Bulk import exercises from data."""
         pass
@@ -499,11 +470,14 @@ class IAsyncUnitOfWork(ABC):
 
 # Common Specifications for reuse across repositories
 
+
 class ActiveEntitySpecification(ISpecification[T]):
     """Specification for active (non-deleted) entities."""
 
     def is_satisfied_by(self, entity: T) -> bool:
-        return getattr(entity, 'is_active', True) and not getattr(entity, 'is_deleted', False)
+        return getattr(entity, "is_active", True) and not getattr(
+            entity, "is_deleted", False
+        )
 
     def to_sql_where(self) -> tuple[str, tuple[Any, ...]]:
         return "is_active = 1 AND is_deleted = 0", ()
@@ -512,7 +486,9 @@ class ActiveEntitySpecification(ISpecification[T]):
 class DateRangeSpecification(ISpecification[T]):
     """Specification for entities within a date range."""
 
-    def __init__(self, start_date: datetime, end_date: datetime, date_field: str = 'created_at'):
+    def __init__(
+        self, start_date: datetime, end_date: datetime, date_field: str = "created_at"
+    ):
         self.start_date = start_date
         self.end_date = end_date
         self.date_field = date_field
@@ -534,7 +510,7 @@ class TextSearchSpecification(ISpecification[T]):
 
     def is_satisfied_by(self, entity: T) -> bool:
         for field in self.fields:
-            value = getattr(entity, field, '')
+            value = getattr(entity, field, "")
             if value and self.search_term in str(value).lower():
                 return True
         return False
@@ -542,7 +518,9 @@ class TextSearchSpecification(ISpecification[T]):
     def to_sql_where(self) -> tuple[str, tuple[Any, ...]]:
         conditions = [f"LOWER({field}) LIKE ?" for field in self.fields]
         search_pattern = f"%{self.search_term}%"
-        return f"({' OR '.join(conditions)})", tuple([search_pattern] * len(self.fields))
+        return f"({' OR '.join(conditions)})", tuple(
+            [search_pattern] * len(self.fields)
+        )
 
 
 class PaginationSpecification(ISpecification[T]):

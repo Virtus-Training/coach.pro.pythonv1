@@ -31,7 +31,9 @@ class SessionController:
 
         # Initialiser les services smart
         self.config_service = WorkoutConfigService()
-        self.smart_generator = SmartWorkoutGenerator(exercise_service, self.config_service)
+        self.smart_generator = SmartWorkoutGenerator(
+            exercise_service, self.config_service
+        )
 
     def build_session_preview_dto(
         self, blocks: list[Any], exercises_by_id: Dict[str, Dict[str, Any]]
@@ -44,7 +46,12 @@ class SessionController:
             duration_txt = ""
 
             # Ajouter le nombre de tours (sauf pour AMRAP)
-            if hasattr(blk, 'rounds') and blk.rounds and blk.rounds > 0 and blk.type.upper() != "AMRAP":
+            if (
+                hasattr(blk, "rounds")
+                and blk.rounds
+                and blk.rounds > 0
+                and blk.type.upper() != "AMRAP"
+            ):
                 title_parts.append(f"{blk.rounds} tours")
 
             # Ajouter la durée en minutes
@@ -102,7 +109,9 @@ class SessionController:
             "auto_include": params.get("auto_include", []),
             "course_type": params.get("course_type", "Cross-Training"),
             "intensity": params.get("intensity", "Moyenne"),
-            "custom_blocks": params.get("custom_blocks"),  # Ajouter les blocs personnalisés
+            "custom_blocks": params.get(
+                "custom_blocks"
+            ),  # Ajouter les blocs personnalisés
         }
         # Utiliser le générateur intelligent avec fallback vers l'ancien
         try:
@@ -119,7 +128,7 @@ class SessionController:
             "duration": f"{session.duration_sec // 60} min",
             "course_type": svc_params.get("course_type"),
             "intensity": svc_params.get("intensity"),
-            "smart_generated": hasattr(session, '_smart_generated'),
+            "smart_generated": hasattr(session, "_smart_generated"),
         }
         return session, dto
 
@@ -144,7 +153,7 @@ class SessionController:
         dto["meta"] = {
             "title": session.label,
             "duration": f"{session.duration_sec // 60} min",
-            "smart_generated": hasattr(session, '_smart_generated'),
+            "smart_generated": hasattr(session, "_smart_generated"),
         }
         return dto
 

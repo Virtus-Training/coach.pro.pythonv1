@@ -7,13 +7,14 @@ import tempfile
 import traceback
 from pathlib import Path
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 print("TESTING CONTROLLER PDF GENERATION")
 print("=" * 50)
 
 try:
     from controllers.advanced_pdf_controller import AdvancedPdfController
+
     print("SUCCESS: Controller imported")
 
     controller = AdvancedPdfController()
@@ -32,26 +33,26 @@ try:
                 "sets": 3,
                 "reps": 15,
                 "rest": "60s",
-                "notes": "Maintenir la forme correcte"
+                "notes": "Maintenir la forme correcte",
             },
             {
                 "name": "Squats",
                 "sets": 4,
                 "reps": 12,
                 "rest": "90s",
-                "notes": "Descendre à 90 degrés"
+                "notes": "Descendre à 90 degrés",
             },
             {
                 "name": "Plank",
                 "sets": 3,
                 "reps": "30s",
                 "rest": "45s",
-                "notes": "Gainage complet"
-            }
-        ]
+                "notes": "Gainage complet",
+            },
+        ],
     }
 
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         output_path = tmp.name
 
     print(f"Generating PDF to: {output_path}")
@@ -61,7 +62,7 @@ try:
             workout_data=workout_data,
             output_path=output_path,
             template_style="elite",
-            async_mode=False
+            async_mode=False,
         )
 
         print(f"Result: {result}")

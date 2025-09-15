@@ -8,9 +8,9 @@ from __future__ import annotations
 import io
 from typing import Any, Dict, List
 
+from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
 
 from .base_template import BaseTemplate
 
@@ -78,7 +78,7 @@ class NutritionTemplate(BaseTemplate):
                         "gender": {"type": "string"},
                         "activity_level": {"type": "string"},
                         "goal": {"type": "string"},
-                    }
+                    },
                 },
                 "nutrition_data": {
                     "type": "object",
@@ -89,7 +89,7 @@ class NutritionTemplate(BaseTemplate):
                         "carbs_g": {"type": "number"},
                         "fat_g": {"type": "number"},
                     },
-                    "required": ["maintenance_calories", "target_calories"]
+                    "required": ["maintenance_calories", "target_calories"],
                 },
                 "meal_plan": {
                     "type": "array",
@@ -100,12 +100,12 @@ class NutritionTemplate(BaseTemplate):
                             "time": {"type": "string"},
                             "foods": {"type": "array"},
                             "calories": {"type": "number"},
-                        }
-                    }
+                        },
+                    },
                 },
-                "recommendations": {"type": "array"}
+                "recommendations": {"type": "array"},
             },
-            "required": ["client_name", "title", "nutrition_data"]
+            "required": ["client_name", "title", "nutrition_data"],
         }
 
     def _build_content(self) -> List[Any]:
@@ -150,7 +150,7 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>👤 Informations personnelles</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -203,15 +203,47 @@ class NutritionTemplate(BaseTemplate):
                     row.append("")
 
             info_table = Table(info_data, colWidths=[col_width] * max_cols)
-            info_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(self.merged_config["colors"]["surface"])),
-                ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-                ('PADDING', (0, 0), (-1, -1), 10),
-                ('FONTNAME', (0, 0), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-                ('FONTSIZE', (0, 0), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-                ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ]))
+            info_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(self.merged_config["colors"]["surface"]),
+                        ),
+                        (
+                            "BORDER",
+                            (0, 0),
+                            (-1, -1),
+                            1,
+                            colors.HexColor(self.merged_config["colors"]["border"]),
+                        ),
+                        ("PADDING", (0, 0), (-1, -1), 10),
+                        (
+                            "FONTNAME",
+                            (0, 0),
+                            (-1, -1),
+                            self.merged_config["fonts"]["body"]["name"],
+                        ),
+                        (
+                            "FONTSIZE",
+                            (0, 0),
+                            (-1, -1),
+                            self.merged_config["fonts"]["body"]["size"],
+                        ),
+                        (
+                            "TEXTCOLOR",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(
+                                self.merged_config["colors"]["text_primary"]
+                            ),
+                        ),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ]
+                )
+            )
 
             elements.append(info_table)
 
@@ -227,7 +259,7 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🎯 Objectifs nutritionnels</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -239,7 +271,11 @@ class NutritionTemplate(BaseTemplate):
         calories_data = [
             ["Type", "Calories", "Différence"],
             ["Maintenance", f"{maintenance_cal} kcal", "—"],
-            ["Objectif", f"{target_cal} kcal", f"{target_cal - maintenance_cal:+d} kcal"],
+            [
+                "Objectif",
+                f"{target_cal} kcal",
+                f"{target_cal - maintenance_cal:+d} kcal",
+            ],
         ]
 
         calories_table = Table(calories_data, colWidths=[6 * cm, 6 * cm, 6 * cm])
@@ -254,12 +290,14 @@ class NutritionTemplate(BaseTemplate):
             estimated_change = round((delta_cal * 30) / 7700, 1)  # 1kg ≈ 7700 kcal
             sign = "+" if estimated_change > 0 else ""
 
-            estimation_text = f"📊 <b>Estimation mensuelle:</b> {sign}{estimated_change} kg"
+            estimation_text = (
+                f"📊 <b>Estimation mensuelle:</b> {sign}{estimated_change} kg"
+            )
             estimation_paragraph = Paragraph(
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{estimation_text}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(estimation_paragraph)
 
@@ -282,7 +320,7 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🥗 Répartition des macronutriments</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -300,53 +338,99 @@ class NutritionTemplate(BaseTemplate):
                 "🔵 Protéines",
                 f"{protein_g} g",
                 f"{protein_cal} kcal",
-                f"{(protein_cal/total_cal)*100:.0f}%" if total_cal > 0 else "0%"
+                f"{(protein_cal / total_cal) * 100:.0f}%" if total_cal > 0 else "0%",
             ],
             [
                 "🟡 Glucides",
                 f"{carbs_g} g",
                 f"{carbs_cal} kcal",
-                f"{(carbs_cal/total_cal)*100:.0f}%" if total_cal > 0 else "0%"
+                f"{(carbs_cal / total_cal) * 100:.0f}%" if total_cal > 0 else "0%",
             ],
             [
                 "🔴 Lipides",
                 f"{fat_g} g",
                 f"{fat_cal} kcal",
-                f"{(fat_cal/total_cal)*100:.0f}%" if total_cal > 0 else "0%"
+                f"{(fat_cal / total_cal) * 100:.0f}%" if total_cal > 0 else "0%",
             ],
         ]
 
-        macro_table = Table(macro_data, colWidths=[4.5 * cm, 4.5 * cm, 4.5 * cm, 4.5 * cm])
+        macro_table = Table(
+            macro_data, colWidths=[4.5 * cm, 4.5 * cm, 4.5 * cm, 4.5 * cm]
+        )
 
         # Custom styling for macro table
-        macro_style = TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-
-            # Protein row
-            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor("#E3F2FD")),
-            ('TEXTCOLOR', (0, 1), (-1, 1), colors.HexColor(self.merged_config["colors"]["protein"])),
-
-            # Carbs row
-            ('BACKGROUND', (0, 2), (-1, 2), colors.HexColor("#FFF8E1")),
-            ('TEXTCOLOR', (0, 2), (-1, 2), colors.HexColor(self.merged_config["colors"]["carbs"])),
-
-            # Fat row
-            ('BACKGROUND', (0, 3), (-1, 3), colors.HexColor("#FFEBEE")),
-            ('TEXTCOLOR', (0, 3), (-1, 3), colors.HexColor(self.merged_config["colors"]["fat"])),
-
-            # General styling
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ])
+        macro_style = TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                # Protein row
+                ("BACKGROUND", (0, 1), (-1, 1), colors.HexColor("#E3F2FD")),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, 1),
+                    colors.HexColor(self.merged_config["colors"]["protein"]),
+                ),
+                # Carbs row
+                ("BACKGROUND", (0, 2), (-1, 2), colors.HexColor("#FFF8E1")),
+                (
+                    "TEXTCOLOR",
+                    (0, 2),
+                    (-1, 2),
+                    colors.HexColor(self.merged_config["colors"]["carbs"]),
+                ),
+                # Fat row
+                ("BACKGROUND", (0, 3), (-1, 3), colors.HexColor("#FFEBEE")),
+                (
+                    "TEXTCOLOR",
+                    (0, 3),
+                    (-1, 3),
+                    colors.HexColor(self.merged_config["colors"]["fat"]),
+                ),
+                # General styling
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )
 
         macro_table.setStyle(macro_style)
         elements.append(macro_table)
@@ -360,25 +444,28 @@ class NutritionTemplate(BaseTemplate):
 
         return elements
 
-    def _create_macro_chart(self, protein_cal: float, carbs_cal: float, fat_cal: float) -> Any:
+    def _create_macro_chart(
+        self, protein_cal: float, carbs_cal: float, fat_cal: float
+    ) -> Any:
         """Create macro distribution pie chart"""
         try:
+            import matplotlib
             import matplotlib.pyplot as plt
             from matplotlib.backends.backend_agg import FigureCanvasAgg
-            import matplotlib
-            matplotlib.use('Agg')
+
+            matplotlib.use("Agg")
 
             # Create figure
             fig, ax = plt.subplots(figsize=(4, 4), dpi=150)
-            fig.patch.set_facecolor('white')
+            fig.patch.set_facecolor("white")
 
             # Data for pie chart
             sizes = [protein_cal, carbs_cal, fat_cal]
-            labels = ['Protéines', 'Glucides', 'Lipides']
+            labels = ["Protéines", "Glucides", "Lipides"]
             colors_chart = [
                 self.merged_config["colors"]["protein"],
                 self.merged_config["colors"]["carbs"],
-                self.merged_config["colors"]["fat"]
+                self.merged_config["colors"]["fat"],
             ]
 
             # Create pie chart
@@ -386,22 +473,27 @@ class NutritionTemplate(BaseTemplate):
                 sizes,
                 labels=labels,
                 colors=colors_chart,
-                autopct='%1.0f%%',
+                autopct="%1.0f%%",
                 startangle=90,
-                wedgeprops={'linewidth': 2, 'edgecolor': 'white'}
+                wedgeprops={"linewidth": 2, "edgecolor": "white"},
             )
 
             # Styling
             for text in texts:
                 text.set_fontsize(10)
-                text.set_fontweight('bold')
+                text.set_fontweight("bold")
 
             for autotext in autotexts:
-                autotext.set_color('white')
+                autotext.set_color("white")
                 autotext.set_fontsize(10)
-                autotext.set_fontweight('bold')
+                autotext.set_fontweight("bold")
 
-            ax.set_title('Répartition des macronutriments', fontsize=12, fontweight='bold', pad=20)
+            ax.set_title(
+                "Répartition des macronutriments",
+                fontsize=12,
+                fontweight="bold",
+                pad=20,
+            )
 
             # Save to bytes
             canvas = FigureCanvasAgg(fig)
@@ -433,7 +525,7 @@ class NutritionTemplate(BaseTemplate):
                     f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                     f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                     f'color="{self.merged_config["colors"]["text_primary"]}">{chart_text}</font>',
-                    self.styles["body"]
+                    self.styles["body"],
                 )
                 return chart_paragraph
             return None
@@ -450,7 +542,7 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🍽️ Plan alimentaire</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -497,7 +589,7 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>💡 Recommandations personnalisées</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -513,18 +605,33 @@ class NutritionTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
             f'size="{self.merged_config["fonts"]["body"]["size"]}" '
             f'color="{self.merged_config["colors"]["text_primary"]}">{rec_content}</font>',
-            self.styles["body"]
+            self.styles["body"],
         )
 
         # Create background box
         rec_data = [[rec_paragraph]]
         rec_table = Table(rec_data, colWidths=[18 * cm])
-        rec_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(self.merged_config["colors"]["surface"])),
-            ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('PADDING', (0, 0), (-1, -1), 15),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ]))
+        rec_table.setStyle(
+            TableStyle(
+                [
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, -1),
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ),
+                    (
+                        "BORDER",
+                        (0, 0),
+                        (-1, -1),
+                        1,
+                        colors.HexColor(self.merged_config["colors"]["border"]),
+                    ),
+                    ("PADDING", (0, 0), (-1, -1), 15),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]
+            )
+        )
 
         elements.append(rec_table)
         return elements
@@ -533,60 +640,110 @@ class NutritionTemplate(BaseTemplate):
         """Generate default recommendations based on client data"""
         recommendations = []
         personal_info = self.data.get("personal_info", {})
-        nutrition_data = self.data.get("nutrition_data", {})
+        self.data.get("nutrition_data", {})
 
         # General recommendations
-        recommendations.extend([
-            "Boire au moins 2-3 litres d'eau par jour",
-            "Répartir les repas sur 3-4 prises principales",
-            "Privilégier les aliments non transformés",
-            "Manger lentement et dans le calme",
-        ])
+        recommendations.extend(
+            [
+                "Boire au moins 2-3 litres d'eau par jour",
+                "Répartir les repas sur 3-4 prises principales",
+                "Privilégier les aliments non transformés",
+                "Manger lentement et dans le calme",
+            ]
+        )
 
         # Goal-specific recommendations
         goal = personal_info.get("goal", "").lower()
         if "perte" in goal or "minceur" in goal:
-            recommendations.extend([
-                "Augmenter la consommation de légumes pour la satiété",
-                "Privilégier les protéines maigres à chaque repas",
-                "Limiter les collations sucrées en soirée",
-            ])
+            recommendations.extend(
+                [
+                    "Augmenter la consommation de légumes pour la satiété",
+                    "Privilégier les protéines maigres à chaque repas",
+                    "Limiter les collations sucrées en soirée",
+                ]
+            )
         elif "prise" in goal or "masse" in goal:
-            recommendations.extend([
-                "Ajouter des collations riches en protéines",
-                "Inclure des glucides complexes autour de l'entraînement",
-                "Ne pas sauter de repas",
-            ])
+            recommendations.extend(
+                [
+                    "Ajouter des collations riches en protéines",
+                    "Inclure des glucides complexes autour de l'entraînement",
+                    "Ne pas sauter de repas",
+                ]
+            )
 
         # Activity-specific recommendations
         activity = personal_info.get("activity_level", "").lower()
         if "élevé" in activity or "intense" in activity:
-            recommendations.append("Ajuster l'hydratation selon l'intensité d'entraînement")
+            recommendations.append(
+                "Ajuster l'hydratation selon l'intensité d'entraînement"
+            )
 
         return recommendations
 
     def _get_standard_table_style(self) -> TableStyle:
         """Get standard table styling"""
-        return TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-
-            # Body
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-
-            # Alternating backgrounds
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(self.merged_config["colors"]["surface"])]),
-
-            # General styling
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ])
+        return TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                # Body
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                # Alternating backgrounds
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ],
+                ),
+                # General styling
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ]
+        )

@@ -7,13 +7,14 @@ import tempfile
 import traceback
 from pathlib import Path
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 print("TESTING ADVANCED PDF SERVICE DIRECTLY")
 print("=" * 50)
 
 try:
     from services.advanced_pdf_service import AdvancedPdfService
+
     print("SUCCESS: Service imported")
 
     service = AdvancedPdfService()
@@ -32,21 +33,19 @@ try:
                 "sets": 3,
                 "reps": 15,
                 "rest": "60s",
-                "notes": "Maintenir la forme correcte"
+                "notes": "Maintenir la forme correcte",
             }
-        ]
+        ],
     }
 
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         output_path = tmp.name
 
     print(f"Generating PDF via service to: {output_path}")
 
     try:
         result = service.generate_professional_workout_pdf_sync(
-            workout_data=workout_data,
-            output_path=output_path,
-            template_style="elite"
+            workout_data=workout_data, output_path=output_path, template_style="elite"
         )
 
         print(f"Service result: {result}")

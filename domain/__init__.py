@@ -14,21 +14,21 @@ Following Domain-Driven Design principles, this layer is:
 - Focused on solving business problems
 """
 
-from .interfaces import (
-    IRepository,
-    IUnitOfWork,
-    IDomainService,
-    ISpecification,
-)
 from .entities import (
-    Entity,
     AggregateRoot,
+    Entity,
     ValueObject,
 )
 from .events import (
     ClientCreatedEvent,
-    SessionCreatedEvent,
     NutritionPlanUpdatedEvent,
+    SessionCreatedEvent,
+)
+from .interfaces import (
+    IDomainService,
+    IRepository,
+    ISpecification,
+    IUnitOfWork,
 )
 
 __all__ = [
@@ -37,12 +37,10 @@ __all__ = [
     "IUnitOfWork",
     "IDomainService",
     "ISpecification",
-
     # Base Classes
     "Entity",
     "AggregateRoot",
     "ValueObject",
-
     # Domain Events
     "ClientCreatedEvent",
     "SessionCreatedEvent",

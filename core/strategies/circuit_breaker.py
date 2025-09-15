@@ -13,25 +13,27 @@ from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Generic
+from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
 
-from .base import BaseStrategy, StrategyContext, StrategyResult, StrategyError
+from .base import BaseStrategy, StrategyContext, StrategyError, StrategyResult
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class CircuitBreakerState(Enum):
     """Circuit breaker states"""
-    CLOSED = "closed"      # Normal operation
-    OPEN = "open"          # Circuit is open, requests fail fast
+
+    CLOSED = "closed"  # Normal operation
+    OPEN = "open"  # Circuit is open, requests fail fast
     HALF_OPEN = "half_open"  # Testing if service has recovered
 
 
 @dataclass
 class CircuitBreakerConfig:
     """Configuration for circuit breaker"""
+
     failure_threshold: int = 5  # Number of failures to open circuit
     recovery_timeout: int = 60  # Seconds before trying to recover
     success_threshold: int = 3  # Successful calls to close circuit in half-open state
@@ -43,6 +45,7 @@ class CircuitBreakerConfig:
 @dataclass
 class FallbackConfig:
     """Configuration for fallback mechanisms"""
+
     max_fallback_attempts: int = 3
     fallback_timeout: float = 10.0
     prefer_cached_result: bool = True
@@ -53,11 +56,13 @@ class FallbackConfig:
 
 class CircuitBreakerError(StrategyError):
     """Exception raised when circuit breaker is open"""
+
     pass
 
 
 class FallbackError(StrategyError):
     """Exception raised when all fallback strategies fail"""
+
     pass
 
 
@@ -89,8 +94,7 @@ class CircuitBreaker:
             # Check if we should allow the call
             if not self._should_allow_call():
                 raise CircuitBreakerError(
-                    f"Circuit breaker {self.name} is OPEN",
-                    self.name
+                    f"Circuit breaker {self.name} is OPEN", self.name
                 )
 
         start_time = time.time()
@@ -98,7 +102,7 @@ class CircuitBreaker:
             # Execute with timeout
             result = await asyncio.wait_for(
                 self._execute_async(func, *args, **kwargs),
-                timeout=self.config.timeout_duration
+                timeout=self.config.timeout_duration,
             )
 
             # Record success
@@ -110,7 +114,9 @@ class CircuitBreaker:
         except asyncio.TimeoutError:
             execution_time = time.time() - start_time
             self._record_failure(execution_time, "timeout")
-            raise StrategyError(f"Function call timed out after {self.config.timeout_duration}s")
+            raise StrategyError(
+                f"Function call timed out after {self.config.timeout_duration}s"
+            )
 
         except Exception as e:
             execution_time = time.time() - start_time
@@ -135,8 +141,11 @@ class CircuitBreaker:
 
         elif self.state == CircuitBreakerState.OPEN:
             # Check if recovery timeout has passed
-            if (self.last_failure_time and
-                current_time - self.last_failure_time >= timedelta(seconds=self.config.recovery_timeout)):
+            if (
+                self.last_failure_time
+                and current_time - self.last_failure_time
+                >= timedelta(seconds=self.config.recovery_timeout)
+            ):
                 self._transition_to_half_open()
                 return True
             return False
@@ -149,11 +158,13 @@ class CircuitBreaker:
     def _record_success(self, execution_time: float):
         """Record successful execution"""
         with self._lock:
-            self.call_history.append({
-                'timestamp': datetime.utcnow(),
-                'success': True,
-                'execution_time': execution_time
-            })
+            self.call_history.append(
+                {
+                    "timestamp": datetime.utcnow(),
+                    "success": True,
+                    "execution_time": execution_time,
+                }
+            )
 
             if self.state == CircuitBreakerState.HALF_OPEN:
                 self.success_count += 1
@@ -166,12 +177,14 @@ class CircuitBreaker:
     def _record_failure(self, execution_time: float, error_message: str):
         """Record failed execution"""
         with self._lock:
-            self.call_history.append({
-                'timestamp': datetime.utcnow(),
-                'success': False,
-                'execution_time': execution_time,
-                'error': error_message
-            })
+            self.call_history.append(
+                {
+                    "timestamp": datetime.utcnow(),
+                    "success": False,
+                    "execution_time": execution_time,
+                    "error": error_message,
+                }
+            )
 
             self.failure_count += 1
             self.last_failure_time = datetime.utcnow()
@@ -190,7 +203,9 @@ class CircuitBreaker:
 
         # Check failure rate in sliding window
         if len(self.call_history) >= self.config.monitor_window_size:
-            recent_failures = sum(1 for call in self.call_history if not call['success'])
+            recent_failures = sum(
+                1 for call in self.call_history if not call["success"]
+            )
             failure_rate = recent_failures / len(self.call_history)
             return failure_rate >= self.config.failure_rate_threshold
 
@@ -220,23 +235,27 @@ class CircuitBreaker:
     def get_state_info(self) -> Dict[str, Any]:
         """Get current state information"""
         recent_calls = list(self.call_history)[-20:]  # Last 20 calls
-        success_count = sum(1 for call in recent_calls if call['success'])
-        failure_count = len(recent_calls) - success_count
+        success_count = sum(1 for call in recent_calls if call["success"])
+        len(recent_calls) - success_count
 
         return {
-            'name': self.name,
-            'state': self.state.value,
-            'failure_count': self.failure_count,
-            'success_count': self.success_count,
-            'last_failure_time': self.last_failure_time.isoformat() if self.last_failure_time else None,
-            'state_change_time': self.state_change_time.isoformat(),
-            'recent_success_rate': (success_count / len(recent_calls)) if recent_calls else 1.0,
-            'total_calls': len(self.call_history),
-            'config': {
-                'failure_threshold': self.config.failure_threshold,
-                'recovery_timeout': self.config.recovery_timeout,
-                'success_threshold': self.config.success_threshold
-            }
+            "name": self.name,
+            "state": self.state.value,
+            "failure_count": self.failure_count,
+            "success_count": self.success_count,
+            "last_failure_time": self.last_failure_time.isoformat()
+            if self.last_failure_time
+            else None,
+            "state_change_time": self.state_change_time.isoformat(),
+            "recent_success_rate": (success_count / len(recent_calls))
+            if recent_calls
+            else 1.0,
+            "total_calls": len(self.call_history),
+            "config": {
+                "failure_threshold": self.config.failure_threshold,
+                "recovery_timeout": self.config.recovery_timeout,
+                "success_threshold": self.config.success_threshold,
+            },
         }
 
     def reset(self):
@@ -261,7 +280,7 @@ class FallbackStrategy(Generic[T]):
         self.priority = priority
         self.circuit_breaker = CircuitBreaker(
             f"fallback_{strategy.name}",
-            CircuitBreakerConfig(failure_threshold=3, recovery_timeout=30)
+            CircuitBreakerConfig(failure_threshold=3, recovery_timeout=30),
         )
         self.usage_count = 0
         self.success_count = 0
@@ -272,8 +291,7 @@ class FallbackStrategy(Generic[T]):
 
         try:
             result = await self.circuit_breaker.call(
-                self.strategy.execute_with_monitoring,
-                context
+                self.strategy.execute_with_monitoring, context
             )
             self.success_count += 1
             result.fallback_used = True
@@ -291,11 +309,11 @@ class FallbackStrategy(Generic[T]):
     def get_health_status(self) -> Dict[str, Any]:
         """Get health status of fallback strategy"""
         return {
-            'strategy_name': self.strategy.name,
-            'priority': self.priority,
-            'usage_count': self.usage_count,
-            'success_rate': self.success_rate,
-            'circuit_breaker': self.circuit_breaker.get_state_info()
+            "strategy_name": self.strategy.name,
+            "priority": self.priority,
+            "usage_count": self.usage_count,
+            "success_rate": self.success_rate,
+            "circuit_breaker": self.circuit_breaker.get_state_info(),
         }
 
 
@@ -320,7 +338,9 @@ class FallbackManager(Generic[T]):
             self.fallback_strategies.append(fallback)
             # Sort by priority (lower number = higher priority)
             self.fallback_strategies.sort(key=lambda x: x.priority)
-            logger.info(f"Added fallback strategy: {strategy.name} (priority: {priority})")
+            logger.info(
+                f"Added fallback strategy: {strategy.name} (priority: {priority})"
+            )
 
     def remove_fallback_strategy(self, strategy_name: str) -> bool:
         """Remove a fallback strategy by name"""
@@ -336,7 +356,7 @@ class FallbackManager(Generic[T]):
         self,
         primary_strategy: BaseStrategy,
         context: StrategyContext[T],
-        enable_cache: bool = True
+        enable_cache: bool = True,
     ) -> StrategyResult[T]:
         """
         Execute strategy with comprehensive fallback support.
@@ -367,15 +387,15 @@ class FallbackManager(Generic[T]):
             return result
 
         except Exception as primary_error:
-            logger.warning(f"Primary strategy {primary_strategy.name} failed: {primary_error}")
+            logger.warning(
+                f"Primary strategy {primary_strategy.name} failed: {primary_error}"
+            )
 
             # Try fallback strategies
             return await self._try_fallback_strategies(context, primary_error)
 
     async def _try_fallback_strategies(
-        self,
-        context: StrategyContext[T],
-        primary_error: Exception
+        self, context: StrategyContext[T], primary_error: Exception
     ) -> StrategyResult[T]:
         """Try fallback strategies in priority order"""
 
@@ -388,7 +408,9 @@ class FallbackManager(Generic[T]):
 
             # Skip if circuit breaker is open
             if fallback.circuit_breaker.state == CircuitBreakerState.OPEN:
-                logger.debug(f"Skipping fallback {fallback.strategy.name} - circuit breaker open")
+                logger.debug(
+                    f"Skipping fallback {fallback.strategy.name} - circuit breaker open"
+                )
                 continue
 
             try:
@@ -402,7 +424,9 @@ class FallbackManager(Generic[T]):
                 return result
 
             except Exception as fallback_error:
-                logger.warning(f"Fallback strategy {fallback.strategy.name} failed: {fallback_error}")
+                logger.warning(
+                    f"Fallback strategy {fallback.strategy.name} failed: {fallback_error}"
+                )
                 last_error = fallback_error
                 attempts += 1
 
@@ -412,7 +436,9 @@ class FallbackManager(Generic[T]):
             logger.info("Using cached result as last resort")
             cached_result.cache_hit = True
             cached_result.fallback_used = True
-            cached_result.add_warning("Using stale cached result - all strategies failed")
+            cached_result.add_warning(
+                "Using stale cached result - all strategies failed"
+            )
             return cached_result
 
         # Enter degraded mode if enabled
@@ -423,13 +449,11 @@ class FallbackManager(Generic[T]):
         raise FallbackError(
             f"All fallback strategies failed. Last error: {last_error}",
             "fallback_manager",
-            last_error
+            last_error,
         )
 
     async def _enter_degraded_mode(
-        self,
-        context: StrategyContext[T],
-        last_error: Exception
+        self, context: StrategyContext[T], last_error: Exception
     ) -> StrategyResult[T]:
         """Enter degraded mode with minimal functionality"""
 
@@ -441,12 +465,14 @@ class FallbackManager(Generic[T]):
             data=self._create_degraded_response(context),
             success=True,
             strategy_name="degraded_mode",
-            fallback_used=True
+            fallback_used=True,
         )
 
-        degraded_result.add_warning("Operating in degraded mode - limited functionality")
-        degraded_result.metadata['degraded_mode'] = True
-        degraded_result.metadata['original_error'] = str(last_error)
+        degraded_result.add_warning(
+            "Operating in degraded mode - limited functionality"
+        )
+        degraded_result.metadata["degraded_mode"] = True
+        degraded_result.metadata["original_error"] = str(last_error)
 
         return degraded_result
 
@@ -454,9 +480,9 @@ class FallbackManager(Generic[T]):
         """Create a minimal response for degraded mode"""
         # This should be overridden by specific implementations
         return {
-            'status': 'degraded',
-            'message': 'Service temporarily unavailable - operating in degraded mode',
-            'timestamp': datetime.utcnow().isoformat()
+            "status": "degraded",
+            "message": "Service temporarily unavailable - operating in degraded mode",
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def _get_cache_key(self, context: StrategyContext[T]) -> str:
@@ -464,9 +490,9 @@ class FallbackManager(Generic[T]):
         import hashlib
 
         cache_data = {
-            'data': str(context.data),
-            'user_id': context.user_id,
-            'metadata': str(sorted(context.metadata.items()))
+            "data": str(context.data),
+            "user_id": context.user_id,
+            "metadata": str(sorted(context.metadata.items())),
         }
 
         cache_string = str(sorted(cache_data.items()))
@@ -483,7 +509,9 @@ class FallbackManager(Generic[T]):
             # Clean up old cache entries
             self._cleanup_cache()
 
-    def _get_cached_result(self, context: StrategyContext[T]) -> Optional[StrategyResult[T]]:
+    def _get_cached_result(
+        self, context: StrategyContext[T]
+    ) -> Optional[StrategyResult[T]]:
         """Get cached result if available and valid"""
         cache_key = self._get_cache_key(context)
 
@@ -509,10 +537,7 @@ class FallbackManager(Generic[T]):
             return
 
         # Remove oldest entries
-        sorted_entries = sorted(
-            self.cache_timestamps.items(),
-            key=lambda x: x[1]
-        )
+        sorted_entries = sorted(self.cache_timestamps.items(), key=lambda x: x[1])
 
         # Remove oldest 20 entries
         for cache_key, _ in sorted_entries[:20]:
@@ -525,18 +550,18 @@ class FallbackManager(Generic[T]):
         """Get status of all fallback strategies"""
         with self._lock:
             return {
-                'degraded_mode_active': self.degraded_mode_active,
-                'total_fallback_strategies': len(self.fallback_strategies),
-                'cache_size': len(self.cache),
-                'fallback_strategies': [
+                "degraded_mode_active": self.degraded_mode_active,
+                "total_fallback_strategies": len(self.fallback_strategies),
+                "cache_size": len(self.cache),
+                "fallback_strategies": [
                     fallback.get_health_status()
                     for fallback in self.fallback_strategies
                 ],
-                'config': {
-                    'max_fallback_attempts': self.config.max_fallback_attempts,
-                    'fallback_timeout': self.config.fallback_timeout,
-                    'degraded_mode_enabled': self.config.degraded_mode_enabled
-                }
+                "config": {
+                    "max_fallback_attempts": self.config.max_fallback_attempts,
+                    "fallback_timeout": self.config.fallback_timeout,
+                    "degraded_mode_enabled": self.config.degraded_mode_enabled,
+                },
             }
 
     def clear_cache(self):

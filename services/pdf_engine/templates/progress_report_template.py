@@ -8,9 +8,9 @@ from __future__ import annotations
 import io
 from typing import Any, Dict, List
 
-from reportlab.lib.units import cm
-from reportlab.platypus import Image, Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.platypus import Image, PageBreak, Paragraph, Spacer, Table, TableStyle
 
 from .base_template import BaseTemplate
 
@@ -78,8 +78,8 @@ class ProgressReportTemplate(BaseTemplate):
                         "weight_change": {"type": "number"},
                         "body_fat_change": {"type": "number"},
                         "muscle_gain": {"type": "number"},
-                        "achievements": {"type": "array"}
-                    }
+                        "achievements": {"type": "array"},
+                    },
                 },
                 "measurements": {
                     "type": "array",
@@ -97,11 +97,11 @@ class ProgressReportTemplate(BaseTemplate):
                                     "waist": {"type": "number"},
                                     "hips": {"type": "number"},
                                     "arms": {"type": "number"},
-                                    "thighs": {"type": "number"}
-                                }
-                            }
-                        }
-                    }
+                                    "thighs": {"type": "number"},
+                                },
+                            },
+                        },
+                    },
                 },
                 "performance_data": {
                     "type": "array",
@@ -117,12 +117,12 @@ class ProgressReportTemplate(BaseTemplate):
                                         "date": {"type": "string"},
                                         "weight": {"type": "number"},
                                         "reps": {"type": "number"},
-                                        "volume": {"type": "number"}
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                        "volume": {"type": "number"},
+                                    },
+                                },
+                            },
+                        },
+                    },
                 },
                 "photos": {
                     "type": "array",
@@ -133,9 +133,9 @@ class ProgressReportTemplate(BaseTemplate):
                             "type": {"type": "string"},
                             "front_photo": {"type": "string"},
                             "side_photo": {"type": "string"},
-                            "back_photo": {"type": "string"}
-                        }
-                    }
+                            "back_photo": {"type": "string"},
+                        },
+                    },
                 },
                 "goals": {
                     "type": "array",
@@ -145,12 +145,12 @@ class ProgressReportTemplate(BaseTemplate):
                             "description": {"type": "string"},
                             "target_date": {"type": "string"},
                             "status": {"type": "string"},
-                            "progress_percentage": {"type": "number"}
-                        }
-                    }
-                }
+                            "progress_percentage": {"type": "number"},
+                        },
+                    },
+                },
             },
-            "required": ["title", "client_name", "summary"]
+            "required": ["title", "client_name", "summary"],
         }
 
     def _build_content(self) -> List[Any]:
@@ -176,8 +176,7 @@ class ProgressReportTemplate(BaseTemplate):
             elements.append(Spacer(1, 0.5 * cm))
 
         # Before/After photos
-        if (self.merged_config.get("show_photos", True) and
-            not self.preview_mode):
+        if self.merged_config.get("show_photos", True) and not self.preview_mode:
             elements.extend(self._build_photos_section())
             elements.append(PageBreak())
 
@@ -200,7 +199,7 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📊 Résumé exécutif</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -232,18 +231,33 @@ class ProgressReportTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{summary_text}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
 
             # Create highlight box
             summary_table_data = [[summary_paragraph]]
             summary_table = Table(summary_table_data, colWidths=[18 * cm])
-            summary_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(self.merged_config["colors"]["surface"])),
-                ('BORDER', (0, 0), (-1, -1), 2, colors.HexColor(self.merged_config["colors"]["primary"])),
-                ('PADDING', (0, 0), (-1, -1), 15),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ]))
+            summary_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(self.merged_config["colors"]["surface"]),
+                        ),
+                        (
+                            "BORDER",
+                            (0, 0),
+                            (-1, -1),
+                            2,
+                            colors.HexColor(self.merged_config["colors"]["primary"]),
+                        ),
+                        ("PADDING", (0, 0), (-1, -1), 15),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ]
+                )
+            )
 
             elements.append(summary_table)
 
@@ -255,7 +269,7 @@ class ProgressReportTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}"><b>🏆 Accomplissements</b></font>',
-                self.styles["heading"]
+                self.styles["heading"],
             )
             elements.append(achievements_header)
 
@@ -268,7 +282,7 @@ class ProgressReportTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{achievements_content}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(achievements_paragraph)
 
@@ -290,7 +304,7 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📈 Évolution des métriques clés</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -306,13 +320,15 @@ class ProgressReportTemplate(BaseTemplate):
             weight_status = self._get_change_status(weight_change, "weight")
             weight_icon = self._get_status_icon(weight_status)
 
-            metrics_data.append([
-                "Poids (kg)",
-                f"{weight_start:.1f}",
-                f"{weight_current:.1f}",
-                f"{weight_change:+.1f}",
-                weight_icon
-            ])
+            metrics_data.append(
+                [
+                    "Poids (kg)",
+                    f"{weight_start:.1f}",
+                    f"{weight_current:.1f}",
+                    f"{weight_change:+.1f}",
+                    weight_icon,
+                ]
+            )
 
         # Body fat comparison
         bf_start = first_measurement.get("body_fat")
@@ -322,13 +338,15 @@ class ProgressReportTemplate(BaseTemplate):
             bf_status = self._get_change_status(bf_change, "body_fat")
             bf_icon = self._get_status_icon(bf_status)
 
-            metrics_data.append([
-                "Masse grasse (%)",
-                f"{bf_start:.1f}",
-                f"{bf_current:.1f}",
-                f"{bf_change:+.1f}",
-                bf_icon
-            ])
+            metrics_data.append(
+                [
+                    "Masse grasse (%)",
+                    f"{bf_start:.1f}",
+                    f"{bf_current:.1f}",
+                    f"{bf_change:+.1f}",
+                    bf_icon,
+                ]
+            )
 
         # Muscle mass comparison
         muscle_start = first_measurement.get("muscle_mass")
@@ -338,16 +356,20 @@ class ProgressReportTemplate(BaseTemplate):
             muscle_status = self._get_change_status(muscle_change, "muscle")
             muscle_icon = self._get_status_icon(muscle_status)
 
-            metrics_data.append([
-                "Masse musculaire (kg)",
-                f"{muscle_start:.1f}",
-                f"{muscle_current:.1f}",
-                f"{muscle_change:+.1f}",
-                muscle_icon
-            ])
+            metrics_data.append(
+                [
+                    "Masse musculaire (kg)",
+                    f"{muscle_start:.1f}",
+                    f"{muscle_current:.1f}",
+                    f"{muscle_change:+.1f}",
+                    muscle_icon,
+                ]
+            )
 
         if len(metrics_data) > 1:
-            metrics_table = Table(metrics_data, colWidths=[4*cm, 3*cm, 3*cm, 3*cm, 3*cm, 2*cm])
+            metrics_table = Table(
+                metrics_data, colWidths=[4 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm, 2 * cm]
+            )
             metrics_table.setStyle(self._get_metrics_table_style())
             elements.append(metrics_table)
 
@@ -365,7 +387,7 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📊 Graphiques de progression</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -395,13 +417,15 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📏 Suivi des mensurations</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
 
         # Create measurements table
-        measurements_data = [["Date", "Poitrine", "Taille", "Hanches", "Bras", "Cuisses"]]
+        measurements_data = [
+            ["Date", "Poitrine", "Taille", "Hanches", "Bras", "Cuisses"]
+        ]
 
         for measurement in measurements:
             date = measurement.get("date", "")
@@ -409,15 +433,23 @@ class ProgressReportTemplate(BaseTemplate):
 
             row = [
                 date,
-                f"{body_measurements.get('chest', '')}" + (" cm" if body_measurements.get('chest') else ""),
-                f"{body_measurements.get('waist', '')}" + (" cm" if body_measurements.get('waist') else ""),
-                f"{body_measurements.get('hips', '')}" + (" cm" if body_measurements.get('hips') else ""),
-                f"{body_measurements.get('arms', '')}" + (" cm" if body_measurements.get('arms') else ""),
-                f"{body_measurements.get('thighs', '')}" + (" cm" if body_measurements.get('thighs') else ""),
+                f"{body_measurements.get('chest', '')}"
+                + (" cm" if body_measurements.get("chest") else ""),
+                f"{body_measurements.get('waist', '')}"
+                + (" cm" if body_measurements.get("waist") else ""),
+                f"{body_measurements.get('hips', '')}"
+                + (" cm" if body_measurements.get("hips") else ""),
+                f"{body_measurements.get('arms', '')}"
+                + (" cm" if body_measurements.get("arms") else ""),
+                f"{body_measurements.get('thighs', '')}"
+                + (" cm" if body_measurements.get("thighs") else ""),
             ]
             measurements_data.append(row)
 
-        measurements_table = Table(measurements_data, colWidths=[3*cm, 3*cm, 3*cm, 3*cm, 3*cm, 3*cm])
+        measurements_table = Table(
+            measurements_data,
+            colWidths=[3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm, 3 * cm],
+        )
         measurements_table.setStyle(self._get_standard_table_style())
         elements.append(measurements_table)
 
@@ -435,7 +467,7 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📸 Photos de progression</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.4 * cm))
@@ -449,7 +481,9 @@ class ProgressReportTemplate(BaseTemplate):
 
         return elements
 
-    def _build_photo_comparison(self, before: Dict[str, Any], after: Dict[str, Any]) -> List[Any]:
+    def _build_photo_comparison(
+        self, before: Dict[str, Any], after: Dict[str, Any]
+    ) -> List[Any]:
         """Build before/after photo comparison"""
         elements = []
 
@@ -457,9 +491,7 @@ class ProgressReportTemplate(BaseTemplate):
         after_date = after.get("date", "Après")
 
         # Comparison header
-        comparison_data = [
-            [f"📅 {before_date}", f"📅 {after_date}"]
-        ]
+        comparison_data = [[f"📅 {before_date}", f"📅 {after_date}"]]
 
         # Front view comparison
         before_front = before.get("front_photo")
@@ -468,14 +500,15 @@ class ProgressReportTemplate(BaseTemplate):
         if before_front and after_front:
             try:
                 from pathlib import Path
+
                 before_img = None
                 after_img = None
 
                 if Path(before_front).exists():
-                    before_img = Image(before_front, width=6*cm, height=8*cm)
+                    before_img = Image(before_front, width=6 * cm, height=8 * cm)
 
                 if Path(after_front).exists():
-                    after_img = Image(after_front, width=6*cm, height=8*cm)
+                    after_img = Image(after_front, width=6 * cm, height=8 * cm)
 
                 if before_img and after_img:
                     comparison_data.append([before_img, after_img])
@@ -484,20 +517,39 @@ class ProgressReportTemplate(BaseTemplate):
                 # If image loading fails, show placeholder
                 comparison_data.append(["Photo non disponible", "Photo non disponible"])
 
-        comparison_table = Table(comparison_data, colWidths=[9*cm, 9*cm])
-        comparison_table.setStyle(TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-
-            # Photos
-            ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('PADDING', (0, 0), (-1, -1), 10),
-        ]))
+        comparison_table = Table(comparison_data, colWidths=[9 * cm, 9 * cm])
+        comparison_table.setStyle(
+            TableStyle(
+                [
+                    # Header
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        colors.HexColor(self.merged_config["colors"]["primary"]),
+                    ),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    (
+                        "FONTNAME",
+                        (0, 0),
+                        (-1, 0),
+                        self.merged_config["fonts"]["subheading"]["name"],
+                    ),
+                    ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                    # Photos
+                    ("ALIGN", (0, 1), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    (
+                        "BORDER",
+                        (0, 0),
+                        (-1, -1),
+                        1,
+                        colors.HexColor(self.merged_config["colors"]["border"]),
+                    ),
+                    ("PADDING", (0, 0), (-1, -1), 10),
+                ]
+            )
+        )
 
         elements.append(comparison_table)
         return elements
@@ -514,13 +566,15 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>💪 Analyse des performances</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
 
         # Performance summary table
-        performance_summary = [["Exercice", "Performance initiale", "Performance actuelle", "Progression"]]
+        performance_summary = [
+            ["Exercice", "Performance initiale", "Performance actuelle", "Progression"]
+        ]
 
         for exercise_data in performance_data:
             exercise_name = exercise_data.get("exercise", "")
@@ -542,15 +596,19 @@ class ProgressReportTemplate(BaseTemplate):
             else:
                 progression_text = "N/A"
 
-            performance_summary.append([
-                exercise_name,
-                f"{first_point.get('weight', 0)}kg × {first_point.get('reps', 0)}",
-                f"{last_point.get('weight', 0)}kg × {last_point.get('reps', 0)}",
-                progression_text
-            ])
+            performance_summary.append(
+                [
+                    exercise_name,
+                    f"{first_point.get('weight', 0)}kg × {first_point.get('reps', 0)}",
+                    f"{last_point.get('weight', 0)}kg × {last_point.get('reps', 0)}",
+                    progression_text,
+                ]
+            )
 
         if len(performance_summary) > 1:
-            performance_table = Table(performance_summary, colWidths=[5*cm, 4*cm, 4*cm, 4*cm, 1*cm])
+            performance_table = Table(
+                performance_summary, colWidths=[5 * cm, 4 * cm, 4 * cm, 4 * cm, 1 * cm]
+            )
             performance_table.setStyle(self._get_standard_table_style())
             elements.append(performance_table)
 
@@ -568,7 +626,7 @@ class ProgressReportTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>🎯 Suivi des objectifs</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -585,14 +643,9 @@ class ProgressReportTemplate(BaseTemplate):
             # Progress bar representation
             progress_bar = self._create_text_progress_bar(progress)
 
-            goals_data.append([
-                description,
-                target_date,
-                progress_bar,
-                status
-            ])
+            goals_data.append([description, target_date, progress_bar, status])
 
-        goals_table = Table(goals_data, colWidths=[6*cm, 3*cm, 5*cm, 4*cm])
+        goals_table = Table(goals_data, colWidths=[6 * cm, 3 * cm, 5 * cm, 4 * cm])
         goals_table.setStyle(self._get_standard_table_style())
         elements.append(goals_table)
 
@@ -601,12 +654,14 @@ class ProgressReportTemplate(BaseTemplate):
     def _create_weight_chart(self, measurements: List[Dict[str, Any]]) -> Any:
         """Create weight progression line chart"""
         try:
+            from datetime import datetime
+
+            import matplotlib
+            import matplotlib.dates as mdates
             import matplotlib.pyplot as plt
             from matplotlib.backends.backend_agg import FigureCanvasAgg
-            import matplotlib.dates as mdates
-            from datetime import datetime
-            import matplotlib
-            matplotlib.use('Agg')
+
+            matplotlib.use("Agg")
 
             # Extract weight data
             dates = []
@@ -629,30 +684,38 @@ class ProgressReportTemplate(BaseTemplate):
 
             # Create chart
             fig, ax = plt.subplots(figsize=(8, 4), dpi=150)
-            fig.patch.set_facecolor('white')
+            fig.patch.set_facecolor("white")
 
-            ax.plot(dates, weights,
-                   color=self.merged_config["colors"]["primary"],
-                   linewidth=2,
-                   marker='o',
-                   markersize=6)
+            ax.plot(
+                dates,
+                weights,
+                color=self.merged_config["colors"]["primary"],
+                linewidth=2,
+                marker="o",
+                markersize=6,
+            )
 
-            ax.set_title('Évolution du poids', fontsize=14, fontweight='bold', pad=20)
-            ax.set_xlabel('Date', fontsize=10)
-            ax.set_ylabel('Poids (kg)', fontsize=10)
+            ax.set_title("Évolution du poids", fontsize=14, fontweight="bold", pad=20)
+            ax.set_xlabel("Date", fontsize=10)
+            ax.set_ylabel("Poids (kg)", fontsize=10)
 
             # Format dates on x-axis
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
             ax.xaxis.set_major_locator(mdates.WeekdayLocator())
             plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
 
             # Grid styling
-            ax.grid(True, color=self.merged_config["colors"]["chart_grid"], linestyle='--', alpha=0.7)
+            ax.grid(
+                True,
+                color=self.merged_config["colors"]["chart_grid"],
+                linestyle="--",
+                alpha=0.7,
+            )
             ax.set_axisbelow(True)
 
             # Styling
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
+            ax.spines["top"].set_visible(False)
+            ax.spines["right"].set_visible(False)
 
             plt.tight_layout()
 
@@ -664,7 +727,7 @@ class ProgressReportTemplate(BaseTemplate):
 
             plt.close(fig)
 
-            return Image(buffer, width=12*cm, height=6*cm)
+            return Image(buffer, width=12 * cm, height=6 * cm)
 
         except ImportError:
             # Matplotlib not available - create simple text representation
@@ -681,7 +744,7 @@ class ProgressReportTemplate(BaseTemplate):
 
                 chart_paragraph = Paragraph(
                     f'<font name="Helvetica" size="10">{chart_text}</font>',
-                    self.styles["body"]
+                    self.styles["body"],
                 )
                 return chart_paragraph
             return None
@@ -691,10 +754,11 @@ class ProgressReportTemplate(BaseTemplate):
     def _create_composition_chart(self, measurements: List[Dict[str, Any]]) -> Any:
         """Create body composition chart"""
         try:
+            import matplotlib
             import matplotlib.pyplot as plt
             from matplotlib.backends.backend_agg import FigureCanvasAgg
-            import matplotlib
-            matplotlib.use('Agg')
+
+            matplotlib.use("Agg")
 
             # Get latest measurement for pie chart
             latest = measurements[-1]
@@ -714,35 +778,40 @@ class ProgressReportTemplate(BaseTemplate):
 
             # Create pie chart
             fig, ax = plt.subplots(figsize=(4, 4), dpi=150)
-            fig.patch.set_facecolor('white')
+            fig.patch.set_facecolor("white")
 
             sizes = [muscle_mass, fat_mass, other_mass]
-            labels = ['Muscle', 'Graisse', 'Autres']
+            labels = ["Muscle", "Graisse", "Autres"]
             colors_chart = [
                 self.merged_config["colors"]["improvement"],
                 self.merged_config["colors"]["regression"],
-                self.merged_config["colors"]["stable"]
+                self.merged_config["colors"]["stable"],
             ]
 
             wedges, texts, autotexts = ax.pie(
                 sizes,
                 labels=labels,
                 colors=colors_chart,
-                autopct='%1.1f%%',
+                autopct="%1.1f%%",
                 startangle=90,
-                wedgeprops={'linewidth': 2, 'edgecolor': 'white'}
+                wedgeprops={"linewidth": 2, "edgecolor": "white"},
             )
 
             for text in texts:
                 text.set_fontsize(10)
-                text.set_fontweight('bold')
+                text.set_fontweight("bold")
 
             for autotext in autotexts:
-                autotext.set_color('white')
+                autotext.set_color("white")
                 autotext.set_fontsize(9)
-                autotext.set_fontweight('bold')
+                autotext.set_fontweight("bold")
 
-            ax.set_title('Composition corporelle actuelle', fontsize=12, fontweight='bold', pad=20)
+            ax.set_title(
+                "Composition corporelle actuelle",
+                fontsize=12,
+                fontweight="bold",
+                pad=20,
+            )
 
             # Save to buffer
             canvas = FigureCanvasAgg(fig)
@@ -752,7 +821,7 @@ class ProgressReportTemplate(BaseTemplate):
 
             plt.close(fig)
 
-            return Image(buffer, width=6*cm, height=6*cm)
+            return Image(buffer, width=6 * cm, height=6 * cm)
 
         except ImportError:
             # Matplotlib not available - create simple text representation
@@ -765,7 +834,7 @@ class ProgressReportTemplate(BaseTemplate):
 
             chart_paragraph = Paragraph(
                 f'<font name="Helvetica" size="10">{chart_text}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             return chart_paragraph
         except Exception:
@@ -795,60 +864,134 @@ class ProgressReportTemplate(BaseTemplate):
 
     def _get_status_icon(self, status: str) -> str:
         """Get icon for status"""
-        icons = {
-            "improvement": "📈",
-            "regression": "📉",
-            "stable": "➡️"
-        }
+        icons = {"improvement": "📈", "regression": "📉", "stable": "➡️"}
         return icons.get(status, "➡️")
 
     def _get_metrics_table_style(self) -> TableStyle:
         """Get styling for metrics table"""
-        return TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-
-            # Body
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-            ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        return TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                # Body
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                ("ALIGN", (0, 1), (-1, -1), "CENTER"),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
 
     def _get_standard_table_style(self) -> TableStyle:
         """Get standard table styling"""
-        return TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-
-            # Body
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-
-            # Alternating backgrounds
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(self.merged_config["colors"]["surface"])]),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        return TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                # Body
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                # Alternating backgrounds
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ],
+                ),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )

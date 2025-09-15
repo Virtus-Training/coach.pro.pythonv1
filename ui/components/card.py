@@ -28,4 +28,3 @@ class IconCard(ctk.CTkFrame):
             command=command,
         )
         self.button.pack(fill="both", padx=10, pady=10)
-

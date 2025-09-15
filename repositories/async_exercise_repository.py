@@ -12,31 +12,38 @@ Enterprise-grade async repository for Exercise entities with:
 
 from __future__ import annotations
 
-import json
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
-from domain.entities import Exercise
-from domain.events import ExerciseCreatedEvent, ExerciseUpdatedEvent, ExerciseUsageTrackedEvent
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
-from infrastructure.cache import CacheManager, get_cache_manager, cache_get, cache_set, cache_delete
-from repositories.interfaces import (
-    IAsyncExerciseRepository,
-    QueryResult,
-    QueryOptions,
-    RepositoryMetrics,
-    ISpecification,
-    ActiveEntitySpecification,
-    TextSearchSpecification,
-    PaginationSpecification,
-)
 from core.events import IEventBus
 from core.exceptions import (
-    EntityNotFoundError,
     DuplicateEntityError,
+    EntityNotFoundError,
     RepositoryError,
     ValidationError,
+)
+from domain.entities import Exercise
+from domain.events import (
+    ExerciseCreatedEvent,
+    ExerciseUpdatedEvent,
+    ExerciseUsageTrackedEvent,
+)
+from infrastructure.cache import (
+    CacheManager,
+    cache_delete,
+    cache_get,
+    cache_set,
+    get_cache_manager,
+)
+from infrastructure.database import AsyncDatabaseManager, get_database_manager
+from repositories.interfaces import (
+    IAsyncExerciseRepository,
+    ISpecification,
+    PaginationSpecification,
+    QueryOptions,
+    QueryResult,
+    RepositoryMetrics,
 )
 
 
@@ -60,7 +67,11 @@ class ExerciseMuscleGroupSpecification(ISpecification[Exercise]):
         self.muscle_group = muscle_group.lower()
 
     def is_satisfied_by(self, entity: Exercise) -> bool:
-        return self.muscle_group in entity.muscle_groups.lower() if entity.muscle_groups else False
+        return (
+            self.muscle_group in entity.muscle_groups.lower()
+            if entity.muscle_groups
+            else False
+        )
 
     def to_sql_where(self) -> tuple[str, tuple[Any, ...]]:
         return "LOWER(muscles_cibles) LIKE ?", (f"%{self.muscle_group}%",)
@@ -91,14 +102,17 @@ class PopularExercisesSpecification(ISpecification[Exercise]):
         return True
 
     def to_sql_where(self) -> tuple[str, tuple[Any, ...]]:
-        return """
+        return (
+            """
         EXISTS (
             SELECT 1 FROM seances s
             WHERE s.exercices_json LIKE '%"' || e.nom || '"%'
             AND s.date_seance >= ?
             AND s.statut = 'completed'
         )
-        """, (self.cutoff_date,)
+        """,
+            (self.cutoff_date,),
+        )
 
 
 class AsyncExerciseRepository(IAsyncExerciseRepository):
@@ -135,9 +149,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
     # Core CRUD Operations
 
     async def get_by_id(
-        self,
-        entity_id: int,
-        options: Optional[QueryOptions] = None
+        self, entity_id: int, options: Optional[QueryOptions] = None
     ) -> Optional[Exercise]:
         """Get exercise by ID with caching."""
         options = options or QueryOptions()
@@ -178,18 +190,23 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_exercise(exercise), options.cache_ttl or self._default_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_exercise(exercise),
+                        options.cache_ttl or self._default_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return exercise
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to get exercise {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to get exercise {entity_id}: {str(e)}"
+            ) from e
 
     async def get_all(
-        self,
-        options: Optional[QueryOptions] = None
+        self, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Get all exercises with pagination and caching."""
         options = options or QueryOptions()
@@ -219,7 +236,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             FROM exercices
             """
 
-            where_clause = "WHERE is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            where_clause = (
+                "WHERE is_active = 1" if not options.include_deleted else "WHERE 1=1"
+            )
 
             # Add sorting (default by name)
             sort_field = options.sort_by or "nom"
@@ -253,7 +272,11 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
                 # Cache result
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_query_result(result), self._list_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_query_result(result),
+                        self._list_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return result
@@ -265,7 +288,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
     async def find(
         self,
         specification: ISpecification[Exercise],
-        options: Optional[QueryOptions] = None
+        options: Optional[QueryOptions] = None,
     ) -> QueryResult[Exercise]:
         """Find exercises matching specification."""
         options = options or QueryOptions()
@@ -333,7 +356,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             # Validate unique name
             existing = await self._find_by_name_exact(entity.nom)
             if existing:
-                raise DuplicateEntityError(f"Exercise with name '{entity.nom}' already exists")
+                raise DuplicateEntityError(
+                    f"Exercise with name '{entity.nom}' already exists"
+                )
 
             query = """
             INSERT INTO exercices (
@@ -371,12 +396,14 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
             # Publish domain event
             if self._event_bus:
-                await self._event_bus.publish(ExerciseCreatedEvent(
-                    exercise_id=entity.id,
-                    exercise_name=entity.nom,
-                    category=entity.category,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    ExerciseCreatedEvent(
+                        exercise_id=entity.id,
+                        exercise_name=entity.nom,
+                        category=entity.category,
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return entity
@@ -425,7 +452,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                 await conn.commit()
 
                 if cursor.rowcount == 0:
-                    raise EntityNotFoundError(f"Exercise {entity.id} not found or inactive")
+                    raise EntityNotFoundError(
+                        f"Exercise {entity.id} not found or inactive"
+                    )
 
             # Invalidate caches
             await self._invalidate_single_exercise_cache(entity.id)
@@ -433,12 +462,14 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
             # Publish domain event
             if self._event_bus:
-                await self._event_bus.publish(ExerciseUpdatedEvent(
-                    exercise_id=entity.id,
-                    exercise_name=entity.nom,
-                    category=entity.category,
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    ExerciseUpdatedEvent(
+                        exercise_id=entity.id,
+                        exercise_name=entity.nom,
+                        category=entity.category,
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return entity
@@ -447,32 +478,28 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             self._update_metrics(start_time, False)
             if isinstance(e, (EntityNotFoundError, ValidationError)):
                 raise
-            raise RepositoryError(f"Failed to update exercise {entity.id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to update exercise {entity.id}: {str(e)}"
+            ) from e
 
     # Domain-Specific Operations
 
     async def find_by_category(
-        self,
-        category: str,
-        options: Optional[QueryOptions] = None
+        self, category: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by category."""
         spec = ExerciseCategorySpecification(category)
         return await self.find(spec, options)
 
     async def find_by_muscle_group(
-        self,
-        muscle_group: str,
-        options: Optional[QueryOptions] = None
+        self, muscle_group: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by muscle group."""
         spec = ExerciseMuscleGroupSpecification(muscle_group)
         return await self.find(spec, options)
 
     async def search_by_name(
-        self,
-        search_term: str,
-        options: Optional[QueryOptions] = None
+        self, search_term: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Search exercises by name with full-text capabilities."""
         options = options or QueryOptions()
@@ -516,15 +543,15 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             """
 
             search_params = (
-                search_term.lower(),      # Exact match
-                f"{search_term.lower()}%", # Starts with
-                search_pattern,           # Description contains
-                search_pattern,           # Muscle groups contains
-                search_pattern,           # Instructions contains
-                search_pattern,           # Name contains
-                search_pattern,           # Description contains
-                search_pattern,           # Muscle groups contains
-                search_pattern            # Instructions contains
+                search_term.lower(),  # Exact match
+                f"{search_term.lower()}%",  # Starts with
+                search_pattern,  # Description contains
+                search_pattern,  # Muscle groups contains
+                search_pattern,  # Instructions contains
+                search_pattern,  # Name contains
+                search_pattern,  # Description contains
+                search_pattern,  # Muscle groups contains
+                search_pattern,  # Instructions contains
             )
 
             # Add sorting by relevance then name
@@ -542,7 +569,12 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                  OR LOWER(muscles_cibles) LIKE ? OR LOWER(instructions) LIKE ?)
             """
 
-            count_params = (search_pattern, search_pattern, search_pattern, search_pattern)
+            count_params = (
+                search_pattern,
+                search_pattern,
+                search_pattern,
+                search_pattern,
+            )
 
             # Data query
             data_query = f"{base_query}{order_clause} {limit_clause}"
@@ -566,7 +598,11 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
                 # Cache search results
                 if options.use_cache:
-                    await cache_set(cache_key, self._serialize_query_result(result), self._search_cache_ttl)
+                    await cache_set(
+                        cache_key,
+                        self._serialize_query_result(result),
+                        self._search_cache_ttl,
+                    )
 
                 self._update_metrics(start_time, True)
                 return result
@@ -576,18 +612,14 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             raise RepositoryError(f"Failed to search exercises: {str(e)}") from e
 
     async def find_by_equipment(
-        self,
-        equipment: str,
-        options: Optional[QueryOptions] = None
+        self, equipment: str, options: Optional[QueryOptions] = None
     ) -> QueryResult[Exercise]:
         """Find exercises by equipment."""
         spec = ExerciseEquipmentSpecification(equipment)
         return await self.find(spec, options)
 
     async def find_popular_exercises(
-        self,
-        limit: int = 20,
-        days_back: int = 30
+        self, limit: int = 20, days_back: int = 30
     ) -> List[Exercise]:
         """Find most popular exercises based on usage analytics."""
         start_time = time.perf_counter()
@@ -640,8 +672,12 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                 exercises = [self._map_row_to_exercise(row) for row in rows]
 
                 # Cache popular exercises
-                serialized_exercises = [self._serialize_exercise(ex) for ex in exercises]
-                await cache_set(cache_key, serialized_exercises, self._analytics_cache_ttl)
+                serialized_exercises = [
+                    self._serialize_exercise(ex) for ex in exercises
+                ]
+                await cache_set(
+                    cache_key, serialized_exercises, self._analytics_cache_ttl
+                )
 
                 self._update_metrics(start_time, True)
                 return exercises
@@ -650,10 +686,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             self._update_metrics(start_time, False)
             raise RepositoryError(f"Failed to find popular exercises: {str(e)}") from e
 
-    async def get_exercise_usage_stats(
-        self,
-        exercise_id: int
-    ) -> Dict[str, Any]:
+    async def get_exercise_usage_stats(self, exercise_id: int) -> Dict[str, Any]:
         """Get comprehensive usage statistics for an exercise."""
         start_time = time.perf_counter()
 
@@ -728,34 +761,39 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                 trends_rows = await conn.fetchall(trends_query, (exercise.nom,))
 
                 trends = [
-                    {'period': row['year_week'], 'usage_count': row['usage_count']}
+                    {"period": row["year_week"], "usage_count": row["usage_count"]}
                     for row in trends_rows
                 ]
 
                 stats = {
-                    'exercise_id': exercise_id,
-                    'exercise_name': exercise.nom,
-                    'category': exercise.category,
-                    'usage_summary': {
-                        'total_usages': stats_row['total_usages'] or 0,
-                        'unique_users': stats_row['unique_users'] or 0,
-                        'completed_sessions': stats_row['completed_sessions'] or 0,
-                        'completion_rate': round((stats_row['completed_sessions'] or 0) / max(stats_row['total_usages'] or 1, 1) * 100, 2)
+                    "exercise_id": exercise_id,
+                    "exercise_name": exercise.nom,
+                    "category": exercise.category,
+                    "usage_summary": {
+                        "total_usages": stats_row["total_usages"] or 0,
+                        "unique_users": stats_row["unique_users"] or 0,
+                        "completed_sessions": stats_row["completed_sessions"] or 0,
+                        "completion_rate": round(
+                            (stats_row["completed_sessions"] or 0)
+                            / max(stats_row["total_usages"] or 1, 1)
+                            * 100,
+                            2,
+                        ),
                     },
-                    'date_range': {
-                        'first_used': stats_row['first_used_date'],
-                        'last_used': stats_row['last_used_date']
+                    "date_range": {
+                        "first_used": stats_row["first_used_date"],
+                        "last_used": stats_row["last_used_date"],
                     },
-                    'performance_averages': {
-                        'avg_series': round(stats_row['avg_series'] or 0, 1),
-                        'avg_repetitions': round(stats_row['avg_reps'] or 0, 1),
-                        'avg_weight_kg': round(stats_row['avg_weight'] or 0, 1)
+                    "performance_averages": {
+                        "avg_series": round(stats_row["avg_series"] or 0, 1),
+                        "avg_repetitions": round(stats_row["avg_reps"] or 0, 1),
+                        "avg_weight_kg": round(stats_row["avg_weight"] or 0, 1),
                     },
-                    'trends': {
-                        'weekly_usage': trends
-                    },
-                    'popularity_rank': await self._get_exercise_popularity_rank(exercise.nom),
-                    'generated_at': datetime.now().isoformat()
+                    "trends": {"weekly_usage": trends},
+                    "popularity_rank": await self._get_exercise_popularity_rank(
+                        exercise.nom
+                    ),
+                    "generated_at": datetime.now().isoformat(),
                 }
 
             # Cache statistics
@@ -763,12 +801,14 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
             # Track usage analytics event
             if self._event_bus:
-                await self._event_bus.publish(ExerciseUsageTrackedEvent(
-                    exercise_id=exercise_id,
-                    total_usages=stats['usage_summary']['total_usages'],
-                    unique_users=stats['usage_summary']['unique_users'],
-                    timestamp=datetime.now()
-                ))
+                await self._event_bus.publish(
+                    ExerciseUsageTrackedEvent(
+                        exercise_id=exercise_id,
+                        total_usages=stats["usage_summary"]["total_usages"],
+                        unique_users=stats["usage_summary"]["unique_users"],
+                        timestamp=datetime.now(),
+                    )
+                )
 
             self._update_metrics(start_time, True)
             return stats
@@ -777,12 +817,12 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             self._update_metrics(start_time, False)
             if isinstance(e, EntityNotFoundError):
                 raise
-            raise RepositoryError(f"Failed to get exercise usage stats: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to get exercise usage stats: {str(e)}"
+            ) from e
 
     async def find_similar_exercises(
-        self,
-        exercise_id: int,
-        limit: int = 5
+        self, exercise_id: int, limit: int = 5
     ) -> List[Exercise]:
         """Find similar exercises based on muscle groups and movement patterns."""
         start_time = time.perf_counter()
@@ -832,18 +872,26 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             """
 
             # Extract key terms for matching
-            muscle_pattern = f"%{reference_exercise.muscle_groups.lower()}%" if reference_exercise.muscle_groups else "%"
-            equipment_pattern = f"%{reference_exercise.equipment.lower()}%" if reference_exercise.equipment else "%"
+            muscle_pattern = (
+                f"%{reference_exercise.muscle_groups.lower()}%"
+                if reference_exercise.muscle_groups
+                else "%"
+            )
+            equipment_pattern = (
+                f"%{reference_exercise.equipment.lower()}%"
+                if reference_exercise.equipment
+                else "%"
+            )
 
             params = (
-                reference_exercise.category,      # Category match
-                muscle_pattern,                   # Muscle groups match
-                equipment_pattern,                # Equipment match
-                exercise_id,                      # Exclude self
-                reference_exercise.category,      # Category filter
-                muscle_pattern,                   # Muscle groups filter
-                equipment_pattern,                # Equipment filter
-                limit
+                reference_exercise.category,  # Category match
+                muscle_pattern,  # Muscle groups match
+                equipment_pattern,  # Equipment match
+                exercise_id,  # Exclude self
+                reference_exercise.category,  # Category filter
+                muscle_pattern,  # Muscle groups filter
+                equipment_pattern,  # Equipment filter
+                limit,
             )
 
             async with self._db_manager.get_connection() as conn:
@@ -852,8 +900,12 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                 similar_exercises = [self._map_row_to_exercise(row) for row in rows]
 
                 # Cache similar exercises
-                serialized_exercises = [self._serialize_exercise(ex) for ex in similar_exercises]
-                await cache_set(cache_key, serialized_exercises, self._analytics_cache_ttl)
+                serialized_exercises = [
+                    self._serialize_exercise(ex) for ex in similar_exercises
+                ]
+                await cache_set(
+                    cache_key, serialized_exercises, self._analytics_cache_ttl
+                )
 
                 self._update_metrics(start_time, True)
                 return similar_exercises
@@ -865,8 +917,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             raise RepositoryError(f"Failed to find similar exercises: {str(e)}") from e
 
     async def bulk_import_exercises(
-        self,
-        exercise_data: List[Dict[str, Any]]
+        self, exercise_data: List[Dict[str, Any]]
     ) -> List[Exercise]:
         """Bulk import exercises from data with validation."""
         start_time = time.perf_counter()
@@ -874,22 +925,22 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
         try:
             # Use transaction for bulk operation
-            async with self._db_manager.get_transaction() as transaction:
+            async with self._db_manager.get_transaction():
                 for data in exercise_data:
                     try:
                         # Create exercise from data
                         exercise = Exercise(
-                            nom=data['name'],
-                            description=data.get('description', ''),
-                            category=data.get('category', 'general'),
-                            muscle_groups=data.get('muscle_groups', ''),
-                            equipment=data.get('equipment', 'bodyweight'),
-                            difficulty_level=data.get('difficulty_level', 'beginner'),
-                            instructions=data.get('instructions', ''),
-                            average_duration=data.get('average_duration', 0),
-                            calories_per_minute=data.get('calories_per_minute', 0.0),
-                            image_url=data.get('image_url'),
-                            video_url=data.get('video_url')
+                            nom=data["name"],
+                            description=data.get("description", ""),
+                            category=data.get("category", "general"),
+                            muscle_groups=data.get("muscle_groups", ""),
+                            equipment=data.get("equipment", "bodyweight"),
+                            difficulty_level=data.get("difficulty_level", "beginner"),
+                            instructions=data.get("instructions", ""),
+                            average_duration=data.get("average_duration", 0),
+                            calories_per_minute=data.get("calories_per_minute", 0.0),
+                            image_url=data.get("image_url"),
+                            video_url=data.get("video_url"),
                         )
 
                         # Check for duplicates
@@ -902,7 +953,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
                         imported_exercises.append(created_exercise)
 
                     except Exception as e:
-                        print(f"Failed to import exercise '{data.get('name', 'unknown')}': {e}")
+                        print(
+                            f"Failed to import exercise '{data.get('name', 'unknown')}': {e}"
+                        )
                         continue
 
             # Invalidate all caches after bulk import
@@ -920,52 +973,52 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
     def _map_row_to_exercise(self, row) -> Exercise:
         """Map database row to Exercise entity."""
         return Exercise(
-            nom=row['nom'],
-            description=row['description'],
-            category=row['categorie'],
-            muscle_groups=row['muscles_cibles'],
-            equipment=row['materiel'],
-            difficulty_level=row['niveau_difficulte'],
-            instructions=row['instructions'],
-            average_duration=row['duree_moyenne'],
-            calories_per_minute=row['calories_par_minute'],
-            image_url=row['image_url'],
-            video_url=row['video_url'],
-            id=row['id']
+            nom=row["nom"],
+            description=row["description"],
+            category=row["categorie"],
+            muscle_groups=row["muscles_cibles"],
+            equipment=row["materiel"],
+            difficulty_level=row["niveau_difficulte"],
+            instructions=row["instructions"],
+            average_duration=row["duree_moyenne"],
+            calories_per_minute=row["calories_par_minute"],
+            image_url=row["image_url"],
+            video_url=row["video_url"],
+            id=row["id"],
         )
 
     def _serialize_exercise(self, exercise: Exercise) -> Dict[str, Any]:
         """Serialize exercise for cache storage."""
         return {
-            'id': exercise.id,
-            'nom': exercise.nom,
-            'description': exercise.description,
-            'category': exercise.category,
-            'muscle_groups': exercise.muscle_groups,
-            'equipment': exercise.equipment,
-            'difficulty_level': exercise.difficulty_level,
-            'instructions': exercise.instructions,
-            'average_duration': exercise.average_duration,
-            'calories_per_minute': exercise.calories_per_minute,
-            'image_url': exercise.image_url,
-            'video_url': exercise.video_url
+            "id": exercise.id,
+            "nom": exercise.nom,
+            "description": exercise.description,
+            "category": exercise.category,
+            "muscle_groups": exercise.muscle_groups,
+            "equipment": exercise.equipment,
+            "difficulty_level": exercise.difficulty_level,
+            "instructions": exercise.instructions,
+            "average_duration": exercise.average_duration,
+            "calories_per_minute": exercise.calories_per_minute,
+            "image_url": exercise.image_url,
+            "video_url": exercise.video_url,
         }
 
     def _deserialize_exercise(self, data: Dict[str, Any]) -> Exercise:
         """Deserialize exercise from cache data."""
         return Exercise(
-            nom=data['nom'],
-            description=data['description'],
-            category=data['category'],
-            muscle_groups=data['muscle_groups'],
-            equipment=data['equipment'],
-            difficulty_level=data['difficulty_level'],
-            instructions=data['instructions'],
-            average_duration=data['average_duration'],
-            calories_per_minute=data['calories_per_minute'],
-            image_url=data['image_url'],
-            video_url=data['video_url'],
-            id=data['id']
+            nom=data["nom"],
+            description=data["description"],
+            category=data["category"],
+            muscle_groups=data["muscle_groups"],
+            equipment=data["equipment"],
+            difficulty_level=data["difficulty_level"],
+            instructions=data["instructions"],
+            average_duration=data["average_duration"],
+            calories_per_minute=data["calories_per_minute"],
+            image_url=data["image_url"],
+            video_url=data["video_url"],
+            id=data["id"],
         )
 
     async def _find_by_name_exact(self, name: str) -> Optional[Exercise]:
@@ -975,7 +1028,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
         async with self._db_manager.get_connection() as conn:
             row = await conn.fetchone(query, (name.lower(),))
             if row:
-                return await self.get_by_id(row['id'])
+                return await self.get_by_id(row["id"])
         return None
 
     async def _get_exercise_popularity_rank(self, exercise_name: str) -> int:
@@ -1000,7 +1053,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
         async with self._db_manager.get_connection() as conn:
             row = await conn.fetchone(query, (exercise_name,))
-            return row['rank'] if row else 0
+            return row["rank"] if row else 0
 
     async def _invalidate_single_exercise_cache(self, exercise_id: int) -> None:
         """Invalidate cache for a specific exercise."""
@@ -1028,9 +1081,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             self._metrics.avg_query_time_ms = execution_time
         else:
             self._metrics.avg_query_time_ms = (
-                (self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1) + execution_time)
-                / self._metrics.total_queries
-            )
+                self._metrics.avg_query_time_ms * (self._metrics.total_queries - 1)
+                + execution_time
+            ) / self._metrics.total_queries
 
     # Interface Implementation
 
@@ -1040,8 +1093,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
         return exercise is not None
 
     async def count(
-        self,
-        specification: Optional[ISpecification[Exercise]] = None
+        self, specification: Optional[ISpecification[Exercise]] = None
     ) -> int:
         """Count exercises matching specification."""
         if specification:
@@ -1049,7 +1101,12 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
             query = f"SELECT COUNT(*) FROM exercices WHERE ({where_condition}) AND is_active = 1"
             return await self._db_manager.execute_scalar(query, where_params) or 0
         else:
-            return await self._db_manager.execute_scalar("SELECT COUNT(*) FROM exercices WHERE is_active = 1") or 0
+            return (
+                await self._db_manager.execute_scalar(
+                    "SELECT COUNT(*) FROM exercices WHERE is_active = 1"
+                )
+                or 0
+            )
 
     async def delete(self, entity_id: int) -> bool:
         """Hard delete exercise."""
@@ -1073,7 +1130,9 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to delete exercise {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to delete exercise {entity_id}: {str(e)}"
+            ) from e
 
     async def soft_delete(self, entity_id: int) -> bool:
         """Soft delete exercise by marking inactive."""
@@ -1102,32 +1161,36 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
 
         except Exception as e:
             self._update_metrics(start_time, False)
-            raise RepositoryError(f"Failed to soft delete exercise {entity_id}: {str(e)}") from e
+            raise RepositoryError(
+                f"Failed to soft delete exercise {entity_id}: {str(e)}"
+            ) from e
 
     async def batch_create(self, entities: List[Exercise]) -> List[Exercise]:
         """Create multiple exercises in batch."""
-        return await self.bulk_import_exercises([
-            {
-                'name': ex.nom,
-                'description': ex.description,
-                'category': ex.category,
-                'muscle_groups': ex.muscle_groups,
-                'equipment': ex.equipment,
-                'difficulty_level': ex.difficulty_level,
-                'instructions': ex.instructions,
-                'average_duration': ex.average_duration,
-                'calories_per_minute': ex.calories_per_minute,
-                'image_url': ex.image_url,
-                'video_url': ex.video_url
-            }
-            for ex in entities
-        ])
+        return await self.bulk_import_exercises(
+            [
+                {
+                    "name": ex.nom,
+                    "description": ex.description,
+                    "category": ex.category,
+                    "muscle_groups": ex.muscle_groups,
+                    "equipment": ex.equipment,
+                    "difficulty_level": ex.difficulty_level,
+                    "instructions": ex.instructions,
+                    "average_duration": ex.average_duration,
+                    "calories_per_minute": ex.calories_per_minute,
+                    "image_url": ex.image_url,
+                    "video_url": ex.video_url,
+                }
+                for ex in entities
+            ]
+        )
 
     async def batch_update(self, entities: List[Exercise]) -> List[Exercise]:
         """Update multiple exercises in batch."""
         updated_exercises = []
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity in entities:
                 updated_exercise = await self.update(entity)
                 updated_exercises.append(updated_exercise)
@@ -1139,7 +1202,7 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
         """Delete multiple exercises in batch."""
         deleted_count = 0
 
-        async with self._db_manager.get_transaction() as transaction:
+        async with self._db_manager.get_transaction():
             for entity_id in entity_ids:
                 if await self.delete(entity_id):
                     deleted_count += 1
@@ -1161,25 +1224,28 @@ class AsyncExerciseRepository(IAsyncExerciseRepository):
     def _serialize_query_result(self, result: QueryResult[Exercise]) -> Dict[str, Any]:
         """Serialize query result for caching."""
         return {
-            'data': [self._serialize_exercise(exercise) for exercise in result.data],
-            'total_count': result.total_count,
-            'page': result.page,
-            'page_size': result.page_size,
-            'has_next': result.has_next,
-            'has_previous': result.has_previous,
-            'execution_time_ms': result.execution_time_ms,
-            'cache_hit': result.cache_hit
+            "data": [self._serialize_exercise(exercise) for exercise in result.data],
+            "total_count": result.total_count,
+            "page": result.page,
+            "page_size": result.page_size,
+            "has_next": result.has_next,
+            "has_previous": result.has_previous,
+            "execution_time_ms": result.execution_time_ms,
+            "cache_hit": result.cache_hit,
         }
 
     def _deserialize_query_result(self, data: Dict[str, Any]) -> QueryResult[Exercise]:
         """Deserialize query result from cache."""
         return QueryResult(
-            data=[self._deserialize_exercise(exercise_data) for exercise_data in data['data']],
-            total_count=data['total_count'],
-            page=data['page'],
-            page_size=data['page_size'],
-            has_next=data['has_next'],
-            has_previous=data['has_previous'],
-            execution_time_ms=data['execution_time_ms'],
-            cache_hit=True
+            data=[
+                self._deserialize_exercise(exercise_data)
+                for exercise_data in data["data"]
+            ],
+            total_count=data["total_count"],
+            page=data["page"],
+            page_size=data["page_size"],
+            has_next=data["has_next"],
+            has_previous=data["has_previous"],
+            execution_time_ms=data["execution_time_ms"],
+            cache_hit=True,
         )

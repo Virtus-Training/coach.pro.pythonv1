@@ -20,12 +20,12 @@ class ModernAppShell(ctk.CTkFrame):
         parent,
         switch_page_callback,
         page_registry: Dict[str, Dict],
-        active_module: str = "dashboard"
+        active_module: str = "dashboard",
     ):
         super().__init__(
             parent,
             fg_color=ctk.ThemeManager.theme["color"]["surface_dark"],
-            corner_radius=0
+            corner_radius=0,
         )
 
         self.switch_page_callback = switch_page_callback
@@ -47,10 +47,7 @@ class ModernAppShell(ctk.CTkFrame):
         """Construit l'interface principale."""
         # === SIDEBAR ===
         self.sidebar = ModernSidebar(
-            self,
-            self._on_page_switch,
-            self.page_registry,
-            self.active_module
+            self, self._on_page_switch, self.page_registry, self.active_module
         )
         self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsw")
 
@@ -70,9 +67,7 @@ class ModernAppShell(ctk.CTkFrame):
         """Crée la zone de contenu principale avec effets."""
         # Container principal avec padding moderne
         self.content_container = ctk.CTkFrame(
-            self,
-            fg_color="transparent",
-            corner_radius=0
+            self, fg_color="transparent", corner_radius=0
         )
         self.content_container.grid(row=1, column=1, sticky="nsew")
         self.content_container.grid_rowconfigure(0, weight=1)
@@ -84,9 +79,11 @@ class ModernAppShell(ctk.CTkFrame):
             fg_color=ctk.ThemeManager.theme["color"]["surface_medium"],
             corner_radius=20,
             border_width=1,
-            border_color=ctk.ThemeManager.theme["color"]["subtle_border"]
+            border_color=ctk.ThemeManager.theme["color"]["subtle_border"],
         )
-        self.content_area.grid(row=0, column=0, sticky="nsew", padx=(8, 12), pady=(0, 12))
+        self.content_area.grid(
+            row=0, column=0, sticky="nsew", padx=(8, 12), pady=(0, 12)
+        )
 
         # Loading indicator par défaut
         self._show_loading_state()
@@ -101,7 +98,7 @@ class ModernAppShell(ctk.CTkFrame):
             loading_frame,
             text="⚡",
             font=ctk.CTkFont(size=48),
-            text_color=ctk.ThemeManager.theme["color"]["primary"]
+            text_color=ctk.ThemeManager.theme["color"]["primary"],
         )
         loading_label.pack(expand=True, pady=(0, 16))
 
@@ -109,7 +106,7 @@ class ModernAppShell(ctk.CTkFrame):
             loading_frame,
             text="Initialisation...",
             font=ctk.CTkFont(size=16),
-            text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
         )
         status_label.pack(expand=True)
 
@@ -217,6 +214,7 @@ class ModernAppShell(ctk.CTkFrame):
 
     def _animate_content_in(self):
         """Animation d'entrée du nouveau contenu."""
+
         def fade_in():
             try:
                 self.content_area.configure(
@@ -262,7 +260,7 @@ class ModernAppShell(ctk.CTkFrame):
                     self,
                     f"Page chargée: {page_info.get('label', self.active_module)}",
                     "success",
-                    1500
+                    1500,
                 )
 
     def update_page_title(self, title: str, breadcrumbs: list = None):
@@ -271,7 +269,7 @@ class ModernAppShell(ctk.CTkFrame):
 
     def get_search_callback(self):
         """Retourne le callback de recherche du header."""
-        return getattr(self.header, 'search_callback', None)
+        return getattr(self.header, "search_callback", None)
 
     def set_search_callback(self, callback):
         """Définit le callback de recherche."""

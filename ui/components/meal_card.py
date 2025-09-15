@@ -61,7 +61,8 @@ class MealCard(Card):
                 row,
                 text="x",
                 width=24,
-                command=lambda iid=item["id"]: self.on_delete_item(iid, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
+                command=lambda iid=item["id"]: self.on_delete_item(
+                    iid, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])
+                ),
             )
             btn.pack(side="right")
-

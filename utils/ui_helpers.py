@@ -1,4 +1,5 @@
 """UI helpers for window behavior and focus management."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -49,4 +50,3 @@ def _unset_topmost_safe(win: Any) -> None:
         win.attributes("-topmost", False)
     except Exception:
         pass
-

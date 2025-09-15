@@ -8,6 +8,7 @@ Import d'exercices depuis l'API wger (source ouverte et fiable).
 
 Utilise uniquement la stdlib (urllib) pour éviter toute dépendance.
 """
+
 from __future__ import annotations
 
 import json
@@ -92,7 +93,7 @@ def _build_equipment_id_to_label_fr() -> Dict[int, str]:
     out: Dict[int, str] = {}
     data = _http_get_json(f"{WGER_BASE}/equipment/")
     for e in data.get("results", []):
-        out[int(e["id"]) ] = en_to_fr.get(e.get("name", ""), e.get("name", ""))  # type: ignore[index]
+        out[int(e["id"])] = en_to_fr.get(e.get("name", ""), e.get("name", ""))  # type: ignore[index]
     return out
 
 
@@ -100,14 +101,20 @@ _KW = {
     "push": re.compile(r"\b(press|push|bench|dip|dips|pompe|developpe)\b", re.I),
     "pull": re.compile(r"\b(row|pull(?!-?over)|chin|face pull|pulldown)\b", re.I),
     "squat": re.compile(r"\b(squat|pistol)\b", re.I),
-    "hinge": re.compile(r"\b(deadlift|good\s*morning|hip\s*thrust|swing|hinge|rdl|romanian)\b", re.I),
+    "hinge": re.compile(
+        r"\b(deadlift|good\s*morning|hip\s*thrust|swing|hinge|rdl|romanian)\b", re.I
+    ),
     "lunge": re.compile(r"\b(lunge|fente|step[- ]?up|split\s*squat|bulgarian)\b", re.I),
     "carry": re.compile(r"\b(carry|farmer|suitcase|waiter)\b", re.I),
-    "twist": re.compile(r"\b(twist|rotation|wood\s*chop|wood-?chop|russian\s*twist)\b", re.I),
+    "twist": re.compile(
+        r"\b(twist|rotation|wood\s*chop|wood-?chop|russian\s*twist)\b", re.I
+    ),
     "gait": re.compile(r"\b(run|sprint|walk|marche)\b", re.I),
     "jump": re.compile(r"\b(jump|plyo|box\s*jump|bond)\b", re.I),
     "iso": re.compile(r"\b(curl|extension|raise|fly|pullover|calf)\b", re.I),
-    "core": re.compile(r"\b(plank|gainage|hollow|dead\s*bug|bird\s*dog|pallof)\b", re.I),
+    "core": re.compile(
+        r"\b(plank|gainage|hollow|dead\s*bug|bird\s*dog|pallof)\b", re.I
+    ),
 }
 
 
@@ -140,12 +147,24 @@ def _derive_category(name: str, pattern: Optional[str]) -> Optional[str]:
         return "Gainage"
     if _KW["iso"].search(n):
         return "Isolation"
-    if pattern in {"Push", "Pull", "Squat", "Hinge", "Carry", "Lunge", "Twist", "Gait", "Jump"}:
+    if pattern in {
+        "Push",
+        "Pull",
+        "Squat",
+        "Hinge",
+        "Carry",
+        "Lunge",
+        "Twist",
+        "Gait",
+        "Jump",
+    }:
         return "Polyarticulaire"
     return None
 
 
-def _derive_type_effort(name: str, pattern: Optional[str], category: Optional[str]) -> str:
+def _derive_type_effort(
+    name: str, pattern: Optional[str], category: Optional[str]
+) -> str:
     n = name.lower()
     if pattern in {"Gait", "Jump"}:
         return "Cardio"
@@ -159,7 +178,9 @@ def _derive_type_effort(name: str, pattern: Optional[str], category: Optional[st
 def _derive_tags(name: str) -> List[str]:
     n = name.lower()
     tags: List[str] = []
-    if re.search(r"\b(one[- ]?arm|single[- ]?arm|one[- ]?leg|single[- ]?leg|unilat)\b", n) or _KW["lunge"].search(n):
+    if re.search(
+        r"\b(one[- ]?arm|single[- ]?arm|one[- ]?leg|single[- ]?leg|unilat)\b", n
+    ) or _KW["lunge"].search(n):
         tags.append("Unilatéral")
     if _KW["jump"].search(n) or re.search(r"\b(snatch|clean|jerk|plyo|sprint)\b", n):
         tags.append("Explosif")
@@ -192,7 +213,9 @@ class ImportedExercise:
     license_url: Optional[str]
 
 
-def _pick_fr_translation(translations: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+def _pick_fr_translation(
+    translations: List[Dict[str, Any]],
+) -> Optional[Dict[str, Any]]:
     # language 12 = fr; fallback to en (2)
     fr = [t for t in translations if int(t.get("language", 0)) == 12 and t.get("name")]
     if fr:
@@ -201,7 +224,9 @@ def _pick_fr_translation(translations: List[Dict[str, Any]]) -> Optional[Dict[st
     return en[0] if en else None
 
 
-def _map_primary_group(muscle_ids: List[int], id_to_group: Dict[int, str], fallback_category: Optional[str]) -> Optional[str]:
+def _map_primary_group(
+    muscle_ids: List[int], id_to_group: Dict[int, str], fallback_category: Optional[str]
+) -> Optional[str]:
     for mid in muscle_ids:
         grp = id_to_group.get(int(mid))
         if grp:
@@ -310,7 +335,11 @@ def import_from_wger(
                         "wger",
                         src_uuid,
                         src_url,
-                        (license_obj.get("full_name") or license_obj.get("short_name") or None),
+                        (
+                            license_obj.get("full_name")
+                            or license_obj.get("short_name")
+                            or None
+                        ),
                         (license_obj.get("url") or None),
                     ),
                 )

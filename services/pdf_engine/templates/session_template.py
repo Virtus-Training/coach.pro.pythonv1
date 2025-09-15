@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
-from reportlab.lib import colors
 
 from .base_template import BaseTemplate
 
@@ -69,8 +69,8 @@ class SessionTemplate(BaseTemplate):
                     "SETSxREPS": {"icon": "S", "color": "#28A745"},
                     "FOR_TIME": {"icon": "F", "color": "#FFC107"},
                     "LIBRE": {"icon": "L", "color": "#6F42C1"},
-                }
-            }
+                },
+            },
         }
 
     @classmethod
@@ -102,15 +102,15 @@ class SessionTemplate(BaseTemplate):
                                         "rest": {"type": "string"},
                                         "notes": {"type": "string"},
                                     },
-                                    "required": ["name"]
-                                }
-                            }
+                                    "required": ["name"],
+                                },
+                            },
                         },
-                        "required": ["title", "format", "exercises"]
-                    }
-                }
+                        "required": ["title", "format", "exercises"],
+                    },
+                },
             },
-            "required": ["title", "blocks"]
+            "required": ["title", "blocks"],
         }
 
     def _build_content(self) -> List[Any]:
@@ -169,7 +169,7 @@ class SessionTemplate(BaseTemplate):
                 colors_config = {
                     "surface": "#FFF3CD",
                     "border": "#E8E8E8",
-                    "text_primary": "#2C3E50"
+                    "text_primary": "#2C3E50",
                 }
             if isinstance(fonts_config, str):
                 fonts_config = {"body": {"name": "Helvetica", "size": 11}}
@@ -179,16 +179,48 @@ class SessionTemplate(BaseTemplate):
             col_width = 18 * cm / col_count
 
             info_table = Table(info_data, colWidths=[col_width] * col_count)
-            info_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(colors_config.get("surface", "#FFF3CD"))),
-                ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(colors_config.get("border", "#E8E8E8"))),
-                ('PADDING', (0, 0), (-1, -1), 12),
-                ('FONTNAME', (0, 0), (-1, -1), fonts_config.get("body", {}).get("name", "Helvetica")),
-                ('FONTSIZE', (0, 0), (-1, -1), fonts_config.get("body", {}).get("size", 11)),
-                ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor(colors_config.get("text_primary", "#2C3E50"))),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ]))
+            info_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(colors_config.get("surface", "#FFF3CD")),
+                        ),
+                        (
+                            "BORDER",
+                            (0, 0),
+                            (-1, -1),
+                            1,
+                            colors.HexColor(colors_config.get("border", "#E8E8E8")),
+                        ),
+                        ("PADDING", (0, 0), (-1, -1), 12),
+                        (
+                            "FONTNAME",
+                            (0, 0),
+                            (-1, -1),
+                            fonts_config.get("body", {}).get("name", "Helvetica"),
+                        ),
+                        (
+                            "FONTSIZE",
+                            (0, 0),
+                            (-1, -1),
+                            fonts_config.get("body", {}).get("size", 11),
+                        ),
+                        (
+                            "TEXTCOLOR",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(
+                                colors_config.get("text_primary", "#2C3E50")
+                            ),
+                        ),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ]
+                )
+            )
 
             elements.append(info_table)
 
@@ -228,7 +260,9 @@ class SessionTemplate(BaseTemplate):
         # Get format styling
         format_config = blocks_config.get("formats", {}).get(block_format, {})
         format_icon = format_config.get("icon", "L")  # Removed emoji
-        format_color = format_config.get("color", colors_config.get("primary", "#FF6B35"))
+        format_color = format_config.get(
+            "color", colors_config.get("primary", "#FF6B35")
+        )
 
         # Build header content
         header_parts = [f"{format_icon} {block_title}"]
@@ -248,8 +282,8 @@ class SessionTemplate(BaseTemplate):
 
         # Create header paragraph
         header_style = f"""
-        <font name="{fonts_config.get('heading', {}).get('name', 'Helvetica-Bold')}"
-              size="{fonts_config.get('heading', {}).get('size', 16)}"
+        <font name="{fonts_config.get("heading", {}).get("name", "Helvetica-Bold")}"
+              size="{fonts_config.get("heading", {}).get("size", 16)}"
               color="{format_color}">
         <b>{header_text}</b></font>
         """
@@ -260,7 +294,9 @@ class SessionTemplate(BaseTemplate):
 
         return elements
 
-    def _build_exercises_table(self, block: Dict[str, Any], exercises: List[Dict[str, Any]]) -> Any:
+    def _build_exercises_table(
+        self, block: Dict[str, Any], exercises: List[Dict[str, Any]]
+    ) -> Any:
         """Build exercises table"""
         block_format = block.get("format", "LIBRE")
 
@@ -342,7 +378,9 @@ class SessionTemplate(BaseTemplate):
         col_widths = [10 * cm, 4 * cm, 4 * cm]
         return self._create_styled_table(table_data, col_widths)
 
-    def _create_styled_table(self, data: List[List[str]], col_widths: List[float]) -> Any:
+    def _create_styled_table(
+        self, data: List[List[str]], col_widths: List[float]
+    ) -> Any:
         """Create professionally styled table"""
         table = Table(data, colWidths=col_widths, repeatRows=1)
 
@@ -355,42 +393,84 @@ class SessionTemplate(BaseTemplate):
                 "primary": "#FF6B35",
                 "text_primary": "#2C3E50",
                 "surface": "#FFF3CD",
-                "border": "#E8E8E8"
+                "border": "#E8E8E8",
             }
         if isinstance(fonts_config, str):
             fonts_config = {
                 "subheading": {"name": "Helvetica-Bold", "size": 14},
-                "body": {"name": "Helvetica", "size": 11}
+                "body": {"name": "Helvetica", "size": 11},
             }
 
         # Table styling
-        style = TableStyle([
-            # Header styling
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(colors_config.get("primary", "#FF6B35"))),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), fonts_config.get("subheading", {}).get("name", "Helvetica-Bold")),
-            ('FONTSIZE', (0, 0), (-1, 0), fonts_config.get("subheading", {}).get("size", 14)),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
-
-            # Body styling
-            ('FONTNAME', (0, 1), (-1, -1), fonts_config.get("body", {}).get("name", "Helvetica")),
-            ('FONTSIZE', (0, 1), (-1, -1), fonts_config.get("body", {}).get("size", 11)),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(colors_config.get("text_primary", "#2C3E50"))),
-
-            # Alternating row colors
-            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(colors_config.get("surface", "#FFF3CD"))]),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(colors_config.get("border", "#E8E8E8"))),
-            ('TOPPADDING', (0, 0), (-1, -1), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-            ('LEFTPADDING', (0, 0), (-1, -1), 12),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 12),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        style = TableStyle(
+            [
+                # Header styling
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(colors_config.get("primary", "#FF6B35")),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    fonts_config.get("subheading", {}).get("name", "Helvetica-Bold"),
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    fonts_config.get("subheading", {}).get("size", 14),
+                ),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                ("VALIGN", (0, 0), (-1, 0), "MIDDLE"),
+                # Body styling
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    fonts_config.get("body", {}).get("name", "Helvetica"),
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    fonts_config.get("body", {}).get("size", 11),
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(colors_config.get("text_primary", "#2C3E50")),
+                ),
+                # Alternating row colors
+                ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(colors_config.get("surface", "#FFF3CD")),
+                    ],
+                ),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(colors_config.get("border", "#E8E8E8")),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 8),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+                ("LEFTPADDING", (0, 0), (-1, -1), 12),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 12),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
 
         table.setStyle(style)
         return table
@@ -408,7 +488,7 @@ class SessionTemplate(BaseTemplate):
         if isinstance(fonts_config, str):
             fonts_config = {
                 "heading": {"name": "Helvetica-Bold", "size": 16},
-                "body": {"name": "Helvetica", "size": 11}
+                "body": {"name": "Helvetica", "size": 11},
             }
 
         # Notes header
@@ -416,7 +496,7 @@ class SessionTemplate(BaseTemplate):
             f'<font name="{fonts_config.get("heading", {}).get("name", "Helvetica-Bold")}" '
             f'size="{fonts_config.get("heading", {}).get("size", 16)}" '
             f'color="{colors_config.get("text_primary", "#2C3E50")}"><b>N Notes</b></font>',  # Removed emoji
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(notes_header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -426,7 +506,7 @@ class SessionTemplate(BaseTemplate):
             f'<font name="{fonts_config.get("body", {}).get("name", "Helvetica")}" '
             f'size="{fonts_config.get("body", {}).get("size", 11)}" '
             f'color="{colors_config.get("text_primary", "#2C3E50")}">{notes}</font>',
-            self.styles["body"]
+            self.styles["body"],
         )
         elements.append(notes_content)
 

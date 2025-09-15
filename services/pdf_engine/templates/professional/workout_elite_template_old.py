@@ -6,23 +6,22 @@ Target: Coaches haut de gamme, athlètes avancés
 
 from __future__ import annotations
 
-import math
-from typing import Any, Dict, List, Optional
-from reportlab.lib.colors import HexColor
-from reportlab.lib.units import cm, inch
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
-from reportlab.platypus import Paragraph, Spacer, Table, TableStyle, PageBreak
-from reportlab.lib.pagesizes import A4
+from typing import Any, Dict, List
 
-from ..base_template import BaseTemplate
+from reportlab.lib.colors import HexColor
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.units import inch
+from reportlab.platypus import Paragraph, Spacer, Table, TableStyle
+
 from ...components.professional_components import (
-    ProgressBarComponent,
-    WorkoutBlockComponent,
     AnatomyZoneComponent,
-    QRCodeComponent,
+    DataVisualizationComponent,
     PremiumHeaderComponent,
-    DataVisualizationComponent
+    ProgressBarComponent,
+    QRCodeComponent,
+    WorkoutBlockComponent,
 )
+from ..base_template import BaseTemplate
 
 
 class WorkoutEliteTemplate(BaseTemplate):
@@ -50,28 +49,28 @@ class WorkoutEliteTemplate(BaseTemplate):
                 "text_secondary": "#4a5568",
                 "success": "#38a169",
                 "warning": "#d69e2e",
-                "chart": "#3182ce"
+                "chart": "#3182ce",
             },
             "fonts": {
                 "title": {"name": "Helvetica-Bold", "size": 24},
                 "subtitle": {"name": "Helvetica-Bold", "size": 18},
                 "heading": {"name": "Helvetica-Bold", "size": 14},
                 "body": {"name": "Helvetica", "size": 10},
-                "caption": {"name": "Helvetica", "size": 8}
+                "caption": {"name": "Helvetica", "size": 8},
             },
             "layout": {
                 "margins": {"top": 50, "bottom": 50, "left": 40, "right": 40},
                 "header_height": 100,
                 "footer_height": 40,
                 "block_spacing": 25,
-                "grid_columns": 2
+                "grid_columns": 2,
             },
             "components": {
                 "progress_visualization": True,
                 "anatomy_highlighting": True,
                 "performance_metrics": True,
-                "video_integration": True
-            }
+                "video_integration": True,
+            },
         }
 
     def _to_paragraph(self, text: str, style_name: str = "Body") -> Paragraph:
@@ -79,10 +78,7 @@ class WorkoutEliteTemplate(BaseTemplate):
         if not text:
             text = ""
         style = ParagraphStyle(
-            style_name,
-            fontSize=10,
-            textColor=colors.black,
-            alignment=TA_LEFT
+            style_name, fontSize=10, textColor=colors.black, alignment=TA_LEFT
         )
         return Paragraph(str(text), style)
 
@@ -131,7 +127,7 @@ class WorkoutEliteTemplate(BaseTemplate):
             subtitle=subtitle,
             logo_path=self.merged_config.get("logo_path", ""),
             width=500,
-            height=100
+            height=100,
         )
 
     def _build_executive_summary(self) -> Table:
@@ -139,31 +135,75 @@ class WorkoutEliteTemplate(BaseTemplate):
         program_data = self.data.get("program_overview", {})
 
         summary_data = [
-            [self._to_paragraph("RÉSUMÉ EXÉCUTIF", "Header"), self._to_paragraph("", "Body"), self._to_paragraph("", "Body")],
-            [self._to_paragraph("Objectif Principal", "Body"), self._to_paragraph(program_data.get("primary_goal", "Performance"), "Body"), self._to_paragraph("", "Body")],
-            [self._to_paragraph("Durée Programme", "Body"), self._to_paragraph(f"{program_data.get('duration_weeks', 12)} semaines", "Body"), self._to_paragraph("", "Body")],
-            [self._to_paragraph("Fréquence", "Body"), self._to_paragraph(f"{program_data.get('sessions_per_week', 4)} séances/semaine", "Body"), self._to_paragraph("", "Body")],
-            [self._to_paragraph("Niveau Intensité", "Body"), self._to_paragraph(program_data.get("intensity_level", "Élevé"), "Body"), self._to_paragraph("", "Body")],
-            [self._to_paragraph("Focus Anatomique", "Body"), self._to_paragraph(", ".join(program_data.get("target_areas", ["Corps complet"])), "Body"), self._to_paragraph("", "Body")]
+            [
+                self._to_paragraph("RÉSUMÉ EXÉCUTIF", "Header"),
+                self._to_paragraph("", "Body"),
+                self._to_paragraph("", "Body"),
+            ],
+            [
+                self._to_paragraph("Objectif Principal", "Body"),
+                self._to_paragraph(
+                    program_data.get("primary_goal", "Performance"), "Body"
+                ),
+                self._to_paragraph("", "Body"),
+            ],
+            [
+                self._to_paragraph("Durée Programme", "Body"),
+                self._to_paragraph(
+                    f"{program_data.get('duration_weeks', 12)} semaines", "Body"
+                ),
+                self._to_paragraph("", "Body"),
+            ],
+            [
+                self._to_paragraph("Fréquence", "Body"),
+                self._to_paragraph(
+                    f"{program_data.get('sessions_per_week', 4)} séances/semaine",
+                    "Body",
+                ),
+                self._to_paragraph("", "Body"),
+            ],
+            [
+                self._to_paragraph("Niveau Intensité", "Body"),
+                self._to_paragraph(
+                    program_data.get("intensity_level", "Élevé"), "Body"
+                ),
+                self._to_paragraph("", "Body"),
+            ],
+            [
+                self._to_paragraph("Focus Anatomique", "Body"),
+                self._to_paragraph(
+                    ", ".join(program_data.get("target_areas", ["Corps complet"])),
+                    "Body",
+                ),
+                self._to_paragraph("", "Body"),
+            ],
         ]
 
-        table = Table(summary_data, colWidths=[3*inch, 2*inch, 1*inch])
-        table.setStyle(TableStyle([
-            # Header row
-            ('BACKGROUND', (0, 0), (-1, 0), HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), HexColor("#ffffff")),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 14),
-            ('SPAN', (0, 0), (-1, 0)),
-
-            # Content rows
-            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 1), (-1, -1), 10),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
-            ('BACKGROUND', (0, 1), (-1, -1), HexColor("#f8fafc")),
-        ]))
+        table = Table(summary_data, colWidths=[3 * inch, 2 * inch, 1 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    # Header row
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        HexColor(self.merged_config["colors"]["primary"]),
+                    ),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#ffffff")),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 14),
+                    ("SPAN", (0, 0), (-1, 0)),
+                    # Content rows
+                    ("FONTNAME", (0, 1), (0, -1), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 1), (-1, -1), 10),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
+                    ("BACKGROUND", (0, 1), (-1, -1), HexColor("#f8fafc")),
+                ]
+            )
+        )
 
         return table
 
@@ -172,7 +212,6 @@ class WorkoutEliteTemplate(BaseTemplate):
         performance_data = self.data.get("performance_metrics", {})
 
         # Create dashboard with multiple visualizations
-        dashboard_elements = []
 
         # Progress bars for key metrics
         strength_progress = performance_data.get("strength_progress", 0)
@@ -181,12 +220,24 @@ class WorkoutEliteTemplate(BaseTemplate):
 
         progress_bars = [
             ["TABLEAU DE BORD PERFORMANCE"],
-            [ProgressBarComponent(strength_progress, 100, 150, 15, "#e53e3e", "#fc8181")],
+            [
+                ProgressBarComponent(
+                    strength_progress, 100, 150, 15, "#e53e3e", "#fc8181"
+                )
+            ],
             ["Force: {}%".format(strength_progress)],
-            [ProgressBarComponent(endurance_progress, 100, 150, 15, "#3182ce", "#63b3ed")],
+            [
+                ProgressBarComponent(
+                    endurance_progress, 100, 150, 15, "#3182ce", "#63b3ed"
+                )
+            ],
             ["Endurance: {}%".format(endurance_progress)],
-            [ProgressBarComponent(flexibility_progress, 100, 150, 15, "#38a169", "#68d391")],
-            ["Flexibilité: {}%".format(flexibility_progress)]
+            [
+                ProgressBarComponent(
+                    flexibility_progress, 100, 150, 15, "#38a169", "#68d391"
+                )
+            ],
+            ["Flexibilité: {}%".format(flexibility_progress)],
         ]
 
         # Performance trend visualization
@@ -194,42 +245,67 @@ class WorkoutEliteTemplate(BaseTemplate):
             trend_chart = DataVisualizationComponent(
                 performance_data["performance_trend"],
                 chart_type="line",
-                width=250, height=120
+                width=250,
+                height=120,
             )
             progress_bars.append([trend_chart])
 
-        dashboard = Table([[progress_bars]], colWidths=[6*inch])
-        dashboard.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('BACKGROUND', (0, 0), (-1, -1), HexColor("#f7fafc")),
-            ('BOX', (0, 0), (-1, -1), 1, HexColor(self.merged_config["colors"]["primary"])),
-        ]))
+        dashboard = Table([[progress_bars]], colWidths=[6 * inch])
+        dashboard.setStyle(
+            TableStyle(
+                [
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("BACKGROUND", (0, 0), (-1, -1), HexColor("#f7fafc")),
+                    (
+                        "BOX",
+                        (0, 0),
+                        (-1, -1),
+                        1,
+                        HexColor(self.merged_config["colors"]["primary"]),
+                    ),
+                ]
+            )
+        )
 
         return dashboard
 
     def _build_anatomy_section(self) -> Table:
         """Build anatomy zone targeting visualization"""
-        target_muscles = self.data.get("target_muscle_groups", ["chest", "shoulders", "arms"])
+        target_muscles = self.data.get(
+            "target_muscle_groups", ["chest", "shoulders", "arms"]
+        )
 
         anatomy_viz = AnatomyZoneComponent(target_muscles, width=150, height=200)
 
         muscle_focus = [
             ["CIBLAGE ANATOMIQUE", "GROUPES MUSCULAIRES"],
-            [anatomy_viz, "\n".join([f"• {muscle.title()}" for muscle in target_muscles])]
+            [
+                anatomy_viz,
+                "\n".join([f"• {muscle.title()}" for muscle in target_muscles]),
+            ],
         ]
 
-        anatomy_table = Table(muscle_focus, colWidths=[2.5*inch, 3.5*inch])
-        anatomy_table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 0), (-1, 0), HexColor(self.merged_config["colors"]["accent"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), HexColor("#ffffff")),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('GRID', (0, 0), (-1, -1), 1, HexColor("#e2e8f0")),
-            ('BACKGROUND', (0, 1), (-1, -1), HexColor("#ffffff")),
-        ]))
+        anatomy_table = Table(muscle_focus, colWidths=[2.5 * inch, 3.5 * inch])
+        anatomy_table.setStyle(
+            TableStyle(
+                [
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 12),
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        HexColor(self.merged_config["colors"]["accent"]),
+                    ),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#ffffff")),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("GRID", (0, 0), (-1, -1), 1, HexColor("#e2e8f0")),
+                    ("BACKGROUND", (0, 1), (-1, -1), HexColor("#ffffff")),
+                ]
+            )
+        )
 
         return anatomy_table
 
@@ -245,18 +321,14 @@ class WorkoutEliteTemplate(BaseTemplate):
         for i, block in enumerate(blocks):
             # Section header
             block_title = Paragraph(
-                f"<b>BLOC {i+1}: {block.get('title', 'Entraînement').upper()}</b>",
-                self.styles['heading']
+                f"<b>BLOC {i + 1}: {block.get('title', 'Entraînement').upper()}</b>",
+                self.styles["heading"],
             )
             elements.append(block_title)
             elements.append(Spacer(1, 10))
 
             # Elite workout block component
-            elite_block = WorkoutBlockComponent(
-                block,
-                width=500,
-                theme="elite"
-            )
+            elite_block = WorkoutBlockComponent(block, width=500, theme="elite")
             elements.append(elite_block)
             elements.append(Spacer(1, 15))
 
@@ -271,20 +343,45 @@ class WorkoutEliteTemplate(BaseTemplate):
         """Build detailed metrics table for workout block"""
         metrics = [
             ["Métrique", "Valeur", "Objectif"],
-            ["Volume (kg)", metrics_data.get("volume", "N/A"), metrics_data.get("target_volume", "N/A")],
-            ["Intensité (%1RM)", metrics_data.get("intensity", "N/A"), metrics_data.get("target_intensity", "N/A")],
-            ["Densité (ex/min)", metrics_data.get("density", "N/A"), metrics_data.get("target_density", "N/A")],
-            ["RPE moyen", metrics_data.get("rpe", "N/A"), metrics_data.get("target_rpe", "N/A")]
+            [
+                "Volume (kg)",
+                metrics_data.get("volume", "N/A"),
+                metrics_data.get("target_volume", "N/A"),
+            ],
+            [
+                "Intensité (%1RM)",
+                metrics_data.get("intensity", "N/A"),
+                metrics_data.get("target_intensity", "N/A"),
+            ],
+            [
+                "Densité (ex/min)",
+                metrics_data.get("density", "N/A"),
+                metrics_data.get("target_density", "N/A"),
+            ],
+            [
+                "RPE moyen",
+                metrics_data.get("rpe", "N/A"),
+                metrics_data.get("target_rpe", "N/A"),
+            ],
         ]
 
-        metrics_table = Table(metrics, colWidths=[2*inch, 1.5*inch, 1.5*inch])
-        metrics_table.setStyle(TableStyle([
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BACKGROUND', (0, 0), (-1, 0), HexColor(self.merged_config["colors"]["surface"])),
-            ('GRID', (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9)
-        ]))
+        metrics_table = Table(metrics, colWidths=[2 * inch, 1.5 * inch, 1.5 * inch])
+        metrics_table.setStyle(
+            TableStyle(
+                [
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        HexColor(self.merged_config["colors"]["surface"]),
+                    ),
+                    ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTSIZE", (0, 0), (-1, -1), 9),
+                ]
+            )
+        )
 
         return metrics_table
 
@@ -297,28 +394,42 @@ class WorkoutEliteTemplate(BaseTemplate):
             ["____", "RPE Moyen", "________"],
             ["____", "Temps Total", "________"],
             ["____", "Fréquence Cardiaque Max", "________"],
-            ["____", "Notes Subjectives", "________"]
+            ["____", "Notes Subjectives", "________"],
         ]
 
-        tracking_table = Table(tracking_data, colWidths=[1.5*inch, 2*inch, 2*inch])
-        tracking_table.setStyle(TableStyle([
-            # Header
-            ('SPAN', (0, 0), (-1, 0)),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 0), (-1, 0), HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), HexColor("#ffffff")),
-
-            # Subheader
-            ('FONTNAME', (0, 1), (-1, 1), 'Helvetica-Bold'),
-            ('BACKGROUND', (0, 1), (-1, 1), HexColor(self.merged_config["colors"]["surface"])),
-
-            # Content
-            ('GRID', (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('FONTSIZE', (0, 2), (-1, -1), 10)
-        ]))
+        tracking_table = Table(
+            tracking_data, colWidths=[1.5 * inch, 2 * inch, 2 * inch]
+        )
+        tracking_table.setStyle(
+            TableStyle(
+                [
+                    # Header
+                    ("SPAN", (0, 0), (-1, 0)),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 12),
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        HexColor(self.merged_config["colors"]["primary"]),
+                    ),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), HexColor("#ffffff")),
+                    # Subheader
+                    ("FONTNAME", (0, 1), (-1, 1), "Helvetica-Bold"),
+                    (
+                        "BACKGROUND",
+                        (0, 1),
+                        (-1, 1),
+                        HexColor(self.merged_config["colors"]["surface"]),
+                    ),
+                    # Content
+                    ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("FONTSIZE", (0, 2), (-1, -1), 10),
+                ]
+            )
+        )
 
         return tracking_table
 
@@ -336,24 +447,30 @@ class WorkoutEliteTemplate(BaseTemplate):
 
         # Arrange QR codes in 2x2 grid
         if len(qr_elements) >= 2:
-            video_table = Table([
-                ["VIDÉOS DÉMONSTRATION", ""],
-                qr_elements[0] if len(qr_elements) > 0 else ["", ""],
-                qr_elements[1] if len(qr_elements) > 1 else ["", ""]
-            ], colWidths=[2.5*inch, 2.5*inch])
+            video_table = Table(
+                [
+                    ["VIDÉOS DÉMONSTRATION", ""],
+                    qr_elements[0] if len(qr_elements) > 0 else ["", ""],
+                    qr_elements[1] if len(qr_elements) > 1 else ["", ""],
+                ],
+                colWidths=[2.5 * inch, 2.5 * inch],
+            )
         else:
-            video_table = Table([
-                ["VIDÉOS DÉMONSTRATION"],
-                qr_elements[0] if qr_elements else [""]
-            ])
+            video_table = Table(
+                [["VIDÉOS DÉMONSTRATION"], qr_elements[0] if qr_elements else [""]]
+            )
 
-        video_table.setStyle(TableStyle([
-            ('SPAN', (0, 0), (-1, 0)),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('GRID', (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0"))
-        ]))
+        video_table.setStyle(
+            TableStyle(
+                [
+                    ("SPAN", (0, 0), (-1, 0)),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("GRID", (0, 0), (-1, -1), 0.5, HexColor("#e2e8f0")),
+                ]
+            )
+        )
 
         return video_table
 
@@ -365,9 +482,17 @@ class WorkoutEliteTemplate(BaseTemplate):
                 "duration": 10,
                 "format": "PRÉPARATOIRE",
                 "exercises": [
-                    {"name": "Mobilisation articulaire dynamique", "reps": "2x8", "notes": "Amplitude maximale"},
-                    {"name": "Activation glute", "reps": "2x12", "notes": "Contrôle moteur"},
-                    {"name": "Potentialisation", "reps": "3x3", "notes": "70% 1RM"}
+                    {
+                        "name": "Mobilisation articulaire dynamique",
+                        "reps": "2x8",
+                        "notes": "Amplitude maximale",
+                    },
+                    {
+                        "name": "Activation glute",
+                        "reps": "2x12",
+                        "notes": "Contrôle moteur",
+                    },
+                    {"name": "Potentialisation", "reps": "3x3", "notes": "70% 1RM"},
                 ],
                 "performance_data": {
                     "volume": 450,
@@ -375,17 +500,29 @@ class WorkoutEliteTemplate(BaseTemplate):
                     "intensity": 70,
                     "target_intensity": 75,
                     "rpe": 6,
-                    "target_rpe": 6
-                }
+                    "target_rpe": 6,
+                },
             },
             {
                 "title": "Force Maximale",
                 "duration": 35,
                 "format": "PRINCIPAL",
                 "exercises": [
-                    {"name": "Squat Back", "reps": "5x3", "notes": "85-90% 1RM, 3min repos"},
-                    {"name": "Développé Couché", "reps": "5x3", "notes": "85-90% 1RM, 3min repos"},
-                    {"name": "Soulevé de Terre", "reps": "4x2", "notes": "90-95% 1RM, 4min repos"}
+                    {
+                        "name": "Squat Back",
+                        "reps": "5x3",
+                        "notes": "85-90% 1RM, 3min repos",
+                    },
+                    {
+                        "name": "Développé Couché",
+                        "reps": "5x3",
+                        "notes": "85-90% 1RM, 3min repos",
+                    },
+                    {
+                        "name": "Soulevé de Terre",
+                        "reps": "4x2",
+                        "notes": "90-95% 1RM, 4min repos",
+                    },
                 ],
                 "performance_data": {
                     "volume": 2800,
@@ -393,17 +530,29 @@ class WorkoutEliteTemplate(BaseTemplate):
                     "intensity": 88,
                     "target_intensity": 90,
                     "rpe": 9,
-                    "target_rpe": 9
-                }
+                    "target_rpe": 9,
+                },
             },
             {
                 "title": "Récupération Active",
                 "duration": 15,
                 "format": "FINITION",
                 "exercises": [
-                    {"name": "Étirements statiques", "reps": "5x30s", "notes": "Groupes travaillés"},
-                    {"name": "Respiration diaphragmatique", "reps": "3x10", "notes": "Parasympathique"},
-                    {"name": "Foam rolling", "reps": "5min", "notes": "Points de tension"}
+                    {
+                        "name": "Étirements statiques",
+                        "reps": "5x30s",
+                        "notes": "Groupes travaillés",
+                    },
+                    {
+                        "name": "Respiration diaphragmatique",
+                        "reps": "3x10",
+                        "notes": "Parasympathique",
+                    },
+                    {
+                        "name": "Foam rolling",
+                        "reps": "5min",
+                        "notes": "Points de tension",
+                    },
                 ],
                 "performance_data": {
                     "volume": 0,
@@ -411,9 +560,9 @@ class WorkoutEliteTemplate(BaseTemplate):
                     "intensity": 30,
                     "target_intensity": 30,
                     "rpe": 3,
-                    "target_rpe": 3
-                }
-            }
+                    "target_rpe": 3,
+                },
+            },
         ]
 
     @classmethod
@@ -431,8 +580,8 @@ class WorkoutEliteTemplate(BaseTemplate):
                         "duration_weeks": {"type": "integer"},
                         "sessions_per_week": {"type": "integer"},
                         "intensity_level": {"type": "string"},
-                        "target_areas": {"type": "array", "items": {"type": "string"}}
-                    }
+                        "target_areas": {"type": "array", "items": {"type": "string"}},
+                    },
                 },
                 "performance_metrics": {
                     "type": "object",
@@ -440,8 +589,8 @@ class WorkoutEliteTemplate(BaseTemplate):
                         "strength_progress": {"type": "number"},
                         "endurance_progress": {"type": "number"},
                         "flexibility_progress": {"type": "number"},
-                        "performance_trend": {"type": "object"}
-                    }
+                        "performance_trend": {"type": "object"},
+                    },
                 },
                 "target_muscle_groups": {"type": "array", "items": {"type": "string"}},
                 "workout_blocks": {
@@ -453,9 +602,9 @@ class WorkoutEliteTemplate(BaseTemplate):
                             "duration": {"type": "integer"},
                             "format": {"type": "string"},
                             "exercises": {"type": "array"},
-                            "performance_data": {"type": "object"}
-                        }
-                    }
+                            "performance_data": {"type": "object"},
+                        },
+                    },
                 },
                 "video_links": {
                     "type": "array",
@@ -463,10 +612,10 @@ class WorkoutEliteTemplate(BaseTemplate):
                         "type": "object",
                         "properties": {
                             "title": {"type": "string"},
-                            "url": {"type": "string"}
-                        }
-                    }
-                }
+                            "url": {"type": "string"},
+                        },
+                    },
+                },
             },
-            "required": ["title", "client_name"]
+            "required": ["title", "client_name"],
         }

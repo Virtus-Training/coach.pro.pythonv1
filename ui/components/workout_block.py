@@ -48,7 +48,7 @@ class WorkoutBlock(ctk.CTkFrame):
             header_content,
             text=f"{icon} {title}",
             font=ctk.CTkFont(size=14, weight="bold"),
-            text_color="white"
+            text_color="white",
         )
         title_label.pack(side="left")
 
@@ -58,7 +58,7 @@ class WorkoutBlock(ctk.CTkFrame):
                 header_content,
                 text=duration,
                 text_color="white",
-                font=ctk.CTkFont(size=12, weight="bold")
+                font=ctk.CTkFont(size=12, weight="bold"),
             )
             duration_label.pack(side="right")
 
@@ -89,7 +89,9 @@ class WorkoutBlock(ctk.CTkFrame):
         self._exercise_count += 1
 
         # Wrapper avec alternance de couleurs
-        bg_color = ("gray92", "gray22") if self._exercise_count % 2 == 0 else "transparent"
+        bg_color = (
+            ("gray92", "gray22") if self._exercise_count % 2 == 0 else "transparent"
+        )
         wrapper = ctk.CTkFrame(self._ex_container, fg_color=bg_color, corner_radius=6)
         wrapper.pack(fill="x", pady=2, padx=2)
 
@@ -103,12 +105,18 @@ class WorkoutBlock(ctk.CTkFrame):
 
         # Icône d'exercice
         exercise_icons = {
-            "poitrine": "💪", "chest": "💪",
-            "dos": "🧗", "back": "🧗",
-            "jambes": "🦵", "legs": "🦵",
-            "epaules": "🏋️", "shoulders": "🏋️",
-            "bras": "💪", "arms": "💪",
-            "core": "🔥", "abdos": "🔥"
+            "poitrine": "💪",
+            "chest": "💪",
+            "dos": "🧗",
+            "back": "🧗",
+            "jambes": "🦵",
+            "legs": "🦵",
+            "epaules": "🏋️",
+            "shoulders": "🏋️",
+            "bras": "💪",
+            "arms": "💪",
+            "core": "🔥",
+            "abdos": "🔥",
         }
         muscle_lower = muscle.lower() if muscle else ""
         icon = next((v for k, v in exercise_icons.items() if k in muscle_lower), "🎯")
@@ -121,7 +129,7 @@ class WorkoutBlock(ctk.CTkFrame):
             name_frame,
             text=f"{icon} {nom}",
             font=ctk.CTkFont(size=13, weight="bold"),
-            anchor="w"
+            anchor="w",
         ).pack(side="left")
 
         # Prescriptions (reps + repos) dans des badges
@@ -135,9 +143,10 @@ class WorkoutBlock(ctk.CTkFrame):
                     text=reps,
                     fg_color="#4A90E2",
                     corner_radius=8,
-                    padx=6, pady=2,
+                    padx=6,
+                    pady=2,
                     font=ctk.CTkFont(size=10, weight="bold"),
-                    text_color="white"
+                    text_color="white",
                 )
                 reps_badge.pack(side="left", padx=(0, 4))
 
@@ -147,9 +156,10 @@ class WorkoutBlock(ctk.CTkFrame):
                     text=f"{repos_s}s",
                     fg_color="#E74C3C",
                     corner_radius=8,
-                    padx=6, pady=2,
+                    padx=6,
+                    pady=2,
                     font=ctk.CTkFont(size=10, weight="bold"),
-                    text_color="white"
+                    text_color="white",
                 )
                 repos_badge.pack(side="left")
 
@@ -170,7 +180,7 @@ class WorkoutBlock(ctk.CTkFrame):
                 text=info_text,
                 font=ctk.CTkFont(size=11),
                 text_color=("gray50", "gray60"),
-                anchor="w"
+                anchor="w",
             ).pack(side="left")
 
 

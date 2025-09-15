@@ -31,7 +31,9 @@ class PdfTemplateService:
         # Ensure at least one default session template exists
         tpl = self.repo.get_default("session")
         if not tpl:
-            self.repo.create("Par défaut (Séance)", "session", DEFAULT_SESSION_STYLE, is_default=True)
+            self.repo.create(
+                "Par défaut (Séance)", "session", DEFAULT_SESSION_STYLE, is_default=True
+            )
 
     def list_session_templates(self) -> list[dict]:
         return [
@@ -52,7 +54,13 @@ class PdfTemplateService:
         tpl = self.repo.get_default("session")
         return (tpl.style if tpl else None) or DEFAULT_SESSION_STYLE
 
-    def save_session_template(self, name: str, style: Dict[str, Any], template_id: Optional[int] = None, set_default: bool = False) -> int:
+    def save_session_template(
+        self,
+        name: str,
+        style: Dict[str, Any],
+        template_id: Optional[int] = None,
+        set_default: bool = False,
+    ) -> int:
         if template_id:
             self.repo.update(template_id, style, is_default=set_default)
             if set_default:
@@ -65,6 +73,7 @@ class PdfTemplateService:
 
     def delete_template(self, template_id: int) -> None:
         self.repo.delete(template_id)
+
 
 # --- Extensions for multiple template families ------------------------------
 
@@ -96,13 +105,30 @@ def _default_for(t: str) -> Dict[str, Any]:
 class PdfTemplateService(PdfTemplateService):  # type: ignore[misc]
     def ensure_all_defaults_exist(self) -> None:
         if not self.repo.get_default("session"):
-            self.repo.create("Par défaut (Séance)", "session", DEFAULT_SESSION_STYLE, is_default=True)
+            self.repo.create(
+                "Par défaut (Séance)", "session", DEFAULT_SESSION_STYLE, is_default=True
+            )
         if not self.repo.get_default("nutrition"):
-            self.repo.create("Par défaut (Fiche nutrition)", "nutrition", DEFAULT_NUTRITION_STYLE, is_default=True)
+            self.repo.create(
+                "Par défaut (Fiche nutrition)",
+                "nutrition",
+                DEFAULT_NUTRITION_STYLE,
+                is_default=True,
+            )
         if not self.repo.get_default("meal_plan"):
-            self.repo.create("Par défaut (Plan alimentaire)", "meal_plan", DEFAULT_MEALPLAN_STYLE, is_default=True)
+            self.repo.create(
+                "Par défaut (Plan alimentaire)",
+                "meal_plan",
+                DEFAULT_MEALPLAN_STYLE,
+                is_default=True,
+            )
         if not self.repo.get_default("program"):
-            self.repo.create("Par défaut (Programme)", "program", DEFAULT_PROGRAM_STYLE, is_default=True)
+            self.repo.create(
+                "Par défaut (Programme)",
+                "program",
+                DEFAULT_PROGRAM_STYLE,
+                is_default=True,
+            )
 
     def list_templates(self, t: str) -> List[dict]:
         return [
@@ -140,4 +166,3 @@ class PdfTemplateService(PdfTemplateService):  # type: ignore[misc]
         if set_default:
             self.repo.set_default(tpl_id, t)
         return tpl_id
-

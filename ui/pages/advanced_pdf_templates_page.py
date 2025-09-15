@@ -7,11 +7,10 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 import tkinter as tk
 from pathlib import Path
-from tkinter import filedialog, messagebox, ttk
-from typing import Any, Dict, List, Optional
+from tkinter import filedialog, messagebox
+from typing import Any, Dict
 
 import customtkinter as ctk
 
@@ -129,7 +128,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         type_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=10)
         type_frame.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(type_frame, text="Type de document:").grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(type_frame, text="Type de document:").grid(
+            row=0, column=0, sticky="w"
+        )
 
         self.template_type_var = ctk.StringVar(value="session")
         self.template_type_combo = ctk.CTkComboBox(
@@ -139,7 +140,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             command=self._on_template_type_change,
             width=200,
         )
-        self.template_type_combo.grid(row=1, column=0, sticky="ew", columnspan=2, pady=5)
+        self.template_type_combo.grid(
+            row=1, column=0, sticky="ew", columnspan=2, pady=5
+        )
 
         # Template variant selection
         variant_frame = ctk.CTkFrame(template_panel, fg_color="transparent")
@@ -156,7 +159,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             command=self._on_variant_change,
             width=200,
         )
-        self.template_variant_combo.grid(row=1, column=0, sticky="ew", columnspan=2, pady=5)
+        self.template_variant_combo.grid(
+            row=1, column=0, sticky="ew", columnspan=2, pady=5
+        )
 
         # Theme selection
         theme_frame = ctk.CTkFrame(template_panel, fg_color="transparent")
@@ -190,7 +195,7 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             text="Sélectionnez un template pour voir les informations",
             font=ctk.CTkFont(family="monospace", size=10),
             justify="left",
-            anchor="nw"
+            anchor="nw",
         )
         self.info_text.pack(fill="both", expand=True, padx=10, pady=10)
 
@@ -209,7 +214,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         header_label.grid(row=0, column=0, sticky="ew", padx=20, pady=(20, 10))
 
         # Scrollable frame for style options
-        self.style_scroll = ctk.CTkScrollableFrame(style_panel, label_text="Options de Style")
+        self.style_scroll = ctk.CTkScrollableFrame(
+            style_panel, label_text="Options de Style"
+        )
         self.style_scroll.grid(row=1, column=0, sticky="nsew", padx=20, pady=(0, 20))
         style_panel.grid_rowconfigure(1, weight=1)
 
@@ -238,13 +245,13 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         color_frame.pack(fill="x", pady=5)
         color_frame.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(color_frame, text="Couleur principale:").grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(color_frame, text="Couleur principale:").grid(
+            row=0, column=0, sticky="w"
+        )
 
         self.primary_color_var = ctk.StringVar(value="#2563EB")
         self.primary_color_entry = ctk.CTkEntry(
-            color_frame,
-            textvariable=self.primary_color_var,
-            placeholder_text="#RRGGBB"
+            color_frame, textvariable=self.primary_color_var, placeholder_text="#RRGGBB"
         )
         self.primary_color_entry.grid(row=0, column=1, sticky="ew", padx=(10, 0))
         self.primary_color_entry.bind("<KeyRelease>", self._on_style_change)
@@ -254,13 +261,15 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         color_frame2.pack(fill="x", pady=5)
         color_frame2.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(color_frame2, text="Couleur secondaire:").grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(color_frame2, text="Couleur secondaire:").grid(
+            row=0, column=0, sticky="w"
+        )
 
         self.secondary_color_var = ctk.StringVar(value="#7C3AED")
         self.secondary_color_entry = ctk.CTkEntry(
             color_frame2,
             textvariable=self.secondary_color_var,
-            placeholder_text="#RRGGBB"
+            placeholder_text="#RRGGBB",
         )
         self.secondary_color_entry.grid(row=0, column=1, sticky="ew", padx=(10, 0))
         self.secondary_color_entry.bind("<KeyRelease>", self._on_style_change)
@@ -280,7 +289,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         font_frame.pack(fill="x", pady=5)
         font_frame.grid_columnconfigure(1, weight=1)
 
-        ctk.CTkLabel(font_frame, text="Famille de police:").grid(row=0, column=0, sticky="w")
+        ctk.CTkLabel(font_frame, text="Famille de police:").grid(
+            row=0, column=0, sticky="w"
+        )
 
         self.font_family_var = ctk.StringVar(value="modern")
         self.font_family_combo = ctk.CTkComboBox(
@@ -494,7 +505,7 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             text="Aucune statistique disponible",
             font=ctk.CTkFont(family="monospace", size=9),
             justify="left",
-            anchor="nw"
+            anchor="nw",
         )
         self.stats_text.pack(fill="both", expand=True)
 
@@ -533,7 +544,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
     def _update_variants(self):
         """Update available variants for current template type"""
         try:
-            template_info = self.controller.get_template_info(self.current_template_type)
+            template_info = self.controller.get_template_info(
+                self.current_template_type
+            )
             variants = template_info.get("variants", ["default"])
             self.template_variant_combo.configure(values=variants)
             if variants:
@@ -545,7 +558,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
     def _update_template_info(self):
         """Update template information display"""
         try:
-            template_info = self.controller.get_template_info(self.current_template_type)
+            template_info = self.controller.get_template_info(
+                self.current_template_type
+            )
             info_text = json.dumps(template_info, indent=2, ensure_ascii=False)
             self.info_text.configure(text=info_text)
         except Exception as e:
@@ -589,15 +604,27 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
         template_type = self.template_type_var.get()
         if template_type == "session":
             self.current_config["blocks"] = {
-                "show_icons": getattr(self, "show_icons_var", ctk.BooleanVar(True)).get(),
-                "show_duration": getattr(self, "show_duration_var", ctk.BooleanVar(True)).get(),
+                "show_icons": getattr(
+                    self, "show_icons_var", ctk.BooleanVar(True)
+                ).get(),
+                "show_duration": getattr(
+                    self, "show_duration_var", ctk.BooleanVar(True)
+                ).get(),
             }
         elif template_type == "nutrition":
-            self.current_config["show_macro_chart"] = getattr(self, "show_macro_chart_var", ctk.BooleanVar(True)).get()
-            self.current_config["show_recommendations"] = getattr(self, "show_recommendations_var", ctk.BooleanVar(True)).get()
+            self.current_config["show_macro_chart"] = getattr(
+                self, "show_macro_chart_var", ctk.BooleanVar(True)
+            ).get()
+            self.current_config["show_recommendations"] = getattr(
+                self, "show_recommendations_var", ctk.BooleanVar(True)
+            ).get()
         elif template_type == "program":
-            self.current_config["layout"] = getattr(self, "program_layout_var", ctk.StringVar("weekly")).get()
-            self.current_config["show_progression"] = getattr(self, "show_progression_var", ctk.BooleanVar(True)).get()
+            self.current_config["layout"] = getattr(
+                self, "program_layout_var", ctk.StringVar("weekly")
+            ).get()
+            self.current_config["show_progression"] = getattr(
+                self, "show_progression_var", ctk.BooleanVar(True)
+            ).get()
 
     def _generate_preview(self):
         """Generate PDF preview"""
@@ -608,9 +635,7 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             self._update_current_config()
 
             result = self.controller.generate_preview(
-                self.current_template_type,
-                self.current_config,
-                use_sample_data=True
+                self.current_template_type, self.current_config, use_sample_data=True
             )
 
             if result.get("success"):
@@ -619,21 +644,17 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
 
                 self.preview_status.configure(
                     text=f"✅ Aperçu généré ({file_size // 1024} KB)",
-                    text_color="green"
+                    text_color="green",
                 )
                 self.open_preview_btn.configure(state="normal")
             else:
                 error = result.get("error", "Erreur inconnue")
                 self.preview_status.configure(
-                    text=f"❌ Erreur: {error}",
-                    text_color="red"
+                    text=f"❌ Erreur: {error}", text_color="red"
                 )
 
         except Exception as e:
-            self.preview_status.configure(
-                text=f"❌ Erreur: {str(e)}",
-                text_color="red"
-            )
+            self.preview_status.configure(text=f"❌ Erreur: {str(e)}", text_color="red")
         finally:
             self.generate_preview_btn.configure(state="normal")
 
@@ -658,37 +679,39 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
                     "template_type": self.current_template_type,
                     "name": f"Template {self.current_template_type.title()}",
                     "version": "1.0",
-                    "created_with": "CoachPro Advanced PDF Editor"
+                    "created_with": "CoachPro Advanced PDF Editor",
                 },
-                "config": self.current_config
+                "config": self.current_config,
             }
 
             # Ask for save location
             file_path = filedialog.asksaveasfilename(
                 title="Exporter Template",
                 filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
-                defaultextension=".json"
+                defaultextension=".json",
             )
 
             if file_path:
-                with open(file_path, 'w', encoding='utf-8') as f:
+                with open(file_path, "w", encoding="utf-8") as f:
                     json.dump(export_data, f, indent=2, ensure_ascii=False)
 
                 messagebox.showinfo("Succès", f"Template exporté vers:\n{file_path}")
 
         except Exception as e:
-            messagebox.showerror("Erreur", f"Impossible d'exporter le template:\n{str(e)}")
+            messagebox.showerror(
+                "Erreur", f"Impossible d'exporter le template:\n{str(e)}"
+            )
 
     def _import_template(self):
         """Import template configuration"""
         try:
             file_path = filedialog.askopenfilename(
                 title="Importer Template",
-                filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             )
 
             if file_path:
-                with open(file_path, 'r', encoding='utf-8') as f:
+                with open(file_path, "r", encoding="utf-8") as f:
                     import_data = json.load(f)
 
                 # Extract configuration
@@ -710,7 +733,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
                 messagebox.showinfo("Succès", "Template importé avec succès!")
 
         except Exception as e:
-            messagebox.showerror("Erreur", f"Impossible d'importer le template:\n{str(e)}")
+            messagebox.showerror(
+                "Erreur", f"Impossible d'importer le template:\n{str(e)}"
+            )
 
     def _load_config_to_ui(self, config: Dict[str, Any]):
         """Load configuration values to UI controls"""
@@ -750,19 +775,30 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
                     self.show_duration_var.set(blocks["show_duration"])
 
             elif template_type == "nutrition":
-                if hasattr(self, "show_macro_chart_var") and "show_macro_chart" in config:
+                if (
+                    hasattr(self, "show_macro_chart_var")
+                    and "show_macro_chart" in config
+                ):
                     self.show_macro_chart_var.set(config["show_macro_chart"])
-                if hasattr(self, "show_recommendations_var") and "show_recommendations" in config:
+                if (
+                    hasattr(self, "show_recommendations_var")
+                    and "show_recommendations" in config
+                ):
                     self.show_recommendations_var.set(config["show_recommendations"])
 
             elif template_type == "program":
                 if hasattr(self, "program_layout_var") and "layout" in config:
                     self.program_layout_var.set(config["layout"])
-                if hasattr(self, "show_progression_var") and "show_progression" in config:
+                if (
+                    hasattr(self, "show_progression_var")
+                    and "show_progression" in config
+                ):
                     self.show_progression_var.set(config["show_progression"])
 
         except Exception as e:
-            messagebox.showerror("Erreur", f"Erreur lors du chargement de la configuration:\n{str(e)}")
+            messagebox.showerror(
+                "Erreur", f"Erreur lors du chargement de la configuration:\n{str(e)}"
+            )
 
     def _save_template(self):
         """Save current template to database"""
@@ -771,8 +807,7 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
 
             # Ask for template name
             dialog = ctk.CTkInputDialog(
-                text="Nom du template:",
-                title="Sauvegarder Template"
+                text="Nom du template:", title="Sauvegarder Template"
             )
             template_name = dialog.get_input()
 
@@ -784,14 +819,18 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
                     self.current_template_type,
                     template_name,
                     style_json,
-                    set_default=False
+                    set_default=False,
                 )
 
                 if result.get("success"):
-                    messagebox.showinfo("Succès", f"Template '{template_name}' sauvegardé!")
+                    messagebox.showinfo(
+                        "Succès", f"Template '{template_name}' sauvegardé!"
+                    )
                 else:
                     error = result.get("error", "Erreur inconnue")
-                    messagebox.showerror("Erreur", f"Impossible de sauvegarder:\n{error}")
+                    messagebox.showerror(
+                        "Erreur", f"Impossible de sauvegarder:\n{error}"
+                    )
 
         except Exception as e:
             messagebox.showerror("Erreur", f"Erreur lors de la sauvegarde:\n{str(e)}")
@@ -799,7 +838,9 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
     def _load_template(self):
         """Load template from database"""
         try:
-            templates = self.controller.list_legacy_templates(self.current_template_type)
+            templates = self.controller.list_legacy_templates(
+                self.current_template_type
+            )
 
             if not templates:
                 messagebox.showinfo("Information", "Aucun template sauvegardé trouvé.")
@@ -816,14 +857,16 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
             ctk.CTkLabel(
                 dialog_window,
                 text="Sélectionner un template:",
-                font=ctk.CTkFont(size=14, weight="bold")
+                font=ctk.CTkFont(size=14, weight="bold"),
             ).pack(pady=20)
 
             template_listbox = tk.Listbox(dialog_window, height=10)
             template_listbox.pack(fill="both", expand=True, padx=20, pady=10)
 
             for template in templates:
-                template_listbox.insert("end", f"{template['name']} (ID: {template['id']})")
+                template_listbox.insert(
+                    "end", f"{template['name']} (ID: {template['id']})"
+                )
 
             # Buttons
             button_frame = ctk.CTkFrame(dialog_window, fg_color="transparent")
@@ -840,18 +883,16 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
                     self._load_config_to_ui(style)
 
                     dialog_window.destroy()
-                    messagebox.showinfo("Succès", f"Template '{template['name']}' chargé!")
+                    messagebox.showinfo(
+                        "Succès", f"Template '{template['name']}' chargé!"
+                    )
+
+            ctk.CTkButton(button_frame, text="Charger", command=load_selected).pack(
+                side="right", padx=5
+            )
 
             ctk.CTkButton(
-                button_frame,
-                text="Charger",
-                command=load_selected
-            ).pack(side="right", padx=5)
-
-            ctk.CTkButton(
-                button_frame,
-                text="Annuler",
-                command=dialog_window.destroy
+                button_frame, text="Annuler", command=dialog_window.destroy
             ).pack(side="right")
 
         except Exception as e:
@@ -864,18 +905,18 @@ class AdvancedPdfTemplatesPage(ctk.CTkFrame):
 
             stats_text = f"""📊 Statistiques de performance:
 
-Documents générés: {stats.get('total_documents', 0)}
-Temps total: {stats.get('total_time', 0):.2f}s
-Temps moyen: {stats.get('average_time', 0):.2f}s
+Documents générés: {stats.get("total_documents", 0)}
+Temps total: {stats.get("total_time", 0):.2f}s
+Temps moyen: {stats.get("average_time", 0):.2f}s
 
 Cache:
 """
-            cache_stats = stats.get('cache_stats')
+            cache_stats = stats.get("cache_stats")
             if cache_stats:
-                stats_text += f"""  Hits: {cache_stats.get('hits', 0)}
-  Misses: {cache_stats.get('misses', 0)}
-  Taux: {cache_stats.get('hit_rate', 0):.1%}
-  Taille: {cache_stats.get('total_size_mb', 0):.1f} MB"""
+                stats_text += f"""  Hits: {cache_stats.get("hits", 0)}
+  Misses: {cache_stats.get("misses", 0)}
+  Taux: {cache_stats.get("hit_rate", 0):.1%}
+  Taille: {cache_stats.get("total_size_mb", 0):.1f} MB"""
             else:
                 stats_text += "  Cache désactivé"
 

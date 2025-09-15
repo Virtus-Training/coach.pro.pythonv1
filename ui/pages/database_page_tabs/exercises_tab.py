@@ -284,13 +284,26 @@ class ExerciseForm(ctk.CTkToplevel):
         # Footer
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
         btn_row.grid(row=1, column=0, columnspan=2, sticky="ew", pady=(8, 0))
-        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="right")
-        self.btn_submit = ctk.CTkButton(btn_row, text="Valider", command=self._submit, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        ctk.CTkButton(
+            btn_row,
+            text="Annuler",
+            command=self.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right")
+        self.btn_submit = ctk.CTkButton(
+            btn_row,
+            text="Valider",
+            command=self._submit,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_submit.pack(side="right", padx=(0, 8))
         self.btn_submit_new = ctk.CTkButton(
             btn_row,
             text="Valider + Nouveau",
-            command=lambda: self._submit(reset_after=True, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])),
+            command=lambda: self._submit(
+                reset_after=True,
+                font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+            ),
         )
         self.btn_submit_new.pack(side="right", padx=(0, 8))
 
@@ -1017,10 +1030,18 @@ class ExercisesTab(ctk.CTkFrame):
             except Exception:
                 pass
 
-        ctk.CTkButton(row, text="Annuler", command=confirm.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
-            side="left", padx=8
-        )
-        ctk.CTkButton(row, text="Nettoyer", command=do_clean, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left")
+        ctk.CTkButton(
+            row,
+            text="Annuler",
+            command=confirm.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left", padx=8)
+        ctk.CTkButton(
+            row,
+            text="Nettoyer",
+            command=do_clean,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left")
         try:
             confirm.transient(self)
         except Exception:
@@ -1035,7 +1056,8 @@ class ExercisesTab(ctk.CTkFrame):
         except Exception:
             pass
         try:
-            confirm.lift(); confirm.focus_force()
+            confirm.lift()
+            confirm.focus_force()
         except Exception:
             pass
 
@@ -1087,9 +1109,12 @@ class ExercisesTab(ctk.CTkFrame):
             confirm.destroy()
             self._load()
 
-        ctk.CTkButton(row, text="Annuler", command=confirm.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
-            side="left", padx=8
-        )
+        ctk.CTkButton(
+            row,
+            text="Annuler",
+            command=confirm.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left", padx=8)
         ctk.CTkButton(
             row,
             text="Supprimer",
@@ -1112,14 +1137,17 @@ class ExercisesTab(ctk.CTkFrame):
         except Exception:
             pass
         try:
-            confirm.lift(); confirm.focus_force()
+            confirm.lift()
+            confirm.focus_force()
         except Exception:
             pass
 
 
 class _WgerImportDialog(ctk.CTkToplevel):
     def __init__(self, master, on_done=None) -> None:
-        super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])  # fallback if not themed
+        super().__init__(
+            master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"]
+        )  # fallback if not themed
         self.title("Importer depuis wger")
         self.geometry("420x260")
         self.resizable(False, False)
@@ -1170,9 +1198,20 @@ class _WgerImportDialog(ctk.CTkToplevel):
         # Actions
         btn_row = ctk.CTkFrame(root, fg_color="transparent")
         btn_row.pack(fill="x", pady=(16, 0))
-        self.btn_cancel = ctk.CTkButton(btn_row, text="Fermer", command=self._close, state="disabled", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        self.btn_cancel = ctk.CTkButton(
+            btn_row,
+            text="Fermer",
+            command=self._close,
+            state="disabled",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_cancel.pack(side="right")
-        self.btn_start = ctk.CTkButton(btn_row, text="Démarrer", command=self._start, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]))
+        self.btn_start = ctk.CTkButton(
+            btn_row,
+            text="Démarrer",
+            command=self._start,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        )
         self.btn_start.pack(side="right", padx=(0, 8))
         # ensure dialog appears on top
         try:
@@ -1189,7 +1228,8 @@ class _WgerImportDialog(ctk.CTkToplevel):
         except Exception:
             pass
         try:
-            self.lift(); self.focus_force()
+            self.lift()
+            self.focus_force()
         except Exception:
             pass
 
@@ -1198,7 +1238,9 @@ class _WgerImportDialog(ctk.CTkToplevel):
             return
         # Parse max
         try:
-            max_str = self.in_max.get_value() if hasattr(self.in_max, "get_value") else "100"
+            max_str = (
+                self.in_max.get_value() if hasattr(self.in_max, "get_value") else "100"
+            )
             max_n = int(str(max_str).strip() or 100)
             if max_n <= 0:
                 max_n = 100
@@ -1230,20 +1272,26 @@ class _WgerImportDialog(ctk.CTkToplevel):
                 self.lbl_status.configure(
                     text=f"Traités {seen}/{total or max_n}  •  Insérés {imported}  •  Ignorés {skipped}"
                 )
+
             try:
                 self.after(0, _ui)
             except Exception:
                 pass
 
         try:
-            imported, skipped = import_from_wger(max_items=max_n, on_progress=on_progress)
+            imported, skipped = import_from_wger(
+                max_items=max_n, on_progress=on_progress
+            )
+
             def _done():
                 try:
                     if self._progress_widget is not None:
                         self._progress_widget.set(1.0)
                 except Exception:
                     pass
-                self.lbl_status.configure(text=f"Terminé • {imported} insérés, {skipped} ignorés")
+                self.lbl_status.configure(
+                    text=f"Terminé • {imported} insérés, {skipped} ignorés"
+                )
                 self.btn_cancel.configure(state="normal")
                 self._running = False
                 if callable(self._on_done):
@@ -1251,13 +1299,16 @@ class _WgerImportDialog(ctk.CTkToplevel):
                         self._on_done()
                     except Exception:
                         pass
+
             self.after(0, _done)
         except Exception:
             err = traceback.format_exc(limit=1)
+
             def _fail():
                 self.lbl_status.configure(text=f"Échec de l'import • {err}")
                 self.btn_cancel.configure(state="normal")
                 self._running = False
+
             try:
                 self.after(0, _fail)
             except Exception:
@@ -1269,7 +1320,3 @@ class _WgerImportDialog(ctk.CTkToplevel):
                 self.destroy()
             except Exception:
                 pass
-
-
-
-

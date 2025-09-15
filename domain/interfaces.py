@@ -8,7 +8,7 @@ These interfaces are implemented in the infrastructure layer.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, List, Optional, TypeVar, Union
+from typing import Any, Generic, List, Optional, TypeVar
 
 from core.events import Event
 
@@ -155,7 +155,9 @@ class AndSpecification(ISpecification[T]):
 
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if candidate satisfies both specifications."""
-        return self.left.is_satisfied_by(candidate) and self.right.is_satisfied_by(candidate)
+        return self.left.is_satisfied_by(candidate) and self.right.is_satisfied_by(
+            candidate
+        )
 
 
 class OrSpecification(ISpecification[T]):
@@ -167,7 +169,9 @@ class OrSpecification(ISpecification[T]):
 
     def is_satisfied_by(self, candidate: T) -> bool:
         """Check if candidate satisfies either specification."""
-        return self.left.is_satisfied_by(candidate) or self.right.is_satisfied_by(candidate)
+        return self.left.is_satisfied_by(candidate) or self.right.is_satisfied_by(
+            candidate
+        )
 
 
 class NotSpecification(ISpecification[T]):
@@ -206,7 +210,9 @@ class IClientRepository(IRepository[Any, int]):
         pass
 
     @abstractmethod
-    async def get_clients_with_exclusions(self, client_id: int) -> tuple[Any, List[int]]:
+    async def get_clients_with_exclusions(
+        self, client_id: int
+    ) -> tuple[Any, List[int]]:
         """Get client with their exercise exclusions."""
         pass
 

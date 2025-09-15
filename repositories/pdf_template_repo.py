@@ -84,11 +84,18 @@ class PdfTemplateRepository:
             updated_at=r["updated_at"],
         )
 
-    def create(self, name: str, t: str, style: Dict[str, Any], is_default: bool = False) -> int:
+    def create(
+        self, name: str, t: str, style: Dict[str, Any], is_default: bool = False
+    ) -> int:
         with db_manager.get_connection() as conn:
             cur = conn.execute(
                 "INSERT INTO pdf_templates(name, type, style_json, is_default) VALUES (?,?,?,?)",
-                (name, t, json.dumps(style, ensure_ascii=False), 1 if is_default else 0),
+                (
+                    name,
+                    t,
+                    json.dumps(style, ensure_ascii=False),
+                    1 if is_default else 0,
+                ),
             )
             if is_default:
                 conn.execute(
@@ -98,24 +105,30 @@ class PdfTemplateRepository:
             conn.commit()
             return int(cur.lastrowid)
 
-    def update(self, template_id: int, style: Dict[str, Any], is_default: Optional[bool] = None) -> None:
+    def update(
+        self, template_id: int, style: Dict[str, Any], is_default: Optional[bool] = None
+    ) -> None:
         with db_manager.get_connection() as conn:
             conn.execute(
                 "UPDATE pdf_templates SET style_json = json(?), updated_at = CURRENT_TIMESTAMP WHERE id = ?",
                 (json.dumps(style, ensure_ascii=False), template_id),
             )
             if is_default is not None:
-                conn.execute("UPDATE pdf_templates SET is_default = ? WHERE id = ?", (1 if is_default else 0, template_id))
+                conn.execute(
+                    "UPDATE pdf_templates SET is_default = ? WHERE id = ?",
+                    (1 if is_default else 0, template_id),
+                )
             conn.commit()
 
     def set_default(self, template_id: int, t: str) -> None:
         with db_manager.get_connection() as conn:
             conn.execute("UPDATE pdf_templates SET is_default = 0 WHERE type = ?", (t,))
-            conn.execute("UPDATE pdf_templates SET is_default = 1 WHERE id = ?", (template_id,))
+            conn.execute(
+                "UPDATE pdf_templates SET is_default = 1 WHERE id = ?", (template_id,)
+            )
             conn.commit()
 
     def delete(self, template_id: int) -> None:
         with db_manager.get_connection() as conn:
             conn.execute("DELETE FROM pdf_templates WHERE id = ?", (template_id,))
             conn.commit()
-

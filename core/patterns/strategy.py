@@ -9,7 +9,6 @@ and progress tracking strategies.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from domain.entities import Client, Exercise, WorkoutSession
@@ -58,15 +57,18 @@ class BeginnerWorkoutStrategy(WorkoutGenerationStrategy):
         """Generate beginner-friendly workout."""
         # Filter exercises suitable for beginners
         beginner_exercises = [
-            ex for ex in available_exercises
-            if (ex.metadata and ex.metadata.difficulty_level in ["beginner", "intermediate"])
+            ex
+            for ex in available_exercises
+            if (
+                ex.metadata
+                and ex.metadata.difficulty_level in ["beginner", "intermediate"]
+            )
             and client.can_perform_exercise(ex.id)
         ]
 
         # Focus on compound movements and basic exercises
         compound_exercises = [
-            ex for ex in beginner_exercises
-            if ex.exercise_type == "compound"
+            ex for ex in beginner_exercises if ex.exercise_type == "compound"
         ]
 
         # Select 4-6 exercises for a balanced workout
@@ -78,14 +80,16 @@ class BeginnerWorkoutStrategy(WorkoutGenerationStrategy):
         workout_exercises = []
         for i, exercise in enumerate(selected_exercises):
             sets = self._generate_beginner_sets(exercise, preferences)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": i + 1,
-                "rest_seconds": 90,  # Longer rest for beginners
-                "notes": "Focus on proper form",
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": i + 1,
+                    "rest_seconds": 90,  # Longer rest for beginners
+                    "notes": "Focus on proper form",
+                }
+            )
 
         return {
             "name": "Beginner Full Body Workout",
@@ -117,7 +121,8 @@ class BeginnerWorkoutStrategy(WorkoutGenerationStrategy):
 
         # Fill remaining slots with isolation exercises
         isolation_exercises = [
-            ex for ex in all_exercises
+            ex
+            for ex in all_exercises
             if ex.exercise_type == "isolation" and ex not in selected
         ]
 
@@ -141,9 +146,17 @@ class BeginnerWorkoutStrategy(WorkoutGenerationStrategy):
         if exercise.exercise_type == "compound":
             # Compound exercises: 3 sets of 8-12 reps
             return [
-                {"reps": 10, "weight_kg": None, "notes": "Start with bodyweight or light weight"},
+                {
+                    "reps": 10,
+                    "weight_kg": None,
+                    "notes": "Start with bodyweight or light weight",
+                },
                 {"reps": 10, "weight_kg": None, "notes": "Focus on form"},
-                {"reps": 8, "weight_kg": None, "notes": "Increase weight slightly if form is good"},
+                {
+                    "reps": 8,
+                    "weight_kg": None,
+                    "notes": "Increase weight slightly if form is good",
+                },
             ]
         else:
             # Isolation exercises: 2 sets of 12-15 reps
@@ -165,8 +178,7 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
         """Generate intermediate-level workout."""
         # Filter exercises suitable for intermediate level
         suitable_exercises = [
-            ex for ex in available_exercises
-            if client.can_perform_exercise(ex.id)
+            ex for ex in available_exercises if client.can_perform_exercise(ex.id)
         ]
 
         # Determine workout split based on preferences
@@ -190,8 +202,7 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
         # For brevity, returning a simplified version
         push_muscles = {"chest", "shoulders", "triceps"}
         push_exercises = [
-            ex for ex in exercises
-            if ex.muscle_group.primary in push_muscles
+            ex for ex in exercises if ex.muscle_group.primary in push_muscles
         ]
 
         selected = push_exercises[:5]  # Select top 5 push exercises
@@ -199,13 +210,15 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
 
         for i, exercise in enumerate(selected):
             sets = self._generate_intermediate_sets(exercise, focus)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": i + 1,
-                "rest_seconds": 60,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": i + 1,
+                    "rest_seconds": 60,
+                }
+            )
 
         return {
             "name": "Push Day - Intermediate",
@@ -222,8 +235,7 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
         """Generate upper/lower body split workout."""
         upper_muscles = {"chest", "back", "shoulders", "biceps", "triceps"}
         upper_exercises = [
-            ex for ex in exercises
-            if ex.muscle_group.primary in upper_muscles
+            ex for ex in exercises if ex.muscle_group.primary in upper_muscles
         ]
 
         selected = upper_exercises[:6]
@@ -231,13 +243,15 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
 
         for i, exercise in enumerate(selected):
             sets = self._generate_intermediate_sets(exercise, focus)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": i + 1,
-                "rest_seconds": 75,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": i + 1,
+                    "rest_seconds": 75,
+                }
+            )
 
         return {
             "name": "Upper Body - Intermediate",
@@ -258,8 +272,7 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
 
         for muscle_group in muscle_groups:
             muscle_exercises = [
-                ex for ex in exercises
-                if ex.muscle_group.primary == muscle_group
+                ex for ex in exercises if ex.muscle_group.primary == muscle_group
             ]
             if muscle_exercises:
                 selected.append(muscle_exercises[0])  # Take first available
@@ -267,13 +280,15 @@ class IntermediateWorkoutStrategy(WorkoutGenerationStrategy):
         workout_exercises = []
         for i, exercise in enumerate(selected):
             sets = self._generate_intermediate_sets(exercise, focus)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": i + 1,
-                "rest_seconds": 90,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": i + 1,
+                    "rest_seconds": 90,
+                }
+            )
 
         return {
             "name": "Full Body - Intermediate",
@@ -324,16 +339,21 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
         current_phase = preferences.get("phase", "hypertrophy")
 
         suitable_exercises = [
-            ex for ex in available_exercises
-            if client.can_perform_exercise(ex.id)
+            ex for ex in available_exercises if client.can_perform_exercise(ex.id)
         ]
 
         if program_type == "powerlifting":
-            return self._generate_powerlifting_workout(suitable_exercises, current_phase)
+            return self._generate_powerlifting_workout(
+                suitable_exercises, current_phase
+            )
         elif program_type == "bodybuilding":
-            return self._generate_bodybuilding_workout(suitable_exercises, current_phase)
+            return self._generate_bodybuilding_workout(
+                suitable_exercises, current_phase
+            )
         else:  # powerbuilding
-            return self._generate_powerbuilding_workout(suitable_exercises, current_phase)
+            return self._generate_powerbuilding_workout(
+                suitable_exercises, current_phase
+            )
 
     def _generate_powerlifting_workout(
         self,
@@ -344,13 +364,16 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
         # Focus on the big three: squat, bench, deadlift
         main_lifts = ["squat", "bench press", "deadlift"]
         main_exercises = [
-            ex for ex in exercises
+            ex
+            for ex in exercises
             if any(lift in ex.name.lower() for lift in main_lifts)
         ]
 
         accessory_exercises = [
-            ex for ex in exercises
-            if ex not in main_exercises and ex.exercise_type in ["compound", "isolation"]
+            ex
+            for ex in exercises
+            if ex not in main_exercises
+            and ex.exercise_type in ["compound", "isolation"]
         ]
 
         workout_exercises = []
@@ -360,26 +383,30 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
         if main_exercises:
             main_lift = main_exercises[0]
             main_sets = self._generate_powerlifting_sets(main_lift, phase)
-            workout_exercises.append({
-                "exercise_id": main_lift.id,
-                "exercise_name": main_lift.name,
-                "sets": main_sets,
-                "order": order,
-                "rest_seconds": 180,  # Long rest for heavy lifting
-                "notes": "Main lift - focus on technique",
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": main_lift.id,
+                    "exercise_name": main_lift.name,
+                    "sets": main_sets,
+                    "order": order,
+                    "rest_seconds": 180,  # Long rest for heavy lifting
+                    "notes": "Main lift - focus on technique",
+                }
+            )
             order += 1
 
         # Add 3-4 accessory exercises
         for exercise in accessory_exercises[:4]:
             sets = self._generate_accessory_sets(exercise, phase)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": order,
-                "rest_seconds": 120,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": order,
+                    "rest_seconds": 120,
+                }
+            )
             order += 1
 
         return {
@@ -402,14 +429,16 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
 
         for i, exercise in enumerate(selected_exercises):
             sets = self._generate_bodybuilding_sets(exercise, phase)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": i + 1,
-                "rest_seconds": 60,  # Shorter rest for pump
-                "notes": "Focus on mind-muscle connection",
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": i + 1,
+                    "rest_seconds": 60,  # Shorter rest for pump
+                    "notes": "Focus on mind-muscle connection",
+                }
+            )
 
         return {
             "name": f"Bodybuilding - {phase.title()} Phase",
@@ -427,7 +456,9 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
         """Generate powerbuilding workout (strength + hypertrophy)."""
         # Combine powerlifting and bodybuilding approaches
         compound_exercises = [ex for ex in exercises if ex.exercise_type == "compound"]
-        isolation_exercises = [ex for ex in exercises if ex.exercise_type == "isolation"]
+        isolation_exercises = [
+            ex for ex in exercises if ex.exercise_type == "isolation"
+        ]
 
         workout_exercises = []
         order = 1
@@ -435,25 +466,29 @@ class AdvancedWorkoutStrategy(WorkoutGenerationStrategy):
         # Start with compound movements (strength focus)
         for exercise in compound_exercises[:2]:
             sets = self._generate_powerlifting_sets(exercise, phase)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": order,
-                "rest_seconds": 150,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": order,
+                    "rest_seconds": 150,
+                }
+            )
             order += 1
 
         # Add isolation exercises (hypertrophy focus)
         for exercise in isolation_exercises[:4]:
             sets = self._generate_bodybuilding_sets(exercise, phase)
-            workout_exercises.append({
-                "exercise_id": exercise.id,
-                "exercise_name": exercise.name,
-                "sets": sets,
-                "order": order,
-                "rest_seconds": 75,
-            })
+            workout_exercises.append(
+                {
+                    "exercise_id": exercise.id,
+                    "exercise_name": exercise.name,
+                    "sets": sets,
+                    "order": order,
+                    "rest_seconds": 75,
+                }
+            )
             order += 1
 
         return {
@@ -581,7 +616,7 @@ class MifflinStJeorStrategy(NutritionCalculationStrategy):
         # Adjust for goal
         goal_adjustments = {
             "weight_loss": -500,  # 500 calorie deficit
-            "muscle_gain": 300,   # 300 calorie surplus
+            "muscle_gain": 300,  # 300 calorie surplus
             "maintenance": 0,
             "aggressive_cut": -750,
             "lean_bulk": 200,
@@ -668,7 +703,9 @@ class VolumeProgressStrategy(ProgressTrackingStrategy):
         for period, period_sessions in period_data.items():
             total_volume = sum(s.calculate_total_volume() for s in period_sessions)
             total_sessions = len(period_sessions)
-            avg_volume_per_session = total_volume / total_sessions if total_sessions > 0 else 0
+            avg_volume_per_session = (
+                total_volume / total_sessions if total_sessions > 0 else 0
+            )
 
             progress_data[period] = {
                 "total_volume": total_volume,
@@ -683,12 +720,20 @@ class VolumeProgressStrategy(ProgressTrackingStrategy):
             last_period = progress_data[periods[-1]]
 
             volume_change = last_period["total_volume"] - first_period["total_volume"]
-            volume_change_percent = (volume_change / first_period["total_volume"]) * 100 if first_period["total_volume"] > 0 else 0
+            volume_change_percent = (
+                (volume_change / first_period["total_volume"]) * 100
+                if first_period["total_volume"] > 0
+                else 0
+            )
 
             trend = {
                 "volume_change": volume_change,
                 "volume_change_percent": volume_change_percent,
-                "trend": "increasing" if volume_change > 0 else "decreasing" if volume_change < 0 else "stable",
+                "trend": "increasing"
+                if volume_change > 0
+                else "decreasing"
+                if volume_change < 0
+                else "stable",
             }
         else:
             trend = {"trend": "insufficient_data"}
@@ -780,8 +825,7 @@ class StrategyContext:
             return {category: list(self._strategies.get(category, {}).keys())}
 
         return {
-            cat: list(strategies.keys())
-            for cat, strategies in self._strategies.items()
+            cat: list(strategies.keys()) for cat, strategies in self._strategies.items()
         }
 
 

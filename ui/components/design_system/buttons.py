@@ -1,4 +1,4 @@
-﻿"""Button components for the design system.
+"""Button components for the design system.
 
 Provides consistent button variants aligned with the app theme:
 - PrimaryButton: solid accent for main actions
@@ -78,5 +78,3 @@ class DangerButton(ctk.CTkButton):
             height=40,
             **kwargs,
         )
-
-

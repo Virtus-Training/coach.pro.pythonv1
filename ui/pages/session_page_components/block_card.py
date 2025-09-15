@@ -110,6 +110,13 @@ class BlockCard(ctk.CTkFrame):
         # --- Actions
         actions = ctk.CTkFrame(card, fg_color="transparent")
         actions.pack(fill="x", padx=12, pady=(2, 12))
-        ctk.CTkButton(actions, text="Regénérer ce bloc", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left", padx=4)
-        ctk.CTkButton(actions, text="Remplacer un exercice", font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="left", padx=4)
-
+        ctk.CTkButton(
+            actions,
+            text="Regénérer ce bloc",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left", padx=4)
+        ctk.CTkButton(
+            actions,
+            text="Remplacer un exercice",
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="left", padx=4)

@@ -11,9 +11,9 @@ import uuid
 from abc import ABC
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, List, Optional, Set
 
-from core.events import DomainEvent, Event
+from core.events import DomainEvent
 
 
 class Entity(ABC):
@@ -142,7 +142,7 @@ class PhysicalProfile(ValueObject):
         """Calculate BMI if height and weight are available."""
         if self.height_cm and self.weight_kg:
             height_m = self.height_cm / 100
-            return self.weight_kg / (height_m ** 2)
+            return self.weight_kg / (height_m**2)
         return None
 
     def __post_init__(self):
@@ -151,7 +151,10 @@ class PhysicalProfile(ValueObject):
             raise ValueError("Height must be positive")
         if self.weight_kg is not None and self.weight_kg <= 0:
             raise ValueError("Weight must be positive")
-        if self.body_fat_percentage is not None and not 0 <= self.body_fat_percentage <= 100:
+        if (
+            self.body_fat_percentage is not None
+            and not 0 <= self.body_fat_percentage <= 100
+        ):
             raise ValueError("Body fat percentage must be between 0 and 100")
 
 
@@ -178,7 +181,9 @@ class FitnessGoals(ValueObject):
     def __post_init__(self):
         """Validate fitness goals."""
         if self.primary_goal not in self.VALID_GOALS:
-            raise ValueError(f"Invalid primary goal. Must be one of: {self.VALID_GOALS}")
+            raise ValueError(
+                f"Invalid primary goal. Must be one of: {self.VALID_GOALS}"
+            )
 
 
 class Client(AggregateRoot):
@@ -204,6 +209,7 @@ class Client(AggregateRoot):
 
         # Add domain event
         from domain.events import ClientCreatedEvent
+
         self.add_domain_event(
             ClientCreatedEvent(
                 client_id=str(self.id),
@@ -321,9 +327,22 @@ class MuscleGroup(ValueObject):
     secondary: List[str] = field(default_factory=list)
 
     VALID_MUSCLE_GROUPS = {
-        "chest", "back", "shoulders", "biceps", "triceps", "forearms",
-        "abs", "obliques", "lower_back", "glutes", "quadriceps",
-        "hamstrings", "calves", "traps", "lats", "delts"
+        "chest",
+        "back",
+        "shoulders",
+        "biceps",
+        "triceps",
+        "forearms",
+        "abs",
+        "obliques",
+        "lower_back",
+        "glutes",
+        "quadriceps",
+        "hamstrings",
+        "calves",
+        "traps",
+        "lats",
+        "delts",
     }
 
     def __post_init__(self):
@@ -450,10 +469,7 @@ class SessionExercise(ValueObject):
     @property
     def total_volume(self) -> float:
         """Calculate total volume (weight * reps)."""
-        return sum(
-            (s.weight_kg or 0) * s.reps
-            for s in self.sets
-        )
+        return sum((s.weight_kg or 0) * s.reps for s in self.sets)
 
     @property
     def total_reps(self) -> int:
@@ -497,6 +513,7 @@ class WorkoutSession(AggregateRoot):
 
         # Add domain event
         from domain.events import SessionCreatedEvent
+
         self.add_domain_event(
             SessionCreatedEvent(
                 session_id=str(self.id),

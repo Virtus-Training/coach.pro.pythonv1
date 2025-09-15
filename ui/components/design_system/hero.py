@@ -58,7 +58,13 @@ class HeroBanner(ctk.CTkFrame):
             font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["H1"]),
             text_color=colors.get("surface_dark", "#111827"),
         )
-        title_lbl.grid(row=0, column=1, sticky="w", padx=(12 if img is None else 0, 12), pady=(6, 0))
+        title_lbl.grid(
+            row=0,
+            column=1,
+            sticky="w",
+            padx=(12 if img is None else 0, 12),
+            pady=(6, 0),
+        )
 
         if subtitle:
             sub_lbl = ctk.CTkLabel(
@@ -67,7 +73,13 @@ class HeroBanner(ctk.CTkFrame):
                 font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Body"]),
                 text_color=colors.get("surface_dark", "#111827"),
             )
-            sub_lbl.grid(row=1, column=1, sticky="w", padx=(12 if img is None else 0, 12), pady=(1, 8))
+            sub_lbl.grid(
+                row=1,
+                column=1,
+                sticky="w",
+                padx=(12 if img is None else 0, 12),
+                pady=(1, 8),
+            )
 
         # Decorative right overlay (subtle)
         # A small translucent stripe adds a modern touch without images

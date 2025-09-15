@@ -6,7 +6,6 @@ in the domain and may trigger side effects or integrations.
 """
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 from core.events import DomainEvent

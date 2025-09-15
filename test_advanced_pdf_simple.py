@@ -3,6 +3,7 @@
 Test simple du système PDF avancé
 """
 
+
 def main():
     print("Test du Systeme PDF Avance CoachPro")
     print("=" * 50)
@@ -11,13 +12,13 @@ def main():
     print("\nTest d'import des modules...")
     try:
         from services.advanced_pdf_service import AdvancedPdfService
+
         print("OK - AdvancedPdfService")
     except Exception as e:
         print(f"ERREUR - AdvancedPdfService: {e}")
         return False
 
     try:
-        from controllers.advanced_pdf_controller import AdvancedPdfController
         print("OK - AdvancedPdfController")
     except Exception as e:
         print(f"ERREUR - AdvancedPdfController: {e}")
@@ -46,8 +47,8 @@ def main():
     # Test 4: Génération PDF simple
     print("\nTest generation PDF...")
     try:
-        import tempfile
         import os
+        import tempfile
 
         # Données de test
         session_data = {
@@ -58,11 +59,9 @@ def main():
                 {
                     "title": "Test Block",
                     "format": "LIBRE",
-                    "exercises": [
-                        {"name": "Test Exercise", "reps": "10"}
-                    ]
+                    "exercises": [{"name": "Test Exercise", "reps": "10"}],
                 }
-            ]
+            ],
         }
 
         # Génération
@@ -72,9 +71,7 @@ def main():
         print(f"Donnees de test: {session_data}")
 
         result = service.generate_session_pdf_sync(
-            session_data,
-            tmp_path,
-            template_variant="modern"
+            session_data, tmp_path, template_variant="modern"
         )
 
         print(f"Resultat generation: {result}")

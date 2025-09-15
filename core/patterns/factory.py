@@ -10,19 +10,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 from domain.entities import (
     Client,
+    Exercise,
+    ExerciseMetadata,
+    ExerciseSet,
+    FitnessGoals,
+    MuscleGroup,
     PersonalInfo,
     PhysicalProfile,
-    FitnessGoals,
-    Exercise,
-    MuscleGroup,
-    ExerciseMetadata,
-    WorkoutSession,
     SessionExercise,
-    ExerciseSet,
+    WorkoutSession,
 )
 
 T = TypeVar("T")
@@ -112,7 +112,9 @@ class ClientFactory(IFactory[Client]):
         )
 
         # Add physical profile if data provided
-        if any(key in kwargs for key in ["height_cm", "weight_kg", "body_fat_percentage"]):
+        if any(
+            key in kwargs for key in ["height_cm", "weight_kg", "body_fat_percentage"]
+        ):
             physical_profile = PhysicalProfile(
                 height_cm=kwargs.get("height_cm"),
                 weight_kg=kwargs.get("weight_kg"),
@@ -216,7 +218,9 @@ class ExerciseFactory(IFactory[Exercise]):
         return self.create(
             name=wger_data.get("name", ""),
             primary_muscle=self._map_wger_muscle(wger_data.get("muscles", [])),
-            secondary_muscles=self._map_wger_secondary_muscles(wger_data.get("muscles_secondary", [])),
+            secondary_muscles=self._map_wger_secondary_muscles(
+                wger_data.get("muscles_secondary", [])
+            ),
             exercise_type=self._map_wger_category(wger_data.get("category", {})),
             difficulty_level="intermediate",  # Default for wger imports
             equipment_needed=self._map_wger_equipment(wger_data.get("equipment", [])),
@@ -449,7 +453,9 @@ class SessionFactory(IFactory[WorkoutSession]):
             ],
         )
 
-    def _create_session_exercise(self, exercise_data: Dict[str, Any]) -> SessionExercise:
+    def _create_session_exercise(
+        self, exercise_data: Dict[str, Any]
+    ) -> SessionExercise:
         """Create SessionExercise from data dictionary."""
         sets = [
             ExerciseSet(
@@ -507,7 +513,9 @@ class CoachProFactory(AbstractFactory):
                 "Bench Press", ["chest", "triceps", "shoulders"]
             ),
             self._exercise_factory.create_isolation_exercise("Bicep Curls", "biceps"),
-            self._exercise_factory.create_compound_exercise("Squats", ["quadriceps", "glutes"]),
+            self._exercise_factory.create_compound_exercise(
+                "Squats", ["quadriceps", "glutes"]
+            ),
         ]
 
         # Create demo session
@@ -527,26 +535,12 @@ def register_factories(container) -> None:
     """Register all factories in the DI container."""
     from core.container import ServiceLifetime
 
-    container.register(
-        AbstractFactory,
-        CoachProFactory,
-        ServiceLifetime.SINGLETON
-    )
+    container.register(AbstractFactory, CoachProFactory, ServiceLifetime.SINGLETON)
+
+    container.register(IFactory[Client], ClientFactory, ServiceLifetime.SINGLETON)
+
+    container.register(IFactory[Exercise], ExerciseFactory, ServiceLifetime.SINGLETON)
 
     container.register(
-        IFactory[Client],
-        ClientFactory,
-        ServiceLifetime.SINGLETON
-    )
-
-    container.register(
-        IFactory[Exercise],
-        ExerciseFactory,
-        ServiceLifetime.SINGLETON
-    )
-
-    container.register(
-        IFactory[WorkoutSession],
-        SessionFactory,
-        ServiceLifetime.SINGLETON
+        IFactory[WorkoutSession], SessionFactory, ServiceLifetime.SINGLETON
     )

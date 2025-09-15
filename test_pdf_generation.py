@@ -6,13 +6,14 @@ import sys
 import tempfile
 from pathlib import Path
 
-sys.stdout.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding="utf-8")
 
 print("TESTING PDF GENERATION")
 print("=" * 50)
 
 try:
     from controllers.advanced_pdf_controller import AdvancedPdfController
+
     print("SUCCESS: Controller imported")
 
     controller = AdvancedPdfController()
@@ -31,20 +32,20 @@ try:
                 "sets": 3,
                 "reps": 15,
                 "rest": "60s",
-                "notes": "Maintenir la forme"
+                "notes": "Maintenir la forme",
             },
             {
                 "name": "Squats",
                 "sets": 4,
                 "reps": 12,
                 "rest": "90s",
-                "notes": "Descendre à 90 degrés"
-            }
-        ]
+                "notes": "Descendre à 90 degrés",
+            },
+        ],
     }
 
     # Create temporary output file
-    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
+    with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
         output_path = tmp.name
 
     print(f"Testing PDF generation to: {output_path}")
@@ -52,9 +53,7 @@ try:
     # Test Elite template
     try:
         result = controller.generate_professional_workout_pdf(
-            workout_data=workout_data,
-            output_path=output_path,
-            template_style="elite"
+            workout_data=workout_data, output_path=output_path, template_style="elite"
         )
 
         if result.get("success"):
@@ -65,11 +64,14 @@ try:
             else:
                 print("WARNING: File not found after generation")
         else:
-            print(f"ERROR: Elite template failed: {result.get('error', 'Unknown error')}")
+            print(
+                f"ERROR: Elite template failed: {result.get('error', 'Unknown error')}"
+            )
 
     except Exception as e:
         print(f"CRITICAL ERROR in Elite template: {e}")
         import traceback
+
         traceback.print_exc()
 
     # Test templates list
@@ -86,6 +88,7 @@ try:
 except Exception as e:
     print(f"CRITICAL ERROR: {e}")
     import traceback
+
     traceback.print_exc()
 
 print("\nPDF GENERATION TEST COMPLETED")

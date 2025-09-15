@@ -24,7 +24,9 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
     meta = dto.get("meta", {})
     if meta:
         # Header moderne avec gradient et icônes
-        header = ctk.CTkFrame(container, fg_color=("gray90", "gray25"), corner_radius=12, height=80)
+        header = ctk.CTkFrame(
+            container, fg_color=("gray90", "gray25"), corner_radius=12, height=80
+        )
         header.pack(fill="x", padx=12, pady=(12, 16))
         header.pack_propagate(False)
 
@@ -41,15 +43,13 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
             "Hyrox": "🏃‍♂️",
             "CAF": "💪",
             "Core & Glutes": "🔥",
-            "TRX": "⚡"
+            "TRX": "⚡",
         }
         icon = course_icons.get(course_type, "🎯")
 
         title_text = f"{icon} {meta.get('title', 'Séance')}"
         ctk.CTkLabel(
-            title_frame,
-            text=title_text,
-            font=ctk.CTkFont(size=16, weight="bold")
+            title_frame, text=title_text, font=ctk.CTkFont(size=16, weight="bold")
         ).pack(side="left")
 
         # Badges d'information
@@ -63,8 +63,9 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
                 text=f"⏱️ {meta.get('duration')}",
                 fg_color=("gray80", "gray30"),
                 corner_radius=20,
-                padx=12, pady=4,
-                font=ctk.CTkFont(size=11, weight="bold")
+                padx=12,
+                pady=4,
+                font=ctk.CTkFont(size=11, weight="bold"),
             )
             duration_badge.pack(side="left", padx=(0, 8))
 
@@ -74,7 +75,7 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
                 "Légère": ("lightgreen", "darkgreen"),
                 "Moyenne": ("orange", "darkorange"),
                 "Élevée": ("lightcoral", "darkred"),
-                "Maximale": ("red", "darkred")
+                "Maximale": ("red", "darkred"),
             }
             intensity = meta.get("intensity")
             color = intensity_colors.get(intensity, ("gray", "gray"))
@@ -84,8 +85,9 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
                 text=f"🔥 {intensity}",
                 fg_color=color,
                 corner_radius=20,
-                padx=12, pady=4,
-                font=ctk.CTkFont(size=11, weight="bold")
+                padx=12,
+                pady=4,
+                font=ctk.CTkFont(size=11, weight="bold"),
             )
             intensity_badge.pack(side="left", padx=(0, 8))
 
@@ -96,8 +98,9 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
                 text="✨ IA",
                 fg_color=("purple", "darkviolet"),
                 corner_radius=20,
-                padx=12, pady=4,
-                font=ctk.CTkFont(size=11, weight="bold")
+                padx=12,
+                pady=4,
+                font=ctk.CTkFont(size=11, weight="bold"),
             )
             ai_badge.pack(side="left")
 
@@ -111,7 +114,7 @@ def render_preview(container: ctk.CTkScrollableFrame, dto: dict) -> int:
             section_header,
             text=f"📋 Structure de la séance ({blocks_count} blocs)",
             font=ctk.CTkFont(size=14, weight="bold"),
-            text_color=("gray50", "gray60")
+            text_color=("gray50", "gray60"),
         ).pack(side="left")
 
     grid = ctk.CTkFrame(container, fg_color="transparent")

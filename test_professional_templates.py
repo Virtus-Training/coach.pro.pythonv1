@@ -5,7 +5,6 @@ Validates the integration and functionality of commercial-grade templates
 
 import os
 import tempfile
-from pathlib import Path
 
 from controllers.advanced_pdf_controller import AdvancedPdfController
 
@@ -27,12 +26,12 @@ def test_professional_templates():
             "duration_weeks": 8,
             "sessions_per_week": 4,
             "intensity_level": "Élevé",
-            "target_areas": ["Poitrine", "Dos", "Jambes"]
+            "target_areas": ["Poitrine", "Dos", "Jambes"],
         },
         "performance_metrics": {
             "strength_progress": 85,
             "endurance_progress": 70,
-            "flexibility_progress": 60
+            "flexibility_progress": 60,
         },
         "target_muscle_groups": ["chest", "shoulders", "legs"],
         "workout_blocks": [
@@ -43,16 +42,18 @@ def test_professional_templates():
                 "exercises": [
                     {"name": "Squat", "reps": "5x3", "notes": "90% 1RM"},
                     {"name": "Développé couché", "reps": "5x3", "notes": "85% 1RM"},
-                    {"name": "Soulevé de terre", "reps": "4x2", "notes": "95% 1RM"}
-                ]
+                    {"name": "Soulevé de terre", "reps": "4x2", "notes": "95% 1RM"},
+                ],
             }
-        ]
+        ],
     }
 
     workout_styles = ["elite", "motivation", "medical"]
     for style in workout_styles:
         try:
-            with tempfile.NamedTemporaryFile(suffix=f"_{style}_workout.pdf", delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+                suffix=f"_{style}_workout.pdf", delete=False
+            ) as temp_file:
                 temp_path = temp_file.name
 
             print(f"  🏋️ Testing {style.upper()} template...")
@@ -61,7 +62,9 @@ def test_professional_templates():
             )
 
             if result.get("success"):
-                print(f"    ✅ SUCCESS - Generated in {result.get('generation_time', 0):.2f}s")
+                print(
+                    f"    ✅ SUCCESS - Generated in {result.get('generation_time', 0):.2f}s"
+                )
                 print(f"    📄 File: {temp_path}")
                 print(f"    📊 Size: {os.path.getsize(temp_path) // 1024} KB")
             else:
@@ -80,7 +83,7 @@ def test_professional_templates():
             "weight": 65.5,
             "height": 170,
             "body_fat": 22.5,
-            "lean_mass": 50.8
+            "lean_mass": 50.8,
         },
         "nutrition_analytics": {
             "tdee": 2100,
@@ -89,7 +92,7 @@ def test_professional_templates():
             "carbs_g": 180,
             "fat_g": 70,
             "fiber_target": 28,
-            "water_target": 33
+            "water_target": 33,
         },
         "micronutrient_analysis": {
             "vit_d": 18,
@@ -97,14 +100,16 @@ def test_professional_templates():
             "iron": 12,
             "magnesium": 280,
             "zinc": 9.5,
-            "omega3": 1.8
-        }
+            "omega3": 1.8,
+        },
     }
 
     nutrition_styles = ["science"]  # Start with one that we've implemented
     for style in nutrition_styles:
         try:
-            with tempfile.NamedTemporaryFile(suffix=f"_{style}_nutrition.pdf", delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+                suffix=f"_{style}_nutrition.pdf", delete=False
+            ) as temp_file:
                 temp_path = temp_file.name
 
             print(f"  🔬 Testing {style.upper()} template...")
@@ -113,7 +118,9 @@ def test_professional_templates():
             )
 
             if result.get("success"):
-                print(f"    ✅ SUCCESS - Generated in {result.get('generation_time', 0):.2f}s")
+                print(
+                    f"    ✅ SUCCESS - Generated in {result.get('generation_time', 0):.2f}s"
+                )
                 print(f"    📄 File: {temp_path}")
                 print(f"    📊 Size: {os.path.getsize(temp_path) // 1024} KB")
             else:
@@ -131,7 +138,9 @@ def test_professional_templates():
         for category, templates in templates_info.items():
             print(f"  📁 {category}: {len(templates)} templates")
             for template_id, template_info in templates.items():
-                print(f"    • {template_info.get('name', template_id)}: {template_info.get('style', 'No style')}")
+                print(
+                    f"    • {template_info.get('name', template_id)}: {template_info.get('style', 'No style')}"
+                )
     except Exception as e:
         print(f"  💥 Template info failed: {str(e)}")
 
@@ -142,7 +151,7 @@ def test_professional_templates():
         print(f"  📊 Total documents: {stats.get('total_documents', 0)}")
         print(f"  ⏱️ Average time: {stats.get('average_time', 0):.2f}s")
 
-        cache_stats = stats.get('cache_stats')
+        cache_stats = stats.get("cache_stats")
         if cache_stats:
             print(f"  💾 Cache hits: {cache_stats.get('hits', 0)}")
             print(f"  🎯 Hit rate: {cache_stats.get('hit_rate', 0):.1%}")

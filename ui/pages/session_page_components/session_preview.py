@@ -21,29 +21,31 @@ class SessionPreview(ctk.CTkFrame):
         self.grid_columnconfigure(0, weight=1)
 
         # Header professionnel avec gradient
-        self.header = ctk.CTkFrame(self, fg_color=("gray95", "gray20"), corner_radius=12, height=60)
+        self.header = ctk.CTkFrame(
+            self, fg_color=("gray95", "gray20"), corner_radius=12, height=60
+        )
         self.header.grid(row=0, column=0, sticky="ew", pady=(16, 8), padx=16)
         self.header.grid_propagate(False)
 
         header_content = ctk.CTkFrame(self.header, fg_color="transparent")
         header_content.pack(fill="both", expand=True, padx=16, pady=12)
 
-        CardTitle(header_content, text="📋 Aperçu de la Séance").pack(side="left", anchor="w")
+        CardTitle(header_content, text="📋 Aperçu de la Séance").pack(
+            side="left", anchor="w"
+        )
 
         # Indicateur de statut
         self.status_indicator = ctk.CTkLabel(
             header_content,
             text="Prêt",
             font=ctk.CTkFont(size=11, weight="bold"),
-            text_color=("gray60", "gray40")
+            text_color=("gray60", "gray40"),
         )
         self.status_indicator.pack(side="right", anchor="e")
 
         # Scrollable container for preview content avec style amélioré
         self.content_frame = ctk.CTkScrollableFrame(
-            self,
-            fg_color=("gray98", "gray17"),
-            corner_radius=8
+            self, fg_color=("gray98", "gray17"), corner_radius=8
         )
         self.content_frame.grid(row=1, column=0, sticky="nsew", padx=16, pady=8)
 
@@ -52,9 +54,7 @@ class SessionPreview(ctk.CTkFrame):
         self.empty_state.pack(fill="both", expand=True, padx=32, pady=64)
 
         empty_icon = ctk.CTkLabel(
-            self.empty_state,
-            text="🎯",
-            font=ctk.CTkFont(size=48)
+            self.empty_state, text="🎯", font=ctk.CTkFont(size=48)
         )
         empty_icon.pack(pady=(0, 16))
 
@@ -62,7 +62,7 @@ class SessionPreview(ctk.CTkFrame):
             self.empty_state,
             text="Générez une séance pour voir l'aperçu",
             font=ctk.CTkFont(size=16, weight="bold"),
-            text_color=("gray50", "gray60")
+            text_color=("gray50", "gray60"),
         )
         self.empty_label.pack(pady=(0, 8))
 
@@ -70,17 +70,14 @@ class SessionPreview(ctk.CTkFrame):
             self.empty_state,
             text="Utilisez le formulaire pour créer votre séance personnalisée",
             font=ctk.CTkFont(size=12),
-            text_color=("gray60", "gray50")
+            text_color=("gray60", "gray50"),
         )
         empty_subtitle.pack()
 
         # Footer action bar modernisé
         if self._show_actions:
             self.footer = ctk.CTkFrame(
-                self,
-                fg_color=("gray95", "gray20"),
-                corner_radius=8,
-                height=60
+                self, fg_color=("gray95", "gray20"), corner_radius=8, height=60
             )
             self.footer.grid(row=2, column=0, sticky="ew", padx=16, pady=(8, 16))
             self.footer.grid_propagate(False)
@@ -94,14 +91,14 @@ class SessionPreview(ctk.CTkFrame):
                 footer_content,
                 text="📄 Exporter PDF",
                 command=self._on_export_pdf,
-                width=140
+                width=140,
             ).pack(side="right", padx=(8, 0))
 
             self.save_button = PrimaryButton(
                 footer_content,
                 text="💾 Enregistrer",
                 command=self._on_save_session,
-                width=140
+                width=140,
             )
             self.save_button.pack(side="right", padx=(8, 0))
 
@@ -110,7 +107,7 @@ class SessionPreview(ctk.CTkFrame):
                 footer_content,
                 text="",
                 font=ctk.CTkFont(size=11),
-                text_color=("gray60", "gray50")
+                text_color=("gray60", "gray50"),
             )
             self.session_info.pack(side="left", anchor="w")
 
@@ -154,17 +151,15 @@ class SessionPreview(ctk.CTkFrame):
         # Status indicator
         if meta.get("smart_generated"):
             self.status_indicator.configure(
-                text="✨ IA",
-                text_color=("green", "lightgreen")
+                text="✨ IA", text_color=("green", "lightgreen")
             )
         else:
             self.status_indicator.configure(
-                text="✅ Généré",
-                text_color=("blue", "lightblue")
+                text="✅ Généré", text_color=("blue", "lightblue")
             )
 
         # Session info dans le footer
-        if hasattr(self, 'session_info'):
+        if hasattr(self, "session_info"):
             duration = meta.get("duration", "")
             course_type = meta.get("course_type", "")
             info_text = f"📊 {blocks_count} blocs • {course_type} • {duration}"
@@ -186,7 +181,9 @@ class SessionPreview(ctk.CTkFrame):
             self.save_button.configure(text="✅ Enregistré!")
             self.after(2000, lambda: self.save_button.configure(text=original_text))
 
-            messagebox.showinfo("Succès", "✅ Séance enregistrée avec succès dans la base de données.")
+            messagebox.showinfo(
+                "Succès", "✅ Séance enregistrée avec succès dans la base de données."
+            )
 
         except Exception as e:
             self.save_button.configure(text=original_text)
@@ -203,7 +200,7 @@ class SessionPreview(ctk.CTkFrame):
         path = filedialog.asksaveasfilename(
             defaultextension=".pdf",
             filetypes=[("PDF", "*.pdf")],
-            initialvalue=default_name
+            initialvalue=default_name,
         )
         if not path:
             return

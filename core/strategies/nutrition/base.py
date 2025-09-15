@@ -3,16 +3,15 @@ Base classes for nutrition calculation strategies
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, date
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
-import math
+from typing import Dict, List, Optional
 
 from ..base import StrategyContext, StrategyResult
 
 
 class Gender(Enum):
     """Gender for nutrition calculations"""
+
     MALE = "male"
     FEMALE = "female"
     OTHER = "other"
@@ -20,38 +19,42 @@ class Gender(Enum):
 
 class ActivityLevel(Enum):
     """Physical activity levels"""
-    SEDENTARY = "sedentary"          # Little to no exercise
-    LIGHT = "light"                  # Light exercise 1-3 days/week
-    MODERATE = "moderate"            # Moderate exercise 3-5 days/week
-    ACTIVE = "active"                # Heavy exercise 6-7 days/week
-    VERY_ACTIVE = "very_active"      # Very heavy exercise, physical job
-    EXTRA_ACTIVE = "extra_active"    # Extremely active, training twice a day
+
+    SEDENTARY = "sedentary"  # Little to no exercise
+    LIGHT = "light"  # Light exercise 1-3 days/week
+    MODERATE = "moderate"  # Moderate exercise 3-5 days/week
+    ACTIVE = "active"  # Heavy exercise 6-7 days/week
+    VERY_ACTIVE = "very_active"  # Very heavy exercise, physical job
+    EXTRA_ACTIVE = "extra_active"  # Extremely active, training twice a day
 
 
 class NutritionGoal(Enum):
     """Nutrition goals"""
+
     WEIGHT_LOSS = "weight_loss"
     WEIGHT_GAIN = "weight_gain"
     MUSCLE_GAIN = "muscle_gain"
     MAINTENANCE = "maintenance"
-    CUTTING = "cutting"              # Body fat reduction while preserving muscle
-    BULKING = "bulking"              # Muscle gain with some fat gain
+    CUTTING = "cutting"  # Body fat reduction while preserving muscle
+    BULKING = "bulking"  # Muscle gain with some fat gain
     RECOMPOSITION = "recomposition"  # Simultaneous fat loss and muscle gain
 
 
 class MacronutrientDistribution(Enum):
     """Standard macronutrient distributions"""
-    BALANCED = "balanced"            # 30% protein, 40% carbs, 30% fat
-    HIGH_PROTEIN = "high_protein"    # 40% protein, 35% carbs, 25% fat
-    LOW_CARB = "low_carb"           # 35% protein, 20% carbs, 45% fat
-    KETOGENIC = "ketogenic"         # 20% protein, 5% carbs, 75% fat
-    HIGH_CARB = "high_carb"         # 25% protein, 55% carbs, 20% fat
+
+    BALANCED = "balanced"  # 30% protein, 40% carbs, 30% fat
+    HIGH_PROTEIN = "high_protein"  # 40% protein, 35% carbs, 25% fat
+    LOW_CARB = "low_carb"  # 35% protein, 20% carbs, 45% fat
+    KETOGENIC = "ketogenic"  # 20% protein, 5% carbs, 75% fat
+    HIGH_CARB = "high_carb"  # 25% protein, 55% carbs, 20% fat
     MEDITERRANEAN = "mediterranean"  # 20% protein, 45% carbs, 35% fat
 
 
 @dataclass
 class PersonalMetrics:
     """Personal metrics for nutrition calculations"""
+
     age: int
     gender: Gender
     height_cm: float
@@ -62,13 +65,15 @@ class PersonalMetrics:
     def __post_init__(self):
         """Calculate derived metrics"""
         if self.lean_body_mass_kg is None and self.body_fat_percentage is not None:
-            self.lean_body_mass_kg = self.weight_kg * (1 - self.body_fat_percentage / 100)
+            self.lean_body_mass_kg = self.weight_kg * (
+                1 - self.body_fat_percentage / 100
+            )
 
     @property
     def bmi(self) -> float:
         """Calculate BMI"""
         height_m = self.height_cm / 100
-        return self.weight_kg / (height_m ** 2)
+        return self.weight_kg / (height_m**2)
 
     @property
     def bmi_category(self) -> str:
@@ -87,9 +92,14 @@ class PersonalMetrics:
 @dataclass
 class NutritionPreferences:
     """Nutrition preferences and restrictions"""
-    dietary_restrictions: List[str] = field(default_factory=list)  # vegetarian, vegan, gluten-free, etc.
+
+    dietary_restrictions: List[str] = field(
+        default_factory=list
+    )  # vegetarian, vegan, gluten-free, etc.
     food_allergies: List[str] = field(default_factory=list)
-    preferred_macro_distribution: MacronutrientDistribution = MacronutrientDistribution.BALANCED
+    preferred_macro_distribution: MacronutrientDistribution = (
+        MacronutrientDistribution.BALANCED
+    )
     meal_frequency: int = 3  # Number of meals per day
     snack_frequency: int = 1  # Number of snacks per day
     hydration_goal_liters: float = 2.5
@@ -99,6 +109,7 @@ class NutritionPreferences:
 @dataclass
 class NutritionContext:
     """Context for nutrition calculations"""
+
     personal_metrics: PersonalMetrics
     activity_level: ActivityLevel
     nutrition_goal: NutritionGoal
@@ -122,6 +133,7 @@ class NutritionContext:
 @dataclass
 class MacronutrientTargets:
     """Calculated macronutrient targets"""
+
     calories: float
     protein_g: float
     carbohydrates_g: float
@@ -153,6 +165,7 @@ class MacronutrientTargets:
 @dataclass
 class NutritionTiming:
     """Nutrition timing recommendations"""
+
     pre_workout_carbs_g: float = 0
     post_workout_protein_g: float = 0
     post_workout_carbs_g: float = 0
@@ -167,6 +180,7 @@ class NutritionTiming:
 @dataclass
 class SupplementRecommendations:
     """Supplement recommendations"""
+
     creatine_g: float = 0
     whey_protein_g: float = 0
     vitamin_d_iu: float = 0
@@ -180,6 +194,7 @@ class SupplementRecommendations:
 @dataclass
 class NutritionResult:
     """Result of nutrition calculations"""
+
     bmr: float  # Basal Metabolic Rate
     tdee: float  # Total Daily Energy Expenditure
     target_calories: float  # Adjusted for goal
@@ -211,16 +226,16 @@ class NutritionResult:
         return {
             "protein": (
                 self.macronutrient_targets.protein_g * 0.9,
-                self.macronutrient_targets.protein_g * 1.1
+                self.macronutrient_targets.protein_g * 1.1,
             ),
             "carbohydrates": (
                 self.macronutrient_targets.carbohydrates_g * 0.8,
-                self.macronutrient_targets.carbohydrates_g * 1.2
+                self.macronutrient_targets.carbohydrates_g * 1.2,
             ),
             "fat": (
                 self.macronutrient_targets.fat_g * 0.85,
-                self.macronutrient_targets.fat_g * 1.15
-            )
+                self.macronutrient_targets.fat_g * 1.15,
+            ),
         }
 
 
@@ -236,24 +251,32 @@ ACTIVITY_MULTIPLIERS = {
     ActivityLevel.MODERATE: 1.55,
     ActivityLevel.ACTIVE: 1.725,
     ActivityLevel.VERY_ACTIVE: 1.9,
-    ActivityLevel.EXTRA_ACTIVE: 2.2
+    ActivityLevel.EXTRA_ACTIVE: 2.2,
 }
 
 GOAL_CALORIE_ADJUSTMENTS = {
-    NutritionGoal.WEIGHT_LOSS: -0.20,      # 20% deficit
-    NutritionGoal.WEIGHT_GAIN: 0.15,      # 15% surplus
-    NutritionGoal.MUSCLE_GAIN: 0.10,      # 10% surplus
-    NutritionGoal.MAINTENANCE: 0.0,       # No adjustment
-    NutritionGoal.CUTTING: -0.25,         # 25% deficit
-    NutritionGoal.BULKING: 0.20,          # 20% surplus
-    NutritionGoal.RECOMPOSITION: -0.10    # Small deficit
+    NutritionGoal.WEIGHT_LOSS: -0.20,  # 20% deficit
+    NutritionGoal.WEIGHT_GAIN: 0.15,  # 15% surplus
+    NutritionGoal.MUSCLE_GAIN: 0.10,  # 10% surplus
+    NutritionGoal.MAINTENANCE: 0.0,  # No adjustment
+    NutritionGoal.CUTTING: -0.25,  # 25% deficit
+    NutritionGoal.BULKING: 0.20,  # 20% surplus
+    NutritionGoal.RECOMPOSITION: -0.10,  # Small deficit
 }
 
 MACRO_DISTRIBUTIONS = {
     MacronutrientDistribution.BALANCED: {"protein": 0.30, "carbs": 0.40, "fat": 0.30},
-    MacronutrientDistribution.HIGH_PROTEIN: {"protein": 0.40, "carbs": 0.35, "fat": 0.25},
+    MacronutrientDistribution.HIGH_PROTEIN: {
+        "protein": 0.40,
+        "carbs": 0.35,
+        "fat": 0.25,
+    },
     MacronutrientDistribution.LOW_CARB: {"protein": 0.35, "carbs": 0.20, "fat": 0.45},
     MacronutrientDistribution.KETOGENIC: {"protein": 0.20, "carbs": 0.05, "fat": 0.75},
     MacronutrientDistribution.HIGH_CARB: {"protein": 0.25, "carbs": 0.55, "fat": 0.20},
-    MacronutrientDistribution.MEDITERRANEAN: {"protein": 0.20, "carbs": 0.45, "fat": 0.35}
+    MacronutrientDistribution.MEDITERRANEAN: {
+        "protein": 0.20,
+        "carbs": 0.45,
+        "fat": 0.35,
+    },
 }

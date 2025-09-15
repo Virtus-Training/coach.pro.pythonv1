@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import sqlite3
-import threading
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -140,12 +139,16 @@ class AsyncConnection:
             print(f"BATCH QUERY ERROR ({execution_time:.2f}ms): {e}")
             raise
 
-    async def fetchall(self, query: str, parameters: Tuple[Any, ...] = ()) -> List[sqlite3.Row]:
+    async def fetchall(
+        self, query: str, parameters: Tuple[Any, ...] = ()
+    ) -> List[sqlite3.Row]:
         """Execute query and fetch all results."""
         cursor = await self.execute(query, parameters)
         return await cursor.fetchall()
 
-    async def fetchone(self, query: str, parameters: Tuple[Any, ...] = ()) -> Optional[sqlite3.Row]:
+    async def fetchone(
+        self, query: str, parameters: Tuple[Any, ...] = ()
+    ) -> Optional[sqlite3.Row]:
         """Execute query and fetch one result."""
         cursor = await self.execute(query, parameters)
         return await cursor.fetchone()
@@ -223,7 +226,9 @@ class AsyncDatabaseManager:
 
     def __init__(self, config: DatabaseConfig):
         self.config = config
-        self._connections: asyncio.Queue[AsyncConnection] = asyncio.Queue(maxsize=config.max_connections)
+        self._connections: asyncio.Queue[AsyncConnection] = asyncio.Queue(
+            maxsize=config.max_connections
+        )
         self._total_connections = 0
         self._connection_counter = 0
         self._lock = asyncio.Lock()
@@ -388,7 +393,6 @@ class AsyncDatabaseManager:
     async def get_performance_metrics(self) -> Dict[str, Any]:
         """Get database performance metrics."""
         all_metrics = []
-        pool_connections = []
 
         # Collect metrics from pool
         temp_connections = []
@@ -418,7 +422,8 @@ class AsyncDatabaseManager:
             "max_execution_time_ms": max(execution_times),
             "min_execution_time_ms": min(execution_times),
             "total_connections": self._total_connections,
-            "active_connections": self.config.max_connections - self._connections.qsize(),
+            "active_connections": self.config.max_connections
+            - self._connections.qsize(),
         }
 
     async def close_all(self) -> None:
@@ -452,7 +457,9 @@ class AsyncDatabaseManager:
 _db_manager: Optional[AsyncDatabaseManager] = None
 
 
-def get_database_manager(config: Optional[DatabaseConfig] = None) -> AsyncDatabaseManager:
+def get_database_manager(
+    config: Optional[DatabaseConfig] = None,
+) -> AsyncDatabaseManager:
     """Get the global database manager instance."""
     global _db_manager
 
@@ -464,7 +471,9 @@ def get_database_manager(config: Optional[DatabaseConfig] = None) -> AsyncDataba
     return _db_manager
 
 
-async def initialize_database_manager(config: Optional[DatabaseConfig] = None) -> AsyncDatabaseManager:
+async def initialize_database_manager(
+    config: Optional[DatabaseConfig] = None,
+) -> AsyncDatabaseManager:
     """Initialize the global database manager."""
     manager = get_database_manager(config)
     await manager.initialize()
@@ -472,7 +481,9 @@ async def initialize_database_manager(config: Optional[DatabaseConfig] = None) -
 
 
 # Convenience functions for common operations
-async def execute_query(query: str, parameters: Tuple[Any, ...] = ()) -> List[sqlite3.Row]:
+async def execute_query(
+    query: str, parameters: Tuple[Any, ...] = ()
+) -> List[sqlite3.Row]:
     """Execute query using global manager."""
     manager = get_database_manager()
     return await manager.execute_query(query, parameters)

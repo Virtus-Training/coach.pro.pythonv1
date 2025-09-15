@@ -10,32 +10,30 @@ import importlib
 import inspect
 import logging
 import pkgutil
+import threading
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Type, TypeVar, Callable, Set
-import threading
-import json
+from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 from .base import (
     BaseStrategy,
     StrategyConfig,
     StrategyContext,
-    StrategyResult,
-    StrategyPriority,
     StrategyError,
-    StrategyMetrics
+    StrategyResult,
 )
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
 class StrategyRegistration:
     """Registration information for a strategy"""
+
     strategy_class: Type[BaseStrategy]
     config: StrategyConfig
     category: str
@@ -76,7 +74,7 @@ class StrategyRegistry:
         config: StrategyConfig,
         category: str,
         tags: Optional[Set[str]] = None,
-        requirements: Optional[Dict[str, str]] = None
+        requirements: Optional[Dict[str, str]] = None,
     ) -> None:
         """Register a strategy in the registry"""
         with self._lock:
@@ -88,7 +86,7 @@ class StrategyRegistry:
                 config=config,
                 category=category,
                 tags=tags,
-                requirements=requirements
+                requirements=requirements,
             )
 
             self._strategies[category][config.name] = registration
@@ -184,11 +182,13 @@ class StrategyRegistry:
                         "tags": list(registration.tags),
                         "enabled": registration.enabled,
                         "registered_at": registration.registered_at.isoformat(),
-                        "has_instance": registration.instance is not None
+                        "has_instance": registration.instance is not None,
                     }
 
                     if registration.instance:
-                        strategy_info["health"] = registration.instance.get_health_status()
+                        strategy_info["health"] = (
+                            registration.instance.get_health_status()
+                        )
 
                     strategies.append(strategy_info)
 
@@ -268,16 +268,17 @@ class StrategyRegistry:
         discovered_count = 0
 
         for name, obj in inspect.getmembers(module):
-            if (inspect.isclass(obj) and
-                issubclass(obj, BaseStrategy) and
-                obj != BaseStrategy):
-
+            if (
+                inspect.isclass(obj)
+                and issubclass(obj, BaseStrategy)
+                and obj != BaseStrategy
+            ):
                 try:
                     # Look for strategy configuration
-                    if hasattr(obj, '_strategy_config'):
+                    if hasattr(obj, "_strategy_config"):
                         config = obj._strategy_config
-                        category = getattr(obj, '_strategy_category', 'default')
-                        tags = getattr(obj, '_strategy_tags', set())
+                        category = getattr(obj, "_strategy_category", "default")
+                        tags = getattr(obj, "_strategy_tags", set())
 
                         self.register_strategy(obj, config, category, tags)
                         discovered_count += 1
@@ -315,7 +316,7 @@ class StrategyRegistry:
                 "enabled_strategies": enabled_count,
                 "disabled_strategies": disabled_count,
                 "categories": len(self._strategies),
-                "discovery_paths": len(self._discovery_paths)
+                "discovery_paths": len(self._discovery_paths),
             }
 
 
@@ -335,20 +336,22 @@ class StrategySelector:
         self.registry = registry
         self._selection_history: List[Dict[str, Any]] = []
         self._performance_weights = {
-            'success_rate': 0.4,
-            'execution_time': 0.3,
-            'reliability': 0.2,
-            'cpu_usage': 0.1
+            "success_rate": 0.4,
+            "execution_time": 0.3,
+            "reliability": 0.2,
+            "cpu_usage": 0.1,
         }
 
     def select_best_strategy(
         self,
         category: str,
         context: StrategyContext,
-        excluded_strategies: Optional[Set[str]] = None
+        excluded_strategies: Optional[Set[str]] = None,
     ) -> Optional[BaseStrategy]:
         """Select the best strategy for given context"""
-        candidates = self._get_candidate_strategies(category, context, excluded_strategies)
+        candidates = self._get_candidate_strategies(
+            category, context, excluded_strategies
+        )
 
         if not candidates:
             return None
@@ -373,10 +376,7 @@ class StrategySelector:
         return selected_strategy
 
     def select_strategies_for_ab_test(
-        self,
-        category: str,
-        context: StrategyContext,
-        test_percentage: float = 10.0
+        self, category: str, context: StrategyContext, test_percentage: float = 10.0
     ) -> List[BaseStrategy]:
         """Select strategies for A/B testing"""
         candidates = self._get_candidate_strategies(category, context)
@@ -391,10 +391,8 @@ class StrategySelector:
         remaining = [s for s in candidates if s not in top_performers]
         if remaining:
             import random
-            additional = random.sample(
-                remaining,
-                min(2, len(remaining))
-            )
+
+            additional = random.sample(remaining, min(2, len(remaining)))
             return top_performers + additional
 
         return top_performers
@@ -403,7 +401,7 @@ class StrategySelector:
         self,
         category: str,
         context: StrategyContext,
-        excluded: Optional[Set[str]] = None
+        excluded: Optional[Set[str]] = None,
     ) -> List[BaseStrategy]:
         """Get candidate strategies for selection"""
         excluded = excluded or set()
@@ -420,30 +418,37 @@ class StrategySelector:
 
             # Check if strategy is healthy
             health = strategy.get_health_status()
-            if not health.get('healthy', False):
+            if not health.get("healthy", False):
                 continue
 
             candidates.append(strategy)
 
         return candidates
 
-    def _is_strategy_compatible(self, strategy: BaseStrategy, context: StrategyContext) -> bool:
+    def _is_strategy_compatible(
+        self, strategy: BaseStrategy, context: StrategyContext
+    ) -> bool:
         """Check if strategy is compatible with context"""
         try:
             supported_types = strategy.get_supported_context_types()
             context_type = type(context.data)
 
-            return any(issubclass(context_type, supported_type) for supported_type in supported_types)
+            return any(
+                issubclass(context_type, supported_type)
+                for supported_type in supported_types
+            )
         except Exception:
             return False
 
-    def _calculate_strategy_score(self, strategy: BaseStrategy, context: StrategyContext) -> float:
+    def _calculate_strategy_score(
+        self, strategy: BaseStrategy, context: StrategyContext
+    ) -> float:
         """Calculate strategy score for selection"""
-        metrics = strategy.get_performance_metrics()
+        strategy.get_performance_metrics()
         health = strategy.get_health_status()
 
         # Base performance score
-        performance_score = health.get('performance_score', 0.0)
+        performance_score = health.get("performance_score", 0.0)
 
         # Adjust for current load and recent performance
         load_factor = self._calculate_load_factor(strategy)
@@ -454,10 +459,10 @@ class StrategySelector:
 
         # Weighted final score
         final_score = (
-            performance_score * 0.4 +
-            load_factor * 0.2 +
-            recent_performance * 0.2 +
-            context_score * 0.2
+            performance_score * 0.4
+            + load_factor * 0.2
+            + recent_performance * 0.2
+            + context_score * 0.2
         )
 
         return final_score
@@ -473,8 +478,12 @@ class StrategySelector:
 
         # Factor in execution frequency
         if metrics.last_execution:
-            time_since_last = (datetime.utcnow() - metrics.last_execution).total_seconds()
-            return min(100.0, time_since_last / 60.0)  # Higher score if not used recently
+            time_since_last = (
+                datetime.utcnow() - metrics.last_execution
+            ).total_seconds()
+            return min(
+                100.0, time_since_last / 60.0
+            )  # Higher score if not used recently
 
         return 50.0
 
@@ -485,13 +494,15 @@ class StrategySelector:
         # Simple implementation - use overall success rate
         return metrics.success_rate * 100
 
-    def _calculate_context_score(self, strategy: BaseStrategy, context: StrategyContext) -> float:
+    def _calculate_context_score(
+        self, strategy: BaseStrategy, context: StrategyContext
+    ) -> float:
         """Calculate context-specific score"""
         # Basic implementation - can be enhanced with ML-based scoring
         base_score = 50.0
 
         # Adjust based on context metadata
-        if hasattr(strategy, 'preferred_contexts'):
+        if hasattr(strategy, "preferred_contexts"):
             for pref_context in strategy.preferred_contexts:
                 if isinstance(context.data, pref_context):
                     base_score += 25.0
@@ -499,9 +510,13 @@ class StrategySelector:
 
         return min(100.0, base_score)
 
-    def _get_top_performers(self, strategies: List[BaseStrategy], max_count: int = 3) -> List[BaseStrategy]:
+    def _get_top_performers(
+        self, strategies: List[BaseStrategy], max_count: int = 3
+    ) -> List[BaseStrategy]:
         """Get top performing strategies"""
-        scored = [(s, s.get_performance_metrics().get_performance_score()) for s in strategies]
+        scored = [
+            (s, s.get_performance_metrics().get_performance_score()) for s in strategies
+        ]
         scored.sort(key=lambda x: x[1], reverse=True)
         return [s[0] for s in scored[:max_count]]
 
@@ -510,18 +525,17 @@ class StrategySelector:
         category: str,
         selected_strategy: BaseStrategy,
         context: StrategyContext,
-        scored_candidates: List[tuple]
+        scored_candidates: List[tuple],
     ):
         """Record strategy selection for learning"""
         selection_record = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'category': category,
-            'selected_strategy': selected_strategy.name,
-            'context_type': type(context.data).__name__,
-            'candidate_scores': [
-                {'strategy': s.name, 'score': score}
-                for s, score in scored_candidates
-            ]
+            "timestamp": datetime.utcnow().isoformat(),
+            "category": category,
+            "selected_strategy": selected_strategy.name,
+            "context_type": type(context.data).__name__,
+            "candidate_scores": [
+                {"strategy": s.name, "score": score} for s, score in scored_candidates
+            ],
         }
 
         self._selection_history.append(selection_record)
@@ -539,15 +553,17 @@ class StrategySelector:
         category_usage = defaultdict(int)
 
         for record in self._selection_history:
-            strategy_usage[record['selected_strategy']] += 1
-            category_usage[record['category']] += 1
+            strategy_usage[record["selected_strategy"]] += 1
+            category_usage[record["category"]] += 1
 
         return {
-            'total_selections': len(self._selection_history),
-            'strategy_usage': dict(strategy_usage),
-            'category_usage': dict(category_usage),
-            'most_used_strategy': max(strategy_usage.items(), key=lambda x: x[1])[0] if strategy_usage else None,
-            'selection_history_size': len(self._selection_history)
+            "total_selections": len(self._selection_history),
+            "strategy_usage": dict(strategy_usage),
+            "category_usage": dict(category_usage),
+            "most_used_strategy": max(strategy_usage.items(), key=lambda x: x[1])[0]
+            if strategy_usage
+            else None,
+            "selection_history_size": len(self._selection_history),
         }
 
 
@@ -574,7 +590,7 @@ class StrategyManager:
         category: str,
         context: StrategyContext,
         strategy_name: Optional[str] = None,
-        fallback_enabled: bool = True
+        fallback_enabled: bool = True,
     ) -> StrategyResult:
         """Execute a single strategy with fallback support"""
 
@@ -586,20 +602,21 @@ class StrategyManager:
         else:
             strategy = self.selector.select_best_strategy(category, context)
             if not strategy:
-                raise StrategyError(f"No suitable strategy found for category: {category}")
+                raise StrategyError(
+                    f"No suitable strategy found for category: {category}"
+                )
 
         try:
             return await strategy.execute_with_monitoring(context)
-        except Exception as e:
+        except Exception:
             if fallback_enabled:
-                return await self._try_fallback_strategies(category, context, {strategy.name})
+                return await self._try_fallback_strategies(
+                    category, context, {strategy.name}
+                )
             raise
 
     async def execute_parallel_strategies(
-        self,
-        category: str,
-        context: StrategyContext,
-        max_strategies: int = 3
+        self, category: str, context: StrategyContext, max_strategies: int = 3
     ) -> List[StrategyResult]:
         """Execute multiple strategies in parallel for comparison"""
 
@@ -610,10 +627,7 @@ class StrategyManager:
             return []
 
         # Execute in parallel
-        tasks = [
-            strategy.execute_with_monitoring(context)
-            for strategy in strategies
-        ]
+        tasks = [strategy.execute_with_monitoring(context) for strategy in strategies]
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -625,7 +639,7 @@ class StrategyManager:
                     data=None,
                     success=False,
                     strategy_name=strategies[i].name,
-                    error_message=str(result)
+                    error_message=str(result),
                 )
                 final_results.append(error_result)
             else:
@@ -634,9 +648,7 @@ class StrategyManager:
         return final_results
 
     async def execute_pipeline(
-        self,
-        pipeline_config: List[Dict[str, Any]],
-        initial_context: StrategyContext
+        self, pipeline_config: List[Dict[str, Any]], initial_context: StrategyContext
     ) -> StrategyResult:
         """Execute a pipeline of strategies"""
 
@@ -644,15 +656,13 @@ class StrategyManager:
         pipeline_results = []
 
         for step in pipeline_config:
-            category = step['category']
-            strategy_name = step.get('strategy_name')
-            transform_func = step.get('transform_function')
+            category = step["category"]
+            strategy_name = step.get("strategy_name")
+            transform_func = step.get("transform_function")
 
             try:
                 result = await self.execute_strategy(
-                    category,
-                    current_context,
-                    strategy_name
+                    category, current_context, strategy_name
                 )
 
                 pipeline_results.append(result)
@@ -662,7 +672,7 @@ class StrategyManager:
                     return StrategyResult(
                         data=pipeline_results,
                         success=False,
-                        error_message=f"Pipeline failed at step {category}: {result.error_message}"
+                        error_message=f"Pipeline failed at step {category}: {result.error_message}",
                     )
 
                 # Transform context for next step if function provided
@@ -673,43 +683,38 @@ class StrategyManager:
                 return StrategyResult(
                     data=pipeline_results,
                     success=False,
-                    error_message=f"Pipeline failed at step {category}: {str(e)}"
+                    error_message=f"Pipeline failed at step {category}: {str(e)}",
                 )
 
         return StrategyResult(
             data=pipeline_results,
             success=True,
-            metadata={'pipeline_steps': len(pipeline_config)}
+            metadata={"pipeline_steps": len(pipeline_config)},
         )
 
     async def _try_fallback_strategies(
-        self,
-        category: str,
-        context: StrategyContext,
-        excluded_strategies: Set[str]
+        self, category: str, context: StrategyContext, excluded_strategies: Set[str]
     ) -> StrategyResult:
         """Try fallback strategies when primary strategy fails"""
 
         fallback_strategy = self.selector.select_best_strategy(
-            category,
-            context,
-            excluded_strategies
+            category, context, excluded_strategies
         )
 
         if not fallback_strategy:
-            raise StrategyError(f"No fallback strategy available for category: {category}")
+            raise StrategyError(
+                f"No fallback strategy available for category: {category}"
+            )
 
         try:
             result = await fallback_strategy.execute_with_monitoring(context)
             result.fallback_used = True
             return result
-        except Exception as e:
+        except Exception:
             # Try one more fallback
             excluded_strategies.add(fallback_strategy.name)
             next_fallback = self.selector.select_best_strategy(
-                category,
-                context,
-                excluded_strategies
+                category, context, excluded_strategies
             )
 
             if next_fallback:
@@ -717,7 +722,9 @@ class StrategyManager:
                 result.fallback_used = True
                 return result
 
-            raise StrategyError(f"All fallback strategies failed for category: {category}")
+            raise StrategyError(
+                f"All fallback strategies failed for category: {category}"
+            )
 
     def get_system_health(self) -> Dict[str, Any]:
         """Get overall system health status"""
@@ -730,14 +737,15 @@ class StrategyManager:
             all_strategies.extend(strategies)
 
         healthy_strategies = sum(
-            1 for s in all_strategies
-            if s.get_health_status().get('healthy', False)
+            1 for s in all_strategies if s.get_health_status().get("healthy", False)
         )
 
         return {
-            'registry_stats': registry_stats,
-            'selection_analytics': selection_analytics,
-            'healthy_strategies': healthy_strategies,
-            'total_strategies': len(all_strategies),
-            'health_percentage': (healthy_strategies / len(all_strategies) * 100) if all_strategies else 0
+            "registry_stats": registry_stats,
+            "selection_analytics": selection_analytics,
+            "healthy_strategies": healthy_strategies,
+            "total_strategies": len(all_strategies),
+            "health_percentage": (healthy_strategies / len(all_strategies) * 100)
+            if all_strategies
+            else 0,
         }

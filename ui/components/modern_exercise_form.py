@@ -19,18 +19,52 @@ from ui.components.design_system import (
 
 # Constantes réutilisées
 MUSCLE_GROUPS = [
-    "Poitrine", "Dos", "Épaules", "Jambes", "Fessiers",
-    "Biceps", "Triceps", "Abdominaux", "Lombaires", "Mollets", "Avant-bras"
+    "Poitrine",
+    "Dos",
+    "Épaules",
+    "Jambes",
+    "Fessiers",
+    "Biceps",
+    "Triceps",
+    "Abdominaux",
+    "Lombaires",
+    "Mollets",
+    "Avant-bras",
 ]
 
 EQUIPMENT_OPTIONS = [
-    "Poids du corps", "Haltères", "Barre", "Kettlebell", "Élastiques",
-    "Machine", "Poulie", "TRX", "Anneaux", "Banc"
+    "Poids du corps",
+    "Haltères",
+    "Barre",
+    "Kettlebell",
+    "Élastiques",
+    "Machine",
+    "Poulie",
+    "TRX",
+    "Anneaux",
+    "Banc",
 ]
 
-TAG_OPTIONS = ["Unilatéral", "Bilatéral", "Explosif", "Tempo lent", "Isométrie", "Mobilité"]
+TAG_OPTIONS = [
+    "Unilatéral",
+    "Bilatéral",
+    "Explosif",
+    "Tempo lent",
+    "Isométrie",
+    "Mobilité",
+]
 COURSE_TAGS = ["CAF", "Core & Glutes", "Cross-Training", "Crossfit", "Hyrox", "TRX"]
-MOVEMENT_PATTERNS = ["Push", "Pull", "Squat", "Hinge", "Carry", "Lunge", "Twist", "Gait", "Jump"]
+MOVEMENT_PATTERNS = [
+    "Push",
+    "Pull",
+    "Squat",
+    "Hinge",
+    "Carry",
+    "Lunge",
+    "Twist",
+    "Gait",
+    "Jump",
+]
 EFFORT_TYPES = ["Force", "Hypertrophie", "Endurance", "Cardio", "Technique", "Mobilité"]
 MOVEMENT_CATEGORIES = ["Polyarticulaire", "Isolation", "Gainage"]
 
@@ -38,8 +72,12 @@ MOVEMENT_CATEGORIES = ["Polyarticulaire", "Isolation", "Gainage"]
 class ModernExerciseForm(ctk.CTkToplevel):
     """Formulaire d'exercice modernisé avec UX améliorée."""
 
-    def __init__(self, master, on_submit: Callable, exercise: Optional[Exercise] = None):
-        super().__init__(master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"])
+    def __init__(
+        self, master, on_submit: Callable, exercise: Optional[Exercise] = None
+    ):
+        super().__init__(
+            master, fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"]
+        )
 
         self._on_submit = on_submit
         self._is_edit_mode = exercise is not None
@@ -97,55 +135,78 @@ class ModernExerciseForm(ctk.CTkToplevel):
         badge_text = "MODIFICATION" if self._is_edit_mode else "CRÉATION"
 
         mode_badge = ctk.CTkLabel(
-            header, text=badge_text, fg_color=badge_color, corner_radius=12,
-            padx=12, pady=6, text_color="white", font=ctk.CTkFont(size=11, weight="bold")
+            header,
+            text=badge_text,
+            fg_color=badge_color,
+            corner_radius=12,
+            padx=12,
+            pady=6,
+            text_color="white",
+            font=ctk.CTkFont(size=11, weight="bold"),
         )
         mode_badge.pack(side="left")
 
         # Titre principal
         title = ctk.CTkLabel(
-            header, text="Configuration de l'exercice",
+            header,
+            text="Configuration de l'exercice",
             font=ctk.CTkFont(size=20, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         )
         title.pack(side="left", padx=(16, 0))
 
     def _create_main_form(self, parent):
         """Formulaire principal avec sections organisées."""
         self.form_container = ctk.CTkScrollableFrame(
-            parent, fg_color="transparent",
-            scrollbar_button_color=ctk.ThemeManager.theme["color"].get("surface_light", "#374151")
+            parent,
+            fg_color="transparent",
+            scrollbar_button_color=ctk.ThemeManager.theme["color"].get(
+                "surface_light", "#374151"
+            ),
         )
         self.form_container.grid(row=0, column=0, sticky="nsew", padx=(0, 16))
 
         # === SECTION ESSENTIELLE ===
-        essentials = self._create_section_card("🎯 Informations essentielles", always_open=True)
+        essentials = self._create_section_card(
+            "🎯 Informations essentielles", always_open=True
+        )
 
         # Nom avec validation visuelle
         self._create_name_field(essentials)
 
         # Groupe musculaire principal
         self.grp_groupe = ChipRadioGroup(
-            essentials, label="Groupe musculaire principal *", options=MUSCLE_GROUPS,
-            helper="Muscle principalement sollicité", selected_color="#10B981",
-            on_change=self._on_field_change
+            essentials,
+            label="Groupe musculaire principal *",
+            options=MUSCLE_GROUPS,
+            helper="Muscle principalement sollicité",
+            selected_color="#10B981",
+            on_change=self._on_field_change,
         )
         self.grp_groupe.pack(fill="x", pady=(16, 0))
 
         # === SECTION MOUVEMENT ===
-        movement = self._create_section_card("🏃 Caractéristiques du mouvement", always_open=True)
+        movement = self._create_section_card(
+            "🏃 Caractéristiques du mouvement", always_open=True
+        )
 
         self.grp_pattern = ChipRadioGroup(
-            movement, label="Pattern de mouvement", options=MOVEMENT_PATTERNS,
-            helper="Type de mouvement biomécanique", selected_color="#3B82F6",
-            on_change=self._on_field_change
+            movement,
+            label="Pattern de mouvement",
+            options=MOVEMENT_PATTERNS,
+            helper="Type de mouvement biomécanique",
+            selected_color="#3B82F6",
+            on_change=self._on_field_change,
         )
         self.grp_pattern.pack(fill="x", pady=(0, 12))
 
         self.grp_type = ChipRadioGroup(
-            movement, label="Type d'effort", options=EFFORT_TYPES,
-            helper="Objectif principal de l'exercice", selected_color="#8B5CF6",
-            on_change=self._on_field_change
+            movement,
+            label="Type d'effort",
+            options=EFFORT_TYPES,
+            helper="Objectif principal de l'exercice",
+            selected_color="#8B5CF6",
+            on_change=self._on_field_change,
         )
         self.grp_type.pack(fill="x")
 
@@ -154,14 +215,19 @@ class ModernExerciseForm(ctk.CTkToplevel):
         self._create_tags_section()
         self._create_advanced_section()
 
-    def _create_section_card(self, title: str, always_open: bool = False) -> ctk.CTkFrame:
+    def _create_section_card(
+        self, title: str, always_open: bool = False
+    ) -> ctk.CTkFrame:
         """Crée une carte de section moderne."""
         if always_open:
             section = ctk.CTkFrame(
                 self.form_container,
                 fg_color=ctk.ThemeManager.theme["CTkFrame"]["fg_color"],
-                corner_radius=12, border_width=1,
-                border_color=ctk.ThemeManager.theme["color"].get("surface_light", "#374151")
+                corner_radius=12,
+                border_width=1,
+                border_color=ctk.ThemeManager.theme["color"].get(
+                    "surface_light", "#374151"
+                ),
             )
             section.pack(fill="x", pady=(0, 16))
 
@@ -170,8 +236,10 @@ class ModernExerciseForm(ctk.CTkToplevel):
             header.pack(fill="x", padx=20, pady=(16, 8))
 
             ctk.CTkLabel(
-                header, text=title, font=ctk.CTkFont(size=16, weight="bold"),
-                text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+                header,
+                text=title,
+                font=ctk.CTkFont(size=16, weight="bold"),
+                text_color=ctk.ThemeManager.theme["color"]["primary_text"],
             ).pack(anchor="w")
 
             # Container pour le contenu
@@ -180,7 +248,9 @@ class ModernExerciseForm(ctk.CTkToplevel):
             return content
         else:
             # Utilise AccordionSection existant
-            accordion = AccordionSection(self.form_container, title=title, initially_open=False)
+            accordion = AccordionSection(
+                self.form_container, title=title, initially_open=False
+            )
             accordion.pack(fill="x", pady=(0, 16))
             return accordion.body
 
@@ -194,20 +264,26 @@ class ModernExerciseForm(ctk.CTkToplevel):
         label_frame.pack(fill="x", pady=(0, 6))
 
         ctk.CTkLabel(
-            label_frame, text="Nom de l'exercice",
+            label_frame,
+            text="Nom de l'exercice",
             font=ctk.CTkFont(size=13, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         ).pack(side="left")
 
         ctk.CTkLabel(
-            label_frame, text="*", text_color="#EF4444",
-            font=ctk.CTkFont(size=14, weight="bold")
+            label_frame,
+            text="*",
+            text_color="#EF4444",
+            font=ctk.CTkFont(size=14, weight="bold"),
         ).pack(side="left", padx=(4, 0))
 
         # Entry avec style moderne
         self.in_nom = ctk.CTkEntry(
-            name_container, placeholder_text="Ex: Développé couché haltères",
-            font=ctk.CTkFont(size=13), height=40, corner_radius=8
+            name_container,
+            placeholder_text="Ex: Développé couché haltères",
+            font=ctk.CTkFont(size=13),
+            height=40,
+            corner_radius=8,
         )
         self.in_nom.pack(fill="x")
 
@@ -219,12 +295,17 @@ class ModernExerciseForm(ctk.CTkToplevel):
 
     def _create_equipment_section(self):
         """Section équipements."""
-        equipment_section = self._create_section_card("🏋️ Équipements", always_open=False)
+        equipment_section = self._create_section_card(
+            "🏋️ Équipements", always_open=False
+        )
 
         self.grp_equip = ChipCheckboxGroup(
-            equipment_section, label="Matériel requis", options=EQUIPMENT_OPTIONS,
-            helper="Sélection multiple possible", selected_color="#F59E0B",
-            on_change=self._on_field_change
+            equipment_section,
+            label="Matériel requis",
+            options=EQUIPMENT_OPTIONS,
+            helper="Sélection multiple possible",
+            selected_color="#F59E0B",
+            on_change=self._on_field_change,
         )
         self.grp_equip.pack(fill="x")
 
@@ -233,28 +314,39 @@ class ModernExerciseForm(ctk.CTkToplevel):
         tags_section = self._create_section_card("🏷️ Tags et cours", always_open=False)
 
         self.grp_course = ChipCheckboxGroup(
-            tags_section, label="Cours collectifs", options=COURSE_TAGS,
-            helper="Types de cours où cet exercice est utilisé", selected_color="#F97316",
-            on_change=self._on_field_change
+            tags_section,
+            label="Cours collectifs",
+            options=COURSE_TAGS,
+            helper="Types de cours où cet exercice est utilisé",
+            selected_color="#F97316",
+            on_change=self._on_field_change,
         )
         self.grp_course.pack(fill="x", pady=(0, 12))
 
         self.grp_tags = ChipCheckboxGroup(
-            tags_section, label="Tags spécialisés", options=TAG_OPTIONS,
-            helper="Caractéristiques particulières", selected_color="#EC4899",
-            on_change=self._on_field_change
+            tags_section,
+            label="Tags spécialisés",
+            options=TAG_OPTIONS,
+            helper="Caractéristiques particulières",
+            selected_color="#EC4899",
+            on_change=self._on_field_change,
         )
         self.grp_tags.pack(fill="x")
 
     def _create_advanced_section(self):
         """Section paramètres avancés."""
-        advanced_section = self._create_section_card("⚙️ Paramètres avancés", always_open=False)
+        advanced_section = self._create_section_card(
+            "⚙️ Paramètres avancés", always_open=False
+        )
 
         # Catégorie de mouvement
         self.grp_category = ChipRadioGroup(
-            advanced_section, label="Catégorie de mouvement", options=MOVEMENT_CATEGORIES,
-            helper="Classification biomécanique", selected_color="#059669",
-            on_change=self._on_field_change
+            advanced_section,
+            label="Catégorie de mouvement",
+            options=MOVEMENT_CATEGORIES,
+            helper="Classification biomécanique",
+            selected_color="#059669",
+            on_change=self._on_field_change,
         )
         self.grp_category.pack(fill="x", pady=(0, 16))
 
@@ -266,8 +358,10 @@ class ModernExerciseForm(ctk.CTkToplevel):
         # Switch chargeable
         self.var_charge = ctk.BooleanVar(value=False)
         self.sw_charge = ctk.CTkSwitch(
-            params_frame, text="Exercice chargeable", variable=self.var_charge,
-            command=self._on_field_change
+            params_frame,
+            text="Exercice chargeable",
+            variable=self.var_charge,
+            command=self._on_field_change,
         )
         self.sw_charge.grid(row=0, column=0, sticky="w", pady=8)
 
@@ -276,21 +370,23 @@ class ModernExerciseForm(ctk.CTkToplevel):
         coeff_frame.grid(row=0, column=1, sticky="ew", padx=(16, 0))
 
         ctk.CTkLabel(
-            coeff_frame, text="Coefficient de volume",
-            font=ctk.CTkFont(size=12)
+            coeff_frame, text="Coefficient de volume", font=ctk.CTkFont(size=12)
         ).pack(anchor="w")
 
         self.in_coeff = ctk.CTkEntry(
-            coeff_frame, placeholder_text="1.0", width=80,
-            font=ctk.CTkFont(size=12)
+            coeff_frame, placeholder_text="1.0", width=80, font=ctk.CTkFont(size=12)
         )
         self.in_coeff.pack(fill="x", pady=(2, 0))
 
     def _create_sidebar(self, parent):
         """Sidebar avec aperçu temps réel."""
         sidebar = ctk.CTkFrame(
-            parent, corner_radius=12, border_width=1,
-            border_color=ctk.ThemeManager.theme["color"].get("surface_light", "#374151")
+            parent,
+            corner_radius=12,
+            border_width=1,
+            border_color=ctk.ThemeManager.theme["color"].get(
+                "surface_light", "#374151"
+            ),
         )
         sidebar.grid(row=0, column=1, sticky="nsew")
 
@@ -299,9 +395,10 @@ class ModernExerciseForm(ctk.CTkToplevel):
         sidebar_header.pack(fill="x", padx=16, pady=16)
 
         ctk.CTkLabel(
-            sidebar_header, text="🎯 Aperçu en temps réel",
+            sidebar_header,
+            text="🎯 Aperçu en temps réel",
             font=ctk.CTkFont(size=14, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+            text_color=ctk.ThemeManager.theme["color"]["primary_text"],
         ).pack(anchor="w")
 
         # Zone de summary avec scroll
@@ -321,30 +418,41 @@ class ModernExerciseForm(ctk.CTkToplevel):
 
         # Bouton Annuler
         cancel_btn = ctk.CTkButton(
-            btn_container, text="Annuler", command=self.destroy,
-            fg_color="transparent", border_width=1,
-            border_color=ctk.ThemeManager.theme["color"].get("surface_light", "#374151"),
+            btn_container,
+            text="Annuler",
+            command=self.destroy,
+            fg_color="transparent",
+            border_width=1,
+            border_color=ctk.ThemeManager.theme["color"].get(
+                "surface_light", "#374151"
+            ),
             text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
             hover_color=ctk.ThemeManager.theme["color"].get("surface_light", "#374151"),
-            font=ctk.CTkFont(size=13)
+            font=ctk.CTkFont(size=13),
         )
         cancel_btn.pack(side="left", padx=(0, 8))
 
         # Bouton Valider + Nouveau (si création)
         if not self._is_edit_mode:
             self.btn_submit_new = ctk.CTkButton(
-                btn_container, text="Valider + Nouveau",
+                btn_container,
+                text="Valider + Nouveau",
                 command=lambda: self._submit(reset_after=True),
-                fg_color="#6366F1", hover_color="#4F46E5",
-                font=ctk.CTkFont(size=13, weight="bold")
+                fg_color="#6366F1",
+                hover_color="#4F46E5",
+                font=ctk.CTkFont(size=13, weight="bold"),
             )
             self.btn_submit_new.pack(side="left", padx=(0, 8))
 
         # Bouton Valider principal
         self.btn_submit = ctk.CTkButton(
-            btn_container, text="Valider",
-            command=self._submit, fg_color="#10B981", hover_color="#059669",
-            font=ctk.CTkFont(size=13, weight="bold"), width=100
+            btn_container,
+            text="Valider",
+            command=self._submit,
+            fg_color="#10B981",
+            hover_color="#059669",
+            font=ctk.CTkFont(size=13, weight="bold"),
+            width=100,
         )
         self.btn_submit.pack(side="left")
 
@@ -383,7 +491,9 @@ class ModernExerciseForm(ctk.CTkToplevel):
         try:
             original_color = self.summary_frame.cget("fg_color")
             self.summary_frame.configure(fg_color="#10B981")
-            self.after(150, lambda: self.summary_frame.configure(fg_color=original_color))
+            self.after(
+                150, lambda: self.summary_frame.configure(fg_color=original_color)
+            )
         except:
             pass
 
@@ -396,28 +506,48 @@ class ModernExerciseForm(ctk.CTkToplevel):
         name = self.in_nom.get().strip()
         if name:
             name_label = ctk.CTkLabel(
-                self.summary_frame, text=name,
+                self.summary_frame,
+                text=name,
                 font=ctk.CTkFont(size=16, weight="bold"),
-                text_color=ctk.ThemeManager.theme["color"]["primary_text"]
+                text_color=ctk.ThemeManager.theme["color"]["primary_text"],
             )
             name_label.pack(anchor="w", pady=(0, 12))
 
         # Création des sections de résumé
         colors = {
-            "group": "#10B981", "pattern": "#3B82F6", "category": "#059669",
-            "type": "#8B5CF6", "equip": "#F59E0B", "course": "#F97316",
-            "tags": "#EC4899", "meta": "#6B7280"
+            "group": "#10B981",
+            "pattern": "#3B82F6",
+            "category": "#059669",
+            "type": "#8B5CF6",
+            "equip": "#F59E0B",
+            "course": "#F97316",
+            "tags": "#EC4899",
+            "meta": "#6B7280",
         }
 
-        self._add_summary_section("Groupe", [self.grp_groupe.get_value()], colors["group"])
-        self._add_summary_section("Mouvement", [self.grp_pattern.get_value()], colors["pattern"])
+        self._add_summary_section(
+            "Groupe", [self.grp_groupe.get_value()], colors["group"]
+        )
+        self._add_summary_section(
+            "Mouvement", [self.grp_pattern.get_value()], colors["pattern"]
+        )
         self._add_summary_section("Type", [self.grp_type.get_value()], colors["type"])
-        self._add_summary_section("Catégorie", [self.grp_category.get_value()], colors["category"])
+        self._add_summary_section(
+            "Catégorie", [self.grp_category.get_value()], colors["category"]
+        )
 
         # Sections multiples
-        equips = self.grp_equip.get_values() if hasattr(self.grp_equip, 'get_values') else []
-        courses = self.grp_course.get_values() if hasattr(self.grp_course, 'get_values') else []
-        tags = self.grp_tags.get_values() if hasattr(self.grp_tags, 'get_values') else []
+        equips = (
+            self.grp_equip.get_values() if hasattr(self.grp_equip, "get_values") else []
+        )
+        courses = (
+            self.grp_course.get_values()
+            if hasattr(self.grp_course, "get_values")
+            else []
+        )
+        tags = (
+            self.grp_tags.get_values() if hasattr(self.grp_tags, "get_values") else []
+        )
 
         self._add_summary_section("Équipements", equips, colors["equip"])
         self._add_summary_section("Cours", courses, colors["course"])
@@ -442,8 +572,10 @@ class ModernExerciseForm(ctk.CTkToplevel):
         section.pack(fill="x", pady=(0, 8))
 
         ctk.CTkLabel(
-            section, text=title, font=ctk.CTkFont(size=11, weight="bold"),
-            text_color=ctk.ThemeManager.theme["color"]["secondary_text"]
+            section,
+            text=title,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=ctk.ThemeManager.theme["color"]["secondary_text"],
         ).pack(anchor="w", pady=(0, 4))
 
         chips_frame = ctk.CTkFrame(section, fg_color="transparent")
@@ -454,8 +586,12 @@ class ModernExerciseForm(ctk.CTkToplevel):
             chip.pack(side="left", padx=(0, 4), pady=(0, 2))
 
             ctk.CTkLabel(
-                chip, text=str(item), padx=8, pady=4,
-                text_color="white", font=ctk.CTkFont(size=10, weight="bold")
+                chip,
+                text=str(item),
+                padx=8,
+                pady=4,
+                text_color="white",
+                font=ctk.CTkFont(size=10, weight="bold"),
             ).pack()
 
     def _update_submit_state(self):
@@ -464,7 +600,7 @@ class ModernExerciseForm(ctk.CTkToplevel):
         state = "normal" if is_valid else "disabled"
 
         self.btn_submit.configure(state=state)
-        if hasattr(self, 'btn_submit_new'):
+        if hasattr(self, "btn_submit_new"):
             self.btn_submit_new.configure(state=state)
 
     def _is_form_valid(self) -> bool:
@@ -517,12 +653,14 @@ class ModernExerciseForm(ctk.CTkToplevel):
         if exercise.type_effort:
             self.grp_type.set_value(exercise.type_effort)
 
-        if hasattr(exercise, 'movement_category') and exercise.movement_category:
+        if hasattr(exercise, "movement_category") and exercise.movement_category:
             self.grp_category.set_value(exercise.movement_category)
 
         # Équipements
         if exercise.equipement:
-            equips = [e.strip() for e in str(exercise.equipement).split(",") if e.strip()]
+            equips = [
+                e.strip() for e in str(exercise.equipement).split(",") if e.strip()
+            ]
             self.grp_equip.set_values(equips)
 
         # Tags
@@ -553,12 +691,20 @@ class ModernExerciseForm(ctk.CTkToplevel):
 
         # Collecte des tags
         all_tags = []
-        all_tags.extend(self.grp_tags.get_values() if hasattr(self.grp_tags, 'get_values') else [])
-        all_tags.extend(self.grp_course.get_values() if hasattr(self.grp_course, 'get_values') else [])
+        all_tags.extend(
+            self.grp_tags.get_values() if hasattr(self.grp_tags, "get_values") else []
+        )
+        all_tags.extend(
+            self.grp_course.get_values()
+            if hasattr(self.grp_course, "get_values")
+            else []
+        )
         tags_csv = ",".join(sorted(set(all_tags))) if all_tags else None
 
         # Équipements
-        equips = self.grp_equip.get_values() if hasattr(self.grp_equip, 'get_values') else []
+        equips = (
+            self.grp_equip.get_values() if hasattr(self.grp_equip, "get_values") else []
+        )
         equip_csv = ",".join(sorted(equips)) if equips else None
 
         payload = {

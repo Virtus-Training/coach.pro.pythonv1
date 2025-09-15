@@ -41,47 +41,72 @@ class WorkoutConfigService:
         """Applique des defaults intelligents basés sur les meilleures pratiques."""
 
         # Équilibrage musculaire optimisé pour CrossFit
-        config.muscle_balance_rules.update({
-            "push_pull_ratio": 0.65,  # Légèrement plus de push (CrossFit style)
-            "upper_lower_ratio": 0.6,  # Plus de travail bas du corps
-            "max_consecutive_same_muscle": 1,  # Éviter répétition
-            "core_frequency": 0.4,  # Important dans CrossFit
-        })
+        config.muscle_balance_rules.update(
+            {
+                "push_pull_ratio": 0.65,  # Légèrement plus de push (CrossFit style)
+                "upper_lower_ratio": 0.6,  # Plus de travail bas du corps
+                "max_consecutive_same_muscle": 1,  # Éviter répétition
+                "core_frequency": 0.4,  # Important dans CrossFit
+            }
+        )
 
         # Exercices favoris par contexte (standards CrossFit/Hyrox)
-        config.favorite_exercises.update({
-            "warmup": [
-                "Air Squat", "Jumping Jacks", "Arm Circles", "Leg Swings",
-                "Inchworms", "Hip Circles", "Shoulder Shrugs"
-            ],
-            "strength": [
-                "Back Squat", "Deadlift", "Bench Press", "Overhead Press",
-                "Front Squat", "Romanian Deadlift", "Pull-ups"
-            ],
-            "conditioning": [
-                "Burpees", "Kettlebell Swings", "Box Jumps", "Mountain Climbers",
-                "Thrusters", "Wall Balls", "Battle Ropes"
-            ],
-            "finisher": [
-                "Plank Hold", "Burpee Finisher", "Sprint", "Max Effort Row",
-                "Farmer's Walk", "Bear Crawl"
-            ]
-        })
+        config.favorite_exercises.update(
+            {
+                "warmup": [
+                    "Air Squat",
+                    "Jumping Jacks",
+                    "Arm Circles",
+                    "Leg Swings",
+                    "Inchworms",
+                    "Hip Circles",
+                    "Shoulder Shrugs",
+                ],
+                "strength": [
+                    "Back Squat",
+                    "Deadlift",
+                    "Bench Press",
+                    "Overhead Press",
+                    "Front Squat",
+                    "Romanian Deadlift",
+                    "Pull-ups",
+                ],
+                "conditioning": [
+                    "Burpees",
+                    "Kettlebell Swings",
+                    "Box Jumps",
+                    "Mountain Climbers",
+                    "Thrusters",
+                    "Wall Balls",
+                    "Battle Ropes",
+                ],
+                "finisher": [
+                    "Plank Hold",
+                    "Burpee Finisher",
+                    "Sprint",
+                    "Max Effort Row",
+                    "Farmer's Walk",
+                    "Bear Crawl",
+                ],
+            }
+        )
 
         # Restrictions basées sur l'expérience coaching
-        config.exercise_restrictions.update({
-            "limited_frequency": {
-                "Burpees": 0.4,  # Pas plus de 40% des séances
-                "Wall Balls": 0.3,
-                "Turkish Get-ups": 0.2,  # Exercice très technique
-            },
-            "progression_exercises": {
-                "Muscle-ups": {"min_level": "advanced"},
-                "Handstand Push-ups": {"min_level": "intermediate"},
-                "Pistol Squats": {"min_level": "intermediate"},
-                "Olympic Lifts": {"min_level": "advanced"},
+        config.exercise_restrictions.update(
+            {
+                "limited_frequency": {
+                    "Burpees": 0.4,  # Pas plus de 40% des séances
+                    "Wall Balls": 0.3,
+                    "Turkish Get-ups": 0.2,  # Exercice très technique
+                },
+                "progression_exercises": {
+                    "Muscle-ups": {"min_level": "advanced"},
+                    "Handstand Push-ups": {"min_level": "intermediate"},
+                    "Pistol Squats": {"min_level": "intermediate"},
+                    "Olympic Lifts": {"min_level": "advanced"},
+                },
             }
-        })
+        )
 
     def get_config(self) -> WorkoutGenerationConfig:
         """Retourne la configuration actuelle."""
@@ -146,16 +171,16 @@ class WorkoutConfigService:
         try:
             # Convertir le feedback en format d'apprentissage
             session_data = {
-                'session_id': feedback.session_id,
-                'format': getattr(feedback, 'format', 'unknown'),
-                'exercises_used': getattr(feedback, 'exercises_used', []),
+                "session_id": feedback.session_id,
+                "format": getattr(feedback, "format", "unknown"),
+                "exercises_used": getattr(feedback, "exercises_used", []),
             }
 
             # Calculer score composite (coach + client + engagement)
             composite_score = (
-                feedback.coach_rating * 0.5 +
-                (feedback.difficulty_perceived / 10) * 0.2 +
-                (feedback.engagement_level / 10) * 0.3
+                feedback.coach_rating * 0.5
+                + (feedback.difficulty_perceived / 10) * 0.2
+                + (feedback.engagement_level / 10) * 0.3
             ) / 10  # Normaliser sur 0-1
 
             self._config.update_learning_from_session(session_data, composite_score)
@@ -199,24 +224,32 @@ class WorkoutConfigService:
     def get_exercise_restrictions_for_generation(self) -> Dict[str, Any]:
         """Retourne les restrictions d'exercices formatées pour le générateur."""
         return {
-            'banned_exercises': set(self._config.exercise_restrictions.get("banned_exercises", [])),
-            'limited_frequency': self._config.exercise_restrictions.get("limited_frequency", {}),
-            'progression_requirements': self._config.exercise_restrictions.get("progression_exercises", {}),
+            "banned_exercises": set(
+                self._config.exercise_restrictions.get("banned_exercises", [])
+            ),
+            "limited_frequency": self._config.exercise_restrictions.get(
+                "limited_frequency", {}
+            ),
+            "progression_requirements": self._config.exercise_restrictions.get(
+                "progression_exercises", {}
+            ),
         }
 
-    def validate_exercise_for_context(self, exercise_name: str, context: str, user_level: str = "beginner") -> bool:
+    def validate_exercise_for_context(
+        self, exercise_name: str, context: str, user_level: str = "beginner"
+    ) -> bool:
         """Valide si un exercice est approprié pour un contexte donné."""
         restrictions = self.get_exercise_restrictions_for_generation()
 
         # Vérifier si exercice banni
-        if exercise_name in restrictions['banned_exercises']:
+        if exercise_name in restrictions["banned_exercises"]:
             return False
 
         # Vérifier niveau requis
-        progression_req = restrictions['progression_requirements'].get(exercise_name)
+        progression_req = restrictions["progression_requirements"].get(exercise_name)
         if progression_req:
-            required_level = progression_req.get('min_level', 'beginner')
-            level_hierarchy = {'beginner': 1, 'intermediate': 2, 'advanced': 3}
+            required_level = progression_req.get("min_level", "beginner")
+            level_hierarchy = {"beginner": 1, "intermediate": 2, "advanced": 3}
 
             user_level_num = level_hierarchy.get(user_level, 1)
             required_level_num = level_hierarchy.get(required_level, 1)
@@ -226,10 +259,12 @@ class WorkoutConfigService:
 
         return True
 
-    def get_optimal_rep_range(self, format_type: str, exercise_complexity: str = "moderate") -> tuple:
+    def get_optimal_rep_range(
+        self, format_type: str, exercise_complexity: str = "moderate"
+    ) -> tuple:
         """Retourne la fourchette de répétitions optimale pour un format et niveau de complexité."""
         format_rules = self._config.format_rules.get(format_type, {})
-        base_range = format_rules.get('rep_range', (8, 12))
+        base_range = format_rules.get("rep_range", (8, 12))
 
         # Ajuster selon complexité
         if exercise_complexity == "complex":

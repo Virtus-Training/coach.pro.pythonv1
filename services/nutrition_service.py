@@ -144,4 +144,3 @@ class NutritionService:
             if a.id == aliment_id:
                 return a
         return None
-

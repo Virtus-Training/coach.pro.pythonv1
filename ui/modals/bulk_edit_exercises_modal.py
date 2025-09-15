@@ -74,10 +74,18 @@ class BulkEditExercisesModal(ctk.CTkToplevel):
         # Footer
         btn_row = ctk.CTkFrame(frame, fg_color="transparent")
         btn_row.pack(side="bottom", fill="x", pady=(8, 0))
-        ctk.CTkButton(btn_row, text="Annuler", command=self.destroy, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(side="right")
-        ctk.CTkButton(btn_row, text="Appliquer", command=self._submit, font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"])).pack(
-            side="right", padx=(0, 8)
-        )
+        ctk.CTkButton(
+            btn_row,
+            text="Annuler",
+            command=self.destroy,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right")
+        ctk.CTkButton(
+            btn_row,
+            text="Appliquer",
+            command=self._submit,
+            font=ctk.CTkFont(**ctk.ThemeManager.theme["font"]["Button"]),
+        ).pack(side="right", padx=(0, 8))
 
         # Modal behavior
         try:
@@ -106,4 +114,3 @@ class BulkEditExercisesModal(ctk.CTkToplevel):
         }
         self._on_submit(changes)
         self.destroy()
-

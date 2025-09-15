@@ -9,10 +9,7 @@ import asyncio
 import time
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
-
-from reportlab.lib.pagesizes import A4, LETTER
-from reportlab.pdfgen import canvas
+from typing import Any, Dict, List, Optional
 
 from ..managers.cache_manager import CacheManager
 from ..managers.style_manager import StyleManager
@@ -49,7 +46,7 @@ class PDFEngine:
         cache_key = self._generate_cache_key(template_type, data, template_config)
         if self.cache_manager and self.cache_manager.get(cache_key):
             cached_pdf = self.cache_manager.get(cache_key)
-            with open(output_path, 'wb') as f:
+            with open(output_path, "wb") as f:
                 f.write(cached_pdf)
             return {"cached": True, "generation_time": 0}
 
@@ -64,12 +61,10 @@ class PDFEngine:
 
         # Generate PDF
         pdf_buffer = BytesIO()
-        await asyncio.get_event_loop().run_in_executor(
-            None, template.build, pdf_buffer
-        )
+        await asyncio.get_event_loop().run_in_executor(None, template.build, pdf_buffer)
 
         # Save to file
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             f.write(pdf_buffer.getvalue())
 
         # Cache result
@@ -178,7 +173,9 @@ class PDFEngine:
             "total_documents": self._generation_stats["docs_generated"],
             "total_time": self._generation_stats["total_time"],
             "average_time": avg_time,
-            "cache_stats": self.cache_manager.get_stats() if self.cache_manager else None,
+            "cache_stats": self.cache_manager.get_stats()
+            if self.cache_manager
+            else None,
         }
 
     def clear_cache(self) -> None:
@@ -195,8 +192,12 @@ class PDFEngine:
 
         combined = {
             "template_type": template_type,
-            "data_hash": hashlib.md5(json.dumps(data, sort_keys=True).encode()).hexdigest(),
-            "config_hash": hashlib.md5(json.dumps(config or {}, sort_keys=True).encode()).hexdigest(),
+            "data_hash": hashlib.md5(
+                json.dumps(data, sort_keys=True).encode()
+            ).hexdigest(),
+            "config_hash": hashlib.md5(
+                json.dumps(config or {}, sort_keys=True).encode()
+            ).hexdigest(),
         }
         return hashlib.md5(json.dumps(combined, sort_keys=True).encode()).hexdigest()
 

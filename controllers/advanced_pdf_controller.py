@@ -8,7 +8,6 @@ from __future__ import annotations
 import asyncio
 import json
 import tempfile
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from services.advanced_pdf_service import AdvancedPdfService
@@ -39,12 +38,20 @@ class AdvancedPdfController:
             if async_mode:
                 return asyncio.run(
                     self.service.generate_professional_workout_pdf_async(
-                        workout_data, output_path, template_style, brand_config, style_overrides
+                        workout_data,
+                        output_path,
+                        template_style,
+                        brand_config,
+                        style_overrides,
                     )
                 )
             else:
                 return self.service.generate_professional_workout_pdf_sync(
-                    workout_data, output_path, template_style, brand_config, style_overrides
+                    workout_data,
+                    output_path,
+                    template_style,
+                    brand_config,
+                    style_overrides,
                 )
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -63,12 +70,20 @@ class AdvancedPdfController:
             if async_mode:
                 return asyncio.run(
                     self.service.generate_professional_nutrition_pdf_async(
-                        nutrition_data, output_path, template_style, brand_config, style_overrides
+                        nutrition_data,
+                        output_path,
+                        template_style,
+                        brand_config,
+                        style_overrides,
                     )
                 )
             else:
                 return self.service.generate_professional_nutrition_pdf_sync(
-                    nutrition_data, output_path, template_style, brand_config, style_overrides
+                    nutrition_data,
+                    output_path,
+                    template_style,
+                    brand_config,
+                    style_overrides,
                 )
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -343,14 +358,14 @@ class AdvancedPdfController:
                     "professional": "Professionnel",
                     "vibrant": "Dynamique",
                     "monochrome": "Monochrome",
-                    "fitness": "Fitness"
+                    "fitness": "Fitness",
                 },
                 "font_families": {
                     "modern": "Moderne",
                     "classic": "Classique",
-                    "sans": "Sans-serif"
+                    "sans": "Sans-serif",
                 },
-                "template_variants": template_info.get("variants", [])
+                "template_variants": template_info.get("variants", []),
             }
         except Exception as e:
             return {"success": False, "error": str(e)}
@@ -372,7 +387,9 @@ class AdvancedPdfController:
 
     # ========== BACKWARD COMPATIBILITY ==========
 
-    def get_legacy_session_style(self, template_id: Optional[int] = None) -> Dict[str, Any]:
+    def get_legacy_session_style(
+        self, template_id: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Get session style using legacy service (backward compatibility)"""
         return self.service.get_legacy_session_style(template_id)
 
@@ -428,5 +445,5 @@ class AdvancedPdfController:
             "success": False,
             "error": error_message,
             "context": context,
-            "error_type": type(error).__name__
+            "error_type": type(error).__name__,
         }

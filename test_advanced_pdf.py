@@ -3,12 +3,14 @@ Test simple du système PDF avancé
 Vérification que les modules s'importent et fonctionnent
 """
 
+
 def test_import_modules():
     """Test l'import des modules principaux"""
     print("Test d'import des modules...")
 
     try:
         from services.advanced_pdf_service import AdvancedPdfService
+
         print("OK - AdvancedPdfService importe avec succes")
     except ImportError as e:
         print(f"ERREUR import AdvancedPdfService: {e}")
@@ -16,6 +18,7 @@ def test_import_modules():
 
     try:
         from controllers.advanced_pdf_controller import AdvancedPdfController
+
         print("OK - AdvancedPdfController importe avec succes")
     except ImportError as e:
         print(f"ERREUR import AdvancedPdfController: {e}")
@@ -23,6 +26,7 @@ def test_import_modules():
 
     try:
         from ui.pages.advanced_pdf_templates_page import AdvancedPdfTemplatesPage
+
         print("OK - AdvancedPdfTemplatesPage importe avec succes")
     except ImportError as e:
         print(f"ERREUR import AdvancedPdfTemplatesPage: {e}")
@@ -37,6 +41,7 @@ def test_service_initialization():
 
     try:
         from services.advanced_pdf_service import AdvancedPdfService
+
         service = AdvancedPdfService()
         print("✅ Service initialisé avec succès")
 
@@ -60,6 +65,7 @@ def test_sample_data():
 
     try:
         from services.advanced_pdf_service import AdvancedPdfService
+
         service = AdvancedPdfService()
 
         # Test données session
@@ -81,9 +87,10 @@ def test_simple_pdf_generation():
     print("\n🧪 Test génération PDF simple...")
 
     try:
-        from services.advanced_pdf_service import AdvancedPdfService
-        import tempfile
         import os
+        import tempfile
+
+        from services.advanced_pdf_service import AdvancedPdfService
 
         service = AdvancedPdfService()
 
@@ -100,18 +107,14 @@ def test_simple_pdf_generation():
                 {
                     "title": "Test Block",
                     "format": "LIBRE",
-                    "exercises": [
-                        {"name": "Test Exercise", "reps": "10"}
-                    ]
+                    "exercises": [{"name": "Test Exercise", "reps": "10"}],
                 }
-            ]
+            ],
         }
 
         # Génération synchrone
         result = service.generate_session_pdf_sync(
-            session_data,
-            tmp_path,
-            template_variant="modern"
+            session_data, tmp_path, template_variant="modern"
         )
 
         if os.path.exists(tmp_path):
@@ -129,7 +132,7 @@ def test_simple_pdf_generation():
         print(f"❌ Erreur génération PDF: {e}")
         # Cleanup if needed
         try:
-            if 'tmp_path' in locals() and os.path.exists(tmp_path):
+            if "tmp_path" in locals() and os.path.exists(tmp_path):
                 os.unlink(tmp_path)
         except:
             pass
@@ -168,7 +171,9 @@ def main():
         print("🎉 Tous les tests ont réussi ! Le système PDF avancé est opérationnel.")
         return True
     else:
-        print(f"⚠️ {total_tests - tests_passed} test(s) ont échoué. Vérifiez les erreurs ci-dessus.")
+        print(
+            f"⚠️ {total_tests - tests_passed} test(s) ont échoué. Vérifiez les erreurs ci-dessus."
+        )
         return False
 
 

@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from reportlab.lib.units import cm
-from reportlab.platypus import Paragraph, Spacer, Table, TableStyle, PageBreak
 from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.platypus import PageBreak, Paragraph, Spacer, Table, TableStyle
 
 from .base_template import BaseTemplate
 
@@ -96,19 +96,19 @@ class ProgramTemplate(BaseTemplate):
                                                     "rest": {"type": "string"},
                                                     "progression": {"type": "string"},
                                                 },
-                                                "required": ["name"]
-                                            }
-                                        }
+                                                "required": ["name"],
+                                            },
+                                        },
                                     },
-                                    "required": ["day", "type"]
-                                }
-                            }
+                                    "required": ["day", "type"],
+                                },
+                            },
                         },
-                        "required": ["week_number", "days"]
-                    }
-                }
+                        "required": ["week_number", "days"],
+                    },
+                },
             },
-            "required": ["title", "weeks"]
+            "required": ["title", "weeks"],
         }
 
     def _build_content(self) -> List[Any]:
@@ -135,8 +135,11 @@ class ProgramTemplate(BaseTemplate):
                 elements.extend(self._build_compact_layout(week))
 
             # Page break between weeks if configured
-            if (self.merged_config.get("page_break_per_week", False) and
-                i < len(weeks) - 1 and not self.preview_mode):
+            if (
+                self.merged_config.get("page_break_per_week", False)
+                and i < len(weeks) - 1
+                and not self.preview_mode
+            ):
                 elements.append(PageBreak())
             else:
                 elements.append(Spacer(1, 0.6 * cm))
@@ -157,7 +160,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📋 Vue d\'ensemble du programme</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -183,18 +186,33 @@ class ProgramTemplate(BaseTemplate):
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_primary"]}">{overview_text}</font>',
-                self.styles["body"]
+                self.styles["body"],
             )
 
             # Create background box
             overview_table_data = [[overview_paragraph]]
             overview_table = Table(overview_table_data, colWidths=[18 * cm])
-            overview_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor(self.merged_config["colors"]["surface"])),
-                ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-                ('PADDING', (0, 0), (-1, -1), 12),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ]))
+            overview_table.setStyle(
+                TableStyle(
+                    [
+                        (
+                            "BACKGROUND",
+                            (0, 0),
+                            (-1, -1),
+                            colors.HexColor(self.merged_config["colors"]["surface"]),
+                        ),
+                        (
+                            "BORDER",
+                            (0, 0),
+                            (-1, -1),
+                            1,
+                            colors.HexColor(self.merged_config["colors"]["border"]),
+                        ),
+                        ("PADDING", (0, 0), (-1, -1), 12),
+                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ]
+                )
+            )
 
             elements.append(overview_table)
 
@@ -216,7 +234,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>{week_title}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(week_header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -245,7 +263,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>{week_title}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(week_header)
         elements.append(Spacer(1, 0.4 * cm))
@@ -274,7 +292,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>{week_title}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(week_header)
         elements.append(Spacer(1, 0.2 * cm))
@@ -319,17 +337,19 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
             f'color="{self.merged_config["colors"]["text_primary"]}"><b>{day_header_text}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(day_header)
 
         # Rest day handling
-        if day_type.lower() in ["repos", "rest"] and self.merged_config.get("show_rest_days", True):
+        if day_type.lower() in ["repos", "rest"] and self.merged_config.get(
+            "show_rest_days", True
+        ):
             rest_paragraph = Paragraph(
                 f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
                 f'size="{self.merged_config["fonts"]["body"]["size"]}" '
                 f'color="{self.merged_config["colors"]["text_secondary"]}"><i>🛌 Jour de repos - Récupération active recommandée</i></font>',
-                self.styles["body"]
+                self.styles["body"],
             )
             elements.append(rest_paragraph)
             return elements
@@ -359,7 +379,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["subheading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["subheading"]["size"]}" '
             f'color="white"><b>{day_title}</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         card_data.append([header_paragraph])
 
@@ -370,18 +390,37 @@ class ProgramTemplate(BaseTemplate):
 
         # Create card table
         card_table = Table(card_data, colWidths=[18 * cm])
-        card_table.setStyle(TableStyle([
-            # Header styling
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('PADDING', (0, 0), (-1, 0), 12),
-
-            # Content styling
-            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["day_bg"])),
-            ('BORDER', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('PADDING', (0, 1), (-1, -1), 15),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ]))
+        card_table.setStyle(
+            TableStyle(
+                [
+                    # Header styling
+                    (
+                        "BACKGROUND",
+                        (0, 0),
+                        (-1, 0),
+                        colors.HexColor(self.merged_config["colors"]["primary"]),
+                    ),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("PADDING", (0, 0), (-1, 0), 12),
+                    # Content styling
+                    (
+                        "BACKGROUND",
+                        (0, 1),
+                        (-1, -1),
+                        colors.HexColor(self.merged_config["colors"]["day_bg"]),
+                    ),
+                    (
+                        "BORDER",
+                        (0, 0),
+                        (-1, -1),
+                        1,
+                        colors.HexColor(self.merged_config["colors"]["border"]),
+                    ),
+                    ("PADDING", (0, 1), (-1, -1), 15),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ]
+            )
+        )
 
         elements.append(card_table)
         return elements
@@ -426,7 +465,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
             f'size="{self.merged_config["fonts"]["body"]["size"]}" '
             f'color="{self.merged_config["colors"]["text_primary"]}">{content_text}</font>',
-            self.styles["body"]
+            self.styles["body"],
         )
 
     def _build_exercises_table(self, exercises: List[Dict[str, Any]]) -> Any:
@@ -462,65 +501,151 @@ class ProgramTemplate(BaseTemplate):
 
         return self._create_styled_table(table_data, col_widths)
 
-    def _create_styled_table(self, data: List[List[str]], col_widths: List[float]) -> Any:
+    def _create_styled_table(
+        self, data: List[List[str]], col_widths: List[float]
+    ) -> Any:
         """Create professionally styled table"""
         table = Table(data, colWidths=col_widths, repeatRows=1)
 
-        style = TableStyle([
-            # Header styling
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-
-            # Body styling
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["body"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-
-            # Alternating backgrounds
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(self.merged_config["colors"]["surface"])]),
-
-            # Grid and padding
-            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        style = TableStyle(
+            [
+                # Header styling
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                ("ALIGN", (0, 0), (-1, 0), "CENTER"),
+                # Body styling
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["body"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                # Alternating backgrounds
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ],
+                ),
+                # Grid and padding
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    1,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ("LEFTPADDING", (0, 0), (-1, -1), 8),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
 
         table.setStyle(style)
         return table
 
     def _get_compact_table_style(self) -> TableStyle:
         """Get styling for compact table"""
-        return TableStyle([
-            # Header
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor(self.merged_config["colors"]["primary"])),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["name"]),
-            ('FONTSIZE', (0, 0), (-1, 0), self.merged_config["fonts"]["subheading"]["size"]),
-
-            # Body
-            ('FONTNAME', (0, 1), (-1, -1), self.merged_config["fonts"]["caption"]["name"]),
-            ('FONTSIZE', (0, 1), (-1, -1), self.merged_config["fonts"]["caption"]["size"]),
-            ('TEXTCOLOR', (0, 1), (-1, -1), colors.HexColor(self.merged_config["colors"]["text_primary"])),
-
-            # Alternating backgrounds
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1),
-             [colors.white, colors.HexColor(self.merged_config["colors"]["surface"])]),
-
-            # Grid
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor(self.merged_config["colors"]["border"])),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ])
+        return TableStyle(
+            [
+                # Header
+                (
+                    "BACKGROUND",
+                    (0, 0),
+                    (-1, 0),
+                    colors.HexColor(self.merged_config["colors"]["primary"]),
+                ),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                (
+                    "FONTNAME",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 0),
+                    (-1, 0),
+                    self.merged_config["fonts"]["subheading"]["size"],
+                ),
+                # Body
+                (
+                    "FONTNAME",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["caption"]["name"],
+                ),
+                (
+                    "FONTSIZE",
+                    (0, 1),
+                    (-1, -1),
+                    self.merged_config["fonts"]["caption"]["size"],
+                ),
+                (
+                    "TEXTCOLOR",
+                    (0, 1),
+                    (-1, -1),
+                    colors.HexColor(self.merged_config["colors"]["text_primary"]),
+                ),
+                # Alternating backgrounds
+                (
+                    "ROWBACKGROUNDS",
+                    (0, 1),
+                    (-1, -1),
+                    [
+                        colors.white,
+                        colors.HexColor(self.merged_config["colors"]["surface"]),
+                    ],
+                ),
+                # Grid
+                (
+                    "GRID",
+                    (0, 0),
+                    (-1, -1),
+                    0.5,
+                    colors.HexColor(self.merged_config["colors"]["border"]),
+                ),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+                ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
 
     def _build_notes_section(self, notes: str) -> List[Any]:
         """Build notes section"""
@@ -530,7 +655,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["heading"]["name"]}" '
             f'size="{self.merged_config["fonts"]["heading"]["size"]}" '
             f'color="{self.merged_config["colors"]["primary"]}"><b>📝 Notes du programme</b></font>',
-            self.styles["heading"]
+            self.styles["heading"],
         )
         elements.append(notes_header)
         elements.append(Spacer(1, 0.3 * cm))
@@ -539,7 +664,7 @@ class ProgramTemplate(BaseTemplate):
             f'<font name="{self.merged_config["fonts"]["body"]["name"]}" '
             f'size="{self.merged_config["fonts"]["body"]["size"]}" '
             f'color="{self.merged_config["colors"]["text_primary"]}">{notes}</font>',
-            self.styles["body"]
+            self.styles["body"],
         )
         elements.append(notes_content)
 
@@ -556,7 +681,11 @@ class ProgramTemplate(BaseTemplate):
 
         for week in weeks:
             days = week.get("days", [])
-            sessions = sum(1 for day in days if day.get("type", "").lower() not in ["repos", "rest"])
+            sessions = sum(
+                1
+                for day in days
+                if day.get("type", "").lower() not in ["repos", "rest"]
+            )
             total_sessions += sessions
 
         if week_count > 0:
@@ -571,7 +700,9 @@ class ProgramTemplate(BaseTemplate):
 
         if any(word in progression_lower for word in ["+", "augment", "plus", "lourd"]):
             return self.merged_config["colors"]["progression_up"]
-        elif any(word in progression_lower for word in ["-", "diminue", "moins", "léger"]):
+        elif any(
+            word in progression_lower for word in ["-", "diminue", "moins", "léger"]
+        ):
             return self.merged_config["colors"]["progression_down"]
         else:
             return self.merged_config["colors"]["progression_maintain"]

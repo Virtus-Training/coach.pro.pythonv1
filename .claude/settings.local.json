@@ -6,7 +6,9 @@
       "Bash(chcp:*)",
       "Bash(ruff check:*)",
       "Bash(dir data)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(ruff format:*)",
+      "Bash(move:*)"
     ],
     "deny": [],
     "ask": []

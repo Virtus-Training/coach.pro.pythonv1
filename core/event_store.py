@@ -13,31 +13,31 @@ FAANG-level event sourcing system with:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import time
-import asyncio
 import uuid
-from typing import Any, Dict, List, Optional, Type, TypeVar, Generic, Callable, Union
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from abc import ABC, abstractmethod
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar
 
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
-from infrastructure.cache import CacheManager, get_cache_manager, cache_get, cache_set
-from core.events import Event, IEventBus
+from core.events import Event
 from core.exceptions import (
-    EventStoreError,
-    EventVersionError,
+    EventReplayError,
     EventSerializationError,
-    EventReplayError
+    EventStoreError,
 )
+from infrastructure.cache import CacheManager, get_cache_manager
+from infrastructure.database import AsyncDatabaseManager, get_database_manager
 
 T = TypeVar("T", bound=Event)
 
 
 class EventStatus(Enum):
     """Event processing status."""
+
     PENDING = "pending"
     PROCESSING = "processing"
     PROCESSED = "processed"
@@ -48,6 +48,7 @@ class EventStatus(Enum):
 
 class EventPriority(Enum):
     """Event processing priority levels."""
+
     CRITICAL = 1
     HIGH = 2
     NORMAL = 3
@@ -111,7 +112,9 @@ class StoredEvent:
         if self.metadata.retention_days <= 0:
             return False
 
-        expiry_date = self.metadata.created_at + timedelta(days=self.metadata.retention_days)
+        expiry_date = self.metadata.created_at + timedelta(
+            days=self.metadata.retention_days
+        )
         return datetime.now() > expiry_date
 
     @property
@@ -120,7 +123,9 @@ class StoredEvent:
         if not self.metadata.contains_pii or not self.metadata.anonymize_after_days:
             return False
 
-        anonymize_date = self.metadata.created_at + timedelta(days=self.metadata.anonymize_after_days)
+        anonymize_date = self.metadata.created_at + timedelta(
+            days=self.metadata.anonymize_after_days
+        )
         return datetime.now() > anonymize_date
 
 
@@ -160,8 +165,8 @@ class JsonEventSerializer(IEventSerializer):
         """Serialize event to JSON string."""
         try:
             event_dict = {
-                'event_type': event.__class__.__name__,
-                'event_data': event.__dict__
+                "event_type": event.__class__.__name__,
+                "event_data": event.__dict__,
             }
             return json.dumps(event_dict, default=str, ensure_ascii=False)
         except Exception as e:
@@ -171,9 +176,11 @@ class JsonEventSerializer(IEventSerializer):
         """Deserialize JSON string to event."""
         try:
             event_dict = json.loads(serialized_data)
-            return event_type(**event_dict['event_data'])
+            return event_type(**event_dict["event_data"])
         except Exception as e:
-            raise EventSerializationError(f"Failed to deserialize event: {str(e)}") from e
+            raise EventSerializationError(
+                f"Failed to deserialize event: {str(e)}"
+            ) from e
 
 
 class EventStoreMetrics:
@@ -270,7 +277,7 @@ class AsyncEventStore:
         enable_snapshots: bool = True,
         snapshot_frequency: int = 100,
         enable_compression: bool = True,
-        enable_encryption: bool = False
+        enable_encryption: bool = False,
     ):
         self._db_manager = db_manager or get_database_manager()
         self._cache_manager = cache_manager or get_cache_manager()
@@ -364,7 +371,7 @@ class AsyncEventStore:
         """
 
         async with self._db_manager.get_connection() as conn:
-            for statement in schema_sql.split(';'):
+            for statement in schema_sql.split(";"):
                 if statement.strip():
                     await conn.execute(statement.strip())
             await conn.commit()
@@ -373,7 +380,7 @@ class AsyncEventStore:
         self,
         event: Event,
         metadata: Optional[EventMetadata] = None,
-        batch: bool = False
+        batch: bool = False,
     ) -> str:
         """Store event in event store with comprehensive metadata."""
         start_time = time.perf_counter()
@@ -383,8 +390,8 @@ class AsyncEventStore:
             if metadata is None:
                 metadata = EventMetadata(
                     event_type=event.__class__.__name__,
-                    aggregate_id=getattr(event, 'aggregate_id', None),
-                    aggregate_type=getattr(event, 'aggregate_type', None)
+                    aggregate_id=getattr(event, "aggregate_id", None),
+                    aggregate_type=getattr(event, "aggregate_type", None),
                 )
 
             # Serialize event
@@ -397,16 +404,20 @@ class AsyncEventStore:
                 event_data=event_data,
                 serialized_event=serialized_event,
                 checksum=self._calculate_checksum(serialized_event),
-                compressed=self._enable_compression
+                compressed=self._enable_compression,
             )
 
             # Apply compression if enabled
             if self._enable_compression:
-                stored_event.serialized_event = await self._compress_data(serialized_event)
+                stored_event.serialized_event = await self._compress_data(
+                    serialized_event
+                )
 
             # Apply encryption if enabled
             if self._enable_encryption:
-                stored_event.serialized_event = await self._encrypt_data(stored_event.serialized_event)
+                stored_event.serialized_event = await self._encrypt_data(
+                    stored_event.serialized_event
+                )
 
             # Store event
             if batch:
@@ -416,7 +427,9 @@ class AsyncEventStore:
 
             # Create snapshot if needed
             if self._enable_snapshots and metadata.aggregate_id:
-                await self._maybe_create_snapshot(metadata.aggregate_id, metadata.aggregate_type)
+                await self._maybe_create_snapshot(
+                    metadata.aggregate_id, metadata.aggregate_type
+                )
 
             # Record metrics
             processing_time_ms = (time.perf_counter() - start_time) * 1000
@@ -436,7 +449,7 @@ class AsyncEventStore:
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
         limit: int = 1000,
-        include_snapshots: bool = True
+        include_snapshots: bool = True,
     ) -> List[StoredEvent]:
         """Retrieve events from event store with filtering."""
         start_time = time.perf_counter()
@@ -500,7 +513,7 @@ class AsyncEventStore:
         aggregate_id: Optional[str] = None,
         from_date: Optional[datetime] = None,
         to_date: Optional[datetime] = None,
-        batch_size: int = 100
+        batch_size: int = 100,
     ) -> int:
         """Replay events through handlers for debugging or analytics."""
         start_time = time.perf_counter()
@@ -512,12 +525,12 @@ class AsyncEventStore:
                 aggregate_id=aggregate_id,
                 from_date=from_date,
                 to_date=to_date,
-                limit=10000  # Large limit for replay
+                limit=10000,  # Large limit for replay
             )
 
             # Process events in batches
             for i in range(0, len(events), batch_size):
-                batch = events[i:i + batch_size]
+                batch = events[i : i + batch_size]
 
                 for stored_event in batch:
                     # Update event status to replaying
@@ -533,7 +546,9 @@ class AsyncEventStore:
                             total_replayed += 1
 
                     except Exception as e:
-                        print(f"Failed to replay event {stored_event.metadata.event_id}: {e}")
+                        print(
+                            f"Failed to replay event {stored_event.metadata.event_id}: {e}"
+                        )
                         continue
 
             # Record metrics
@@ -551,7 +566,7 @@ class AsyncEventStore:
         aggregate_type: str,
         snapshot_data: Dict[str, Any],
         event_count: int,
-        last_event_id: str
+        last_event_id: str,
     ) -> str:
         """Create aggregate snapshot for performance optimization."""
         try:
@@ -564,7 +579,9 @@ class AsyncEventStore:
                 snapshot_data=snapshot_data,
                 created_at=datetime.now(),
                 last_event_id=last_event_id,
-                checksum=self._calculate_checksum(json.dumps(snapshot_data, default=str))
+                checksum=self._calculate_checksum(
+                    json.dumps(snapshot_data, default=str)
+                ),
             )
 
             # Store snapshot
@@ -584,7 +601,7 @@ class AsyncEventStore:
                 json.dumps(snapshot.snapshot_data, default=str),
                 snapshot.last_event_id,
                 snapshot.checksum,
-                snapshot.created_at
+                snapshot.created_at,
             )
 
             async with self._db_manager.get_connection() as conn:
@@ -598,9 +615,7 @@ class AsyncEventStore:
             raise EventStoreError(f"Failed to create snapshot: {str(e)}") from e
 
     async def get_latest_snapshot(
-        self,
-        aggregate_id: str,
-        aggregate_type: str
+        self, aggregate_id: str, aggregate_type: str
     ) -> Optional[EventSnapshot]:
         """Get latest snapshot for aggregate."""
         try:
@@ -618,15 +633,15 @@ class AsyncEventStore:
                     return None
 
                 return EventSnapshot(
-                    snapshot_id=row['snapshot_id'],
-                    aggregate_id=row['aggregate_id'],
-                    aggregate_type=row['aggregate_type'],
-                    snapshot_version=row['snapshot_version'],
-                    event_count=row['event_count'],
-                    snapshot_data=json.loads(row['snapshot_data']),
-                    created_at=datetime.fromisoformat(row['created_at']),
-                    last_event_id=row['last_event_id'],
-                    checksum=row['checksum']
+                    snapshot_id=row["snapshot_id"],
+                    aggregate_id=row["aggregate_id"],
+                    aggregate_type=row["aggregate_type"],
+                    snapshot_version=row["snapshot_version"],
+                    event_count=row["event_count"],
+                    snapshot_data=json.loads(row["snapshot_data"]),
+                    created_at=datetime.fromisoformat(row["created_at"]),
+                    last_event_id=row["last_event_id"],
+                    checksum=row["checksum"],
                 )
 
         except Exception as e:
@@ -653,7 +668,7 @@ class AsyncEventStore:
                 for row in rows:
                     try:
                         # Anonymize PII in event data
-                        event_data = json.loads(row['event_data'])
+                        event_data = json.loads(row["event_data"])
                         anonymized_data = await self._anonymize_pii(event_data)
 
                         # Update event with anonymized data
@@ -663,11 +678,14 @@ class AsyncEventStore:
                         WHERE event_id = ?
                         """
 
-                        await conn.execute(update_query, (
-                            json.dumps(anonymized_data),
-                            datetime.now(),
-                            row['event_id']
-                        ))
+                        await conn.execute(
+                            update_query,
+                            (
+                                json.dumps(anonymized_data),
+                                datetime.now(),
+                                row["event_id"],
+                            ),
+                        )
 
                         anonymized_count += 1
 
@@ -723,16 +741,33 @@ class AsyncEventStore:
 
         metadata = stored_event.metadata
         params = (
-            metadata.event_id, metadata.event_type, metadata.event_version,
-            metadata.aggregate_id, metadata.aggregate_type, metadata.tenant_id,
-            metadata.user_id, metadata.correlation_id, metadata.causation_id,
-            json.dumps(stored_event.event_data, default=str), stored_event.serialized_event,
-            stored_event.checksum, metadata.status.value, metadata.priority.value,
-            metadata.retry_count, metadata.max_retries, metadata.contains_pii,
-            metadata.retention_days, metadata.anonymize_after_days,
-            metadata.processing_time_ms, stored_event.compressed, metadata.created_at,
-            metadata.processed_at, metadata.source_system, metadata.environment,
-            metadata.request_id, metadata.session_id
+            metadata.event_id,
+            metadata.event_type,
+            metadata.event_version,
+            metadata.aggregate_id,
+            metadata.aggregate_type,
+            metadata.tenant_id,
+            metadata.user_id,
+            metadata.correlation_id,
+            metadata.causation_id,
+            json.dumps(stored_event.event_data, default=str),
+            stored_event.serialized_event,
+            stored_event.checksum,
+            metadata.status.value,
+            metadata.priority.value,
+            metadata.retry_count,
+            metadata.max_retries,
+            metadata.contains_pii,
+            metadata.retention_days,
+            metadata.anonymize_after_days,
+            metadata.processing_time_ms,
+            stored_event.compressed,
+            metadata.created_at,
+            metadata.processed_at,
+            metadata.source_system,
+            metadata.environment,
+            metadata.request_id,
+            metadata.session_id,
         )
 
         async with self._db_manager.get_connection() as conn:
@@ -755,7 +790,7 @@ class AsyncEventStore:
 
         try:
             # Batch insert all pending events
-            async with self._db_manager.get_transaction() as transaction:
+            async with self._db_manager.get_transaction():
                 for event in self._pending_events:
                     await self._persist_event(event)
 
@@ -781,7 +816,9 @@ class AsyncEventStore:
         except asyncio.CancelledError:
             pass
 
-    async def _maybe_create_snapshot(self, aggregate_id: str, aggregate_type: str) -> None:
+    async def _maybe_create_snapshot(
+        self, aggregate_id: str, aggregate_type: str
+    ) -> None:
         """Create snapshot if event count threshold is reached."""
         if not self._enable_snapshots:
             return
@@ -794,10 +831,15 @@ class AsyncEventStore:
 
             if count and count % self._snapshot_frequency == 0:
                 # Get latest snapshot
-                latest_snapshot = await self.get_latest_snapshot(aggregate_id, aggregate_type)
+                latest_snapshot = await self.get_latest_snapshot(
+                    aggregate_id, aggregate_type
+                )
 
                 # Only create if we don't have a recent snapshot
-                if not latest_snapshot or (count - latest_snapshot.event_count) >= self._snapshot_frequency:
+                if (
+                    not latest_snapshot
+                    or (count - latest_snapshot.event_count) >= self._snapshot_frequency
+                ):
                     # This would require aggregate reconstruction logic
                     # Placeholder for actual snapshot creation
                     snapshot_data = {"placeholder": "snapshot_data"}
@@ -807,10 +849,12 @@ class AsyncEventStore:
                         aggregate_type=aggregate_type,
                         snapshot_data=snapshot_data,
                         event_count=count,
-                        last_event_id=str(uuid.uuid4())
+                        last_event_id=str(uuid.uuid4()),
                     )
 
-    async def _move_to_dead_letter(self, stored_event: StoredEvent, failure_reason: str) -> None:
+    async def _move_to_dead_letter(
+        self, stored_event: StoredEvent, failure_reason: str
+    ) -> None:
         """Move failed event to dead letter queue."""
         try:
             query = """
@@ -828,8 +872,14 @@ class AsyncEventStore:
             original_event = json.dumps(stored_event.event_data, default=str)
 
             params = (
-                stored_event.metadata.event_id, original_event, failure_reason,
-                stored_event.metadata.event_id, stored_event.metadata.event_id, now, now, now
+                stored_event.metadata.event_id,
+                original_event,
+                failure_reason,
+                stored_event.metadata.event_id,
+                stored_event.metadata.event_id,
+                now,
+                now,
+                now,
             )
 
             async with self._db_manager.get_connection() as conn:
@@ -844,44 +894,46 @@ class AsyncEventStore:
     async def _deserialize_stored_event(self, row: Any) -> StoredEvent:
         """Deserialize database row to StoredEvent."""
         metadata = EventMetadata(
-            event_id=row['event_id'],
-            event_type=row['event_type'],
-            event_version=row['event_version'],
-            aggregate_id=row['aggregate_id'],
-            aggregate_type=row['aggregate_type'],
-            tenant_id=row['tenant_id'],
-            user_id=row['user_id'],
-            correlation_id=row['correlation_id'],
-            causation_id=row['causation_id'],
-            created_at=datetime.fromisoformat(row['created_at']),
-            processed_at=datetime.fromisoformat(row['processed_at']) if row['processed_at'] else None,
-            status=EventStatus(row['status']),
-            priority=EventPriority(row['priority']),
-            retry_count=row['retry_count'],
-            max_retries=row['max_retries'],
-            contains_pii=row['contains_pii'],
-            retention_days=row['retention_days'],
-            anonymize_after_days=row['anonymize_after_days'],
-            processing_time_ms=row['processing_time_ms'],
-            source_system=row['source_system'],
-            environment=row['environment'],
-            request_id=row['request_id'],
-            session_id=row['session_id']
+            event_id=row["event_id"],
+            event_type=row["event_type"],
+            event_version=row["event_version"],
+            aggregate_id=row["aggregate_id"],
+            aggregate_type=row["aggregate_type"],
+            tenant_id=row["tenant_id"],
+            user_id=row["user_id"],
+            correlation_id=row["correlation_id"],
+            causation_id=row["causation_id"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            processed_at=datetime.fromisoformat(row["processed_at"])
+            if row["processed_at"]
+            else None,
+            status=EventStatus(row["status"]),
+            priority=EventPriority(row["priority"]),
+            retry_count=row["retry_count"],
+            max_retries=row["max_retries"],
+            contains_pii=row["contains_pii"],
+            retention_days=row["retention_days"],
+            anonymize_after_days=row["anonymize_after_days"],
+            processing_time_ms=row["processing_time_ms"],
+            source_system=row["source_system"],
+            environment=row["environment"],
+            request_id=row["request_id"],
+            session_id=row["session_id"],
         )
 
         # Decrypt and decompress if needed
-        serialized_event = row['serialized_event']
+        serialized_event = row["serialized_event"]
         if self._enable_encryption:
             serialized_event = await self._decrypt_data(serialized_event)
-        if row['compressed']:
+        if row["compressed"]:
             serialized_event = await self._decompress_data(serialized_event)
 
         return StoredEvent(
             metadata=metadata,
-            event_data=json.loads(row['event_data']),
+            event_data=json.loads(row["event_data"]),
             serialized_event=serialized_event,
-            checksum=row['checksum'],
-            compressed=row['compressed']
+            checksum=row["checksum"],
+            compressed=row["compressed"],
         )
 
     async def _deserialize_event(self, stored_event: StoredEvent) -> Event:
@@ -889,26 +941,30 @@ class AsyncEventStore:
         # This would require event type registry for proper deserialization
         # Placeholder implementation
         from core.events import Event
+
         return Event()
 
     def _calculate_checksum(self, data: str) -> str:
         """Calculate checksum for data integrity."""
         import hashlib
+
         return hashlib.sha256(data.encode()).hexdigest()
 
     async def _compress_data(self, data: str) -> str:
         """Compress data for storage optimization."""
-        import gzip
         import base64
-        compressed = gzip.compress(data.encode('utf-8'))
-        return base64.b64encode(compressed).decode('ascii')
+        import gzip
+
+        compressed = gzip.compress(data.encode("utf-8"))
+        return base64.b64encode(compressed).decode("ascii")
 
     async def _decompress_data(self, data: str) -> str:
         """Decompress stored data."""
-        import gzip
         import base64
-        compressed = base64.b64decode(data.encode('ascii'))
-        return gzip.decompress(compressed).decode('utf-8')
+        import gzip
+
+        compressed = base64.b64decode(data.encode("ascii"))
+        return gzip.decompress(compressed).decode("utf-8")
 
     async def _encrypt_data(self, data: str) -> str:
         """Encrypt sensitive data."""
@@ -925,11 +981,18 @@ class AsyncEventStore:
         anonymized = event_data.copy()
 
         # Common PII fields to anonymize
-        pii_fields = ['email', 'phone', 'first_name', 'last_name', 'address', 'ip_address']
+        pii_fields = [
+            "email",
+            "phone",
+            "first_name",
+            "last_name",
+            "address",
+            "ip_address",
+        ]
 
-        for field in pii_fields:
-            if field in anonymized:
-                anonymized[field] = f"[ANONYMIZED_{field.upper()}]"
+        for field_name in pii_fields:
+            if field_name in anonymized:
+                anonymized[field_name] = f"[ANONYMIZED_{field_name.upper()}]"
 
         return anonymized
 

@@ -4,6 +4,7 @@ Script CLI pour importer des exercices depuis wger dans la base SQLite locale.
 Usage:
     python -m scripts.import_wger_exercises [--max N]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -22,4 +23,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

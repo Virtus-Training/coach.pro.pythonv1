@@ -5,18 +5,19 @@ Enterprise-grade strategy pattern with performance monitoring,
 validation, and comprehensive error handling.
 """
 
+import asyncio
+import time
 from abc import ABC, abstractmethod
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypeVar, Generic, Union
-import time
-import asyncio
-from contextlib import asynccontextmanager
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 
 class StrategyPriority(Enum):
     """Strategy execution priority levels"""
+
     CRITICAL = 1
     HIGH = 2
     NORMAL = 3
@@ -26,6 +27,7 @@ class StrategyPriority(Enum):
 
 class StrategyExecutionMode(Enum):
     """Strategy execution modes"""
+
     SYNC = "sync"
     ASYNC = "async"
     PARALLEL = "parallel"
@@ -35,6 +37,7 @@ class StrategyExecutionMode(Enum):
 @dataclass
 class StrategyMetrics:
     """Performance and execution metrics for strategies"""
+
     execution_count: int = 0
     total_execution_time: float = 0.0
     average_execution_time: float = 0.0
@@ -45,7 +48,9 @@ class StrategyMetrics:
     cpu_usage_percent: float = 0.0
     cache_hit_rate: float = 0.0
 
-    def update_execution(self, execution_time: float, success: bool = True, memory_usage: float = 0.0):
+    def update_execution(
+        self, execution_time: float, success: bool = True, memory_usage: float = 0.0
+    ):
         """Update metrics after strategy execution"""
         self.execution_count += 1
         self.total_execution_time += execution_time
@@ -66,16 +71,19 @@ class StrategyMetrics:
             return 0.0
 
         # Weighted scoring: success_rate (40%), speed (30%), reliability (30%)
-        speed_score = max(0, 100 - (self.average_execution_time * 10))  # Lower is better
+        speed_score = max(
+            0, 100 - (self.average_execution_time * 10)
+        )  # Lower is better
         reliability_score = self.success_rate * 100
         consistency_score = min(100, self.cache_hit_rate * 100)
 
-        return (reliability_score * 0.4 + speed_score * 0.3 + consistency_score * 0.3)
+        return reliability_score * 0.4 + speed_score * 0.3 + consistency_score * 0.3
 
 
 @dataclass
 class StrategyConfig:
     """Configuration for strategy execution"""
+
     name: str
     version: str = "1.0.0"
     priority: StrategyPriority = StrategyPriority.NORMAL
@@ -96,12 +104,13 @@ class StrategyConfig:
         return self.feature_flags.get(feature, False)
 
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
 class StrategyContext(Generic[T]):
     """Context passed to strategy execution"""
+
     data: T
     user_id: Optional[str] = None
     session_id: Optional[str] = None
@@ -126,6 +135,7 @@ class StrategyContext(Generic[T]):
 @dataclass
 class StrategyResult(Generic[T]):
     """Result returned by strategy execution"""
+
     data: T
     success: bool = True
     execution_time_ms: float = 0.0
@@ -156,7 +166,9 @@ class StrategyResult(Generic[T]):
 class StrategyError(Exception):
     """Base exception for strategy-related errors"""
 
-    def __init__(self, message: str, strategy_name: str = "", cause: Optional[Exception] = None):
+    def __init__(
+        self, message: str, strategy_name: str = "", cause: Optional[Exception] = None
+    ):
         super().__init__(message)
         self.strategy_name = strategy_name
         self.cause = cause
@@ -164,16 +176,19 @@ class StrategyError(Exception):
 
 class StrategyValidationError(StrategyError):
     """Exception raised when strategy validation fails"""
+
     pass
 
 
 class StrategyExecutionError(StrategyError):
     """Exception raised during strategy execution"""
+
     pass
 
 
 class StrategyTimeoutError(StrategyError):
     """Exception raised when strategy execution times out"""
+
     pass
 
 
@@ -234,7 +249,9 @@ class BaseStrategy(ABC, Generic[T]):
         """Execute strategy synchronously"""
         return asyncio.run(self.execute_async(context))
 
-    async def execute_with_monitoring(self, context: StrategyContext[T]) -> StrategyResult[T]:
+    async def execute_with_monitoring(
+        self, context: StrategyContext[T]
+    ) -> StrategyResult[T]:
         """Execute strategy with comprehensive monitoring"""
         start_time = time.perf_counter()
 
@@ -244,7 +261,7 @@ class BaseStrategy(ABC, Generic[T]):
             if validation_errors:
                 raise StrategyValidationError(
                     f"Context validation failed: {', '.join(validation_errors)}",
-                    self.name
+                    self.name,
                 )
 
             # Check cache
@@ -258,8 +275,7 @@ class BaseStrategy(ABC, Generic[T]):
             # Execute with timeout
             if self.config.execution_mode == StrategyExecutionMode.ASYNC:
                 result = await asyncio.wait_for(
-                    self.execute_async(context),
-                    timeout=self.config.timeout_seconds
+                    self.execute_async(context), timeout=self.config.timeout_seconds
                 )
             else:
                 result = await self.execute_async(context)
@@ -285,7 +301,7 @@ class BaseStrategy(ABC, Generic[T]):
             self.metrics.update_execution(execution_time, False)
             raise StrategyTimeoutError(
                 f"Strategy {self.name} timed out after {self.config.timeout_seconds}s",
-                self.name
+                self.name,
             )
         except Exception as e:
             execution_time = (time.perf_counter() - start_time) * 1000
@@ -295,9 +311,7 @@ class BaseStrategy(ABC, Generic[T]):
                 raise
             else:
                 raise StrategyExecutionError(
-                    f"Strategy {self.name} execution failed: {str(e)}",
-                    self.name,
-                    e
+                    f"Strategy {self.name} execution failed: {str(e)}", self.name, e
                 )
 
     def get_performance_metrics(self) -> StrategyMetrics:
@@ -314,7 +328,9 @@ class BaseStrategy(ABC, Generic[T]):
             "execution_count": self.metrics.execution_count,
             "success_rate": self.metrics.success_rate,
             "average_execution_time": self.metrics.average_execution_time,
-            "last_execution": self.metrics.last_execution.isoformat() if self.metrics.last_execution else None
+            "last_execution": self.metrics.last_execution.isoformat()
+            if self.metrics.last_execution
+            else None,
         }
 
     def reset_metrics(self) -> None:
@@ -330,7 +346,7 @@ class BaseStrategy(ABC, Generic[T]):
             "strategy": self.name,
             "version": self.version,
             "data": str(context.data),
-            "metadata": context.metadata
+            "metadata": context.metadata,
         }
 
         cache_string = str(sorted(cache_data.items()))
@@ -360,8 +376,9 @@ class BaseStrategy(ABC, Generic[T]):
 
         # Simple cache size management
         if len(self._cache) > 100:  # Max 100 entries
-            oldest_key = min(self._cache_timestamps.keys(),
-                           key=lambda k: self._cache_timestamps[k])
+            oldest_key = min(
+                self._cache_timestamps.keys(), key=lambda k: self._cache_timestamps[k]
+            )
             del self._cache[oldest_key]
             del self._cache_timestamps[oldest_key]
 
@@ -391,6 +408,7 @@ class BaseStrategy(ABC, Generic[T]):
         """Get current memory usage in MB"""
         try:
             import psutil
+
             process = psutil.Process()
             return process.memory_info().rss / 1024 / 1024  # MB
         except ImportError:

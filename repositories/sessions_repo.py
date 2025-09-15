@@ -216,15 +216,20 @@ class SessionsRepository:
                 conn.execute("BEGIN")
 
                 # Supprimer les items d'abord (contrainte de clé étrangère)
-                conn.execute("""
-                    DELETE FROM session_items 
+                conn.execute(
+                    """
+                    DELETE FROM session_items
                     WHERE block_id IN (
                         SELECT block_id FROM session_blocks WHERE session_id = ?
                     )
-                """, (session_id,))
+                """,
+                    (session_id,),
+                )
 
                 # Supprimer les blocs
-                conn.execute("DELETE FROM session_blocks WHERE session_id = ?", (session_id,))
+                conn.execute(
+                    "DELETE FROM session_blocks WHERE session_id = ?", (session_id,)
+                )
 
                 # Supprimer la session
                 conn.execute("DELETE FROM sessions WHERE session_id = ?", (session_id,))

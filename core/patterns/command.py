@@ -10,15 +10,15 @@ from __future__ import annotations
 import uuid
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Stack
+from typing import Any, Dict, List, Optional
 
-from core.events import Event, EventBus
+from core.events import EventBus
 from domain.entities import Client, WorkoutSession
 from domain.events import (
     ClientCreatedEvent,
     ClientUpdatedEvent,
-    SessionCreatedEvent,
     SessionCompletedEvent,
+    SessionCreatedEvent,
 )
 
 
@@ -222,7 +222,9 @@ class UpdateClientCommand(ICommand):
                 client.set_fitness_goals(self.update_data["fitness_goals"])
 
             if "excluded_exercise_ids" in self.update_data:
-                client.set_exercise_exclusions(set(self.update_data["excluded_exercise_ids"]))
+                client.set_exercise_exclusions(
+                    set(self.update_data["excluded_exercise_ids"])
+                )
 
             # Save to repository
             updated_client = await self.client_repository.update(client)
@@ -252,16 +254,30 @@ class UpdateClientCommand(ICommand):
         try:
             # Restore original values
             if "personal_info" in self.original_data:
-                self.updated_client.update_personal_info(self.original_data["personal_info"])
+                self.updated_client.update_personal_info(
+                    self.original_data["personal_info"]
+                )
 
-            if "physical_profile" in self.original_data and self.original_data["physical_profile"]:
-                self.updated_client.update_physical_profile(self.original_data["physical_profile"])
+            if (
+                "physical_profile" in self.original_data
+                and self.original_data["physical_profile"]
+            ):
+                self.updated_client.update_physical_profile(
+                    self.original_data["physical_profile"]
+                )
 
-            if "fitness_goals" in self.original_data and self.original_data["fitness_goals"]:
-                self.updated_client.set_fitness_goals(self.original_data["fitness_goals"])
+            if (
+                "fitness_goals" in self.original_data
+                and self.original_data["fitness_goals"]
+            ):
+                self.updated_client.set_fitness_goals(
+                    self.original_data["fitness_goals"]
+                )
 
             if "excluded_exercise_ids" in self.original_data:
-                self.updated_client.set_exercise_exclusions(self.original_data["excluded_exercise_ids"])
+                self.updated_client.set_exercise_exclusions(
+                    self.original_data["excluded_exercise_ids"]
+                )
 
             # Save restored state
             await self.client_repository.update(self.updated_client)
@@ -312,38 +328,42 @@ class GenerateWorkoutCommand(ICommand):
             available_exercises = await self.exercise_repository.get_all()
 
             # Determine appropriate strategy based on client level
-            fitness_level = self.workout_preferences.get("fitness_level", "intermediate")
-            strategy = self.strategy_context.get_strategy("workout_generation", fitness_level)
+            fitness_level = self.workout_preferences.get(
+                "fitness_level", "intermediate"
+            )
+            strategy = self.strategy_context.get_strategy(
+                "workout_generation", fitness_level
+            )
 
             if not strategy:
                 raise ValueError(f"Unknown workout strategy: {fitness_level}")
 
             # Generate workout
-            workout_data = strategy.execute({
-                "client": client,
-                "available_exercises": available_exercises,
-                "preferences": self.workout_preferences,
-            })
+            workout_data = strategy.execute(
+                {
+                    "client": client,
+                    "available_exercises": available_exercises,
+                    "preferences": self.workout_preferences,
+                }
+            )
 
             # Create session using builder pattern
             from core.patterns.builder import SessionBuilder
 
             session_builder = SessionBuilder()
-            session_builder = (session_builder
-                .for_client(self.client_id)
+            session_builder = (
+                session_builder.for_client(self.client_id)
                 .named(workout_data["name"])
                 .today()
                 .with_duration(workout_data.get("estimated_duration"))
-                .with_notes(workout_data.get("notes", "")))
+                .with_notes(workout_data.get("notes", ""))
+            )
 
             # Add exercises from generated workout
             for exercise_data in workout_data["exercises"]:
                 from domain.entities import ExerciseSet
 
-                sets = [
-                    ExerciseSet(**set_data)
-                    for set_data in exercise_data["sets"]
-                ]
+                sets = [ExerciseSet(**set_data) for set_data in exercise_data["sets"]]
 
                 session_builder = session_builder.add_exercise(
                     exercise_data["exercise_id"],
@@ -470,7 +490,9 @@ class CompleteSessionCommand(ICommand):
             # This is a simplified undo - in reality you'd need to store more state
             # For now, we can't easily "uncomplete" a session due to the domain model design
             # This would require refactoring the domain model to support state changes
-            print("Warning: Session completion cannot be undone with current domain model")
+            print(
+                "Warning: Session completion cannot be undone with current domain model"
+            )
             return False
 
         except Exception as e:
@@ -511,7 +533,7 @@ class CommandInvoker:
 
             return result
 
-        except Exception as e:
+        except Exception:
             # Command failed, don't add to history
             raise
 
@@ -556,7 +578,9 @@ class CommandInvoker:
 
     def get_command_history(self, limit: int = 10) -> List[Dict[str, Any]]:
         """Get recent command history."""
-        recent_commands = self.executed_commands[-limit:] if limit else self.executed_commands
+        recent_commands = (
+            self.executed_commands[-limit:] if limit else self.executed_commands
+        )
         return [cmd.get_metadata() for cmd in recent_commands]
 
     def can_undo(self) -> bool:

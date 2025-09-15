@@ -5,12 +5,11 @@ Integrates the new advanced PDF system with existing controllers and services
 
 from __future__ import annotations
 
-import asyncio
 from typing import Any, Dict, List, Optional
 
 from .pdf_engine import PDFEngine
-from .pdf_engine.managers.style_manager import StyleManager
 from .pdf_engine.core.professional_template_factory import ProfessionalTemplateFactory
+from .pdf_engine.managers.style_manager import StyleManager
 from .pdf_template_service import PdfTemplateService
 
 
@@ -54,7 +53,7 @@ class AdvancedPdfService:
             template_config.update(style_overrides)
 
         # Create professional template with branding
-        template = self.professional_factory.create_professional_template(
+        self.professional_factory.create_professional_template(
             template_type, workout_data, template_config, brand_config
         )
 
@@ -201,7 +200,11 @@ class AdvancedPdfService:
             template_config.update(style_overrides)
 
         return await self.pdf_engine.generate_async(
-            "progress_report", progress_data, output_path, template_config, style_overrides
+            "progress_report",
+            progress_data,
+            output_path,
+            template_config,
+            style_overrides,
         )
 
     # ========== SYNCHRONOUS WRAPPERS ==========
@@ -215,8 +218,11 @@ class AdvancedPdfService:
     ) -> Dict[str, Any]:
         """Synchronous wrapper for session PDF generation"""
         return self.pdf_engine.generate_sync(
-            "session", session_data, output_path,
-            {"variant": template_variant}, style_overrides
+            "session",
+            session_data,
+            output_path,
+            {"variant": template_variant},
+            style_overrides,
         )
 
     def generate_nutrition_pdf_sync(
@@ -228,8 +234,11 @@ class AdvancedPdfService:
     ) -> Dict[str, Any]:
         """Synchronous wrapper for nutrition PDF generation"""
         return self.pdf_engine.generate_sync(
-            "nutrition", nutrition_data, output_path,
-            {"variant": template_variant}, style_overrides
+            "nutrition",
+            nutrition_data,
+            output_path,
+            {"variant": template_variant},
+            style_overrides,
         )
 
     def generate_program_pdf_sync(
@@ -241,8 +250,11 @@ class AdvancedPdfService:
     ) -> Dict[str, Any]:
         """Synchronous wrapper for program PDF generation"""
         return self.pdf_engine.generate_sync(
-            "program", program_data, output_path,
-            {"variant": template_variant, "layout": template_variant}, style_overrides
+            "program",
+            program_data,
+            output_path,
+            {"variant": template_variant, "layout": template_variant},
+            style_overrides,
         )
 
     # ========== TEMPLATE PREVIEW AND MANAGEMENT ==========
@@ -308,7 +320,9 @@ class AdvancedPdfService:
 
     # ========== BACKWARD COMPATIBILITY ==========
 
-    def get_legacy_session_style(self, template_id: Optional[int] = None) -> Dict[str, Any]:
+    def get_legacy_session_style(
+        self, template_id: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Get session style using legacy service (backward compatibility)"""
         return self.legacy_service.get_style("session", template_id)
 
@@ -346,22 +360,42 @@ class AdvancedPdfService:
                         "format": "LIBRE",
                         "duration": 10,
                         "exercises": [
-                            {"name": "Marche rapide", "reps": "5 min", "notes": "Intensité progressive"},
-                            {"name": "Mobilisations articulaires", "reps": "10x", "notes": "Épaules, hanches"},
-                        ]
+                            {
+                                "name": "Marche rapide",
+                                "reps": "5 min",
+                                "notes": "Intensité progressive",
+                            },
+                            {
+                                "name": "Mobilisations articulaires",
+                                "reps": "10x",
+                                "notes": "Épaules, hanches",
+                            },
+                        ],
                     },
                     {
                         "title": "Corps principal",
                         "format": "TABATA",
                         "duration": 20,
                         "exercises": [
-                            {"name": "Burpees", "reps": "Maximum", "notes": "Technique parfaite"},
-                            {"name": "Mountain Climbers", "reps": "Maximum", "notes": "Gainage serré"},
-                            {"name": "Jump Squats", "reps": "Maximum", "notes": "Réception souple"},
-                        ]
-                    }
+                            {
+                                "name": "Burpees",
+                                "reps": "Maximum",
+                                "notes": "Technique parfaite",
+                            },
+                            {
+                                "name": "Mountain Climbers",
+                                "reps": "Maximum",
+                                "notes": "Gainage serré",
+                            },
+                            {
+                                "name": "Jump Squats",
+                                "reps": "Maximum",
+                                "notes": "Réception souple",
+                            },
+                        ],
+                    },
                 ],
-                "notes": "Hydratation régulière. Adapter l'intensité selon la forme du jour."
+                "notes": "Hydratation régulière. Adapter l'intensité selon la forme du jour.",
             },
             "nutrition": {
                 "title": "Bilan Nutritionnel",
@@ -373,20 +407,20 @@ class AdvancedPdfService:
                     "height": 175,
                     "gender": "Homme",
                     "activity_level": "Modéré",
-                    "goal": "Perte de poids"
+                    "goal": "Perte de poids",
                 },
                 "nutrition_data": {
                     "maintenance_calories": 2200,
                     "target_calories": 1800,
                     "protein_g": 140,
                     "carbs_g": 180,
-                    "fat_g": 60
+                    "fat_g": 60,
                 },
                 "recommendations": [
                     "Privilégier les légumes à chaque repas",
                     "Hydratation : 2.5L d'eau par jour",
-                    "Collations riches en protéines"
-                ]
+                    "Collations riches en protéines",
+                ],
             },
             "program": {
                 "title": "Programme Force 4 semaines",
@@ -402,19 +436,31 @@ class AdvancedPdfService:
                                 "day": "Lundi",
                                 "type": "Force Haut",
                                 "exercises": [
-                                    {"name": "Développé couché", "sets": "4", "reps": "8-10", "weight": "70kg", "rest": "2min"},
-                                    {"name": "Tractions", "sets": "3", "reps": "6-8", "rest": "2min"},
-                                    {"name": "Dips", "sets": "3", "reps": "10-12", "rest": "90s"},
-                                ]
+                                    {
+                                        "name": "Développé couché",
+                                        "sets": "4",
+                                        "reps": "8-10",
+                                        "weight": "70kg",
+                                        "rest": "2min",
+                                    },
+                                    {
+                                        "name": "Tractions",
+                                        "sets": "3",
+                                        "reps": "6-8",
+                                        "rest": "2min",
+                                    },
+                                    {
+                                        "name": "Dips",
+                                        "sets": "3",
+                                        "reps": "10-12",
+                                        "rest": "90s",
+                                    },
+                                ],
                             },
-                            {
-                                "day": "Mardi",
-                                "type": "Repos",
-                                "exercises": []
-                            }
-                        ]
+                            {"day": "Mardi", "type": "Repos", "exercises": []},
+                        ],
                     }
-                ]
+                ],
             },
             "meal_plan": {
                 "title": "Plan Alimentaire Semaine",
@@ -429,27 +475,36 @@ class AdvancedPdfService:
                                 "type": "Petit-déjeuner",
                                 "time": "7h30",
                                 "name": "Bowl protéiné",
-                                "ingredients": ["Avoine", "Protéines", "Banane", "Amandes"],
+                                "ingredients": [
+                                    "Avoine",
+                                    "Protéines",
+                                    "Banane",
+                                    "Amandes",
+                                ],
                                 "calories": 420,
-                                "macros": {"protein": 25, "carbs": 35, "fat": 15}
+                                "macros": {"protein": 25, "carbs": 35, "fat": 15},
                             },
                             {
                                 "type": "Déjeuner",
                                 "time": "12h30",
                                 "name": "Poulet grillé quinoa",
-                                "ingredients": ["Blanc de poulet", "Quinoa", "Légumes verts"],
+                                "ingredients": [
+                                    "Blanc de poulet",
+                                    "Quinoa",
+                                    "Légumes verts",
+                                ],
                                 "calories": 580,
-                                "macros": {"protein": 45, "carbs": 50, "fat": 12}
-                            }
-                        ]
+                                "macros": {"protein": 45, "carbs": 50, "fat": 12},
+                            },
+                        ],
                     }
                 ],
                 "shopping_list": [
                     {
                         "category": "Protéines",
-                        "items": ["Blanc de poulet", "Œufs", "Thon"]
+                        "items": ["Blanc de poulet", "Œufs", "Thon"],
                     }
-                ]
+                ],
             },
             "progress_report": {
                 "title": "Rapport de Progression - 3 Mois",
@@ -459,7 +514,11 @@ class AdvancedPdfService:
                     "total_sessions": 36,
                     "weight_change": -4.2,
                     "body_fat_change": -3.1,
-                    "achievements": ["Objectif poids atteint", "Force développée", "Endurance améliorée"]
+                    "achievements": [
+                        "Objectif poids atteint",
+                        "Force développée",
+                        "Endurance améliorée",
+                    ],
                 },
                 "measurements": [
                     {
@@ -467,27 +526,29 @@ class AdvancedPdfService:
                         "weight": 68.5,
                         "body_fat": 28.2,
                         "muscle_mass": 25.1,
-                        "measurements": {"chest": 92, "waist": 76, "hips": 98}
+                        "measurements": {"chest": 92, "waist": 76, "hips": 98},
                     },
                     {
                         "date": "2025-01-01",
                         "weight": 64.3,
                         "body_fat": 25.1,
                         "muscle_mass": 26.8,
-                        "measurements": {"chest": 90, "waist": 71, "hips": 94}
-                    }
-                ]
-            }
+                        "measurements": {"chest": 90, "waist": 71, "hips": 94},
+                    },
+                ],
+            },
         }
 
         return sample_data.get(template_type, {})
 
     # ========== UTILITY METHODS ==========
 
-    def validate_template_data(self, template_type: str, data: Dict[str, Any]) -> List[str]:
+    def validate_template_data(
+        self, template_type: str, data: Dict[str, Any]
+    ) -> List[str]:
         """Validate data structure against template schema"""
         try:
-            schema = self.pdf_engine.template_factory.get_template_schema(template_type)
+            self.pdf_engine.template_factory.get_template_schema(template_type)
             # Add validation logic here if needed
             return []
         except Exception as e:
@@ -503,7 +564,7 @@ class AdvancedPdfService:
                 "type": template_type,
                 "variants": variants,
                 "schema": schema,
-                "sample_data": self.get_sample_data(template_type)
+                "sample_data": self.get_sample_data(template_type),
             }
         except Exception as e:
             return {"error": str(e)}

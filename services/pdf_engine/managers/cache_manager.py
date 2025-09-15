@@ -5,7 +5,6 @@ Implements intelligent caching with size limits and TTL
 
 from __future__ import annotations
 
-import hashlib
 import pickle
 import time
 from pathlib import Path
@@ -49,7 +48,7 @@ class CacheManager:
             return None
 
         try:
-            with open(cache_file, 'rb') as f:
+            with open(cache_file, "rb") as f:
                 cached_data = pickle.load(f)
 
             # Update access time for LRU
@@ -86,7 +85,7 @@ class CacheManager:
         }
 
         try:
-            with open(cache_file, 'wb') as f:
+            with open(cache_file, "wb") as f:
                 pickle.dump(cached_data, f)
 
             # Update index
@@ -123,8 +122,7 @@ class CacheManager:
         current_time = time.time()
 
         expired_keys = [
-            key for key, meta in self.index.items()
-            if current_time > meta["expires_at"]
+            key for key, meta in self.index.items() if current_time > meta["expires_at"]
         ]
 
         for key in expired_keys:
@@ -158,7 +156,8 @@ class CacheManager:
         if index_file.exists():
             try:
                 import json
-                with open(index_file, 'r') as f:
+
+                with open(index_file, "r") as f:
                     return json.load(f)
             except Exception:
                 pass
@@ -169,7 +168,8 @@ class CacheManager:
         index_file = self.cache_dir / "index.json"
         try:
             import json
-            with open(index_file, 'w') as f:
+
+            with open(index_file, "w") as f:
                 json.dump(self.index, f, indent=2)
         except Exception:
             pass
@@ -206,10 +206,7 @@ class CacheManager:
     def _evict_lru(self, needed_space: int) -> None:
         """Evict least recently used entries to free space"""
         # Sort by access time (oldest first)
-        sorted_entries = sorted(
-            self.index.items(),
-            key=lambda x: x[1]["accessed_at"]
-        )
+        sorted_entries = sorted(self.index.items(), key=lambda x: x[1]["accessed_at"])
 
         freed_space = 0
         for key, meta in sorted_entries:
