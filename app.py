@@ -33,6 +33,7 @@ from ui.pages.database_page import DatabasePage
 from ui.pages.messaging_page import MessagingPage
 from ui.pages.modern_dashboard_page import ModernDashboardPage
 from ui.pages.nutrition_page import NutritionPage
+from ui.pages.nutrition_page_2025_simple import NutritionPage2025
 from ui.pages.professional_pdf_templates_page import ProfessionalPdfTemplatesPage
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
@@ -46,6 +47,9 @@ class CoachApp(ctk.CTk):
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("ui/theme/theme.json")
+
+        # 🚀 Configuration interface nutrition - basculer entre ancienne et nouvelle version
+        self.use_nutrition_2025 = True  # Mettre à False pour utiliser l'ancienne interface
 
         self.title("CoachPro – Virtus Training")
         self.geometry("1280x800")
@@ -137,10 +141,12 @@ class CoachApp(ctk.CTk):
                 "factory": lambda parent: ProfessionalPdfTemplatesPage(parent),
             },
             "nutrition": {
-                "label": "Nutrition",
+                "label": "Nutrition" + (" 2025" if self.use_nutrition_2025 else ""),
                 "icon": "meal-plan.png",
-                "factory": lambda parent: NutritionPage(
-                    parent, self.nutrition_controller, client_id=1
+                "factory": lambda parent: (
+                    NutritionPage2025(parent, self.nutrition_controller, client_id=1)
+                    if self.use_nutrition_2025
+                    else NutritionPage(parent, self.nutrition_controller, client_id=1)
                 ),
             },
             "database": {
@@ -215,6 +221,19 @@ class CoachApp(ctk.CTk):
 
     def show_clients_page(self) -> None:
         self.switch_page("clients")
+
+    def toggle_nutrition_interface(self) -> None:
+        """🔄 Bascule entre l'ancienne et la nouvelle interface nutrition"""
+        self.use_nutrition_2025 = not self.use_nutrition_2025
+
+        # Mettre à jour le label dans le registre
+        self.page_registry["nutrition"]["label"] = "Nutrition" + (" 2025" if self.use_nutrition_2025 else "")
+
+        # Si on est actuellement sur la page nutrition, la recharger
+        if hasattr(self, 'current_page') and self.current_page:
+            # Vérifier si c'est une page nutrition
+            if isinstance(self.current_page, (NutritionPage, NutritionPage2025)):
+                self.switch_page("nutrition")
 
 
 def launch_app():

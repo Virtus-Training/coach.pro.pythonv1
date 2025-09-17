@@ -33,7 +33,7 @@
     "shadow_large": "rgba(0, 0, 0, 0.3)"
   },
   "font": {
-    "H1": { "family": "Inter", "size": 28, "weight": "bold" },
+    "H1": { "family": "Inter", "size": 20, "weight": "bold" },
     "H2": { "family": "Inter", "size": 20, "weight": "bold" },
     "H3": { "family": "Inter", "size": 16, "weight": "bold" },
     "Body": { "family": "Inter", "size": 14, "weight": "normal" },

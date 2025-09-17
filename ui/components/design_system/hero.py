@@ -48,7 +48,7 @@ class HeroBanner(ctk.CTkFrame):
 
         if img is not None:
             ctk.CTkLabel(self, text="", image=img).grid(
-                row=0, column=0, rowspan=2, padx=(12, 10), pady=8
+                row=0, column=0, rowspan=2, padx=(8, 6), pady=4
             )
 
         # Title + subtitle
@@ -62,8 +62,8 @@ class HeroBanner(ctk.CTkFrame):
             row=0,
             column=1,
             sticky="w",
-            padx=(12 if img is None else 0, 12),
-            pady=(6, 0),
+            padx=(8 if img is None else 0, 8),
+            pady=(4, 0),
         )
 
         if subtitle:
@@ -77,8 +77,8 @@ class HeroBanner(ctk.CTkFrame):
                 row=1,
                 column=1,
                 sticky="w",
-                padx=(12 if img is None else 0, 12),
-                pady=(1, 8),
+                padx=(8 if img is None else 0, 8),
+                pady=(1, 4),
             )
 
         # Decorative right overlay (subtle)
