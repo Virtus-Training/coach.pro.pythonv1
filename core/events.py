@@ -39,11 +39,11 @@ class Event:
     All domain events should inherit from this class.
     """
 
-    event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    timestamp: datetime = field(default_factory=datetime.utcnow)
-    correlation_id: Optional[str] = None
-    causation_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    event_id: str = field(default_factory=lambda: str(uuid.uuid4()), init=False)
+    timestamp: datetime = field(default_factory=datetime.utcnow, init=False)
+    correlation_id: Optional[str] = field(default=None, init=False)
+    causation_id: Optional[str] = field(default=None, init=False)
+    metadata: Dict[str, Any] = field(default_factory=dict, init=False)
 
     def with_correlation(self, correlation_id: str) -> Event:
         """Create a new event with correlation ID."""
@@ -60,9 +60,9 @@ class Event:
 class DomainEvent(Event):
     """Base class for domain events."""
 
-    aggregate_id: str = ""
-    aggregate_type: str = ""
-    version: int = 1
+    version: int = field(default=1, init=False)
+    aggregate_id: str = field(default="", init=False)
+    aggregate_type: str = field(default="", init=False)
 
 
 # Event Handler Types

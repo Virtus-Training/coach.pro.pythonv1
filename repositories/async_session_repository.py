@@ -24,20 +24,20 @@ from core.exceptions import (
     RepositoryError,
     ValidationError,
 )
-from domain.entities import Session
-from domain.events import (
-    SessionCompletedEvent,
-    SessionCreatedEvent,
-    SessionUpdatedEvent,
-)
-from infrastructure.cache import (
-    CacheManager,
-    cache_delete,
-    cache_get,
-    cache_set,
-    get_cache_manager,
-)
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
+from domain.entities import WorkoutSession as Session
+# from domain.events import (
+#     SessionCompletedEvent,
+#     SessionCreatedEvent,
+#     SessionUpdatedEvent,
+# )
+# from infrastructure.cache import (
+#     CacheManager,
+#     cache_delete,
+#     cache_get,
+#     cache_set,
+#     get_cache_manager,
+# )
+from infrastructure.database_fallback import AsyncDatabaseManager, get_database_manager
 from repositories.interfaces import (
     DateRangeSpecification,
     IAsyncSessionRepository,

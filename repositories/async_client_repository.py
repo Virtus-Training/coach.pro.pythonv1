@@ -25,15 +25,15 @@ from core.exceptions import (
 )
 from domain.entities import Client
 from domain.events import ClientArchivedEvent, ClientCreatedEvent, ClientUpdatedEvent
-from domain.value_objects import PersonalInfo, PhysicalProfile
-from infrastructure.cache import (
-    CacheManager,
-    cache_delete,
-    cache_get,
-    cache_set,
-    get_cache_manager,
-)
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
+from domain.entities import PersonalInfo, PhysicalProfile
+# from infrastructure.cache import (
+#     CacheManager,
+#     cache_delete,
+#     cache_get,
+#     cache_set,
+#     get_cache_manager,
+# )
+from infrastructure.database_fallback import AsyncDatabaseManager, get_database_manager
 from repositories.interfaces import (
     ActiveEntitySpecification,
     IAsyncClientRepository,

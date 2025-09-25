@@ -24,19 +24,19 @@ from core.exceptions import (
     ValidationError,
 )
 from domain.entities import Exercise
-from domain.events import (
-    ExerciseCreatedEvent,
-    ExerciseUpdatedEvent,
-    ExerciseUsageTrackedEvent,
-)
-from infrastructure.cache import (
-    CacheManager,
-    cache_delete,
-    cache_get,
-    cache_set,
-    get_cache_manager,
-)
-from infrastructure.database import AsyncDatabaseManager, get_database_manager
+# from domain.events import (
+#     ExerciseCreatedEvent,
+#     ExerciseUpdatedEvent,
+#     ExerciseUsageTrackedEvent,
+# )
+# from infrastructure.cache import (
+#     CacheManager,
+#     cache_delete,
+#     cache_get,
+#     cache_set,
+#     get_cache_manager,
+# )
+from infrastructure.database_fallback import AsyncDatabaseManager, get_database_manager
 from repositories.interfaces import (
     IAsyncExerciseRepository,
     ISpecification,

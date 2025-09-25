@@ -18,11 +18,11 @@ class ClientCreatedEvent(DomainEvent):
     client_id: str
     email: str
     full_name: str
-    aggregate_type: str = "Client"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.client_id
+        self.aggregate_type = "Client"
 
 
 @dataclass
@@ -31,11 +31,11 @@ class ClientUpdatedEvent(DomainEvent):
 
     client_id: str
     updated_fields: Dict[str, Any]
-    aggregate_type: str = "Client"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.client_id
+        self.aggregate_type = "Client"
 
 
 @dataclass
@@ -44,11 +44,24 @@ class ClientDeactivatedEvent(DomainEvent):
 
     client_id: str
     reason: str
-    aggregate_type: str = "Client"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.client_id
+        self.aggregate_type = "Client"
+
+
+@dataclass
+class ClientArchivedEvent(DomainEvent):
+    """Event raised when a client is archived."""
+
+    client_id: str
+    reason: str
+
+    def __post_init__(self):
+        """Set aggregate information."""
+        self.aggregate_id = self.client_id
+        self.aggregate_type = "Client"
 
 
 @dataclass
@@ -59,11 +72,25 @@ class SessionCreatedEvent(DomainEvent):
     client_id: str
     session_name: str
     session_date: str
-    aggregate_type: str = "WorkoutSession"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.session_id
+        self.aggregate_type = "WorkoutSession"
+
+
+@dataclass
+class SessionUpdatedEvent(DomainEvent):
+    """Event raised when a workout session is updated."""
+
+    session_id: str
+    client_id: str
+    updated_fields: Dict[str, Any]
+
+    def __post_init__(self):
+        """Set aggregate information."""
+        self.aggregate_id = self.session_id
+        self.aggregate_type = "WorkoutSession"
 
 
 @dataclass
@@ -75,12 +102,12 @@ class SessionCompletedEvent(DomainEvent):
     completion_date: str
     total_exercises: int
     total_volume: float
-    duration_minutes: Optional[int]
-    aggregate_type: str = "WorkoutSession"
+    duration_minutes: Optional[int] = None
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.session_id
+        self.aggregate_type = "WorkoutSession"
 
 
 @dataclass
@@ -91,11 +118,11 @@ class ExerciseAddedToSessionEvent(DomainEvent):
     client_id: str
     exercise_id: int
     exercise_name: str
-    aggregate_type: str = "WorkoutSession"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.session_id
+        self.aggregate_type = "WorkoutSession"
 
 
 @dataclass
@@ -104,11 +131,11 @@ class ExerciseExclusionUpdatedEvent(DomainEvent):
 
     client_id: str
     excluded_exercise_ids: list
-    aggregate_type: str = "Client"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.client_id
+        self.aggregate_type = "Client"
 
 
 @dataclass
@@ -118,12 +145,12 @@ class NutritionPlanCreatedEvent(DomainEvent):
     plan_id: str
     client_id: str
     plan_type: str
-    target_calories: Optional[int]
-    aggregate_type: str = "NutritionPlan"
+    target_calories: Optional[int] = None
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.plan_id
+        self.aggregate_type = "NutritionPlan"
 
 
 @dataclass
@@ -133,11 +160,11 @@ class NutritionPlanUpdatedEvent(DomainEvent):
     plan_id: str
     client_id: str
     updated_fields: Dict[str, Any]
-    aggregate_type: str = "NutritionPlan"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.plan_id
+        self.aggregate_type = "NutritionPlan"
 
 
 @dataclass
@@ -148,12 +175,52 @@ class MealAddedEvent(DomainEvent):
     client_id: str
     meal_name: str
     meal_type: str
-    calories: Optional[int]
-    aggregate_type: str = "NutritionPlan"
+    calories: Optional[int] = None
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.plan_id
+        self.aggregate_type = "NutritionPlan"
+
+
+@dataclass
+class ExerciseCreatedEvent(DomainEvent):
+    """Event raised when an exercise is created."""
+
+    exercise_id: str
+    exercise_name: str
+    muscle_group: str
+
+    def __post_init__(self):
+        """Set aggregate information."""
+        self.aggregate_id = self.exercise_id
+        self.aggregate_type = "Exercise"
+
+
+@dataclass
+class ExerciseUpdatedEvent(DomainEvent):
+    """Event raised when an exercise is updated."""
+
+    exercise_id: str
+    updated_fields: Dict[str, Any]
+
+    def __post_init__(self):
+        """Set aggregate information."""
+        self.aggregate_id = self.exercise_id
+        self.aggregate_type = "Exercise"
+
+
+@dataclass
+class ExerciseDeletedEvent(DomainEvent):
+    """Event raised when an exercise is deleted."""
+
+    exercise_id: str
+    reason: str
+
+    def __post_init__(self):
+        """Set aggregate information."""
+        self.aggregate_id = self.exercise_id
+        self.aggregate_type = "Exercise"
 
 
 @dataclass
@@ -165,11 +232,11 @@ class ExerciseImportedEvent(DomainEvent):
     exercises_count: int
     success_count: int
     failure_count: int
-    aggregate_type: str = "ExerciseImport"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.import_id
+        self.aggregate_type = "ExerciseImport"
 
 
 @dataclass
@@ -181,11 +248,11 @@ class PDFGeneratedEvent(DomainEvent):
     document_type: str
     file_size_bytes: int
     generation_time_ms: float
-    aggregate_type: str = "PDFDocument"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.pdf_id
+        self.aggregate_type = "PDFDocument"
 
 
 @dataclass
@@ -198,11 +265,11 @@ class WorkoutGeneratedEvent(DomainEvent):
     exercise_count: int
     duration_minutes: int
     algorithm_used: str
-    aggregate_type: str = "WorkoutGeneration"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.generation_id
+        self.aggregate_type = "WorkoutGeneration"
 
 
 @dataclass
@@ -214,11 +281,11 @@ class ProgressMilestoneReachedEvent(DomainEvent):
     milestone_type: str
     milestone_value: Any
     achievement_date: str
-    aggregate_type: str = "ProgressMilestone"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.milestone_id
+        self.aggregate_type = "ProgressMilestone"
 
 
 @dataclass
@@ -230,11 +297,11 @@ class SystemHealthCheckEvent(DomainEvent):
     status: str
     response_time_ms: float
     memory_usage_mb: float
-    aggregate_type: str = "SystemHealth"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.check_id
+        self.aggregate_type = "SystemHealth"
 
 
 @dataclass
@@ -247,11 +314,11 @@ class UserActionEvent(DomainEvent):
     resource_type: str
     resource_id: str
     duration_ms: Optional[float] = None
-    aggregate_type: str = "UserAction"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.action_id
+        self.aggregate_type = "UserAction"
 
 
 @dataclass
@@ -263,11 +330,11 @@ class DataExportRequestedEvent(DomainEvent):
     data_types: list
     format: str
     requested_by: str
-    aggregate_type: str = "DataExport"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.export_id
+        self.aggregate_type = "DataExport"
 
 
 @dataclass
@@ -279,11 +346,11 @@ class DataDeletionRequestedEvent(DomainEvent):
     data_types: list
     requested_by: str
     reason: str
-    aggregate_type: str = "DataDeletion"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.deletion_id
+        self.aggregate_type = "DataDeletion"
 
 
 @dataclass
@@ -297,8 +364,8 @@ class ErrorOccurredEvent(DomainEvent):
     severity: str
     user_id: Optional[str] = None
     context: Optional[Dict[str, Any]] = None
-    aggregate_type: str = "SystemError"
 
     def __post_init__(self):
         """Set aggregate information."""
         self.aggregate_id = self.error_id
+        self.aggregate_type = "SystemError"

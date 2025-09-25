@@ -14,7 +14,7 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import Any, AsyncContextManager, Dict, List, Optional, Tuple
 
-import aiosqlite
+# import aiosqlite  # Not available, using sync fallback
 
 
 @dataclass

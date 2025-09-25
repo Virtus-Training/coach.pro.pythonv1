@@ -443,3 +443,11 @@ class ExceptionHandler:
 
 # Global exception handler instance
 exception_handler = ExceptionHandler()
+
+# Compatibility aliases for cleaner imports
+BusinessRuleViolationError = BusinessRuleError
+EntityNotFoundError = NotFoundError
+DuplicateEntityError = ConflictError
+RepositoryError = DatabaseError
+TransactionError = DatabaseError
+ControllerError = CoachProException

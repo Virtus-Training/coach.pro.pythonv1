@@ -24,9 +24,10 @@ from core.exceptions import (
     BusinessRuleViolationError,
     TransactionError,
 )
-from infrastructure.database import (
+from infrastructure.database_fallback import (
     AsyncDatabaseManager,
     AsyncTransaction,
+    DatabaseConfig,
     get_database_manager,
 )
 from repositories.async_client_repository import AsyncClientRepository
@@ -280,7 +281,8 @@ class AsyncUnitOfWork(IAsyncUnitOfWork):
             self._start_time = time.perf_counter()
 
             # Get transaction from database manager
-            self._transaction = await self._db_manager.get_transaction().__aenter__()
+            self._transaction = await self._db_manager.get_transaction()
+            await self._transaction.__aenter__()
 
             # Set isolation level if needed
             if self._isolation_level != "READ_COMMITTED":

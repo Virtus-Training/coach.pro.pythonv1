@@ -3,6 +3,8 @@ import os
 import customtkinter as ctk
 
 from controllers.client_controller import ClientController
+from controllers.advanced_nutrition_controller import AdvancedNutritionController
+from repositories.fiche_nutrition_repo import FicheNutritionRepository
 from models.client import Client
 from ui.components.design_system import (
     HeroBanner,
@@ -21,6 +23,13 @@ class ClientsPage(ctk.CTkFrame):
         self.configure(fg_color=ctk.ThemeManager.theme["color"]["surface_dark"])
 
         self.controller = controller
+
+        # Initialize nutrition controller
+        from db.database_manager import db_manager
+        fiche_repo = FicheNutritionRepository(db_manager)
+        self.nutrition_controller = AdvancedNutritionController(
+            self, fiche_repo, self.controller.service
+        )
 
         hero = HeroBanner(
             self,
@@ -58,6 +67,7 @@ class ClientsPage(ctk.CTkFrame):
     def _create_client_card(self, client: Client) -> None:
         actions = [
             ("Modifier", lambda c=client: self._open_edit_modal(c)),
+            ("🥗 Fiche Nutrition", lambda cid=client.id: self._open_nutrition_form(cid)),
             ("Supprimer", lambda cid=client.id: self._delete_client(cid)),
         ]
         tags = [client.objectifs] if client.objectifs else []
@@ -91,3 +101,7 @@ class ClientsPage(ctk.CTkFrame):
         modal.grab_set()
         self.wait_window(modal)
         self._load_clients()
+
+    def _open_nutrition_form(self, client_id: int) -> None:
+        """Ouvre le formulaire nutrition avancé pour un client"""
+        self.nutrition_controller.open_nutrition_form_for_client(client_id)

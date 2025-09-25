@@ -6,6 +6,7 @@ from controllers.calendar_controller import CalendarController
 from controllers.client_controller import ClientController
 from controllers.dashboard_controller import DashboardController
 from controllers.nutrition_controller import NutritionController
+from controllers.advanced_nutrition_controller import AdvancedNutritionController
 from controllers.session_controller import SessionController
 from controllers.tracking_controller import TrackingController
 from repositories.aliment_repo import AlimentRepository
@@ -34,7 +35,9 @@ from ui.pages.messaging_page import MessagingPage
 from ui.pages.modern_dashboard_page import ModernDashboardPage
 from ui.pages.nutrition_page import NutritionPage
 from ui.pages.nutrition_page_2025_simple import NutritionPage2025
+from ui.pages.nutrition_unified_page import NutritionUnifiedPage
 from ui.pages.professional_pdf_templates_page import ProfessionalPdfTemplatesPage
+from ui.components.nutrition_dashboard import AdvancedNutritionDashboard
 from ui.pages.program_page import ProgramPage
 from ui.pages.progress_page import ProgressPage
 from ui.pages.saved_sessions_page import SavedSessionsPage
@@ -48,8 +51,8 @@ class CoachApp(ctk.CTk):
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("ui/theme/theme.json")
 
-        # 🚀 Configuration interface nutrition - basculer entre ancienne et nouvelle version
-        self.use_nutrition_2025 = True  # Mettre à False pour utiliser l'ancienne interface
+        # Configuration simplifiée - interface unifiée
+        self.use_unified_nutrition = True
 
         self.title("CoachPro – Virtus Training")
         self.geometry("1280x800")
@@ -94,6 +97,11 @@ class CoachApp(ctk.CTk):
 
         calendar_service = CalendarService(sessions_repo)
         self.calendar_controller = CalendarController(calendar_service, session_service)
+
+        # Advanced nutrition controller
+        self.advanced_nutrition_controller = AdvancedNutritionController(
+            None, fiche_repo, client_service
+        )
 
         self.page_registry = {
             "dashboard": {
@@ -141,12 +149,13 @@ class CoachApp(ctk.CTk):
                 "factory": lambda parent: ProfessionalPdfTemplatesPage(parent),
             },
             "nutrition": {
-                "label": "Nutrition" + (" 2025" if self.use_nutrition_2025 else ""),
+                "label": "Nutrition",
                 "icon": "meal-plan.png",
-                "factory": lambda parent: (
-                    NutritionPage2025(parent, self.nutrition_controller, client_id=1)
-                    if self.use_nutrition_2025
-                    else NutritionPage(parent, self.nutrition_controller, client_id=1)
+                "factory": lambda parent: NutritionUnifiedPage(
+                    parent,
+                    self.nutrition_controller,
+                    self.client_controller.service,
+                    client_id=1
                 ),
             },
             "database": {
@@ -222,18 +231,18 @@ class CoachApp(ctk.CTk):
     def show_clients_page(self) -> None:
         self.switch_page("clients")
 
-    def toggle_nutrition_interface(self) -> None:
-        """🔄 Bascule entre l'ancienne et la nouvelle interface nutrition"""
-        self.use_nutrition_2025 = not self.use_nutrition_2025
+    def switch_nutrition_tab(self, tab_name: str) -> None:
+        """Switch to specific nutrition tab"""
+        if hasattr(self, 'current_page') and isinstance(self.current_page, NutritionUnifiedPage):
+            self.current_page.switch_to_tab(tab_name)
 
-        # Mettre à jour le label dans le registre
-        self.page_registry["nutrition"]["label"] = "Nutrition" + (" 2025" if self.use_nutrition_2025 else "")
-
-        # Si on est actuellement sur la page nutrition, la recharger
-        if hasattr(self, 'current_page') and self.current_page:
-            # Vérifier si c'est une page nutrition
-            if isinstance(self.current_page, (NutritionPage, NutritionPage2025)):
-                self.switch_page("nutrition")
+    def _create_advanced_nutrition_page(self, parent):
+        """Create advanced nutrition dashboard page"""
+        return AdvancedNutritionDashboard(
+            parent,
+            self.advanced_nutrition_controller,
+            self.client_controller.service
+        )
 
 
 def launch_app():

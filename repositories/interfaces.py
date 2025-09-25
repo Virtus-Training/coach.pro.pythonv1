@@ -16,8 +16,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from domain.entities import Client, Exercise, Session
-from domain.value_objects import PhysicalProfile
+from domain.entities import Client, Exercise, WorkoutSession, PhysicalProfile
 
 T = TypeVar("T")
 TEntity = TypeVar("TEntity")
@@ -303,7 +302,7 @@ class IAsyncClientRepository(IAsyncRepository[Client, int]):
         pass
 
 
-class IAsyncSessionRepository(IAsyncRepository[Session, int]):
+class IAsyncSessionRepository(IAsyncRepository[WorkoutSession, int]):
     """
     Async Session repository interface with workout-specific operations.
     """
@@ -311,7 +310,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
     @abstractmethod
     async def find_by_client(
         self, client_id: int, options: Optional[QueryOptions] = None
-    ) -> QueryResult[Session]:
+    ) -> QueryResult[WorkoutSession]:
         """Find sessions by client ID."""
         pass
 
@@ -322,7 +321,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         end_date: datetime,
         client_id: Optional[int] = None,
         options: Optional[QueryOptions] = None,
-    ) -> QueryResult[Session]:
+    ) -> QueryResult[WorkoutSession]:
         """Find sessions in date range."""
         pass
 
@@ -332,14 +331,14 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         client_id: Optional[int] = None,
         days_ahead: int = 7,
         options: Optional[QueryOptions] = None,
-    ) -> QueryResult[Session]:
+    ) -> QueryResult[WorkoutSession]:
         """Find upcoming sessions."""
         pass
 
     @abstractmethod
     async def find_completed_sessions(
         self, client_id: Optional[int] = None, options: Optional[QueryOptions] = None
-    ) -> QueryResult[Session]:
+    ) -> QueryResult[WorkoutSession]:
         """Find completed sessions."""
         pass
 
@@ -354,7 +353,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         pass
 
     @abstractmethod
-    async def clone_session(self, session_id: int, new_date: datetime) -> Session:
+    async def clone_session(self, session_id: int, new_date: datetime) -> WorkoutSession:
         """Clone existing session for new date."""
         pass
 
@@ -364,7 +363,7 @@ class IAsyncSessionRepository(IAsyncRepository[Session, int]):
         template_session_id: int,
         dates: List[datetime],
         client_id: Optional[int] = None,
-    ) -> List[Session]:
+    ) -> List[WorkoutSession]:
         """Bulk schedule sessions from template."""
         pass
 
